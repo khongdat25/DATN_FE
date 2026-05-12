@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 // Import Views (Tạm thời import các trang mẫu)
 const routes = [
-    // User Routes
+    // Home Routes
     {
         path: '/',
         component: () => import('../views/user/HomeView.vue'),
