@@ -1,3 +1,31 @@
+<script setup>
+import { inject } from 'vue'
+import HomeLayout from '../../layouts/HomeLayout.vue'
+import HeroSlider from '../../components/home/HeroSlider.vue'
+import CategorySection from '../../components/home/CategorySection.vue'
+import FlashSale from '../../components/home/FlashSale.vue'
+import SaleProducts from '../../components/home/SaleProducts.vue'
+import BestSellers from '../../components/home/BestSellers.vue'
+import FeaturedProducts from '../../components/home/FeaturedProducts.vue'
+import CollectionSection from '../../components/home/CollectionSection.vue'
+import BlogSection from '../../components/home/BlogSection.vue'
+import ReviewSection from '../../components/home/ReviewSection.vue'
+
+const addToCart = inject('addToCart', (p) => {})
+const showToast = inject('showToast', (msg) => {})
+
+function handleAddToCart(product) {
+  addToCart(product)
+}
+
+function handleWish(payload) {
+  showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
+}
+
+function handleSignup() {
+  showToast('Chuyển hướng đến trang đăng ký... 🚀')
+}
+</script>
 <template>
   <UserLayout>
     <HeroSlider />
@@ -45,18 +73,3 @@ import CollectionSection from '../../components/home/CollectionSection.vue'
 import BlogSection from '../../components/home/BlogSection.vue'
 import ReviewSection from '../../components/home/ReviewSection.vue'
 
-const addToCart = inject('addToCart', (p) => {})
-const showToast = inject('showToast', (msg) => {})
-
-function handleAddToCart(product) {
-  addToCart(product)
-}
-
-function handleWish(payload) {
-  showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
-}
-
-function handleSignup() {
-  showToast('Chuyển hướng đến trang đăng ký... 🚀')
-}
-</script>
