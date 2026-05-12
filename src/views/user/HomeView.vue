@@ -26,8 +26,9 @@ function handleSignup() {
   showToast('Chuyển hướng đến trang đăng ký... 🚀')
 }
 </script>
+
 <template>
-  <UserLayout>
+  <HomeLayout>
     <HeroSlider />
     <CategorySection />
     <hr class="border-none border-t border-border m-0">
@@ -57,19 +58,6 @@ function handleSignup() {
         </div>
       </div>
     </section>
-  </UserLayout>
+  </HomeLayout>
 </template>
-
-<script setup>
-import { inject } from 'vue'
-import UserLayout from '../../layouts/HomeLayout.vue'
-import HeroSlider from '../../components/home/HeroSlider.vue'
-import CategorySection from '../../components/home/CategorySection.vue'
-import FlashSale from '../../components/home/FlashSale.vue'
-import SaleProducts from '../../components/home/SaleProducts.vue'
-import BestSellers from '../../components/home/BestSellers.vue'
-import FeaturedProducts from '../../components/home/FeaturedProducts.vue'
-import CollectionSection from '../../components/home/CollectionSection.vue'
-import BlogSection from '../../components/home/BlogSection.vue'
-import ReviewSection from '../../components/home/ReviewSection.vue'
 
