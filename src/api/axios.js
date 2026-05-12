@@ -2,7 +2,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8000/api', // Thay đổi URL API Laravel của bạn tại đây
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
@@ -44,6 +44,20 @@ axiosInstance.interceptors.response.use(
                 icon: 'warning',
                 title: 'Không có quyền truy cập',
                 text: 'Bạn không có quyền thực hiện hành động này.',
+            });
+        } else if (status === 422) {
+            const errors = error.response.data.errors;
+            const firstError = errors ? Object.values(errors)[0][0] : 'Dữ liệu không hợp lệ';
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi xác thực',
+                text: firstError,
+            });
+        } else if (status === 404) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Không tìm thấy',
+                text: 'Tài nguyên bạn yêu cầu không tồn tại.',
             });
         } else if (status === 500) {
             Swal.fire({
