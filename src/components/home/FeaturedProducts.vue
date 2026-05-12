@@ -15,9 +15,9 @@
           <div class="h-[450px] max-lg:h-[260px] bg-surface2 flex items-center justify-center text-[140px] relative">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,77,0,.15),transparent_60%)]"></div>
             👟
-            <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-[2]">
-              <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-[#4CAF50]">NEW</span>
-              <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-gold">BESTSELLER</span>
+            <div class="absolute top-[12px] left-[12px] flex flex-col gap-[6px] z-[2]">
+              <span class="inline-block text-[10px] font-semibold tracking-[1.5px] uppercase py-[4px] px-2.5 rounded-lg text-white bg-[#4CAF50] shadow-sm">NEW</span>
+              <span class="inline-block text-[10px] font-semibold tracking-[1.5px] uppercase py-[4px] px-2.5 rounded-lg text-white bg-gold shadow-sm">BESTSELLER</span>
             </div>
           </div>
           <div class="p-6">
@@ -29,20 +29,20 @@
             </div>
             <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">★★★★★ <span class="text-text-muted text-[11px]">(203 đánh giá)</span></div>
             <!-- Size chips -->
-            <div class="flex gap-[5px] flex-wrap mb-[10px]">
+            <div class="flex gap-[6px] flex-wrap mb-[14px]">
               <span
                 v-for="size in sizes"
                 :key="size"
-                :class="['text-[10px] py-[3px] px-[7px] rounded-[3px] border cursor-pointer transition-all duration-150',
-                  selectedSize === size ? 'border-accent text-accent bg-[rgba(255,77,0,.08)]' : 'border-border text-text-muted hover:border-accent hover:text-accent hover:bg-[rgba(255,77,0,.08)]']"
+                :class="['text-[11px] py-[4px] px-[10px] rounded-lg border font-medium cursor-pointer transition-all duration-300',
+                  selectedSize === size ? 'border-accent text-accent bg-[rgba(255,77,0,.08)] shadow-sm' : 'border-border text-text-muted hover:border-accent hover:text-accent hover:bg-[rgba(255,77,0,.08)]']"
                 @click="selectedSize = size"
               >{{ size }}</span>
             </div>
-            <div class="flex gap-2">
-              <button class="flex-1 bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-bg" @click="$emit('add-to-cart', featured)">
-                <i class="ti ti-shopping-cart"></i> Thêm vào giỏ
+            <div class="flex gap-2.5">
+              <button class="w-12 h-12 bg-surface2 text-text border border-border text-xl rounded-xl transition-all duration-300 flex items-center justify-center hover:border-accent hover:text-accent hover:bg-bg active:scale-90 shadow-sm" title="Thêm vào giỏ" @click="$emit('add-to-cart', featured)">
+                <i class="ti ti-shopping-cart"></i>
               </button>
-              <button class="flex-1 bg-accent text-white border-none p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-colors hover:bg-accent-hover">Mua ngay</button>
+              <button class="flex-1 bg-accent text-white border-none h-12 font-display text-[16px] tracking-[2px] rounded-xl transition-all duration-300 shadow-[0_6px_20px_rgba(255,77,0,0.25)] hover:bg-accent-hover hover:shadow-[0_8px_25px_rgba(255,77,0,0.35)] hover:-translate-y-0.5 active:scale-95">MUA NGAY</button>
             </div>
           </div>
         </div>
@@ -52,7 +52,7 @@
           <div
             v-for="item in smallProducts"
             :key="item.id"
-            class="featured-small group bg-bg border border-border rounded-md flex overflow-hidden cursor-pointer transition-all hover:border-border-light hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)]"
+            class="featured-small group bg-bg border border-border rounded-xl flex overflow-hidden cursor-pointer transition-all duration-300 hover:border-accent hover:translate-x-1.5 hover:shadow-[0_8px_25px_rgba(0,0,0,.06)]"
           >
             <div class="w-[110px] min-w-[110px] bg-surface2 flex items-center justify-center text-[50px]">{{ item.icon }}</div>
             <div class="p-[14px] flex-1">
@@ -62,10 +62,15 @@
                 <span class="font-display text-[17px] text-accent tracking-[0.5px]">{{ item.price }}</span>
                 <span v-if="item.oldPrice" class="text-[12px] text-text-dim line-through">{{ item.oldPrice }}</span>
               </div>
-              <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">{{ item.rating }} <span class="text-text-muted text-[11px]">({{ item.reviews }})</span></div>
-              <button class="bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] mt-2 w-full hover:border-accent hover:text-accent hover:bg-bg" @click="$emit('add-to-cart', item)">
-                <i class="ti ti-shopping-cart"></i> Giỏ hàng
-              </button>
+              <div class="flex items-center justify-between gap-2 mt-2">
+                <div class="flex items-center gap-1 text-[12px] text-gold">{{ item.rating }} <span class="text-text-muted text-[11px]">({{ item.reviews }})</span></div>
+                <div class="flex gap-1.5">
+                  <button class="w-9 h-9 bg-surface2 text-text border border-border text-lg rounded-lg transition-all duration-300 flex items-center justify-center hover:border-accent hover:text-accent hover:bg-bg active:scale-90 shadow-sm" title="Thêm vào giỏ" @click="$emit('add-to-cart', item)">
+                    <i class="ti ti-shopping-cart"></i>
+                  </button>
+                  <button class="bg-accent text-white border-none py-1.5 px-3 text-[10px] tracking-[1px] font-semibold uppercase rounded-lg shadow-sm transition-all duration-300 hover:bg-accent-hover active:scale-95">Mua</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

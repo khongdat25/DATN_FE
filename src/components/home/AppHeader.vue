@@ -17,12 +17,12 @@
         <!-- Desktop Nav -->
         <ul class="flex gap-1 max-md:hidden items-center">
           <li>
-            <a href="#" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trang chủ</a>
+            <a href="#" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95">Trang chủ</a>
           </li>
 
           <!-- Nam dropdown -->
           <li class="relative group">
-            <a href="#" class="flex items-center gap-1 py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2 group-hover:text-accent group-hover:bg-surface2">
+            <a href="#" class="flex items-center gap-1 py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 group-hover:text-accent group-hover:bg-surface2 active:scale-95">
               Nam <i class="ti ti-chevron-down text-[11px] transition-transform duration-200 group-hover:rotate-180"></i>
             </a>
             <div class="dropdown-mega absolute top-full left-0 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0">
@@ -121,20 +121,20 @@
 
         <!-- Actions -->
         <div class="flex items-center gap-[6px]">
-          <div class="flex items-center bg-surface2 border border-border rounded-sm overflow-hidden transition-colors focus-within:border-accent max-md:hidden">
+          <div class="flex items-center bg-surface2 border border-border rounded-xl overflow-hidden transition-all duration-300 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(255,77,0,0.1)] max-md:hidden">
             <input type="text" placeholder="Tìm kiếm sản phẩm..." id="searchInput" class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[160px] font-body placeholder:text-text-dim">
-            <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-colors hover:text-accent"><i class="ti ti-search"></i></button>
+            <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-all duration-300 hover:text-accent active:scale-90"><i class="ti ti-search"></i></button>
           </div>
-          <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Yêu thích"><i class="ti ti-heart"></i></button>
-          <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Thông báo">
+          <button class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Yêu thích"><i class="ti ti-heart"></i></button>
+          <button class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Thông báo">
             <i class="ti ti-bell"></i>
-            <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">2</span>
+            <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm">2</span>
           </button>
-          <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Giỏ hàng">
+          <button class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Giỏ hàng">
             <i class="ti ti-shopping-cart"></i>
-            <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">{{ cartCount }}</span>
+            <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm">{{ cartCount }}</span>
           </button>
-          <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Tài khoản"><i class="ti ti-user"></i></button>
+          <button class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Tài khoản"><i class="ti ti-user"></i></button>
           <!-- Hamburger -->
           <button class="hidden flex-col gap-[5px] bg-transparent border-none p-2 max-md:flex" @click="toggleMenu" aria-label="Menu">
             <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>

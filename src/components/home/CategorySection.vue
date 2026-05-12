@@ -12,8 +12,8 @@
         <div
           v-for="cat in categories"
           :key="cat.name"
-          :class="['group bg-surface border rounded-md py-6 px-[14px] text-center cursor-pointer transition-all relative overflow-hidden hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(255,77,0,.08)] before:content-[\'\'] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]',
-            cat.featured ? 'border-accent' : 'border-border hover:border-accent']"
+          :class="['group bg-surface border rounded-xl py-7 px-[14px] text-center cursor-pointer transition-all duration-300 relative overflow-hidden hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(255,77,0,0.12)] before:content-[\'\'] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]',
+            cat.featured ? 'border-accent shadow-[0_4px_15px_rgba(255,77,0,0.1)]' : 'border-border hover:border-accent']"
         >
           <span class="text-[36px] mb-[10px] block">{{ cat.icon }}</span>
           <div :class="['text-[11px] tracking-[1.5px] uppercase font-medium transition-colors', cat.featured ? 'text-accent' : 'text-text-muted group-hover:text-accent']">{{ cat.name }}</div>

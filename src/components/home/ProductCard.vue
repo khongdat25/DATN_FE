@@ -14,14 +14,14 @@
       </div>
       <!-- Wish Button -->
       <button
-        :class="['prod-wish absolute top-[10px] right-[10px] w-8 h-8 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white', { active: wished }]"
+        :class="['prod-wish absolute top-[10px] right-[10px] w-8 h-8 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all duration-300 cursor-pointer hover:bg-accent hover:border-accent hover:text-white active:scale-90', { active: wished }]"
         @click="toggleWish"
       ><i class="ti ti-heart"></i></button>
       <!-- Add to Cart hover button -->
       <button
-        class="absolute -bottom-10 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-medium uppercase p-3 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2"
+        class="absolute -bottom-12 left-0 right-0 bg-white/95 backdrop-blur-md border-none border-t border-border text-accent text-xl p-3.5 transition-all duration-300 ease-out z-[2] group-hover:bottom-0 hover:bg-accent hover:text-white active:bg-accent-hover flex items-center justify-center"
         @click="doAddToCart"
-      >+ Thêm vào giỏ</button>
+      ><i class="ti ti-shopping-cart-plus"></i></button>
     </div>
 
     <!-- Info -->
@@ -50,12 +50,13 @@
       <!-- Buttons -->
       <div class="flex gap-2">
         <button
-          :class="['flex-1 border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px]', addedToCart ? 'bg-[#4CAF50] text-white border-[#4CAF50]' : 'bg-surface2 text-text border-border hover:border-accent hover:text-accent hover:bg-bg']"
+          :class="['w-11 h-11 border text-lg rounded-xl transition-all duration-300 flex items-center justify-center active:scale-90 shadow-sm hover:shadow-md', addedToCart ? 'bg-[#4CAF50] text-white border-[#4CAF50]' : 'bg-surface2 text-text border-border hover:border-accent hover:text-accent hover:bg-bg']"
           @click="doAddToCart"
+          :title="addedToCart ? 'Đã thêm' : 'Thêm vào giỏ'"
         >
-          <i class="ti ti-shopping-cart"></i> {{ addedToCart ? 'Đã thêm' : 'Giỏ hàng' }}
+          <i :class="[addedToCart ? 'ti ti-check' : 'ti ti-shopping-cart']"></i>
         </button>
-        <button class="flex-1 bg-accent text-white border-none p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-colors hover:bg-accent-hover">Mua ngay</button>
+        <button class="flex-1 bg-accent text-white border-none h-11 text-[11px] tracking-[1.5px] font-semibold uppercase rounded-xl shadow-[0_4px_12px_rgba(255,77,0,0.2)] transition-all duration-300 hover:bg-accent-hover hover:shadow-[0_6px_20px_rgba(255,77,0,0.3)] active:scale-95">Mua ngay</button>
       </div>
     </div>
   </div>
