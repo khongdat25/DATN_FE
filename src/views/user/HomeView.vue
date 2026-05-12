@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  <UserLayout>
     <HeroSlider />
     <CategorySection />
     <hr class="border-none border-t border-border m-0">
@@ -29,12 +29,12 @@
         </div>
       </div>
     </section>
-  </HomeLayout>
+  </UserLayout>
 </template>
 
 <script setup>
 import { inject } from 'vue'
-import HomeLayout from '../../layouts/HomeLayout.vue'
+import UserLayout from '../../layouts/HomeLayout.vue'
 import HeroSlider from '../../components/home/HeroSlider.vue'
 import CategorySection from '../../components/home/CategorySection.vue'
 import FlashSale from '../../components/home/FlashSale.vue'
