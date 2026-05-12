@@ -3,13 +3,9 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-// Import Bootstrap CSS & JS
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import 'bootstrap-icons/font/bootstrap-icons.css'
-
-// Import CSS gốc
-import './assets/main.css'
+// NOTE: Bootstrap đã được thay thế bởi Tailwind CSS (qua CDN trong index.html)
+// Chỉ giữ lại CSS gốc nếu cần
+// import './assets/main.css'
 
 const app = createApp(App)
 
