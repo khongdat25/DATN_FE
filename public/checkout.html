@@ -96,6 +96,657 @@
         @media (max-width: 480px) {
             .form-row { grid-template-columns: 1fr; }
         }
+
+        /* NEW STYLES */
+        /* Address Display Card */
+        .section-title-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .section-title-wrapper .section-title {
+            margin-bottom: 0;
+        }
+        .btn-change-address {
+            background: transparent;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-change-address:hover {
+            background: var(--color-accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 77, 0, 0.15);
+        }
+        .address-card {
+            background: rgba(255, 77, 0, 0.02);
+            border: 1px dashed rgba(255, 77, 0, 0.25);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+        .address-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .user-name {
+            font-weight: 700;
+            font-size: 16px;
+            font-family: var(--font-display);
+        }
+        .user-badge {
+            background: rgba(255, 77, 0, 0.1);
+            color: var(--color-accent);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .user-phone {
+            font-weight: 600;
+            color: var(--color-text-muted);
+            font-size: 14px;
+        }
+        .address-text {
+            color: var(--color-text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Horizontal Product List */
+        .checkout-product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .checkout-product-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+        .checkout-product-item:hover {
+            border-color: var(--color-text-muted);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .product-item-img {
+            width: 80px;
+            height: 80px;
+            background: var(--color-surface2);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .product-item-img img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .product-item-details {
+            flex: 1;
+        }
+        .product-item-name {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .product-item-meta {
+            font-size: 13px;
+            color: var(--color-text-dim);
+        }
+        .product-item-qty {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-muted);
+            padding: 4px 12px;
+            background: var(--color-surface2);
+            border-radius: 20px;
+        }
+        .product-item-price {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--color-text);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        /* Quantity Selector & Remove Button in Checkout */
+        .qty-selector {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: white;
+            overflow: hidden;
+            height: 36px;
+        }
+        .qty-btn {
+            width: 32px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            background: none;
+            border: none;
+        }
+        .qty-btn:hover {
+            background: var(--color-surface2);
+            color: var(--color-accent);
+        }
+        .qty-input {
+            width: 36px;
+            height: 100%;
+            border: none;
+            border-left: 1px solid var(--color-border);
+            border-right: 1px solid var(--color-border);
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            background: transparent;
+        }
+        .btn-remove-item {
+            background: rgba(255, 59, 48, 0.06);
+            border: 1px solid rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-remove-item:hover {
+            color: white;
+            background: #ff3b30;
+            border-color: #ff3b30;
+            box-shadow: 0 4px 10px rgba(255, 59, 48, 0.2);
+        }
+
+        /* Voucher Selection Style */
+        .promo-box {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px dashed var(--color-border);
+        }
+        .promo-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .promo-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--color-border);
+            outline: none;
+            font-size: 14px;
+        }
+        .promo-input input:focus {
+            border-color: var(--color-accent);
+        }
+        .btn-apply {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            background: var(--color-text);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-apply:hover {
+            background: var(--color-accent);
+        }
+        .voucher-select {
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .voucher-header {
+            padding: 12px 16px;
+            background: var(--color-surface2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .voucher-header:hover {
+            background: #eeeeee;
+        }
+        .voucher-header i {
+            transition: 0.3s;
+        }
+        .voucher-header.active i.ti-chevron-down {
+            transform: rotate(180deg);
+        }
+        .voucher-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+        }
+        .voucher-list.open {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .voucher-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+        .voucher-item:last-child {
+            border-bottom: none;
+        }
+        .voucher-item:hover {
+            background: rgba(255, 77, 0, 0.02);
+        }
+        .v-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 77, 0, 0.1);
+            color: var(--color-accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .v-info {
+            flex: 1;
+        }
+        .v-name {
+            font-size: 13px;
+            font-weight: 600;
+            display: block;
+        }
+        .v-desc {
+            font-size: 11px;
+            color: var(--color-text-dim);
+        }
+        .btn-v-apply {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            transition: 0.2s;
+        }
+        .btn-v-apply:hover {
+            background: var(--color-accent);
+            color: white;
+        }
+        .review-row.discount span:last-child {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        /* Modal Select Saved Addresses Style */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+        .modal-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 550px;
+            padding: 32px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            transform: scale(0.9);
+            transition: 0.3s ease;
+        }
+        .modal-backdrop.open .modal-card {
+            transform: scale(1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 16px;
+        }
+        .modal-header h3 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .btn-close-modal {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: var(--color-text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-close-modal:hover {
+            color: var(--color-text);
+        }
+        .saved-addresses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .address-option {
+            border: 1.5px solid var(--color-border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            align-items: flex-start;
+        }
+        .address-option:hover {
+            border-color: var(--color-accent);
+            background: rgba(255, 77, 0, 0.01);
+        }
+        .address-option.active {
+            border-color: var(--color-accent);
+            background: rgba(255, 77, 0, 0.03);
+            box-shadow: 0 4px 12px rgba(255, 77, 0, 0.05);
+        }
+        .address-option input[type="radio"] {
+            accent-color: var(--color-accent);
+            width: 18px;
+            height: 18px;
+            margin-top: 3px;
+            cursor: pointer;
+        }
+        .address-option-details {
+            flex: 1;
+        }
+        .address-option-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .address-option-name {
+            font-weight: 700;
+            font-size: 15px;
+            font-family: var(--font-display);
+        }
+        .address-option-badge {
+            background: rgba(255, 77, 0, 0.1);
+            color: var(--color-accent);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .address-option-phone {
+            font-weight: 600;
+            color: var(--color-text-muted);
+            font-size: 13px;
+        }
+        .address-option-text {
+            color: var(--color-text-muted);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid var(--color-border);
+            padding-top: 20px;
+        }
+        .btn-modal-cancel {
+            background: var(--color-surface2);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-muted);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-modal-cancel:hover {
+            background: #eeeeee;
+            color: var(--color-text);
+        }
+        .btn-modal-confirm {
+            background: var(--color-accent);
+            border: 1px solid var(--color-accent);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: var(--font-display);
+        }
+        .btn-modal-confirm:hover {
+            background: var(--color-accent-hover);
+            box-shadow: 0 4px 12px rgba(255, 77, 0, 0.2);
+        }
+
+        /* Dynamic QR Code Box Styling */
+        .qr-payment-box {
+            margin-top: 24px;
+            background: #fafafa;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 24px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .qr-container {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        @media (max-width: 580px) {
+            .qr-container {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        .qr-code-wrapper {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .qr-svg {
+            display: block;
+        }
+        .qr-logo-brand {
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--color-accent);
+            border: 2px solid var(--color-accent);
+            text-transform: uppercase;
+        }
+        .qr-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+            width: 100%;
+        }
+        .qr-details h4 {
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+        .qr-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            border-bottom: 1px dashed var(--color-border);
+            padding-bottom: 6px;
+        }
+        .qr-row:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .qr-row span {
+            color: var(--color-text-muted);
+        }
+        .qr-row strong {
+            color: var(--color-text);
+            font-weight: 600;
+        }
+        .qr-row strong.qr-amount {
+            color: var(--color-accent);
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .qr-row strong.qr-memo {
+            color: #2196f3;
+            font-family: monospace;
+            font-size: 14px;
+            background: rgba(33, 150, 243, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .qr-footer-note {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--color-border);
+            font-size: 12px;
+            color: var(--color-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
+        .qr-footer-note i {
+            color: var(--color-accent);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Voucher Suggestion Box */
+        .voucher-suggestion-box {
+            background: rgba(255, 77, 0, 0.05);
+            border: 1px solid rgba(255, 77, 0, 0.15);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 12.5px;
+            color: var(--color-text);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            animation: fadeIn 0.2s ease-out;
+            text-align: left;
+        }
+        .voucher-suggestion-box i {
+            color: var(--color-accent);
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .voucher-suggestion-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+        .voucher-suggestion-progress {
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .voucher-suggestion-bar {
+            background: var(--color-accent);
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
     </style>
 </head>
 <body>
@@ -114,140 +765,233 @@
             </div>
         </div>
 
-        <form class="checkout-grid">
+        <form class="checkout-grid" onsubmit="event.preventDefault(); alert('Đơn hàng đã được đặt thành công!'); window.location.href='index.html';">
             <div class="checkout-form">
                 <!-- Shipping Info -->
                 <div class="checkout-section">
-                    <h2 class="section-title"><i class="ti ti-truck"></i> Thông tin giao hàng</h2>
+                    <div class="section-title-wrapper">
+                        <h2 class="section-title"><i class="ti ti-map-pin"></i> Địa chỉ nhận hàng</h2>
+                        <button type="button" class="btn-change-address" onclick="changeAddress()"><i class="ti ti-edit"></i> Thay đổi</button>
+                    </div>
                     
-                    <div class="form-group">
-                        <label for="name">Họ và tên</label>
-                        <input type="text" id="name" class="form-control" placeholder="Nguyễn Văn A" required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" class="form-control" placeholder="username@gmail.com" required>
+                    <div class="address-card">
+                        <div class="address-user">
+                            <span class="user-name" id="display-name">Nguyễn Văn A</span>
+                            <span class="user-badge">Mặc định</span>
+                            <span class="user-phone" id="display-phone">0123 456 789</span>
                         </div>
-                        <div class="form-group">
-                            <label for="phone">Số điện thoại</label>
-                            <input type="tel" id="phone" class="form-control" placeholder="0123 456 789" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="address">Địa chỉ cụ thể</label>
-                        <input type="text" id="address" class="form-control" placeholder="Số nhà, tên đường..." required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="province">Tỉnh / Thành phố</label>
-                            <select id="province" class="form-control" required>
-                                <option value="">Chọn tỉnh thành</option>
-                                <option>Hà Nội</option>
-                                <option>TP. Hồ Chí Minh</option>
-                                <option>Đà Nẵng</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="district">Quận / Huyện</label>
-                            <select id="district" class="form-control" required>
-                                <option value="">Chọn quận huyện</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="note">Ghi chú đơn hàng (tùy chọn)</label>
-                        <textarea id="note" class="form-control" rows="3" placeholder="Ví dụ: Giao hàng giờ hành chính..."></textarea>
+                        <p class="address-text" id="display-address">Số 123, Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</p>
                     </div>
                 </div>
 
+                <!-- Product Information List -->
+                <div class="checkout-section">
+                    <h2 class="section-title"><i class="ti ti-shopping-bag"></i> Sản phẩm đã chọn</h2>
+                    
+                    <div class="checkout-product-list" id="checkout-product-list">
+                        <!-- Product 1 -->
+                        <div class="checkout-product-item" id="item-1">
+                            <div class="product-item-img">
+                                <img src="images/p1.png" alt="Air Max One">
+                            </div>
+                            <div class="product-item-details">
+                                <h4 class="product-item-name">Air Max One</h4>
+                                <p class="product-item-meta">Size: 42 | Màu: Cam Trắng</p>
+                            </div>
+                            <div class="qty-selector">
+                                <button type="button" class="qty-btn" onclick="updateQty(1, -1)" title="Giảm số lượng"><i class="ti ti-minus"></i></button>
+                                <input type="text" class="qty-input" id="qty-1" value="1" readonly>
+                                <button type="button" class="qty-btn" onclick="updateQty(1, 1)" title="Tăng số lượng"><i class="ti ti-plus"></i></button>
+                            </div>
+                            <div class="product-item-price" id="price-1">1.250.000₫</div>
+                            <button type="button" class="btn-remove-item" onclick="removeItem(1)" title="Gỡ sản phẩm">Xóa</button>
+                        </div>
+
+                        <!-- Product 2 -->
+                        <div class="checkout-product-item" id="item-2">
+                            <div class="product-item-img">
+                                <img src="images/p2.png" alt="Pro Dunker">
+                            </div>
+                            <div class="product-item-details">
+                                <h4 class="product-item-name">Pro Dunker</h4>
+                                <p class="product-item-meta">Size: 41 | Màu: Đen Đỏ</p>
+                            </div>
+                            <div class="qty-selector">
+                                <button type="button" class="qty-btn" onclick="updateQty(2, -1)" title="Giảm số lượng"><i class="ti ti-minus"></i></button>
+                                <input type="text" class="qty-input" id="qty-2" value="1" readonly>
+                                <button type="button" class="qty-btn" onclick="updateQty(2, 1)" title="Tăng số lượng"><i class="ti ti-plus"></i></button>
+                            </div>
+                            <div class="product-item-price" id="price-2">2.100.000₫</div>
+                            <button type="button" class="btn-remove-item" onclick="removeItem(2)" title="Gỡ sản phẩm">Xóa</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="checkout-section">
+                    <h2 class="section-title"><i class="ti ti-credit-card"></i> Phương thức thanh toán</h2>
+                    <div class="payment-options">
+                        <label class="payment-item active" data-value="cod">
+                            <input type="radio" name="payment" value="cod" checked>
+                            <div class="payment-info">
+                                <span class="payment-name">Tiền mặt (COD)</span>
+                                <span class="payment-desc">Thanh toán trực tiếp khi nhận hàng</span>
+                            </div>
+                            <i class="ti ti-cash" style="margin-left: auto; font-size: 24px; color: #4caf50;"></i>
+                        </label>
+
+                        <label class="payment-item" data-value="qr_bank">
+                            <input type="radio" name="payment" value="qr_bank">
+                            <div class="payment-info">
+                                <span class="payment-name">Chuyển khoản ngân hàng</span>
+                                <span class="payment-desc">Chuyển khoản nhanh qua mã VietQR</span>
+                            </div>
+                            <i class="ti ti-building-bank" style="margin-left: auto; font-size: 24px; color: #2196f3;"></i>
+                        </label>
+
+                        <label class="payment-item" data-value="qr_wallet">
+                            <input type="radio" name="payment" value="qr_wallet">
+                            <div class="payment-info">
+                                <span class="payment-name">Ví điện tử</span>
+                                <span class="payment-desc">Quét mã QR liên kết ví MoMo</span>
+                            </div>
+                            <i class="ti ti-wallet" style="margin-left: auto; font-size: 24px; color: #d81b60;"></i>
+                        </label>
+                    </div>
+
+                    <!-- Dynamic QR Code Box -->
+                    <div class="qr-payment-box" id="qr-payment-box" style="display: none;">
+                        <div class="qr-container">
+                            <div class="qr-code-wrapper">
+                                <svg class="qr-svg" viewBox="0 0 100 100" width="140" height="140">
+                                    <path d="M0,0 h30 v10 h-20 v20 h-10 zM70,0 h30 v30 h-10 v-20 h-20 zM0,70 h10 v20 h20 v10 h-30 zM70,90 h20 v-20 h10 v30 h-30 z" fill="#1a1a1a" />
+                                    <!-- Inner squares representing QR format -->
+                                    <rect x="10" y="10" width="15" height="15" fill="#1a1a1a" />
+                                    <rect x="75" y="10" width="15" height="15" fill="#1a1a1a" />
+                                    <rect x="10" y="75" width="15" height="15" fill="#1a1a1a" />
+                                    <!-- Center logo or visual patterns -->
+                                    <circle cx="50" cy="50" r="10" fill="var(--color-accent)" opacity="0.8" />
+                                    <!-- QR matrix noise -->
+                                    <rect x="35" y="15" width="5" height="10" fill="#1a1a1a" />
+                                    <rect x="45" y="25" width="10" height="5" fill="#1a1a1a" />
+                                    <rect x="60" y="15" width="5" height="5" fill="#1a1a1a" />
+                                    <rect x="35" y="40" width="8" height="8" fill="#1a1a1a" />
+                                    <rect x="55" y="35" width="10" height="5" fill="#1a1a1a" />
+                                    <rect x="60" y="55" width="8" height="8" fill="#1a1a1a" />
+                                    <rect x="35" y="75" width="12" height="5" fill="#1a1a1a" />
+                                    <rect x="35" y="85" width="5" height="5" fill="#1a1a1a" />
+                                    <rect x="50" y="75" width="8" height="8" fill="#1a1a1a" />
+                                    <rect x="75" y="35" width="10" height="10" fill="#1a1a1a" />
+                                </svg>
+                                <div class="qr-logo-brand" id="qr-logo-brand">QR</div>
+                            </div>
+                            <div class="qr-details">
+                                <h4 id="qr-title-method">Chuyển khoản VietQR</h4>
+                                <div class="qr-row">
+                                    <span>Tài khoản:</span>
+                                    <strong id="qr-details-account">CÔNG TY TNHH STEPUP</strong>
+                                </div>
+                                <div class="qr-row">
+                                    <span>Số TK/SĐT:</span>
+                                    <strong id="qr-details-number">1903 5678 9999</strong>
+                                </div>
+                                <div class="qr-row" id="qr-row-bank">
+                                    <span>Ngân hàng:</span>
+                                    <strong>Techcombank</strong>
+                                </div>
+                                <div class="qr-row">
+                                    <span>Số tiền:</span>
+                                    <strong class="qr-amount" id="qr-details-amount">3.350.000₫</strong>
+                                </div>
+                                <div class="qr-row">
+                                    <span>Nội dung CK:</span>
+                                    <strong class="qr-memo">STEPUP_686899</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="qr-footer-note">
+                            <i class="ti ti-info-circle"></i> Vui lòng quét mã đúng số tiền và nội dung chuyển khoản để đơn hàng được phê duyệt tự động ngay lập tức.
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Order Review -->
+            <!-- Order Review Sidebar -->
             <div class="order-review">
-                <h2 class="review-title">Đơn hàng của bạn</h2>
+                <h2 class="review-title">Tóm tắt đơn hàng</h2>
                 
-                <div class="mini-product-list">
-                    <div class="mini-product">
-                        <div class="mini-img">
-                            <img src="images/p1.png" alt="P1">
-                            <span class="mini-qty">1</span>
-                        </div>
-                        <div class="mini-info">
-                            <h4>Air Max One</h4>
-                            <p>Size: 42</p>
-                        </div>
-                        <span class="mini-price">1.250.000₫</span>
+                <!-- Voucher block -->
+                <div class="promo-box">
+                    <label style="font-size: 13px; font-weight: 600; color: var(--color-text-muted); display: block; margin-bottom: 8px;">Mã giảm giá / Voucher</label>
+                    <div class="promo-input" style="margin-bottom: 16px;">
+                        <input type="text" id="promo-input" placeholder="Nhập mã...">
+                        <button type="button" class="btn-apply">Áp dụng</button>
                     </div>
-                    <div class="mini-product">
-                        <div class="mini-img">
-                            <img src="images/p2.png" alt="P2">
-                            <span class="mini-qty">1</span>
+
+                    <!-- Voucher Condition Recommendation Progress Bar -->
+                    <div class="voucher-suggestion-box" id="voucher-suggestion-box">
+                        <i class="ti ti-circle-check"></i>
+                        <div class="voucher-suggestion-text"></div>
+                    </div>
+
+                    <div class="voucher-select">
+                        <div class="voucher-header" id="voucher-toggle">
+                            <span><i class="ti ti-ticket"></i> Chọn Voucher từ StepUp</span>
+                            <i class="ti ti-chevron-down"></i>
                         </div>
-                        <div class="mini-info">
-                            <h4>Pro Dunker</h4>
-                            <p>Size: 41</p>
+                        <div class="voucher-list" id="voucher-list">
+                            <div class="voucher-item">
+                                <div class="v-icon"><i class="ti ti-gift"></i></div>
+                                <div class="v-info">
+                                    <span class="v-name">FREESHIP</span>
+                                    <span class="v-desc">Miễn phí vận chuyển toàn quốc</span>
+                                </div>
+                                <button type="button" class="btn-v-apply" onclick="applyVoucher('FREESHIP')">Dùng</button>
+                            </div>
+                            <div class="voucher-item">
+                                <div class="v-icon"><i class="ti ti-discount-2"></i></div>
+                                <div class="v-info">
+                                    <span class="v-name">GIAM10K</span>
+                                    <span class="v-desc">Giảm 10.000₫ cho đơn hàng từ 500k</span>
+                                </div>
+                                <button type="button" class="btn-v-apply" onclick="applyVoucher('GIAM10K')">Dùng</button>
+                            </div>
+                            <div class="voucher-item">
+                                <div class="v-icon"><i class="ti ti-brightness"></i></div>
+                                <div class="v-info">
+                                    <span class="v-name">STEPUPNEW</span>
+                                    <span class="v-desc">Giảm 10% cho khách hàng mới</span>
+                                </div>
+                                <button type="button" class="btn-v-apply" onclick="applyVoucher('STEPUPNEW')">Dùng</button>
+                            </div>
                         </div>
-                        <span class="mini-price">2.100.000₫</span>
                     </div>
                 </div>
 
+                <!-- Price breakdown -->
                 <div class="review-row">
-                    <span>Tạm tính</span>
+                    <span>Tổng đơn hàng</span>
                     <span>3.350.000₫</span>
+                </div>
+                <div class="review-row" id="discount-row" style="display: none;">
+                    <span>Tổng voucher đã giảm</span>
+                    <span id="discount-amount" style="color: #2e7d32; font-weight: 600;">-0₫</span>
                 </div>
                 <div class="review-row">
                     <span>Phí vận chuyển</span>
                     <span>Miễn phí</span>
                 </div>
                 <div class="review-row total">
-                    <span>Tổng cộng</span>
-                    <span>3.350.000₫</span>
-                </div>
-
-                <!-- Payment Methods moved here -->
-                <div style="margin-top: 32px;">
-                    <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Phương thức thanh toán</h3>
-                    <div class="payment-options">
-                        <label class="payment-item active">
-                            <input type="radio" name="payment" checked>
-                            <div class="payment-info">
-                                <span class="payment-name">Tiền mặt (COD)</span>
-                                <span class="payment-desc">Khi nhận hàng</span>
-                            </div>
-                            <i class="ti ti-cash" style="margin-left: auto; font-size: 20px; color: #4caf50;"></i>
-                        </label>
-
-                        <label class="payment-item">
-                            <input type="radio" name="payment">
-                            <div class="payment-info">
-                                <span class="payment-name">Chuyển khoản</span>
-                                <span class="payment-desc">Qua ngân hàng</span>
-                            </div>
-                            <i class="ti ti-building-bank" style="margin-left: auto; font-size: 20px; color: #2196f3;"></i>
-                        </label>
-
-                        <label class="payment-item">
-                            <input type="radio" name="payment">
-                            <div class="payment-info">
-                                <span class="payment-name">Ví điện tử</span>
-                                <span class="payment-desc">MoMo / VNPay</span>
-                            </div>
-                            <i class="ti ti-wallet" style="margin-left: auto; font-size: 20px; color: #d81b60;"></i>
-                        </label>
-                    </div>
+                    <span>Tổng thanh toán</span>
+                    <span id="total-amount">3.350.000₫</span>
                 </div>
 
                 <button type="submit" class="btn-order">ĐẶT HÀNG NGAY</button>
                 
                 <div class="security-badges">
-                    <i class="ti ti-shield-lock" title="Secure Payment"></i>
-                    <i class="ti ti-truck-delivery" title="Fast Delivery"></i>
-                    <i class="ti ti-certificate" title="Genuine Product"></i>
+                    <i class="ti ti-shield-lock" title="Thanh toán an toàn"></i>
+                    <i class="ti ti-truck-delivery" title="Giao hàng siêu tốc"></i>
+                    <i class="ti ti-certificate" title="Sản phẩm chính hãng"></i>
                 </div>
                 <p style="text-align: center; font-size: 12px; color: var(--color-text-dim); margin-top: 16px;">
                     Nhấn "Đặt hàng ngay" đồng nghĩa với việc bạn đồng ý với Điều khoản mua hàng của StepUp.
@@ -262,5 +1006,393 @@
         </div>
     </footer>
 
+    <!-- Modal Select Saved Addresses -->
+    <div class="modal-backdrop" id="addressModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Chọn địa chỉ nhận hàng</h3>
+                <button type="button" class="btn-close-modal" onclick="closeAddressModal()"><i class="ti ti-x"></i></button>
+            </div>
+            
+            <div class="saved-addresses-list">
+                <!-- Address Option 1 -->
+                <div class="address-option active" onclick="selectAddressOption(1)" id="addr-opt-1">
+                    <input type="radio" name="addr_selection" id="radio-opt-1" checked>
+                    <div class="address-option-details">
+                        <div class="address-option-user">
+                            <span class="address-option-name">Nguyễn Văn A</span>
+                            <span class="address-option-badge">Mặc định</span>
+                            <span class="address-option-phone">0123 456 789</span>
+                        </div>
+                        <p class="address-option-text">Số 123, Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</p>
+                    </div>
+                </div>
+
+                <!-- Address Option 2 -->
+                <div class="address-option" onclick="selectAddressOption(2)" id="addr-opt-2">
+                    <input type="radio" name="addr_selection" id="radio-opt-2">
+                    <div class="address-option-details">
+                        <div class="address-option-user">
+                            <span class="address-option-name">Trần Thị B</span>
+                            <span class="address-option-badge" style="background: rgba(33, 150, 243, 0.1); color: #2196f3;">Nhà riêng</span>
+                            <span class="address-option-phone">0987 654 321</span>
+                        </div>
+                        <p class="address-option-text">Số 456, Đường XYZ, Phường 12, Quận Bình Thạnh, TP. Hồ Chí Minh</p>
+                    </div>
+                </div>
+
+                <!-- Address Option 3 -->
+                <div class="address-option" onclick="selectAddressOption(3)" id="addr-opt-3">
+                    <input type="radio" name="addr_selection" id="radio-opt-3">
+                    <div class="address-option-details">
+                        <div class="address-option-user">
+                            <span class="address-option-name">Nguyễn Văn A</span>
+                            <span class="address-option-badge" style="background: rgba(76, 175, 80, 0.1); color: #4caf50;">Văn phòng</span>
+                            <span class="address-option-phone">0123 456 789</span>
+                        </div>
+                        <p class="address-option-text">Tòa nhà Keangnam, Mễ Trì, Quận Nam Từ Liêm, Hà Nội</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-cancel" onclick="closeAddressModal()">Hủy</button>
+                <button type="button" class="btn-modal-confirm" onclick="confirmAddressSelection()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Accordion Voucher
+        const voucherToggle = document.getElementById('voucher-toggle');
+        const voucherList = document.getElementById('voucher-list');
+
+        voucherToggle.addEventListener('click', () => {
+            voucherToggle.classList.toggle('active');
+            voucherList.classList.toggle('open');
+        });
+
+        // Dynamic State for Products & Calculations
+        let subtotal = 3350000;
+        let discount = 0;
+        let currentVoucher = '';
+
+        const products = {
+            1: { price: 1250000, qty: 1 },
+            2: { price: 2100000, qty: 1 }
+        };
+
+        // Update quantity
+        function updateQty(id, change) {
+            if (!products[id]) return;
+            
+            const newQty = products[id].qty + change;
+            if (newQty < 1) {
+                return; // Do not allow quantity below 1, must use Explicit "Xóa" button
+            }
+            
+            products[id].qty = newQty;
+            document.getElementById(`qty-${id}`).value = newQty;
+            
+            // Update single item price text
+            const itemTotal = products[id].price * newQty;
+            document.getElementById(`price-${id}`).textContent = itemTotal.toLocaleString('vi-VN') + '₫';
+            
+            calculateTotals();
+        }
+
+        // Remove item from checkout
+        function removeItem(id) {
+            if (!products[id]) return;
+            
+            if (confirm("Bạn có chắc chắn muốn gỡ sản phẩm này khỏi danh sách thanh toán?")) {
+                const itemElement = document.getElementById(`item-${id}`);
+                if (itemElement) {
+                    itemElement.style.opacity = '0';
+                    itemElement.style.transform = 'scale(0.9)';
+                    itemElement.style.transition = '0.3s';
+                    
+                    setTimeout(() => {
+                        itemElement.remove();
+                        delete products[id];
+                        
+                        // Check if all items are removed
+                        if (Object.keys(products).length === 0) {
+                            document.getElementById('checkout-product-list').innerHTML = `
+                                <div style="text-align: center; padding: 40px 20px; color: var(--color-text-dim);">
+                                    <i class="ti ti-shopping-cart-off" style="font-size: 48px; margin-bottom: 12px; display: block; color: var(--color-accent);"></i>
+                                    Không còn sản phẩm nào trong danh sách thanh toán. <br>
+                                    <a href="index.html" style="color: var(--color-accent); font-weight: 600; text-decoration: underline; margin-top: 12px; display: inline-block;">Quay lại mua sắm</a>
+                                </div>
+                            `;
+                        }
+                        
+                        calculateTotals();
+                    }, 300);
+                }
+            }
+        }
+
+        // Recalculate billing
+        function calculateTotals() {
+            // Subtotal
+            subtotal = Object.values(products).reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            // Update subtotal display (the first review-row is subtotal)
+            const subtotalText = document.querySelector('.order-review .review-row:nth-of-type(1) span:last-child');
+            if (subtotalText) {
+                subtotalText.textContent = subtotal.toLocaleString('vi-VN') + '₫';
+            }
+            
+            // Reapply discount
+            reapplyDiscount();
+
+            // Update Voucher conditions recommendation bar
+            updateVoucherSuggestions();
+        }
+
+        // Live Voucher Condition Recommendation Progress Engine
+        function updateVoucherSuggestions() {
+            const sugBox = document.getElementById('voucher-suggestion-box');
+            if (!sugBox) return;
+
+            if (subtotal === 0) {
+                sugBox.style.display = 'none';
+                return;
+            }
+
+            sugBox.style.display = 'flex';
+            const sugText = sugBox.querySelector('.voucher-suggestion-text');
+            
+            if (subtotal < 500000) {
+                const remaining = 500000 - subtotal;
+                const pct = (subtotal / 500000) * 100;
+                
+                sugBox.style.background = 'rgba(255, 77, 0, 0.04)';
+                sugBox.style.borderColor = 'rgba(255, 77, 0, 0.15)';
+                sugBox.querySelector('i').className = 'ti ti-flame';
+                sugBox.querySelector('i').style.color = 'var(--color-accent)';
+                
+                sugText.innerHTML = `Mua thêm <strong>${remaining.toLocaleString('vi-VN')}₫</strong> để đủ điều kiện áp dụng mã <strong>GIAM10K</strong> (giảm 10.000₫)!
+                    <div class="voucher-suggestion-progress">
+                        <div class="voucher-suggestion-bar" style="width: ${pct}%;"></div>
+                    </div>`;
+            } else {
+                sugBox.style.background = 'rgba(76, 175, 80, 0.04)';
+                sugBox.style.borderColor = 'rgba(76, 175, 80, 0.15)';
+                sugBox.querySelector('i').className = 'ti ti-circle-check';
+                sugBox.querySelector('i').style.color = '#4caf50';
+                
+                sugText.innerHTML = `🎉 Tuyệt vời! Đơn hàng đã đủ điều kiện áp dụng mã <strong>GIAM10K</strong> và được <strong>MIỄN PHÍ VẬN CHUYỂN</strong>!
+                    <div class="voucher-suggestion-progress">
+                        <div class="voucher-suggestion-bar" style="width: 100%; background-color: #4caf50;"></div>
+                    </div>`;
+            }
+        }
+
+        // Initialize Voucher suggestion at loading
+        updateVoucherSuggestions();
+
+        function reapplyDiscount() {
+            const discountRow = document.getElementById('discount-row');
+            const totalText = document.getElementById('total-amount');
+            const discountAmount = document.getElementById('discount-amount');
+            
+            if (currentVoucher === 'FREESHIP') {
+                discount = 0;
+            } else if (currentVoucher === 'GIAM10K') {
+                if (subtotal >= 500000) {
+                    discount = 10000;
+                } else {
+                    discount = 0;
+                    if (subtotal > 0) {
+                        alert('Đơn hàng dưới 500.000₫ không đủ điều kiện sử dụng mã GIAM10K!');
+                        document.getElementById('promo-input').value = '';
+                        currentVoucher = '';
+                    }
+                }
+            } else if (currentVoucher === 'STEPUPNEW') {
+                discount = subtotal * 0.1;
+            } else {
+                discount = 0;
+            }
+
+            if (discount > 0) {
+                discountRow.style.display = 'flex';
+                discountAmount.textContent = '-' + discount.toLocaleString('vi-VN') + '₫';
+            } else {
+                discountRow.style.display = 'none';
+            }
+
+            const total = subtotal - discount;
+            totalText.textContent = total.toLocaleString('vi-VN') + '₫';
+
+            // Sync QR payment box amount if active
+            const qrAmountText = document.getElementById('qr-details-amount');
+            if (qrAmountText) {
+                qrAmountText.textContent = totalText.textContent;
+            }
+        }
+
+        function applyVoucher(code) {
+            if (subtotal === 0) {
+                alert('Vui lòng thêm sản phẩm vào đơn hàng để áp dụng voucher!');
+                return;
+            }
+
+            currentVoucher = code;
+            document.getElementById('promo-input').value = code;
+            voucherToggle.classList.remove('active');
+            voucherList.classList.remove('open');
+            
+            if (code === 'FREESHIP') {
+                alert('Đã áp dụng mã miễn phí vận chuyển!');
+            } else if (code === 'GIAM10K') {
+                if (subtotal < 500000) {
+                    alert('Đơn hàng của bạn phải từ 500.000₫ trở lên để áp dụng mã GIAM10K!');
+                    document.getElementById('promo-input').value = '';
+                    currentVoucher = '';
+                    return;
+                }
+                alert('Đã áp dụng mã giảm giá 10.000₫!');
+            } else if (code === 'STEPUPNEW') {
+                alert('Đã áp dụng mã giảm giá 10% cho khách hàng mới!');
+            } else {
+                alert('Mã giảm giá không tồn tại hoặc đã hết hạn!');
+                currentVoucher = '';
+            }
+
+            calculateTotals();
+        }
+
+        document.querySelector('.btn-apply').addEventListener('click', (e) => {
+            e.preventDefault();
+            const code = document.getElementById('promo-input').value.trim().toUpperCase();
+            if (code) {
+                applyVoucher(code);
+            } else {
+                alert('Vui lòng nhập mã giảm giá!');
+            }
+        });
+
+        // Select payment item interactive active states & QR code toggle
+        const paymentItems = document.querySelectorAll('.payment-item');
+        const qrBox = document.getElementById('qr-payment-box');
+        
+        paymentItems.forEach(item => {
+            item.addEventListener('click', () => {
+                paymentItems.forEach(p => p.classList.remove('active'));
+                item.classList.add('active');
+                
+                const radio = item.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    toggleQRBox(radio.value);
+                }
+            });
+        });
+
+        function toggleQRBox(method) {
+            const qrTitle = document.getElementById('qr-title-method');
+            const qrAccount = document.getElementById('qr-details-account');
+            const qrNumber = document.getElementById('qr-details-number');
+            const qrBankRow = document.getElementById('qr-row-bank');
+            const qrLogo = document.getElementById('qr-logo-brand');
+            const totalText = document.getElementById('total-amount').textContent;
+
+            // Sync dynamic total amount to QR detail
+            document.getElementById('qr-details-amount').textContent = totalText;
+
+            if (method === 'cod') {
+                qrBox.style.display = 'none';
+            } else if (method === 'qr_bank') {
+                qrBox.style.display = 'block';
+                qrTitle.textContent = 'Chuyển khoản VietQR';
+                qrAccount.textContent = 'CÔNG TY TNHH STEPUP';
+                qrNumber.textContent = '1903 5678 9999';
+                qrBankRow.style.display = 'flex';
+                qrLogo.textContent = 'QR';
+                qrLogo.style.color = 'var(--color-accent)';
+                qrLogo.style.borderColor = 'var(--color-accent)';
+            } else if (method === 'qr_wallet') {
+                qrBox.style.display = 'block';
+                qrTitle.textContent = 'Thanh toán Ví MoMo';
+                qrAccount.textContent = 'CÔNG TY TNHH STEPUP';
+                qrNumber.textContent = '0123 456 789';
+                qrBankRow.style.display = 'none';
+                qrLogo.textContent = 'MoMo';
+                qrLogo.style.color = '#d81b60';
+                qrLogo.style.borderColor = '#d81b60';
+            }
+        }
+
+        // Address Modal simulation
+        const addressModal = document.getElementById('addressModal');
+        let selectedAddressId = 1;
+
+        const savedAddresses = {
+            1: {
+                name: "Nguyễn Văn A",
+                phone: "0123 456 789",
+                badge: "Mặc định",
+                address: "Số 123, Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh"
+            },
+            2: {
+                name: "Trần Thị B",
+                phone: "0987 654 321",
+                badge: "Nhà riêng",
+                address: "Số 456, Đường XYZ, Phường 12, Quận Bình Thạnh, TP. Hồ Chí Minh"
+            },
+            3: {
+                name: "Nguyễn Văn A",
+                phone: "0123 456 789",
+                badge: "Văn phòng",
+                address: "Tòa nhà Keangnam, Mễ Trì, Quận Nam Từ Liêm, Hà Nội"
+            }
+        };
+
+        function changeAddress() {
+            addressModal.classList.add('open');
+        }
+
+        function closeAddressModal() {
+            addressModal.classList.remove('open');
+        }
+
+        function selectAddressOption(id) {
+            selectedAddressId = id;
+            document.querySelectorAll('.address-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            document.getElementById(`addr-opt-${id}`).classList.add('active');
+            document.getElementById(`radio-opt-${id}`).checked = true;
+        }
+
+        function confirmAddressSelection() {
+            const addr = savedAddresses[selectedAddressId];
+            if (addr) {
+                document.getElementById('display-name').textContent = addr.name;
+                document.getElementById('display-phone').textContent = addr.phone;
+                document.getElementById('display-address').textContent = addr.address;
+                
+                const badge = document.querySelector('.address-card .user-badge');
+                if (badge) {
+                    badge.textContent = addr.badge;
+                    if (addr.badge === 'Mặc định') {
+                        badge.style.background = 'rgba(255, 77, 0, 0.1)';
+                        badge.style.color = 'var(--color-accent)';
+                    } else if (addr.badge === 'Nhà riêng') {
+                        badge.style.background = 'rgba(33, 150, 243, 0.1)';
+                        badge.style.color = '#2196f3';
+                    } else {
+                        badge.style.background = 'rgba(76, 175, 80, 0.1)';
+                        badge.style.color = '#4caf50';
+                    }
+                }
+                
+                closeAddressModal();
+            }
+        }
+    </script>
 </body>
 </html>

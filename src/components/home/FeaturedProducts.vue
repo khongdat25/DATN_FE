@@ -6,7 +6,7 @@
           <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px]">SẢN PHẨM NỔI BẬT</h2>
           <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Được chọn lọc kỹ càng cho bạn</p>
         </div>
-        <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Xem tất cả <i class="ti ti-arrow-right"></i></a>
+        <router-link to="/products" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Xem tất cả <i class="ti ti-arrow-right"></i></router-link>
       </div>
 
       <div class="grid grid-cols-2 max-lg:grid-cols-1 gap-5">

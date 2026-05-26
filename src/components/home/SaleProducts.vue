@@ -1,3 +1,31 @@
+<script setup>
+import { ref, computed } from 'vue'
+import ProductCard from './ProductCard.vue'
+
+defineEmits(['add-to-cart', 'toggle-wish'])
+
+const activeFilter = ref('all')
+
+const filters = [
+  { key: 'all', label: 'Tất cả' },
+  { key: 'sneaker', label: 'Sneaker' },
+  { key: 'crocs', label: 'Crocs' },
+  { key: 'sandal', label: 'Sandal' },
+]
+
+const saleProducts = [
+  { id: 10, brand: 'Nike', name: 'React Element 55 Triple Black', price: '990.000đ', oldPrice: '1.980.000đ', icon: '👟', rating: '★★★★☆', reviews: '88', cat: 'sneaker', badges: [{ label: '-50%', color: 'bg-accent' }] },
+  { id: 11, brand: 'Crocs', name: 'Echo Clog Unisex Slate Grey', price: '623.000đ', oldPrice: '890.000đ', icon: '🥿', rating: '★★★★★', reviews: '214', cat: 'crocs', badges: [{ label: '-30%', color: 'bg-accent' }] },
+  { id: 12, brand: 'Adidas', name: 'Stan Smith Lux White', price: '1.125.000đ', oldPrice: '1.500.000đ', icon: '👟', rating: '★★★★☆', reviews: '156', cat: 'sneaker', badges: [{ label: '-25%', color: 'bg-accent' }] },
+  { id: 13, brand: 'Crocs', name: 'Brooklyn Low Wedge Women', price: '774.000đ', oldPrice: '1.290.000đ', icon: '👡', rating: '★★★★★', reviews: '92', cat: 'sandal', badges: [{ label: '-40%', color: 'bg-accent' }] },
+  { id: 14, brand: 'Puma', name: 'RS-X Bold Platform', price: '845.000đ', oldPrice: '1.300.000đ', icon: '👟', rating: '★★★★☆', reviews: '73', cat: 'sneaker', badges: [{ label: '-35%', color: 'bg-accent' }] },
+]
+
+const filteredProducts = computed(() => {
+  if (activeFilter.value === 'all') return saleProducts
+  return saleProducts.filter(p => p.cat === activeFilter.value)
+})
+</script>
 <template>
   <section class="py-[60px] max-md:py-10" id="crocs">
     <div class="max-w-[1200px] mx-auto px-5">
@@ -32,31 +60,4 @@
   </section>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
-import ProductCard from './ProductCard.vue'
 
-defineEmits(['add-to-cart', 'toggle-wish'])
-
-const activeFilter = ref('all')
-
-const filters = [
-  { key: 'all', label: 'Tất cả' },
-  { key: 'sneaker', label: 'Sneaker' },
-  { key: 'crocs', label: 'Crocs' },
-  { key: 'sandal', label: 'Sandal' },
-]
-
-const saleProducts = [
-  { id: 10, brand: 'Nike', name: 'React Element 55 Triple Black', price: '990.000đ', oldPrice: '1.980.000đ', icon: '👟', rating: '★★★★☆', reviews: '88', cat: 'sneaker', badges: [{ label: '-50%', color: 'bg-accent' }] },
-  { id: 11, brand: 'Crocs', name: 'Echo Clog Unisex Slate Grey', price: '623.000đ', oldPrice: '890.000đ', icon: '🥿', rating: '★★★★★', reviews: '214', cat: 'crocs', badges: [{ label: '-30%', color: 'bg-accent' }] },
-  { id: 12, brand: 'Adidas', name: 'Stan Smith Lux White', price: '1.125.000đ', oldPrice: '1.500.000đ', icon: '👟', rating: '★★★★☆', reviews: '156', cat: 'sneaker', badges: [{ label: '-25%', color: 'bg-accent' }] },
-  { id: 13, brand: 'Crocs', name: 'Brooklyn Low Wedge Women', price: '774.000đ', oldPrice: '1.290.000đ', icon: '👡', rating: '★★★★★', reviews: '92', cat: 'sandal', badges: [{ label: '-40%', color: 'bg-accent' }] },
-  { id: 14, brand: 'Puma', name: 'RS-X Bold Platform', price: '845.000đ', oldPrice: '1.300.000đ', icon: '👟', rating: '★★★★☆', reviews: '73', cat: 'sneaker', badges: [{ label: '-35%', color: 'bg-accent' }] },
-]
-
-const filteredProducts = computed(() => {
-  if (activeFilter.value === 'all') return saleProducts
-  return saleProducts.filter(p => p.cat === activeFilter.value)
-})
-</script>

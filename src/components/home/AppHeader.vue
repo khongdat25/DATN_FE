@@ -12,12 +12,15 @@
   <header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200]">
     <div class="max-w-[1200px] mx-auto px-5">
       <nav class="flex items-center justify-between h-[72px] gap-4">
-        <a href="#" class="font-display text-[26px] tracking-[3px]">STEP<span class="text-accent">UP</span></a>
+        <router-link to="/" class="font-display text-[26px] tracking-[3px]">STEP<span class="text-accent">UP</span></router-link>
 
         <!-- Desktop Nav -->
         <ul class="flex gap-1 max-md:hidden items-center">
           <li>
-            <a href="#" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95">Trang chủ</a>
+            <router-link to="/" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95">Trang chủ</router-link>
+          </li>
+          <li>
+            <router-link to="/products" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95">Cửa hàng</router-link>
           </li>
 
           <!-- Nam dropdown -->
@@ -147,7 +150,8 @@
 
     <!-- Mobile Menu -->
     <div v-show="menuOpen" class="bg-bg border-t border-border py-4 px-5">
-      <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Trang chủ</a>
+      <router-link to="/" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Trang chủ</router-link>
+      <router-link to="/products" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Cửa hàng</router-link>
       <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Nam</a>
       <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Nữ</a>
       <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Trẻ em</a>
