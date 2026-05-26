@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin tức & Blog - STEPUP | Xu hướng Sneaker mới nhất</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        :root {
+            --color-bg: #ffffff;
+            --color-surface: #fdfdfd;
+            --color-surface2: #f4f4f4;
+            --color-accent: #FF4D00;
+            --color-accent-hover: #e63d00;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-text-dim: #999999;
+            --color-border: #eaeaea;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 1200px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--color-accent);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav ul a {
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-text-muted);
+        }
+
+        nav ul a:hover,
+        nav ul a.active {
+            color: var(--color-accent);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-actions i {
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--color-text);
+            transition: 0.2s;
+        }
+
+        .header-actions i:hover {
+            color: var(--color-accent);
+        }
+
+        .btn-auth {
+            background: var(--color-text);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-auth:hover {
+            background: var(--color-accent);
+        }
+
+        /* News Hero */
+        .news-hero {
+            padding: 80px 0;
+            background: var(--color-surface);
+            text-align: center;
+        }
+
+        .news-hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .news-hero p {
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Categories Bar */
+        .categories-bar {
+            border-bottom: 1px solid var(--color-border);
+            background: white;
+            position: sticky;
+            top: 80px;
+            z-index: 900;
+        }
+
+        .cat-list {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px 0;
+        }
+
+        .cat-item {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .cat-item:hover, .cat-item.active {
+            color: var(--color-text);
+        }
+
+        .cat-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -21px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--color-accent);
+        }
+
+        /* Featured News */
+        .featured-news {
+            padding: 60px 0;
+        }
+
+        .featured-card {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            transition: 0.3s;
+        }
+
+        .featured-card:hover {
+            box-shadow: 0 30px 60px rgba(0,0,0,0.05);
+            transform: translateY(-5px);
+        }
+
+        .featured-img {
+            height: 500px;
+            overflow: hidden;
+        }
+
+        .featured-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+
+        .featured-card:hover .featured-img img {
+            transform: scale(1.05);
+        }
+
+        .featured-content {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .news-tag {
+            background: var(--color-accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: fit-content;
+            margin-bottom: 24px;
+        }
+
+        .featured-content h2 {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+
+        .featured-content p {
+            color: var(--color-text-muted);
+            font-size: 16px;
+            margin-bottom: 32px;
+            line-height: 1.8;
+        }
+
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--color-text-dim);
+        }
+
+        /* News Grid */
+        .news-grid {
+            padding: 60px 0 100px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            transition: 0.3s;
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+
+        .news-thumb {
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .news-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+
+        .news-card:hover .news-thumb img {
+            transform: scale(1.1);
+        }
+
+        .news-info {
+            padding: 30px;
+        }
+
+        .news-info h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .news-excerpt {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-bottom: 24px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .btn-readmore {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-readmore:hover gap: 12px;
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 100px;
+        }
+
+        .page-num {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .page-num:hover, .page-num.active {
+            background: var(--color-text);
+            color: white;
+            border-color: var(--color-text);
+        }
+
+        /* Newsletter Section */
+        .newsletter {
+            background: var(--color-text);
+            padding: 80px 0;
+            color: white;
+            text-align: center;
+        }
+
+        .newsletter h2 {
+            font-family: var(--font-display);
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .newsletter p {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 32px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: none;
+            outline: none;
+            font-family: var(--font-body);
+        }
+
+        .btn-subscribe {
+            background: var(--color-accent);
+            color: white;
+            padding: 0 32px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-surface2);
+            padding: 80px 0 40px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .footer-about p {
+            color: var(--color-text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text);
+            font-size: 18px;
+        }
+
+        .social-link:hover {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .footer-col h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        .footer-links a:hover {
+            color: var(--color-accent);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            padding-top: 40px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--color-text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .featured-card {
+                grid-template-columns: 1fr;
+            }
+            .featured-img {
+                height: 350px;
+            }
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            .cat-list {
+                gap: 20px;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding: 20px;
+            }
+            nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">STEP<span>UP</span></a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="products.html">Sản phẩm</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="news.html" class="active">Tin tức</a></li>
+                    <li><a href="#">Liên hệ</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <i class="ti ti-search"></i>
+                <a href="cart.html"><i class="ti ti-shopping-cart"></i></a>
+                <a href="login.html" class="btn-auth">Đăng nhập</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- News Hero -->
+    <section class="news-hero">
+        <div class="container">
+            <h1>Tin tức & <span>Blog</span></h1>
+            <p>Cập nhật những xu hướng thời trang mới nhất, hướng dẫn bảo quản và các sự kiện độc quyền từ cộng đồng Sneaker.</p>
+        </div>
+    </section>
+
+    <!-- Categories Bar -->
+    <div class="categories-bar">
+        <div class="container">
+            <ul class="cat-list">
+                <li class="cat-item active">Tất cả</li>
+                <li class="cat-item">Xu hướng</li>
+                <li class="cat-item">Hướng dẫn</li>
+                <li class="cat-item">Sự kiện</li>
+                <li class="cat-item">Khuyến mãi</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Featured News -->
+    <section class="featured-news container">
+        <div class="featured-card">
+            <div class="featured-img">
+                <img src="images/news_featured.png" alt="Featured News">
+            </div>
+            <div class="featured-content">
+                <span class="news-tag">Sự kiện</span>
+                <h2>Sự kiện ra mắt bộ sưu tập giới hạn "Future Walk"</h2>
+                <p>Chiêm ngưỡng những siêu phẩm Sneaker mang phong cách tương lai với sự kết hợp giữa công nghệ AI và nghệ thuật đương đại. Cơ hội sở hữu 1 trong 100 đôi duy nhất trên thế giới.</p>
+                <div class="news-meta">
+                    <span><i class="ti ti-calendar"></i> 15 Tháng 5, 2026</span>
+                    <span><i class="ti ti-user"></i> Admin STEPUP</span>
+                    <span><i class="ti ti-message-circle"></i> 12 Bình luận</span>
+                </div>
+                <a href="news-detail.html" class="btn-readmore" style="margin-top: 32px;">Đọc bài viết <i class="ti ti-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Grid -->
+    <section class="news-grid container">
+        <!-- News Card 1 -->
+        <article class="news-card">
+            <div class="news-thumb">
+                <img src="images/news_1.png" alt="News 1">
+            </div>
+            <div class="news-info">
+                <span class="news-tag" style="background: #4A90E2; margin-bottom: 16px;">Hướng dẫn</span>
+                <h3>Cách vệ sinh giày trắng luôn như mới tại nhà</h3>
+                <p class="news-excerpt">Vệ sinh giày trắng không khó nếu bạn biết đúng phương pháp. Khám phá 5 bước đơn giản để đôi giày của bạn luôn trắng sáng.</p>
+                <div class="news-meta" style="margin-bottom: 20px;">
+                    <span>12 Tháng 5, 2026</span>
+                </div>
+                <a href="news-detail.html" class="btn-readmore">Đọc tiếp <i class="ti ti-arrow-right"></i></a>
+            </div>
+        </article>
+
+        <!-- News Card 2 -->
+        <article class="news-card">
+            <div class="news-thumb">
+                <img src="images/news_2.png" alt="News 2">
+            </div>
+            <div class="news-info">
+                <span class="news-tag" style="background: #50E3C2; margin-bottom: 16px;">Xu hướng</span>
+                <h3>Phối đồ với Sneaker cực chất cho mùa hè 2026</h3>
+                <p class="news-excerpt">Mùa hè là thời điểm lý tưởng để diện những đôi Sneaker đầy màu sắc. Cùng STEPUP điểm qua những outfit "trendy" nhất năm nay.</p>
+                <div class="news-meta" style="margin-bottom: 20px;">
+                    <span>10 Tháng 5, 2026</span>
+                </div>
+                <a href="news-detail.html" class="btn-readmore">Đọc tiếp <i class="ti ti-arrow-right"></i></a>
+            </div>
+        </article>
+
+        <!-- News Card 3 -->
+        <article class="news-card">
+            <div class="news-thumb">
+                <img src="images/cat1.png" alt="News 3">
+            </div>
+            <div class="news-info">
+                <span class="news-tag" style="background: #F5A623; margin-bottom: 16px;">Khuyến mãi</span>
+                <h3>Đại tiệc sinh nhật STEPUP - Giảm giá tới 50%</h3>
+                <p class="news-excerpt">Mừng sinh nhật 5 tuổi, STEPUP tung hàng ngàn deal cực sốc. Nhanh tay săn ngay đôi giày yêu thích với giá không tưởng.</p>
+                <div class="news-meta" style="margin-bottom: 20px;">
+                    <span>08 Tháng 5, 2026</span>
+                </div>
+                <a href="news-detail.html" class="btn-readmore">Đọc tiếp <i class="ti ti-arrow-right"></i></a>
+            </div>
+        </article>
+
+        <!-- News Card 4 -->
+        <article class="news-card">
+            <div class="news-thumb">
+                <img src="images/cat2.png" alt="News 4">
+            </div>
+            <div class="news-info">
+                <span class="news-tag" style="background: #4A90E2; margin-bottom: 16px;">Hướng dẫn</span>
+                <h3>Cách chọn size giày chuẩn xác khi mua online</h3>
+                <p class="news-excerpt">Mua giày online bị chật hoặc rộng là nỗi lo của nhiều người. Đọc ngay bí quyết đo chân chuẩn nhất tại đây.</p>
+                <div class="news-meta" style="margin-bottom: 20px;">
+                    <span>05 Tháng 5, 2026</span>
+                </div>
+                <a href="news-detail.html" class="btn-readmore">Đọc tiếp <i class="ti ti-arrow-right"></i></a>
+            </div>
+        </article>
+
+        <!-- News Card 5 -->
+        <article class="news-card">
+            <div class="news-thumb">
+                <img src="images/cat3.png" alt="News 5">
+            </div>
+            <div class="news-info">
+                <span class="news-tag" style="background: #50E3C2; margin-bottom: 16px;">Xu hướng</span>
+                <h3>Review chi tiết siêu phẩm StepUp Air Max One</h3>
+                <p class="news-excerpt">Lý do tại sao Air Max One lại trở thành đôi giày "quốc dân" được săn đón nhất trong năm 2026.</p>
+                <div class="news-meta" style="margin-bottom: 20px;">
+                    <span>01 Tháng 5, 2026</span>
+                </div>
+                <a href="news-detail.html" class="btn-readmore">Đọc tiếp <i class="ti ti-arrow-right"></i></a>
+            </div>
+        </article>
+
+        <!-- News Card 6 -->
+        <article class="news-card">
+            <div class="news-thumb">
+                <img src="images/hero.png" alt="News 6">
+            </div>
+            <div class="news-info">
+                <span class="news-tag" style="background: #D0021B; margin-bottom: 16px;">Sự kiện</span>
+                <h3>STEPUP đồng hành cùng giải chạy Marathon Hà Nội</h3>
+                <p class="news-excerpt">Chúng tôi tự hào là nhà tài trợ chính thức cho giải chạy lớn nhất năm. Cùng xem lại những khoảnh khắc ấn tượng.</p>
+                <div class="news-meta" style="margin-bottom: 20px;">
+                    <span>28 Tháng 4, 2026</span>
+                </div>
+                <a href="news-detail.html" class="btn-readmore">Đọc tiếp <i class="ti ti-arrow-right"></i></a>
+            </div>
+        </article>
+    </section>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="page-num"><i class="ti ti-chevron-left"></i></div>
+        <div class="page-num active">1</div>
+        <div class="page-num">2</div>
+        <div class="page-num">3</div>
+        <div class="page-num"><i class="ti ti-chevron-right"></i></div>
+    </div>
+
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="container">
+            <h2>Đăng ký nhận tin tức mới nhất</h2>
+            <p>Đừng bỏ lỡ những thông tin về sản phẩm giới hạn và các chương trình ưu đãi độc quyền.</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Nhập email của bạn...">
+                <button type="submit" class="btn-subscribe">ĐĂNG KÝ</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="#" class="footer-logo">STEP<span>UP</span></a>
+                    <p>STEPUP - Hệ thống cửa hàng giày chính hãng hàng đầu Việt Nam. Nâng tầm phong cách, khẳng định bản thân.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link"><i class="ti ti-brand-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="ti ti-brand-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="ti ti-brand-tiktok"></i></a>
+                        <a href="#" class="social-link"><i class="ti ti-brand-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Cửa hàng</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Tất cả giày</a></li>
+                        <li><a href="#">Giày Nam</a></li>
+                        <li><a href="#">Giày Nữ</a></li>
+                        <li><a href="#">Phụ kiện</a></li>
+                        <li><a href="#">Giảm giá</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Hỗ trợ</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">Về chúng tôi</a></li>
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="news.html">Tin tức</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Liên hệ chúng tôi</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="ti ti-map-pin"></i> 123 Đường ABC, Hà Nội</a></li>
+                        <li><a href="#"><i class="ti ti-phone"></i> 0123 456 789</a></li>
+                        <li><a href="#"><i class="ti ti-mail"></i> contact@stepup.vn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 STEPUP. Tất cả quyền được bảo lưu.</p>
+                <div style="display: flex; gap: 20px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" style="height: 20px; opacity: 0.5;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" style="height: 20px; opacity: 0.5;">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Category filtering logic (simple UI state change)
+        const catItems = document.querySelectorAll('.cat-item');
+        catItems.forEach(item => {
+            item.addEventListener('click', () => {
+                catItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

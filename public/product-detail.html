@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaigonShoes – Sneaker & Crocs Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bg: '#ffffff',
+              surface: '#fdfdfd',
+              surface2: '#f4f4f4',
+              surface3: '#e0e0e0',
+              accent: '#FF4D00',
+              'accent-hover': '#e63d00',
+              accent2: '#00E5FF',
+              'accent2-dim': '#00b8cc',
+              gold: '#FFB800',
+              text: '#1a1a1a',
+              'text-muted': '#4B4B4B',
+              'text-dim': '#A0A0A0',
+              border: '#E8E8E8',
+              'border-light': '#F0F0F0',
+            },
+            fontFamily: {
+              display: ['var(--font-display)'],
+              heading: ['var(--font-heading)'],
+              text: ['var(--font-text)'],
+              body: ['var(--font-body)'],
+            }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        :root {
+          --font-display: 'Futura PT', 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+          --font-heading: 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+          --font-text: 'Helvetica Now Text', 'Helvetica Neue', Arial, sans-serif;
+          --font-body: 'Helvetica Neue', Arial, sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+          @apply bg-bg text-text font-body text-base leading-[1.6];
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { @apply bg-surface; }
+        ::-webkit-scrollbar-thumb { @apply bg-border-light rounded-[3px]; }
+      }
+      @layer utilities {
+        #toast.show { @apply translate-y-0 opacity-100 pointer-events-auto; }
+        .nav-links a.active { @apply text-accent bg-surface2 font-medium; }
+        .slide-dot.active { @apply w-6 rounded bg-accent; }
+        .prod-wish.active { @apply bg-accent border-accent text-white; }
+        .sale-chip.active { @apply bg-white text-accent; }
+        .bestseller-chip { @apply bg-surface2 text-text-muted border border-border py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all hover:bg-accent hover:border-accent hover:text-white; }
+        .bestseller-chip.active { @apply bg-accent border-accent text-white; }
+        .size-chip.active { @apply border-accent text-accent bg-accent/5; }
+        .chat-window.open { @apply scale-100 translate-y-0 opacity-100 pointer-events-auto; }
+        .scroll-top.visible { @apply opacity-100 pointer-events-auto; }
+      }
+    </style>
+    <style>
+        /* Mega Menu Styles */
+        .nav-item { position: static; }
+        .nav-item .mega-dropdown {
+            position: absolute;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            width: 720px;
+            background: #fff;
+            border: 1px solid #E8E8E8;
+            border-top: 3px solid #FF4D00;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .nav-item:hover .mega-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .mega-dropdown-inner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            padding: 24px 0 16px;
+        }
+        .mega-col { padding: 0 20px 16px; border-right: 1px solid #f0f0f0; }
+        .mega-col:last-child { border-right: none; }
+        .mega-col-title {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.2px;
+            text-transform: uppercase; color: #1a1a1a;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 1.5px solid #E8E8E8;
+        }
+        .mega-col a {
+            display: block; font-size: 13px; color: #4B4B4B;
+            padding: 5px 0; text-decoration: none;
+            transition: color 0.15s; line-height: 1.4;
+        }
+        .mega-col a:hover { color: #FF4D00; }
+        .mega-footer { border-top: 1px solid #E8E8E8; padding: 10px 20px; display: flex; justify-content: flex-end; background: #fafafa; }
+        .mega-footer a { font-size: 12px; color: #FF4D00; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: gap 0.2s; }
+        .mega-footer a:hover { gap: 9px; }
+        :root {
+            --color-bg: #ffffff;
+            --color-surface: #fdfdfd;
+            --color-surface2: #f4f4f4;
+            --color-accent: #FF4D00;
+            --color-accent-hover: #e63d00;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-text-dim: #999999;
+            --color-border: #eaeaea;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 1200px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+        img { max-width: 100%; display: block; }
+
+        .container { max-width: var(--max-width); margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        header {
+            height: 80px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border);
+            position: sticky; top: 0; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); z-index: 1000;
+        }
+        header .container { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .logo { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+        .logo span { color: var(--color-accent); }
+        nav ul { display: flex; gap: 32px; }
+        nav ul a { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; color: var(--color-text-muted); }
+        nav ul a:hover, nav ul a.active { color: var(--color-accent); }
+        .header-actions { display: flex; gap: 20px; align-items: center; }
+        .header-actions i { font-size: 20px; cursor: pointer; color: var(--color-text); transition: 0.2s; }
+        .header-actions i:hover { color: var(--color-accent); }
+        .btn-auth { background: var(--color-text); color: white; padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: 600; }
+        .btn-auth:hover { background: var(--color-accent); }
+
+        /* Breadcrumbs */
+        .breadcrumbs { padding: 24px 0; font-size: 13px; color: var(--color-text-dim); display: flex; gap: 8px; align-items: center; }
+        .breadcrumbs a:hover { color: var(--color-accent); }
+        .breadcrumbs i { font-size: 14px; }
+
+        /* Product Detail Layout */
+        .product-detail-section { padding-bottom: 80px; }
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+
+        /* Left: Gallery */
+        .gallery-container { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 100px; }
+        .main-img-box { background: var(--color-surface2); border-radius: 24px; padding: 40px; display: flex; align-items: center; justify-content: center; height: 500px; position: relative; border: 1px solid var(--color-border); }
+        .main-img-box img { max-height: 100%; transition: transform 0.3s; cursor: crosshair; }
+        .main-img-box img:hover { transform: scale(1.1); }
+        
+        .badge-new { position: absolute; top: 20px; left: 20px; background: var(--color-accent); color: white; padding: 6px 16px; border-radius: 50px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+
+        .thumb-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .thumb-item { background: var(--color-surface2); border-radius: 16px; padding: 12px; cursor: pointer; border: 2px solid transparent; transition: 0.3s; height: 100px; display: flex; align-items: center; justify-content: center; }
+        .thumb-item img { max-height: 100%; }
+        .thumb-item.active, .thumb-item:hover { border-color: var(--color-accent); background: white; }
+
+        /* Right: Info */
+        .product-info-box { padding-top: 10px; }
+        .p-brand { font-size: 13px; text-transform: uppercase; font-weight: 700; color: var(--color-accent); letter-spacing: 2px; margin-bottom: 12px; display: block; }
+        .p-title { font-family: var(--font-display); font-size: 40px; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+        
+        .p-rating { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; font-size: 14px; color: var(--color-text-muted); }
+        .stars { color: #FFB800; display: flex; gap: 2px; font-size: 16px; }
+        .p-rating-count { text-decoration: underline; cursor: pointer; }
+
+        .p-price { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--color-border); }
+        .price-current { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--color-text); }
+        .price-old { font-size: 20px; color: var(--color-text-dim); text-decoration: line-through; }
+        .price-save { background: rgba(255,77,0,0.1); color: var(--color-accent); padding: 4px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+
+        /* Color Options */
+        .option-group { margin-bottom: 32px; }
+        .option-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .option-title span { color: var(--color-text-muted); font-weight: 400; font-size: 14px; }
+        
+        .color-list { display: flex; gap: 12px; }
+        .color-item { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 4px; transition: 0.2s; }
+        .color-inner { width: 100%; height: 100%; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+        .color-item.active { border-color: var(--color-text); }
+        
+        /* Size Options */
+        .size-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .size-item { height: 48px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; background: white; }
+        .size-item:hover { border-color: var(--color-text); }
+        .size-item.active { background: var(--color-text); color: white; border-color: var(--color-text); }
+        .size-item.disabled { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; background: var(--color-surface2); }
+
+        /* Quantity & Actions */
+        .action-group { display: flex; gap: 16px; margin-bottom: 40px; }
+        
+        .qty-box { display: flex; align-items: center; border: 1px solid var(--color-border); border-radius: 12px; background: white; height: 56px; }
+        .qty-btn { width: 48px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--color-text-muted); transition: 0.2s; }
+        .qty-btn:hover { color: var(--color-accent); }
+        .qty-input { width: 48px; height: 100%; border: none; text-align: center; font-size: 16px; font-weight: 600; outline: none; }
+
+        .btn-add-cart { flex: 1; background: var(--color-accent); color: white; border: none; border-radius: 12px; font-family: var(--font-display); font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; box-shadow: 0 8px 20px rgba(255,77,0,0.2); }
+        .btn-add-cart:hover { background: var(--color-accent-hover); transform: translateY(-2px); box-shadow: 0 12px 25px rgba(255,77,0,0.3); }
+
+        .btn-wishlist { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 12px; background: white; cursor: pointer; transition: 0.3s; font-size: 24px; color: var(--color-text-muted); }
+        .btn-wishlist:hover, .btn-wishlist.active { border-color: var(--color-accent); color: var(--color-accent); background: rgba(255,77,0,0.05); }
+
+        /* Features */
+        .features-box { padding: 24px; background: var(--color-surface2); border-radius: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .feature-item { display: flex; align-items: center; gap: 16px; font-size: 14px; font-weight: 500; }
+        .feature-item i { font-size: 24px; color: var(--color-accent); }
+
+        /* Tabs Section */
+        .tabs-section { padding: 80px 0; border-top: 1px solid var(--color-border); }
+        .tab-headers { display: flex; gap: 40px; border-bottom: 1px solid var(--color-border); margin-bottom: 40px; justify-content: center; }
+        .tab-btn { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--color-text-muted); padding-bottom: 16px; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab-btn:hover { color: var(--color-text); }
+        .tab-btn.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+
+        .tab-content { display: none; max-width: 800px; margin: 0 auto; line-height: 1.8; color: var(--color-text-muted); }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        .tab-content h3 { font-size: 20px; font-weight: 700; color: var(--color-text); margin-bottom: 16px; margin-top: 32px; }
+        .tab-content h3:first-child { margin-top: 0; }
+        .tab-content p { margin-bottom: 16px; }
+        .tab-content ul { list-style: disc; padding-left: 20px; margin-bottom: 24px; }
+        .tab-content li { margin-bottom: 8px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Related Products */
+        .related-products { padding: 80px 0; background: var(--color-surface2); }
+        .section-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 40px; text-transform: uppercase; }
+        .related-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
+        
+        .product-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid var(--color-border); transition: 0.3s; position: relative; }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05); }
+        .product-img-sm { height: 200px; background: var(--color-surface); display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
+        .product-img-sm img { max-height: 100%; transition: 0.5s; }
+        .product-card:hover .product-img-sm img { transform: scale(1.08) rotate(-4deg); }
+        .product-info-sm { padding: 20px; }
+        .product-cat-sm { font-size: 11px; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: block; }
+        .product-name-sm { font-weight: 600; font-size: 14px; margin-bottom: 10px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-price-sm { display: flex; align-items: center; gap: 8px; }
+        .price-now-sm { font-weight: 700; color: var(--color-text); font-size: 16px; }
+        .price-old-sm { text-decoration: line-through; color: var(--color-text-dim); font-size: 13px; }
+        .p-wishlist { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); cursor: pointer; z-index: 10; transition: 0.2s; }
+        .p-wishlist:hover { background: var(--color-accent); color: white; }
+
+        /* Footer */
+        footer { background: white; padding: 80px 0 40px; border-top: 1px solid var(--color-border); }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1.5fr 1.5fr; gap: 60px; margin-bottom: 60px; }
+        .footer-logo { font-family: var(--font-display); font-size: 24px; font-weight: 800; margin-bottom: 20px; display: block; letter-spacing: 2px; }
+        .footer-logo span { color: var(--color-accent); }
+        .footer-about p { color: var(--color-text-muted); font-size: 14px; margin-bottom: 24px; }
+        .footer-social { display: flex; gap: 12px; }
+        .social-link { width: 40px; height: 40px; background: var(--color-surface2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-text); font-size: 18px; }
+        .social-link:hover { background: var(--color-accent); color: white; }
+        .footer-col h4 { font-size: 16px; font-weight: 700; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-links li { margin-bottom: 12px; }
+        .footer-links a { font-size: 14px; color: var(--color-text-muted); }
+        .footer-links a:hover { color: var(--color-accent); padding-left: 5px; }
+        .footer-bottom { padding-top: 40px; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--color-text-dim); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .product-grid { grid-template-columns: 1fr; gap: 40px; }
+            .gallery-container { position: static; }
+            .main-img-box { height: 400px; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            nav { display: none; }
+            .p-title { font-size: 32px; }
+            .tab-headers { gap: 20px; overflow-x: auto; white-space: nowrap; justify-content: flex-start; padding-bottom: 10px; }
+            .related-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .size-list { grid-template-columns: repeat(4, 1fr); }
+            .related-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+<div class="bg-accent text-center py-[9px] px-5 text-xs tracking-[2px] uppercase font-medium text-white [&>span]:mx-4 flex justify-center flex-wrap gap-2">
+  <span>🚀 FREE SHIP đơn từ 500K</span>
+  <span class="hidden md:inline">|</span>
+  <span>⚡ FLASH SALE mỗi ngày 12H–14H</span>
+  <span class="hidden md:inline">|</span>
+  <span>🎁 Tặng quà khi mua từ 1 triệu</span>
+</div>
+
+<header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200] relative">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <nav class="flex items-center justify-between h-[72px] gap-4">
+      <a href="index.html" class="font-display text-[26px] tracking-[3px] font-bold shrink-0">SAIGON<span class="text-accent">SHOES</span></a>
+
+      <!-- Desktop Nav -->
+      <ul class="flex gap-0.5 max-md:hidden h-full items-center flex-1 justify-center">
+        <li><a href="index.html" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trang chủ</a></li>
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nam <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike</div>
+                <a href="#">Air Force 1</a>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 1</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">SB Dunk</a>
+                <a href="#">Blazer Mid</a>
+                <a href="#">Air Jordan 1</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Adidas</div>
+                <a href="#">Adidas Samba</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Campus</a>
+                <a href="#">Adidas Superstar</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Adidas NMD</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">Ultraboost</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">New Balance</div>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">NB 574</a>
+                <a href="#">NB 990</a>
+                <a href="#">NB 991</a>
+                <a href="#">NB 2002R</a>
+                <a href="#">NB 9060</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Puma</div>
+                <a href="#">Puma RS-X</a>
+                <a href="#">Puma Thunder</a>
+                <a href="#">Puma Suede</a>
+                <a href="#">Puma Basket</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">Puma Velocity</a>
+                <a href="#">Puma Cali</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nam <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nữ <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike Nữ</div>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 270</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">React Infinity Run</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">Free RN 5.0</a>
+                <a href="#">Blazer Mid</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Nữ</div>
+                <a href="#">Adidas Samba OG</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Ultraboost 22</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">NMD R1</a>
+                <a href="#">Superstar</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs &amp; Sandal</div>
+                <a href="#">Classic Clog</a>
+                <a href="#">Mega Crush Clog</a>
+                <a href="#">Echo Sandal</a>
+                <a href="#">Crush Sandal</a>
+                <a href="#">Literide Pacer</a>
+                <a href="#">Crocband</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse All Star</a>
+                <a href="#">Vans Old Skool</a>
+                <a href="#">Puma Cali</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">Reebok Classic</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nữ <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trẻ em <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Nike Kids</div>
+                <a href="#">Air Force 1 Kids</a>
+                <a href="#">Dunk Low Kids</a>
+                <a href="#">Air Max 90 Kids</a>
+                <a href="#">React Infinity Kids</a>
+                <a href="#">Air Jordan 1 Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Kids</div>
+                <a href="#">Stan Smith Kids</a>
+                <a href="#">Superstar Kids</a>
+                <a href="#">Samba Kids</a>
+                <a href="#">NMD Kids</a>
+                <a href="#">Ultraboost Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs Kids</div>
+                <a href="#">Classic Clog Kids</a>
+                <a href="#">Crocband Kids</a>
+                <a href="#">Literide Kids</a>
+                <a href="#">Echo Sandal Kids</a>
+                <a href="#">Classic Sandal Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse Kids</a>
+                <a href="#">Vans Kids</a>
+                <a href="#">Puma Kids</a>
+                <a href="#">New Balance Kids</a>
+                <a href="#">Reebok Kids</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Trẻ em <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Giới thiệu</a></li>
+        <li><a href="index.html#blog" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Tin tức</a></li>
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Liên hệ</a></li>
+      </ul>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-[6px]">
+        <div class="flex items-center bg-surface2 border border-border rounded-sm overflow-hidden transition-colors focus-within:border-accent max-md:hidden">
+          <input type="text" placeholder="Tìm kiếm..." class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[140px] font-body placeholder:text-text-dim">
+          <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-colors hover:text-accent"><i class="ti ti-search"></i></button>
+        </div>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Yêu thích"><i class="ti ti-heart"></i></button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Thông báo">
+          <i class="ti ti-bell"></i>
+          <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">2</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Giỏ hàng">
+          <i class="ti ti-shopping-cart"></i>
+          <span id="cartCount" class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">3</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent max-md:hidden" title="Tài khoản"><i class="ti ti-user"></i></button>
+        <button class="hidden flex-col gap-[5px] bg-transparent border-none p-2 max-md:flex" id="hamburger" aria-label="Menu" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="hidden bg-white border-t border-border py-4 px-5" id="mobileMenu">
+    <a href="index.html" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Trang chủ</a>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Nam <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Puma</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">New Balance</a>
+      </div>
+    </details>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Nữ <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Crocs</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Sandal</a>
+      </div>
+    </details>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Trẻ em <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Crocs Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse Kids</a>
+      </div>
+    </details>
+    <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Giới thiệu</a>
+    <a href="index.html#blog" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Tin tức</a>
+    <a href="#" class="block py-3 text-[15px] text-text-muted transition-colors hover:text-accent">Liên hệ</a>
+  </div>
+</header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="max-w-[1200px] mx-auto px-5">
+            <!-- Breadcrumbs -->
+            <div class="breadcrumbs">
+                <a href="index.html">Trang chủ</a>
+                <i class="ti ti-chevron-right"></i>
+                <a href="products.html">Sản phẩm</a>
+                <i class="ti ti-chevron-right"></i>
+                <a href="products.html?cat=sneaker">Giày Sneaker</a>
+                <i class="ti ti-chevron-right"></i>
+                <span>StepUp Air Max One</span>
+            </div>
+
+            <!-- Product Detail Layout -->
+            <section class="product-detail-section">
+                <div class="product-grid">
+                    
+                    <!-- Left: Gallery & Offers -->
+                    <div class="gallery-container">
+                        <div class="main-img-box">
+                            <span class="badge-new">New Release</span>
+                            <img src="images/p1.png" alt="StepUp Air Max One" id="mainImage">
+                        </div>
+                        <div class="thumb-list">
+                            <div class="thumb-item active"><img src="images/p1.png" alt="Thumb 1"></div>
+                            <div class="thumb-item"><img src="images/p2.png" alt="Thumb 2"></div>
+                            <div class="thumb-item"><img src="images/p3.png" alt="Thumb 3"></div>
+                            <div class="thumb-item"><img src="images/p1.png" style="transform: scaleX(-1);" alt="Thumb 4"></div>
+                        </div>
+
+                        <!-- Special Offers Box -->
+                        <div class="mt-6 border border-border rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+                            <div class="px-5 py-3.5 border-b border-border flex items-center justify-between bg-surface/50 rounded-t-xl">
+                                <div class="flex items-center gap-2">
+                                    <i class="ti ti-ticket text-accent text-lg"></i>
+                                    <span class="text-[13px] font-bold uppercase tracking-[0.5px]">Ưu đãi dành cho bạn</span>
+                                </div>
+                                <span class="text-[12px] text-accent font-medium cursor-pointer hover:underline">Xem tất cả</span>
+                            </div>
+                            <div class="p-4 flex flex-col gap-3">
+                                <div class="flex items-center justify-between p-3 border border-border rounded-lg relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-[4px] bg-accent"></div>
+                                    <div class="pl-2">
+                                        <div class="text-[13px] font-bold text-text mb-0.5">Giảm 50.000₫</div>
+                                        <div class="text-[12px] text-text-muted">Đơn tối thiểu 500K</div>
+                                    </div>
+                                    <button class="text-[12px] font-bold text-accent border border-accent bg-accent/5 px-3 py-1.5 rounded hover:bg-accent hover:text-white transition-colors shrink-0">Lưu mã</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 border border-border rounded-lg relative overflow-hidden">
+                                    <div class="absolute left-0 top-0 bottom-0 w-[4px] bg-accent"></div>
+                                    <div class="pl-2">
+                                        <div class="text-[13px] font-bold text-text mb-0.5">Giảm 15%</div>
+                                        <div class="text-[12px] text-text-muted">Đơn tối thiểu 1.500K</div>
+                                    </div>
+                                    <button class="text-[12px] font-bold text-accent border border-accent bg-accent/5 px-3 py-1.5 rounded hover:bg-accent hover:text-white transition-colors shrink-0">Lưu mã</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Info -->
+                    <div class="product-info-box">
+                        <span class="p-brand">Nike</span>
+                        <h1 class="p-title">StepUp Air Max One</h1>
+                        
+                        <div class="p-rating">
+                            <div class="stars">
+                                <i class="ti ti-star-filled"></i>
+                                <i class="ti ti-star-filled"></i>
+                                <i class="ti ti-star-filled"></i>
+                                <i class="ti ti-star-filled"></i>
+                                <i class="ti ti-star-half-filled"></i>
+                            </div>
+                            <span>4.8</span>
+                            <span class="p-rating-count">(128 đánh giá)</span>
+                        </div>
+
+                        <div class="p-price">
+                            <span class="price-current">1.250.000₫</span>
+                            <span class="price-old">1.500.000₫</span>
+                            <span class="price-save">-16%</span>
+                        </div>
+
+                        <!-- Colors -->
+                        <div class="option-group">
+                            <div class="option-title">Màu sắc: <span id="colorName">Cam Trắng</span></div>
+                            <div class="color-list">
+                                <div class="color-item active" data-color="Cam Trắng" title="Cam Trắng">
+                                    <div class="color-inner" style="background: linear-gradient(135deg, #FF4D00 50%, #ffffff 50%);"></div>
+                                </div>
+                                <div class="color-item" data-color="Đen Trắng" title="Đen Trắng">
+                                    <div class="color-inner" style="background: linear-gradient(135deg, #1a1a1a 50%, #ffffff 50%);"></div>
+                                </div>
+                                <div class="color-item" data-color="Xanh Dương" title="Xanh Dương">
+                                    <div class="color-inner" style="background: #2196F3;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sizes -->
+                        <div class="option-group">
+                            <div class="option-title">Kích thước: <span id="sizeName">Chưa chọn</span> <a href="#" style="font-size: 13px; font-weight: 500; color: var(--color-accent); text-decoration: underline;">Hướng dẫn chọn size</a></div>
+                            <div class="size-list">
+                                <div class="size-item">38</div>
+                                <div class="size-item">39</div>
+                                <div class="size-item">40</div>
+                                <div class="size-item active">41</div>
+                                <div class="size-item">42</div>
+                                <div class="size-item disabled" title="Hết hàng">43</div>
+                                <div class="size-item">44</div>
+                            </div>
+                        </div>
+
+                        <!-- Quantity & Add to Cart -->
+                        <div class="action-group">
+                            <div class="qty-box">
+                                <div class="qty-btn" id="qtyMinus"><i class="ti ti-minus"></i></div>
+                                <input type="number" class="qty-input" id="qtyInput" value="1" min="1" max="10">
+                                <div class="qty-btn" id="qtyPlus"><i class="ti ti-plus"></i></div>
+                            </div>
+                            <button class="btn-add-cart" onclick="window.location.href='cart.html'">
+                                <i class="ti ti-shopping-cart-plus"></i> THÊM VÀO GIỎ HÀNG
+                            </button>
+                            <div class="btn-wishlist" id="btnWishlist">
+                                <i class="ti ti-heart"></i>
+                            </div>
+                        </div>
+
+                        <!-- Features Box -->
+                        <div class="features-box">
+                            <div class="feature-item">
+                                <i class="ti ti-truck-delivery"></i>
+                                <span>Giao hàng miễn phí toàn quốc cho đơn từ 1.000.000₫</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="ti ti-shield-check"></i>
+                                <span>Bảo hành chính hãng 12 tháng</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="ti ti-refresh"></i>
+                                <span>Đổi trả dễ dàng trong 30 ngày (còn nguyên tem mác)</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tabs Section -->
+        <section class="tabs-section">
+            <div class="max-w-[1200px] mx-auto px-5">
+                <div class="tab-headers">
+                    <div class="tab-btn active" data-target="desc">Mô tả sản phẩm</div>
+                    <div class="tab-btn" data-target="specs">Thông tin sản phẩm</div>
+                    <div class="tab-btn" data-target="reviews">Đánh giá (128)</div>
+                </div>
+                
+                <div class="tab-content active" id="desc">
+                    <p>Giày thể thao <strong>StepUp Air Max One</strong> là sự kết hợp hoàn hảo giữa phong cách cổ điển và công nghệ hiện đại. Với thiết kế đệm khí đặc trưng lộ ra ở phần gót, đôi giày không chỉ mang lại sự thoải mái tuyệt đối cho đôi chân mà còn là điểm nhấn thời trang cực chất cho mọi outfit của bạn.</p>
+                    <h3>Đặc điểm nổi bật:</h3>
+                    <ul>
+                        <li><strong>Công nghệ đệm Air:</strong> Hấp thụ lực va đập tối đa, mang lại cảm giác êm ái khi di chuyển liên tục.</li>
+                        <li><strong>Chất liệu thoáng khí:</strong> Phần thân trên làm từ lưới (mesh) và da lộn nhân tạo cao cấp giúp giữ form giày tốt và đảm bảo đôi chân luôn khô thoáng.</li>
+                        <li><strong>Đế ngoài cao su bám đường:</strong> Thiết kế vân đế hình bánh quế (Waffle) đặc trưng tăng độ bám trên mọi bề mặt.</li>
+                        <li><strong>Thiết kế đa dụng:</strong> Phù hợp cho việc tập luyện nhẹ nhàng, đi bộ hàng ngày hoặc phối đồ streetwear cá tính.</li>
+                    </ul>
+                    <p>Màu sắc Cam Trắng (Orange/White) mang đến năng lượng tươi trẻ, nổi bật và dễ dàng thu hút ánh nhìn ở mọi nơi bạn xuất hiện. StepUp Air Max One chắc chắn là một item không thể thiếu trong tủ giày của giới trẻ hiện đại.</p>
+                </div>
+
+                <div class="tab-content" id="specs">
+                    <h3>Thông tin sản phẩm</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--color-border);">
+                                <td style="padding: 16px; font-weight: 600; width: 40%;">Thương hiệu</td>
+                                <td style="padding: 16px;">Nike</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--color-border);">
+                                <td style="padding: 16px; font-weight: 600;">Dòng sản phẩm</td>
+                                <td style="padding: 16px;">Air Max (Running/Lifestyle)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--color-border);">
+                                <td style="padding: 16px; font-weight: 600;">Chất liệu Upper</td>
+                                <td style="padding: 16px;">Vải lưới (Mesh) / Da lộn (Suede) / Da tổng hợp</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--color-border);">
+                                <td style="padding: 16px; font-weight: 600;">Chất liệu Đế (Sole)</td>
+                                <td style="padding: 16px;">Cao su tổng hợp + Đệm khí Air trong suốt</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--color-border);">
+                                <td style="padding: 16px; font-weight: 600;">Trọng lượng (Size 41)</td>
+                                <td style="padding: 16px;">~320g / chiếc</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 16px; font-weight: 600;">Nơi sản xuất</td>
+                                <td style="padding: 16px;">Việt Nam (Made in Vietnam)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-content" id="reviews">
+                    <div style="display: flex; align-items: center; gap: 40px; margin-bottom: 40px; padding: 32px; background: var(--color-surface2); border-radius: 16px;">
+                        <div style="text-align: center;">
+                            <div style="font-family: var(--font-display); font-size: 48px; font-weight: 800; color: var(--color-text);">4.8<span style="font-size: 20px; color: var(--color-text-dim);">/5</span></div>
+                            <div class="stars" style="justify-content: center; margin-bottom: 8px;">
+                                <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-half-filled"></i>
+                            </div>
+                            <div style="font-size: 13px; color: var(--color-text-muted);">Dựa trên 128 đánh giá</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <button style="background: var(--color-text); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; float: right;">Viết đánh giá</button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <!-- Review 1 -->
+                        <div style="padding-bottom: 24px; border-bottom: 1px solid var(--color-border);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <div style="width: 40px; height: 40px; background: var(--color-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">H</div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 15px;">Hoàng Trần <span style="font-size: 11px; background: rgba(76, 175, 80, 0.1); color: #4CAF50; padding: 2px 6px; border-radius: 4px; margin-left: 8px;"><i class="ti ti-circle-check"></i> Đã mua hàng</span></div>
+                                        <div class="stars" style="font-size: 13px; margin-top: 4px;">
+                                            <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 12px; color: var(--color-text-dim);">15/05/2026</div>
+                            </div>
+                            <p style="color: var(--color-text); font-size: 14px; margin-bottom: 8px;">Giày mang cực kỳ êm chân, màu cam ngoài đời nhìn sáng và đẹp hơn trong ảnh rất nhiều. Shop đóng gói cẩn thận, hộp không bị móp méo. Sẽ ủng hộ tiếp!</p>
+                            <div style="font-size: 12px; color: var(--color-text-dim);">Phân loại: Cam Trắng, Size 41</div>
+                        </div>
+                        <!-- Review 2 -->
+                        <div style="padding-bottom: 24px; border-bottom: 1px solid var(--color-border);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <div style="width: 40px; height: 40px; background: var(--color-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">M</div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 15px;">Minh Nguyễn <span style="font-size: 11px; background: rgba(76, 175, 80, 0.1); color: #4CAF50; padding: 2px 6px; border-radius: 4px; margin-left: 8px;"><i class="ti ti-circle-check"></i> Đã mua hàng</span></div>
+                                        <div class="stars" style="font-size: 13px; margin-top: 4px;">
+                                            <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 12px; color: var(--color-text-dim);">10/05/2026</div>
+                            </div>
+                            <p style="color: var(--color-text); font-size: 14px; margin-bottom: 8px;">Giao hàng nhanh, form giày chuẩn. Tuy nhiên lúc mới mang hơi cứng ở phần gót một chút, đi vài hôm thì mềm ra ok. Điểm cộng là rất thoáng khí.</p>
+                            <div style="font-size: 12px; color: var(--color-text-dim);">Phân loại: Đen Trắng, Size 42</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Related Products -->
+        <section class="related-products">
+            <div class="max-w-[1200px] mx-auto px-5">
+                <h2 class="section-title">Sản phẩm liên quan</h2>
+                <div class="related-grid">
+                    <!-- Related 1 -->
+                    <div class="product-card">
+                        <div class="p-wishlist"><i class="ti ti-heart"></i></div>
+                        <div class="product-img-sm"><img src="images/p2.png" alt="Pro Dunker"></div>
+                        <div class="product-info-sm">
+                            <span class="product-cat-sm">Nike</span>
+                            <a href="product-detail.html" class="product-name-sm">StepUp Pro Dunker</a>
+                            <div class="product-price-sm">
+                                <span class="price-now-sm">2.100.000₫</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Related 2 -->
+                    <div class="product-card">
+                        <div class="p-wishlist"><i class="ti ti-heart"></i></div>
+                        <div class="product-img-sm"><img src="images/p3.png" alt="Classic Yellow"></div>
+                        <div class="product-info-sm">
+                            <span class="product-cat-sm">New Balance</span>
+                            <a href="product-detail.html" class="product-name-sm">StepUp Classic Yellow</a>
+                            <div class="product-price-sm">
+                                <span class="price-now-sm">950.000₫</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Related 3 -->
+                    <div class="product-card">
+                        <div class="p-wishlist"><i class="ti ti-heart"></i></div>
+                        <div class="product-img-sm"><img src="images/p1.png" style="filter: hue-rotate(200deg);" alt="Aero Racer Blue"></div>
+                        <div class="product-info-sm">
+                            <span class="product-cat-sm">Nike</span>
+                            <a href="product-detail.html" class="product-name-sm">StepUp Aero Racer Blue</a>
+                            <div class="product-price-sm">
+                                <span class="price-now-sm">1.850.000₫</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Related 4 -->
+                    <div class="product-card">
+                        <div class="p-wishlist"><i class="ti ti-heart"></i></div>
+                        <div class="product-img-sm"><img src="images/p6.png" alt="Yeezy Onyx"></div>
+                        <div class="product-info-sm">
+                            <span class="product-cat-sm">Adidas</span>
+                            <a href="product-detail.html" class="product-name-sm">StepUp Yeezy 350 V2 Onyx</a>
+                            <div class="product-price-sm">
+                                <span class="price-now-sm">3.200.000₫</span>
+                                <span class="price-old-sm">4.500.000₫</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Related 5 -->
+                    <div class="product-card">
+                        <div class="p-wishlist"><i class="ti ti-heart"></i></div>
+                        <div class="product-img-sm"><img src="images/p7.png" alt="Samba Classic"></div>
+                        <div class="product-info-sm">
+                            <span class="product-cat-sm">Adidas</span>
+                            <a href="product-detail.html" class="product-name-sm">StepUp Samba Classic</a>
+                            <div class="product-price-sm">
+                                <span class="price-now-sm">2.450.000₫</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+<footer id="contact" class="bg-[#111111] text-white mt-0">
+  <div class="w-full">
+    <!-- Footer top -->
+    <div class="max-w-[1200px] mx-auto px-6 pt-14 pb-10">
+      <div class="grid grid-cols-[1.6fr_1fr_1fr_1.2fr] max-lg:grid-cols-2 max-md:grid-cols-1 gap-10">
+        <!-- Brand -->
+        <div>
+          <div class="font-display text-[26px] font-bold tracking-[3px] mb-4">SAIGON<span class="text-accent">SHOES</span></div>
+          <p class="text-[13px] text-white/50 leading-[1.9] mb-6 max-w-[260px]">
+            Chúng tôi mang đến những đôi giày không chỉ là phụ kiện, mà là biểu tượng của phong cách và cá tính riêng. SaigonShoes — Đồng hành cùng mỗi bước chân của bạn.
+          </p>
+          <div class="flex gap-3">
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-facebook"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-instagram"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-tiktok"></i></a>
+          </div>
+        </div>
+
+        <!-- Khám phá -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">KHÁM PHÁ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nam</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nữ</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Dép Crocs</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Phụ kiện Jibbitz</a>
+          </nav>
+        </div>
+
+        <!-- Dịch vụ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">DỊCH VỤ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Theo dõi đơn hàng</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Chính sách đổi trả</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hướng dẫn chọn size</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hệ thống cửa hàng</a>
+          </nav>
+        </div>
+
+        <!-- Thông tin liên hệ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">THÔNG TIN</h4>
+          <div class="flex flex-col gap-3.5">
+            <div class="flex items-start gap-3">
+              <i class="ti ti-map-pin text-[16px] text-accent mt-[2px] shrink-0"></i>
+              <span class="text-[13px] text-white/60 leading-[1.6]">123 Đường ABC, Quận 1, TP. Hồ Chí Minh</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-phone text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">0123 456 789</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-mail text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">support@stepup.vn</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="border-t border-white/[0.07]">
+      <div class="max-w-[1200px] mx-auto px-6 py-5 flex items-center justify-between flex-wrap gap-4">
+        <p class="text-[12px] text-white/30">© 2026 SaigonShoes Store. Bản quyền thuộc về đội ngũ phát triển dự án.</p>
+        <div class="flex items-center gap-3 text-white/30">
+          <i class="ti ti-brand-visa text-[22px]"></i>
+          <i class="ti ti-brand-mastercard text-[22px]"></i>
+          <i class="ti ti-brand-paypal text-[22px]"></i>
+          <i class="ti ti-credit-card text-[22px]"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // 1. Image Gallery
+        const mainImage = document.getElementById('mainImage');
+        const thumbs = document.querySelectorAll('.thumb-item');
+        
+        thumbs.forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                // Remove active class from all
+                thumbs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked
+                this.classList.add('active');
+                // Change main image src
+                const imgSrc = this.querySelector('img').src;
+                mainImage.src = imgSrc;
+                // Preserve transform (like scaleX for flipped images)
+                const imgTransform = this.querySelector('img').style.transform;
+                mainImage.style.transform = imgTransform || 'none';
+            });
+        });
+
+        // 2. Color Selection
+        const colorItems = document.querySelectorAll('.color-item');
+        const colorNameLabel = document.getElementById('colorName');
+        
+        colorItems.forEach(item => {
+            item.addEventListener('click', function() {
+                colorItems.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                colorNameLabel.textContent = this.getAttribute('data-color');
+            });
+        });
+
+        // 3. Size Selection
+        const sizeItems = document.querySelectorAll('.size-item:not(.disabled)');
+        const sizeNameLabel = document.getElementById('sizeName');
+        
+        sizeItems.forEach(item => {
+            item.addEventListener('click', function() {
+                sizeItems.forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                sizeNameLabel.textContent = 'Size ' + this.textContent;
+            });
+        });
+
+        // 4. Quantity Control
+        const qtyInput = document.getElementById('qtyInput');
+        const btnMinus = document.getElementById('qtyMinus');
+        const btnPlus = document.getElementById('qtyPlus');
+        
+        btnMinus.addEventListener('click', () => {
+            let val = parseInt(qtyInput.value);
+            if (val > 1) qtyInput.value = val - 1;
+        });
+        
+        btnPlus.addEventListener('click', () => {
+            let val = parseInt(qtyInput.value);
+            if (val < 10) qtyInput.value = val + 1;
+        });
+        
+        qtyInput.addEventListener('change', () => {
+            let val = parseInt(qtyInput.value);
+            if (isNaN(val) || val < 1) qtyInput.value = 1;
+            if (val > 10) qtyInput.value = 10;
+        });
+
+        // 5. Wishlist Toggle
+        const btnWishlist = document.getElementById('btnWishlist');
+        btnWishlist.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const icon = this.querySelector('i');
+            if (this.classList.contains('active')) {
+                icon.className = 'ti ti-heart-filled';
+            } else {
+                icon.className = 'ti ti-heart';
+            }
+        });
+
+        // 6. Tabs
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.getAttribute('data-target');
+                
+                // Update buttons
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update contents
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === target) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

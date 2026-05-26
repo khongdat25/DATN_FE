@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán | STEPUP - Nâng tầm bước chân</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        :root {
+            --color-bg: #ffffff;
+            --color-surface: #fdfdfd;
+            --color-surface2: #f4f4f4;
+            --color-accent: #FF4D00;
+            --color-accent-hover: #e63d00;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-text-dim: #999999;
+            --color-border: #eaeaea;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 1200px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background-color: var(--color-surface); color: var(--color-text); line-height: 1.6; }
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+
+        .container { max-width: var(--max-width); margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        header { height: 80px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border); background: white; }
+        .logo { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: 2px; }
+        .logo span { color: var(--color-accent); }
+
+        /* Page Header */
+        .page-header { padding: 40px 0; background: white; border-bottom: 1px solid var(--color-border); margin-bottom: 40px; }
+        .page-header h1 { font-family: var(--font-display); font-size: 32px; font-weight: 700; }
+        .breadcrumb { font-size: 14px; color: var(--color-text-dim); margin-top: 8px; }
+
+        /* Checkout Grid */
+        .checkout-grid { display: grid; grid-template-columns: 1fr 400px; gap: 40px; margin-bottom: 80px; }
+
+        /* Checkout Form */
+        .checkout-section { background: white; border-radius: 20px; border: 1px solid var(--color-border); padding: 32px; margin-bottom: 24px; }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+        .section-title i { color: var(--color-accent); font-size: 24px; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--color-text-muted); margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--color-border); background: var(--color-surface); font-family: var(--font-body); font-size: 14px; outline: none; transition: 0.3s; }
+        .form-control:focus { border-color: var(--color-accent); background: white; box-shadow: 0 0 0 4px rgba(255,77,0,0.05); }
+
+        /* Payment Methods in Sidebar */
+        .payment-options { display: grid; gap: 10px; }
+        .payment-item { border: 1px solid var(--color-border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; }
+        .payment-item:hover { border-color: var(--color-accent); background: var(--color-surface); }
+        .payment-item.active { border-color: var(--color-accent); background: rgba(255,77,0,0.03); }
+        .payment-item input[type="radio"] { accent-color: var(--color-accent); width: 16px; height: 16px; }
+        .payment-info { display: flex; flex-direction: column; }
+        .payment-name { font-weight: 600; font-size: 13px; }
+        .payment-desc { font-size: 11px; color: var(--color-text-dim); }
+
+        /* Order Review Card */
+        .order-review { background: white; border-radius: 24px; border: 1px solid var(--color-border); padding: 32px; height: fit-content; position: sticky; top: 100px; }
+        .review-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 24px; }
+        
+        .mini-product-list { margin-bottom: 24px; }
+        .mini-product { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); }
+        .mini-img { width: 60px; height: 60px; background: var(--color-surface2); border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 8px; position: relative; }
+        .mini-img img { max-width: 100%; max-height: 100%; }
+        .mini-qty { position: absolute; top: -8px; right: -8px; background: var(--color-text); color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+        .mini-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .mini-info p { font-size: 12px; color: var(--color-text-dim); }
+        .mini-price { font-weight: 600; font-size: 14px; margin-left: auto; }
+
+        .review-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .review-row.total { margin-top: 20px; padding-top: 20px; border-top: 1px dotted var(--color-border); font-weight: 700; font-size: 18px; }
+        .review-row.total span:last-child { color: var(--color-accent); }
+
+        .btn-order { width: 100%; padding: 16px; border-radius: 12px; border: none; background: var(--color-accent); color: white; font-family: var(--font-display); font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 24px; }
+        .btn-order:hover { background: var(--color-accent-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 77, 0, 0.2); }
+
+        .security-badges { display: flex; justify-content: center; gap: 20px; margin-top: 24px; opacity: 0.5; }
+        .security-badges i { font-size: 24px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .checkout-grid { grid-template-columns: 1fr; }
+            .order-review { position: static; }
+        }
+
+        @media (max-width: 480px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">STEP<span>UP</span></a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Thanh toán</h1>
+            <div class="breadcrumb">
+                <a href="index.html">Trang chủ</a> / <a href="cart.html">Giỏ hàng</a> / <span>Thanh toán</span>
+            </div>
+        </div>
+
+        <form class="checkout-grid">
+            <div class="checkout-form">
+                <!-- Shipping Info -->
+                <div class="checkout-section">
+                    <h2 class="section-title"><i class="ti ti-truck"></i> Thông tin giao hàng</h2>
+                    
+                    <div class="form-group">
+                        <label for="name">Họ và tên</label>
+                        <input type="text" id="name" class="form-control" placeholder="Nguyễn Văn A" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control" placeholder="username@gmail.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Số điện thoại</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="0123 456 789" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Địa chỉ cụ thể</label>
+                        <input type="text" id="address" class="form-control" placeholder="Số nhà, tên đường..." required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="province">Tỉnh / Thành phố</label>
+                            <select id="province" class="form-control" required>
+                                <option value="">Chọn tỉnh thành</option>
+                                <option>Hà Nội</option>
+                                <option>TP. Hồ Chí Minh</option>
+                                <option>Đà Nẵng</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="district">Quận / Huyện</label>
+                            <select id="district" class="form-control" required>
+                                <option value="">Chọn quận huyện</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="note">Ghi chú đơn hàng (tùy chọn)</label>
+                        <textarea id="note" class="form-control" rows="3" placeholder="Ví dụ: Giao hàng giờ hành chính..."></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Order Review -->
+            <div class="order-review">
+                <h2 class="review-title">Đơn hàng của bạn</h2>
+                
+                <div class="mini-product-list">
+                    <div class="mini-product">
+                        <div class="mini-img">
+                            <img src="images/p1.png" alt="P1">
+                            <span class="mini-qty">1</span>
+                        </div>
+                        <div class="mini-info">
+                            <h4>Air Max One</h4>
+                            <p>Size: 42</p>
+                        </div>
+                        <span class="mini-price">1.250.000₫</span>
+                    </div>
+                    <div class="mini-product">
+                        <div class="mini-img">
+                            <img src="images/p2.png" alt="P2">
+                            <span class="mini-qty">1</span>
+                        </div>
+                        <div class="mini-info">
+                            <h4>Pro Dunker</h4>
+                            <p>Size: 41</p>
+                        </div>
+                        <span class="mini-price">2.100.000₫</span>
+                    </div>
+                </div>
+
+                <div class="review-row">
+                    <span>Tạm tính</span>
+                    <span>3.350.000₫</span>
+                </div>
+                <div class="review-row">
+                    <span>Phí vận chuyển</span>
+                    <span>Miễn phí</span>
+                </div>
+                <div class="review-row total">
+                    <span>Tổng cộng</span>
+                    <span>3.350.000₫</span>
+                </div>
+
+                <!-- Payment Methods moved here -->
+                <div style="margin-top: 32px;">
+                    <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Phương thức thanh toán</h3>
+                    <div class="payment-options">
+                        <label class="payment-item active">
+                            <input type="radio" name="payment" checked>
+                            <div class="payment-info">
+                                <span class="payment-name">Tiền mặt (COD)</span>
+                                <span class="payment-desc">Khi nhận hàng</span>
+                            </div>
+                            <i class="ti ti-cash" style="margin-left: auto; font-size: 20px; color: #4caf50;"></i>
+                        </label>
+
+                        <label class="payment-item">
+                            <input type="radio" name="payment">
+                            <div class="payment-info">
+                                <span class="payment-name">Chuyển khoản</span>
+                                <span class="payment-desc">Qua ngân hàng</span>
+                            </div>
+                            <i class="ti ti-building-bank" style="margin-left: auto; font-size: 20px; color: #2196f3;"></i>
+                        </label>
+
+                        <label class="payment-item">
+                            <input type="radio" name="payment">
+                            <div class="payment-info">
+                                <span class="payment-name">Ví điện tử</span>
+                                <span class="payment-desc">MoMo / VNPay</span>
+                            </div>
+                            <i class="ti ti-wallet" style="margin-left: auto; font-size: 20px; color: #d81b60;"></i>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-order">ĐẶT HÀNG NGAY</button>
+                
+                <div class="security-badges">
+                    <i class="ti ti-shield-lock" title="Secure Payment"></i>
+                    <i class="ti ti-truck-delivery" title="Fast Delivery"></i>
+                    <i class="ti ti-certificate" title="Genuine Product"></i>
+                </div>
+                <p style="text-align: center; font-size: 12px; color: var(--color-text-dim); margin-top: 16px;">
+                    Nhấn "Đặt hàng ngay" đồng nghĩa với việc bạn đồng ý với Điều khoản mua hàng của StepUp.
+                </p>
+            </div>
+        </form>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 STEPUP Store. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

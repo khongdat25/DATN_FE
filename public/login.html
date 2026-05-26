@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | SaigonShoes - Nâng tầm bước chân</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bg: '#ffffff',
+              surface: '#fdfdfd',
+              surface2: '#f4f4f4',
+              surface3: '#e0e0e0',
+              accent: '#FF4D00',
+              'accent-hover': '#e63d00',
+              accent2: '#00E5FF',
+              'accent2-dim': '#00b8cc',
+              gold: '#FFB800',
+              text: '#1a1a1a',
+              'text-muted': '#4B4B4B',
+              'text-dim': '#A0A0A0',
+              border: '#E8E8E8',
+              'border-light': '#F0F0F0',
+            },
+            fontFamily: {
+              display: ['var(--font-display)'],
+              heading: ['var(--font-heading)'],
+              text: ['var(--font-text)'],
+              body: ['var(--font-body)'],
+            }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        :root {
+          --font-display: 'Futura PT', 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+          --font-heading: 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+          --font-text: 'Helvetica Now Text', 'Helvetica Neue', Arial, sans-serif;
+          --font-body: 'Helvetica Neue', Arial, sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+          @apply bg-bg text-text font-body text-base leading-[1.6];
+        }
+      }
+      @layer utilities {
+        #toast.show { @apply translate-y-0 opacity-100 pointer-events-auto; }
+        .nav-links a.active { @apply text-accent bg-surface2 font-medium; }
+      }
+    </style>
+    <style>
+        /* Mega Menu Styles */
+        .nav-item { position: static; }
+        .nav-item .mega-dropdown {
+            position: absolute;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            width: 720px;
+            background: #fff;
+            border: 1px solid #E8E8E8;
+            border-top: 3px solid #FF4D00;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .nav-item:hover .mega-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .mega-dropdown-inner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            padding: 24px 0 16px;
+        }
+        .mega-col { padding: 0 20px 16px; border-right: 1px solid #f0f0f0; }
+        .mega-col:last-child { border-right: none; }
+        .mega-col-title {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.2px;
+            text-transform: uppercase; color: #1a1a1a;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 1.5px solid #E8E8E8;
+        }
+        .mega-col a {
+            display: block; font-size: 13px; color: #4B4B4B;
+            padding: 5px 0; text-decoration: none;
+            transition: color 0.15s; line-height: 1.4;
+        }
+        .mega-col a:hover { color: #FF4D00; }
+        .mega-footer { border-top: 1px solid #E8E8E8; padding: 10px 20px; display: flex; justify-content: flex-end; background: #fafafa; }
+        .mega-footer a { font-size: 12px; color: #FF4D00; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: gap 0.2s; }
+        .mega-footer a:hover { gap: 9px; }
+
+        :root {
+            --color-bg: #ffffff;
+            --color-surface: #fdfdfd;
+            --color-surface2: #f4f4f4;
+            --color-accent: #FF4D00;
+            --color-accent-hover: #e63d00;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-text-dim: #999999;
+            --color-border: #eaeaea;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-surface2);
+            color: var(--color-text);
+            overflow-x: hidden;
+        }
+
+        /* Decorative Elements */
+        .blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 77, 0, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(40px);
+        }
+
+        .blob-1 { top: -100px; right: -100px; }
+        .blob-2 { bottom: -100px; left: -100px; }
+
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-card {
+            background: var(--color-bg);
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--color-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 28px;
+            letter-spacing: 3px;
+            text-decoration: none;
+            color: var(--color-text);
+            display: block;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo span {
+            color: var(--color-accent);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: var(--color-text-muted);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--color-text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: var(--color-text-dim);
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            font-family: var(--font-body);
+            font-size: 14px;
+            color: var(--color-text);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--color-accent);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 77, 0, 0.08);
+        }
+
+        .input-wrapper input:focus + i {
+            color: var(--color-accent);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--color-text-muted);
+        }
+
+        .remember-me input {
+            accent-color: var(--color-accent);
+            width: 16px;
+            height: 16px;
+        }
+
+        .forgot-pass {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-pass:hover {
+            text-decoration: underline;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: var(--color-accent);
+            color: white;
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(255, 77, 0, 0.2);
+        }
+
+        .btn-login:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 77, 0, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--color-text-dim);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .divider:not(:empty)::before { margin-right: 16px; }
+        .divider:not(:empty)::after { margin-left: 16px; }
+
+        .social-login {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            background: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .social-btn:hover {
+            background: var(--color-surface2);
+            border-color: var(--color-text-dim);
+        }
+
+        .social-btn i {
+            font-size: 18px;
+        }
+
+        .register-link {
+            text-align: center;
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        .register-link a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-accent text-center py-[9px] px-5 text-xs tracking-[2px] uppercase font-medium text-white [&>span]:mx-4 flex justify-center flex-wrap gap-2">
+  <span>🚀 FREE SHIP đơn từ 500K</span>
+  <span class="hidden md:inline">|</span>
+  <span>⚡ FLASH SALE mỗi ngày 12H–14H</span>
+  <span class="hidden md:inline">|</span>
+  <span>🎁 Tặng quà khi mua từ 1 triệu</span>
+</div>
+
+<header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200] relative">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <nav class="flex items-center justify-between h-[72px] gap-4">
+      <a href="index.html" class="font-display text-[26px] tracking-[3px] font-bold shrink-0">SAIGON<span class="text-accent">SHOES</span></a>
+
+      <!-- Desktop Nav -->
+      <ul class="flex gap-0.5 max-md:hidden h-full items-center flex-1 justify-center">
+
+        <!-- Trang chủ -->
+        <li><a href="index.html" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trang chủ</a></li>
+
+        <!-- Nam -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nam <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike</div>
+                <a href="#">Air Force 1</a>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 1</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">SB Dunk</a>
+                <a href="#">Blazer Mid</a>
+                <a href="#">Air Jordan 1</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Adidas</div>
+                <a href="#">Adidas Samba</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Campus</a>
+                <a href="#">Adidas Superstar</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Adidas NMD</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">Ultraboost</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">New Balance</div>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">NB 574</a>
+                <a href="#">NB 990</a>
+                <a href="#">NB 991</a>
+                <a href="#">NB 2002R</a>
+                <a href="#">NB 9060</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Puma</div>
+                <a href="#">Puma RS-X</a>
+                <a href="#">Puma Thunder</a>
+                <a href="#">Puma Suede</a>
+                <a href="#">Puma Basket</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">Puma Velocity</a>
+                <a href="#">Puma Cali</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nam <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Nữ -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nữ <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike Nữ</div>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 270</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">React Infinity Run</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">Free RN 5.0</a>
+                <a href="#">Blazer Mid</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Nữ</div>
+                <a href="#">Adidas Samba OG</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Ultraboost 22</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">NMD R1</a>
+                <a href="#">Superstar</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs &amp; Sandal</div>
+                <a href="#">Classic Clog</a>
+                <a href="#">Mega Crush Clog</a>
+                <a href="#">Echo Sandal</a>
+                <a href="#">Crush Sandal</a>
+                <a href="#">Literide Pacer</a>
+                <a href="#">Crocband</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse All Star</a>
+                <a href="#">Vans Old Skool</a>
+                <a href="#">Puma Cali</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">Reebok Classic</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nữ <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Trẻ em -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trẻ em <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Nike Kids</div>
+                <a href="#">Air Force 1 Kids</a>
+                <a href="#">Dunk Low Kids</a>
+                <a href="#">Air Max 90 Kids</a>
+                <a href="#">React Infinity Kids</a>
+                <a href="#">Air Jordan 1 Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Kids</div>
+                <a href="#">Stan Smith Kids</a>
+                <a href="#">Superstar Kids</a>
+                <a href="#">Samba Kids</a>
+                <a href="#">NMD Kids</a>
+                <a href="#">Ultraboost Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs Kids</div>
+                <a href="#">Classic Clog Kids</a>
+                <a href="#">Crocband Kids</a>
+                <a href="#">Literide Kids</a>
+                <a href="#">Echo Sandal Kids</a>
+                <a href="#">Classic Sandal Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse Kids</a>
+                <a href="#">Vans Kids</a>
+                <a href="#">Puma Kids</a>
+                <a href="#">New Balance Kids</a>
+                <a href="#">Reebok Kids</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Trẻ em <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Giới thiệu -->
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Giới thiệu</a></li>
+
+        <!-- Tin tức -->
+        <li><a href="index.html#blog" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Tin tức</a></li>
+
+        <!-- Liên hệ -->
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Liên hệ</a></li>
+
+      </ul>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-[6px]">
+        <div class="flex items-center bg-surface2 border border-border rounded-sm overflow-hidden transition-colors focus-within:border-accent max-md:hidden">
+          <input type="text" placeholder="Tìm kiếm..." class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[140px] font-body placeholder:text-text-dim">
+          <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-colors hover:text-accent"><i class="ti ti-search"></i></button>
+        </div>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Yêu thích"><i class="ti ti-heart"></i></button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Thông báo">
+          <i class="ti ti-bell"></i>
+          <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">2</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Giỏ hàng">
+          <i class="ti ti-shopping-cart"></i>
+          <span id="cartCount" class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">3</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent max-md:hidden" title="Tài khoản"><i class="ti ti-user"></i></button>
+        <button class="hidden flex-col gap-[5px] bg-transparent border-none p-2 max-md:flex" id="hamburger" aria-label="Menu" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="hidden bg-white border-t border-border py-4 px-5" id="mobileMenu">
+    <a href="index.html" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Trang chủ</a>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Nam <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Puma</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">New Balance</a>
+      </div>
+    </details>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Nữ <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Crocs</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Sandal</a>
+      </div>
+    </details>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Trẻ em <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Crocs Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse Kids</a>
+      </div>
+    </details>
+    <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Giới thiệu</a>
+    <a href="index.html#blog" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Tin tức</a>
+    <a href="#" class="block py-3 text-[15px] text-text-muted transition-colors hover:text-accent">Liên hệ</a>
+  </div>
+</header>
+
+<main class="flex items-center justify-center py-[8px] min-h-[calc(100vh-80px-350px)]">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="login-container">
+        <a href="index.html" class="logo">SAIGON<span>SHOES</span></a>
+        
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Chào mừng trở lại</h1>
+                <p>Vui lòng nhập thông tin để đăng nhập</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="ti ti-mail"></i>
+                        <input type="email" id="email" placeholder="username@gmail.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="ti ti-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox"> Ghi nhớ đăng nhập
+                    </label>
+                    <a href="#" class="forgot-pass">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Đăng nhập <i class="ti ti-arrow-right"></i>
+                </button>
+
+                <div class="divider">Hoặc tiếp tục với</div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn">
+                        <i class="ti ti-brand-google" style="color: #DB4437;"></i> Google
+                    </button>
+                    <button type="button" class="social-btn">
+                        <i class="ti ti-brand-facebook" style="color: #4267B2;"></i> Facebook
+                    </button>
+                </div>
+
+                <p class="register-link">
+                    Bạn chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer id="contact" class="bg-[#111111] text-white mt-0">
+  <div class="w-full">
+    <!-- Footer top -->
+    <div class="max-w-[1200px] mx-auto px-6 pt-14 pb-10">
+      <div class="grid grid-cols-[1.6fr_1fr_1fr_1.2fr] max-lg:grid-cols-2 max-md:grid-cols-1 gap-10">
+        <!-- Brand -->
+        <div>
+          <div class="font-display text-[26px] font-bold tracking-[3px] mb-4">SAIGON<span class="text-accent">SHOES</span></div>
+          <p class="text-[13px] text-white/50 leading-[1.9] mb-6 max-w-[260px]">
+            Chúng tôi mang đến những đôi giày không chỉ là phụ kiện, mà là biểu tượng của phong cách và cá tính riêng. SaigonShoes — Đồng hành cùng mỗi bước chân của bạn.
+          </p>
+          <div class="flex gap-3">
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-facebook"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-instagram"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-tiktok"></i></a>
+          </div>
+        </div>
+
+        <!-- Khám phá -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">KHÁM PHÁ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nam</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nữ</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Dép Crocs</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Phụ kiện Jibbitz</a>
+          </nav>
+        </div>
+
+        <!-- Dịch vụ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">DỊCH VỤ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Theo dõi đơn hàng</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Chính sách đổi trả</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hướng dẫn chọn size</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hệ thống cửa hàng</a>
+          </nav>
+        </div>
+
+        <!-- Thông tin liên hệ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">THÔNG TIN</h4>
+          <div class="flex flex-col gap-3.5">
+            <div class="flex items-start gap-3">
+              <i class="ti ti-map-pin text-[16px] text-accent mt-[2px] shrink-0"></i>
+              <span class="text-[13px] text-white/60 leading-[1.6]">123 Đường ABC, Quận 1, TP. Hồ Chí Minh</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-phone text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">0123 456 789</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-mail text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">support@stepup.vn</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="border-t border-white/[0.07]">
+      <div class="max-w-[1200px] mx-auto px-6 py-5 flex items-center justify-between flex-wrap gap-4">
+        <p class="text-[12px] text-white/30">© 2026 SaigonShoes Store. Bản quyền thuộc về đội ngũ phát triển dự án.</p>
+        <div class="flex items-center gap-3 text-white/30">
+          <i class="ti ti-brand-visa text-[22px]"></i>
+          <i class="ti ti-brand-mastercard text-[22px]"></i>
+          <i class="ti ti-brand-paypal text-[22px]"></i>
+          <i class="ti ti-credit-card text-[22px]"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            console.log('Login attempt:', { email, password });
+            
+            // Thêm hiệu ứng loading
+            const btn = this.querySelector('.btn-login');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="ti ti-loader-2 animate-spin"></i> Đang xử lý...';
+            btn.disabled = true;
+
+            // Mô phỏng API call
+            setTimeout(() => {
+                alert('Đăng nhập thành công!');
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 1500);
+        });
+
+        // Add loading animation style
+        const style = document.createElement('style');
+        style.textContent = `
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
