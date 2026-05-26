@@ -30,7 +30,7 @@ const router = createRouter({
 // Navigation Guard (Bảo vệ các trang cần đăng nhập)
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('access_token');
-    
+
     if (to.meta.requiresAuth && !token) {
         next({ name: 'home' }); // Hoặc chuyển về trang login
     } else {

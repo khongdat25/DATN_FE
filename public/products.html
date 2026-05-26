@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh mục sản phẩm - StepUp Store</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        accent: '#FF4D00', 
+                        'accent-hover': '#e63d00',
+                        accent2: '#00E5FF',
+                        surface: '#f5f5f5',
+                        surface2: '#f9f9f9',
+                        surface3: '#e0e0e0',
+                        'text-muted': '#757575',
+                        'text-dim': '#999999',
+                        border: '#ebebeb',
+                        gold: '#FFB800',
+                    },
+                    fontFamily: {
+                        display: ['var(--font-display)'],
+                        heading: ['var(--font-heading)'],
+                        text: ['var(--font-text)'],
+                        body: ['var(--font-body)'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --font-display: 'Futura PT', 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+                --font-heading: 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+                --font-text: 'Helvetica Now Text', 'Helvetica Neue', Arial, sans-serif;
+                --font-body: 'Helvetica Neue', Arial, sans-serif;
+            }
+            html { scroll-behavior: smooth; }
+            body { font-family: var(--font-body); color: #1a1a1a; background-color: #f5f5f5; line-height: 1.6; }
+            h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0.05em; }
+        }
+    </style>
+    <style>
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f5f5f5; }
+        ::-webkit-scrollbar-thumb { background: #dddddd; border-radius: 3px; }
+
+        .container-custom { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+        /* Mega Menu */
+        .group-hover\:opacity-100:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.2s ease; }
+
+        /* Bộ lọc: Checkbox & Size */
+        .filter-checkbox {
+            width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid #d0d0d0;
+            accent-color: #FF4D00; cursor: pointer; flex-shrink: 0;
+        }
+        .filter-section { background: #fff; border-radius: 10px; border: 1px solid #ebebeb; overflow: hidden; }
+        .filter-section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px; cursor: pointer; user-select: none;
+        }
+        .filter-section-header:hover { background: #fafafa; }
+        .filter-section-body { padding: 0 16px 16px; }
+        .size-chip {
+            padding: 7px 0; width: 100%; border: 1.5px solid #ebebeb; font-size: 12px;
+            border-radius: 6px; cursor: pointer; background: #ffffff; transition: all 0.18s; text-align: center; font-weight: 500;
+        }
+        .size-chip:hover { border-color: #FF4D00; color: #FF4D00; background: rgba(255,77,0,0.04); }
+        .size-chip.active { border-color: #FF4D00; color: #FF4D00; background: rgba(255,77,0,0.07); font-weight: 700; }
+
+        /* PRODUCT CARD — fluid 4-col grid */
+        .prod-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.28s cubic-bezier(.4,0,.2,1), box-shadow 0.28s ease;
+            cursor: pointer;
+        }
+        .prod-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.11);
+        }
+        .prod-img-wrap {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #f6f6f6;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; flex-shrink: 0;
+        }
+        .prod-img-wrap img {
+            width: 100%; height: 100%; object-fit: contain;
+            padding: 10px;
+            transition: transform 0.45s cubic-bezier(.4,0,.2,1);
+        }
+        .prod-card:hover .prod-img-wrap img { transform: scale(1.07); }
+
+        /* Overlay 2 nút khi hover */
+        .prod-img-overlay {
+            position: absolute; inset: 0;
+            background: rgba(10,10,10,0.42);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px;
+            opacity: 0; transition: opacity 0.25s ease;
+        }
+        .prod-card:hover .prod-img-overlay { opacity: 1; }
+        .btn-overlay {
+            font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+            padding: 10px 22px; border-radius: 6px; border: none; cursor: pointer;
+            text-transform: uppercase; white-space: nowrap;
+            transform: translateY(12px); transition: transform 0.28s ease, background 0.18s;
+            display: flex; align-items: center; gap: 7px; min-width: 148px; justify-content: center;
+        }
+        .prod-card:hover .btn-overlay { transform: translateY(0); }
+        .btn-overlay:nth-child(2) { transition-delay: 0.05s; }
+        .btn-overlay-detail { background: #fff; color: #1a1a1a; }
+        .btn-overlay-detail:hover { background: #f0f0f0; }
+        .btn-overlay-cart { background: #FF4D00; color: #fff; }
+        .btn-overlay-cart:hover { background: #e63d00; }
+
+        .prod-wish {
+            position: absolute; top: 11px; right: 11px;
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,0.9); border: 1px solid #e0e0e0;
+            display: flex; align-items: center; justify-content: center;
+            color: #888; cursor: pointer; transition: all 0.2s; z-index: 10;
+            backdrop-filter: blur(6px);
+        }
+        .prod-wish:hover { border-color: #FF4D00; color: #FF4D00; }
+        .prod-wish.active { border-color: #FF4D00; color: #FF4D00; background: rgba(255,77,0,0.08); }
+
+        .prod-info { padding: 14px 14px 16px; display: flex; flex-direction: column; flex: 1; }
+
+        .btn-buy {
+            background: #1a1a1a; color: white; border: none;
+            padding: 10px 0; border-radius: 6px; font-weight: 700; font-size: 12px;
+            text-align: center; transition: background 0.18s; text-transform: uppercase;
+            letter-spacing: 0.06em; cursor: pointer; width: 100%; margin-top: auto;
+        }
+        .btn-buy:hover { background: #FF4D00; }
+
+        /* Kết quả / đếm */
+        .result-count { color: #757575; font-size: 13px; }
+        .result-count strong { color: #1a1a1a; }
+
+        /* Toast notification */
+        #toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+        .nav-item { position: static; }
+        .nav-item .mega-dropdown {
+            position: absolute;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            width: 720px;
+            background: #fff;
+            border: 1px solid #E8E8E8;
+            border-top: 3px solid #FF4D00;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .nav-item:hover .mega-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .mega-dropdown-inner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            padding: 24px 0 16px;
+        }
+        .mega-col { padding: 0 20px 16px; border-right: 1px solid #f0f0f0; }
+        .mega-col:last-child { border-right: none; }
+        .mega-col-title {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.2px;
+            text-transform: uppercase; color: #1a1a1a;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 1.5px solid #E8E8E8;
+        }
+        .mega-col a {
+            display: block; font-size: 13px; color: #4B4B4B;
+            padding: 5px 0; text-decoration: none;
+            transition: color 0.15s; line-height: 1.4;
+        }
+        .mega-col a:hover { color: #FF4D00; }
+        .mega-footer { border-top: 1px solid #E8E8E8; padding: 10px 20px; display: flex; justify-content: flex-end; background: #fafafa; }
+        .mega-footer a { font-size: 12px; color: #FF4D00; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: gap 0.2s; }
+        .mega-footer a:hover { gap: 9px; }
+    </style>
+</head>
+<body>
+
+<div id="toast" class="fixed bottom-8 right-8 z-[9999] bg-white border border-gray-200 border-l-[4px] border-l-accent p-4 rounded shadow-2xl translate-y-[100px] opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-3">
+    <i class="ti ti-circle-check-filled text-accent text-xl"></i>
+    <span id="toast-msg" class="font-medium text-sm">Đã thực hiện!</span>
+</div>
+
+<div class="bg-accent text-center py-[9px] px-5 text-xs tracking-[2px] uppercase font-medium text-white flex justify-center flex-wrap gap-2">
+  <span>🚀 FREE SHIP đơn từ 500K</span>
+  <span class="hidden md:inline">|</span>
+  <span>⚡ FLASH SALE mỗi ngày 12H–14H</span>
+  <span class="hidden md:inline">|</span>
+  <span>🎁 Tặng quà khi mua từ 1 triệu</span>
+</div>
+
+<header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200] relative">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <nav class="flex items-center justify-between h-[72px] gap-4">
+      <a href="index.html" class="font-display text-[26px] tracking-[3px] font-bold shrink-0">SAIGON<span class="text-accent">SHOES</span></a>
+
+      <!-- Desktop Nav -->
+      <ul class="flex gap-0.5 max-md:hidden h-full items-center flex-1 justify-center">
+
+        <!-- Trang chủ -->
+        <li><a href="index.html" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trang chủ</a></li>
+
+        <!-- Nam -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nam <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike</div>
+                <a href="#">Air Force 1</a>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 1</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">SB Dunk</a>
+                <a href="#">Blazer Mid</a>
+                <a href="#">Air Jordan 1</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Adidas</div>
+                <a href="#">Adidas Samba</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Campus</a>
+                <a href="#">Adidas Superstar</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Adidas NMD</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">Ultraboost</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">New Balance</div>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">NB 574</a>
+                <a href="#">NB 990</a>
+                <a href="#">NB 991</a>
+                <a href="#">NB 2002R</a>
+                <a href="#">NB 9060</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Puma</div>
+                <a href="#">Puma RS-X</a>
+                <a href="#">Puma Thunder</a>
+                <a href="#">Puma Suede</a>
+                <a href="#">Puma Basket</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">Puma Velocity</a>
+                <a href="#">Puma Cali</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nam <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Nữ -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nữ <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike Nữ</div>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 270</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">React Infinity Run</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">Free RN 5.0</a>
+                <a href="#">Blazer Mid</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Nữ</div>
+                <a href="#">Adidas Samba OG</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Ultraboost 22</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">NMD R1</a>
+                <a href="#">Superstar</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs &amp; Sandal</div>
+                <a href="#">Classic Clog</a>
+                <a href="#">Mega Crush Clog</a>
+                <a href="#">Echo Sandal</a>
+                <a href="#">Crush Sandal</a>
+                <a href="#">Literide Pacer</a>
+                <a href="#">Crocband</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse All Star</a>
+                <a href="#">Vans Old Skool</a>
+                <a href="#">Puma Cali</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">Reebok Classic</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nữ <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Trẻ em -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trẻ em <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Nike Kids</div>
+                <a href="#">Air Force 1 Kids</a>
+                <a href="#">Dunk Low Kids</a>
+                <a href="#">Air Max 90 Kids</a>
+                <a href="#">React Infinity Kids</a>
+                <a href="#">Air Jordan 1 Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Kids</div>
+                <a href="#">Stan Smith Kids</a>
+                <a href="#">Superstar Kids</a>
+                <a href="#">Samba Kids</a>
+                <a href="#">NMD Kids</a>
+                <a href="#">Ultraboost Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs Kids</div>
+                <a href="#">Classic Clog Kids</a>
+                <a href="#">Crocband Kids</a>
+                <a href="#">Literide Kids</a>
+                <a href="#">Echo Sandal Kids</a>
+                <a href="#">Classic Sandal Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse Kids</a>
+                <a href="#">Vans Kids</a>
+                <a href="#">Puma Kids</a>
+                <a href="#">New Balance Kids</a>
+                <a href="#">Reebok Kids</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Trẻ em <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Giới thiệu -->
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Giới thiệu</a></li>
+
+        <!-- Tin tức -->
+        <li><a href="index.html#blog" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Tin tức</a></li>
+
+        <!-- Liên hệ -->
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Liên hệ</a></li>
+
+      </ul>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-[6px]">
+        <div class="flex items-center bg-surface2 border border-border rounded-sm overflow-hidden transition-colors focus-within:border-accent max-md:hidden">
+          <input type="text" placeholder="Tìm kiếm..." class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[140px] font-body placeholder:text-text-dim">
+          <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-colors hover:text-accent"><i class="ti ti-search"></i></button>
+        </div>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Yêu thích"><i class="ti ti-heart"></i></button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Thông báo">
+          <i class="ti ti-bell"></i>
+          <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">2</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Giỏ hàng">
+          <i class="ti ti-shopping-cart"></i>
+          <span id="cartCount" class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">3</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent max-md:hidden" title="Tài khoản"><i class="ti ti-user"></i></button>
+        <button class="hidden flex-col gap-[5px] bg-transparent border-none p-2 max-md:flex" id="hamburger" aria-label="Menu" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="hidden bg-white border-t border-border py-4 px-5" id="mobileMenu">
+    <a href="index.html" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Trang chủ</a>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Nam <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Puma</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">New Balance</a>
+      </div>
+    </details>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Nữ <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Crocs</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Sandal</a>
+      </div>
+    </details>
+    <details class="border-b border-border">
+      <summary class="py-3 text-[15px] text-text-muted cursor-pointer list-none flex justify-between items-center hover:text-accent">Trẻ em <i class="ti ti-chevron-down text-xs"></i></summary>
+      <div class="pb-3 pl-4 flex flex-col gap-2">
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Nike Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Adidas Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Crocs Kids</a>
+        <a href="#" class="text-[13px] text-text-muted hover:text-accent transition-colors">Converse Kids</a>
+      </div>
+    </details>
+    <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Giới thiệu</a>
+    <a href="index.html#blog" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Tin tức</a>
+    <a href="#" class="block py-3 text-[15px] text-text-muted transition-colors hover:text-accent">Liên hệ</a>
+  </div>
+</header>
+
+<div class="bg-surface py-4">
+    <div class="container-custom flex items-center gap-2 text-[12px] text-text-muted">
+        <a href="#" class="hover:text-accent transition-colors">Trang chủ</a>
+        <i class="ti ti-chevron-right text-[10px]"></i>
+        <a href="#" class="hover:text-accent transition-colors">Giày dép</a>
+        <i class="ti ti-chevron-right text-[10px]"></i>
+        <span class="text-black font-medium">Trẻ em</span>
+    </div>
+</div>
+
+<main class="pb-16 pt-6">
+    <div class="container-custom flex flex-col lg:flex-row gap-6">
+        
+        <aside class="w-full lg:w-[240px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-[15px] font-display font-bold flex items-center gap-2 uppercase tracking-widest"><i class="ti ti-filter text-accent text-lg"></i> Bộ lọc</h3>
+                <button class="text-[12px] text-accent font-medium hover:underline">Xóa tất cả</button>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-header" onclick="toggleFilter(this)">
+                    <p class="text-[13px] font-bold uppercase tracking-wider">Danh Mục</p>
+                    <i class="ti ti-chevron-up text-[12px] text-text-muted filter-icon transition-transform duration-200"></i>
+                </div>
+                <div class="filter-section-body">
+                    <div class="flex flex-col gap-3">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" class="filter-checkbox">
+                            <span class="text-[13px] text-text-muted group-hover:text-accent transition-colors">Sneaker</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" class="filter-checkbox" checked>
+                            <span class="text-[13px] text-accent font-semibold">Dép Crocs</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" class="filter-checkbox">
+                            <span class="text-[13px] text-text-muted group-hover:text-accent transition-colors">Sandal</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" class="filter-checkbox">
+                            <span class="text-[13px] text-text-muted group-hover:text-accent transition-colors">Phụ Kiện (Jibbitz)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-header" onclick="toggleFilter(this)">
+                    <p class="text-[13px] font-bold uppercase tracking-wider">Giới Tính</p>
+                    <i class="ti ti-chevron-up text-[12px] text-text-muted filter-icon transition-transform duration-200"></i>
+                </div>
+                <div class="filter-section-body">
+                    <div class="flex flex-col gap-3">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" class="filter-checkbox">
+                            <span class="text-[13px] text-text-muted group-hover:text-accent transition-colors">Nam</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" class="filter-checkbox">
+                            <span class="text-[13px] text-text-muted group-hover:text-accent transition-colors">Nữ</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" class="filter-checkbox" checked>
+                            <span class="text-[13px] text-accent font-semibold">Trẻ Em</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-header" onclick="toggleFilter(this)">
+                    <p class="text-[13px] font-bold uppercase tracking-wider">Khoảng Giá</p>
+                    <i class="ti ti-chevron-up text-[12px] text-text-muted filter-icon transition-transform duration-200"></i>
+                </div>
+                <div class="filter-section-body">
+                    <div class="flex items-center gap-2 mb-3">
+                        <input type="number" placeholder="Từ" class="w-full bg-surface border border-border rounded-md py-2 px-3 text-[13px] outline-none focus:border-accent transition-colors">
+                        <span class="text-text-muted text-sm">—</span>
+                        <input type="number" placeholder="Đến" class="w-full bg-surface border border-border rounded-md py-2 px-3 text-[13px] outline-none focus:border-accent transition-colors">
+                    </div>
+                    <button class="w-full bg-accent text-white text-[12px] font-bold py-2.5 rounded-md transition-colors hover:bg-accent-hover uppercase tracking-wider">Áp dụng</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-section-header" onclick="toggleFilter(this)">
+                    <p class="text-[13px] font-bold uppercase tracking-wider">Kích Thước</p>
+                    <i class="ti ti-chevron-up text-[12px] text-text-muted filter-icon transition-transform duration-200"></i>
+                </div>
+                <div class="filter-section-body">
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="size-chip" onclick="this.classList.toggle('active')">28</span>
+                        <span class="size-chip" onclick="this.classList.toggle('active')">29</span>
+                        <span class="size-chip active" onclick="this.classList.toggle('active')">30</span>
+                        <span class="size-chip" onclick="this.classList.toggle('active')">31</span>
+                        <span class="size-chip" onclick="this.classList.toggle('active')">32</span>
+                        <span class="size-chip" onclick="this.classList.toggle('active')">33</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <!-- Toolbar sắp xếp -->
+            <div class="bg-white px-5 py-3.5 border border-border rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3 mb-5 shadow-sm">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[13px] text-text-muted font-medium mr-1">Sắp xếp:</span>
+                    <button onclick="setSort(this)" class="sort-btn active-sort bg-accent text-white px-3.5 py-1.5 text-[12px] rounded-md font-semibold">Phổ biến</button>
+                    <button onclick="setSort(this)" class="sort-btn bg-white text-[#555] border border-border px-3.5 py-1.5 text-[12px] rounded-md hover:border-accent hover:text-accent transition-colors font-medium">Mới Nhất</button>
+                    <button onclick="setSort(this)" class="sort-btn bg-white text-[#555] border border-border px-3.5 py-1.5 text-[12px] rounded-md hover:border-accent hover:text-accent transition-colors font-medium">Bán Chạy</button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="result-count hidden sm:block"><strong>9</strong> sản phẩm</span>
+                    <select class="bg-surface border border-border rounded-md py-1.5 px-3 text-[12px] outline-none focus:border-accent cursor-pointer">
+                        <option>Giá: Mặc định</option>
+                        <option>Giá: Thấp → Cao</option>
+                        <option>Giá: Cao → Thấp</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-5 max-xl:grid-cols-3 max-lg:grid-cols-2 max-[480px]:grid-cols-1">
+                
+                <!-- Card 1 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <span class="absolute top-2 left-2 z-[2] text-[10px] font-bold px-2 py-1 rounded text-white bg-accent">-35%</span>
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/nike-air-force-1.png" alt="Nike Air Force 1">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Nike</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Air Force 1 '07 White</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.290.000đ</span><span class="text-[11px] text-text-dim line-through">1.990.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★★ <span class="text-text-muted">(128)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <span class="absolute top-2 left-2 z-[2] text-[10px] font-bold px-2 py-1 rounded text-white bg-accent">-20%</span>
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/adidas-samba-og1.png" alt="Adidas Samba OG">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Adidas</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Samba OG White/Black</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.590.000đ</span><span class="text-[11px] text-text-dim line-through">2.650.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★★ <span class="text-text-muted">(89)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <span class="absolute top-2 left-2 z-[2] text-[10px] font-bold px-2 py-1 rounded text-white bg-[#00bcd4]">HOT</span>
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/nike-black1.png" alt="Nike Dunk">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Nike</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Dunk Low Retro Black/White</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.750.000đ</span><span class="text-[11px] text-text-dim line-through">2.920.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★★ <span class="text-text-muted">(312)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <span class="absolute top-2 left-2 z-[2] text-[10px] font-bold px-2 py-1 rounded text-white bg-gold">HOT</span>
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/adidas_fefei-ruanxSamba_1.png" alt="Adidas Samba">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Adidas</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Samba OG Collegiate Green</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.890.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★★ <span class="text-text-muted">(412)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+                <!-- Card 5 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <span class="absolute top-2 left-2 z-[2] text-[10px] font-bold px-2 py-1 rounded text-white bg-accent">-25%</span>
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/puma-white1.png" alt="Puma">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Puma</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Puma Suede Classic White</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.350.000đ</span><span class="text-[11px] text-text-dim line-through">1.800.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★☆ <span class="text-text-muted">(210)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+                <!-- Card 6 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <span class="absolute top-2 left-2 z-[2] text-[10px] font-bold px-2 py-1 rounded text-white bg-[#4CAF50]">NEW</span>
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/adidas_sambae_wmns_1.png" alt="Adidas Sambae">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Adidas</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Sambae Wmns Pink/White</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.650.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★★ <span class="text-text-muted">(198)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+                <!-- Card 7 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <span class="absolute top-2 left-2 z-[2] text-[10px] font-bold px-2 py-1 rounded text-white bg-accent">-30%</span>
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/nike-pink1.png" alt="Nike Pink">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Nike</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Air Force 1 '07 Pink Foam</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.890.000đ</span><span class="text-[11px] text-text-dim line-through">2.690.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★★ <span class="text-text-muted">(334)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+                <!-- Card 8 -->
+                <div class="prod-card">
+                    <div class="prod-img-wrap">
+                        <button class="prod-wish" onclick="toggleWish(event,this)"><i class="ti ti-heart text-[15px]"></i></button>
+                        <img src="images/puma-green1.png" alt="Puma Green">
+                        <div class="prod-img-overlay">
+                            <a href="detail.html" class="btn-overlay btn-overlay-detail"><i class="ti ti-eye text-[13px]"></i> Xem chi tiết</a>
+                            <button class="btn-overlay btn-overlay-cart" onclick="addToCart(event,this)"><i class="ti ti-shopping-cart text-[13px]"></i> Thêm giỏ hàng</button>
+                        </div>
+                    </div>
+                    <div class="prod-info">
+                        <div class="text-[10px] text-text-muted tracking-widest uppercase mb-1 font-bold">Puma</div>
+                        <div class="text-[13px] font-bold mb-2 leading-snug" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Puma RS-X Green/Black</div>
+                        <div class="flex items-baseline gap-2 mb-1.5"><span class="font-display text-[16px] text-accent font-bold">1.350.000đ</span></div>
+                        <div class="text-[11px] text-gold mb-3">★★★★☆ <span class="text-text-muted">(445)</span></div>
+                        <button class="btn-buy" onclick="addToCart(event,this)">Mua ngay</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="flex justify-center items-center gap-2 mt-12">
+                <button class="w-10 h-10 rounded bg-white border border-border flex items-center justify-center text-text-muted hover:border-accent hover:text-accent transition-colors disabled:opacity-50" disabled><i class="ti ti-chevron-left"></i></button>
+                <button class="w-10 h-10 rounded bg-accent border border-accent text-white flex items-center justify-center font-bold">1</button>
+                <button class="w-10 h-10 rounded bg-white border border-border flex items-center justify-center text-text-muted hover:border-accent hover:text-accent transition-colors">2</button>
+                <button class="w-10 h-10 rounded bg-white border border-border flex items-center justify-center text-text-muted hover:border-accent hover:text-accent transition-colors">3</button>
+                <span class="text-text-muted px-2">...</span>
+                <button class="w-10 h-10 rounded bg-white border border-border flex items-center justify-center text-text-muted hover:border-accent hover:text-accent transition-colors">8</button>
+                <button class="w-10 h-10 rounded bg-white border border-border flex items-center justify-center text-text-muted hover:border-accent hover:text-accent transition-colors"><i class="ti ti-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-[#111111] text-white pt-16 mt-0">
+    <div class="container-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12 border-b border-white/10">
+        <div>
+            <div class="font-display text-3xl font-bold tracking-widest mb-6">STEP<span class="text-accent">UP</span></div>
+            <p class="text-[13px] text-gray-400 leading-[1.8] mb-6">Chúng tôi mang đến những đôi giày là biểu tượng của phong cách và cá tính riêng. StepUp — Đồng hành cùng bạn.</p>
+            <div class="flex gap-3">
+                <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-all text-[18px]"><i class="ti ti-brand-facebook"></i></a>
+                <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-all text-[18px]"><i class="ti ti-brand-instagram"></i></a>
+                <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-all text-[18px]"><i class="ti ti-brand-tiktok"></i></a>
+            </div>
+        </div>
+        <div class="flex flex-col gap-4">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-white">Khám phá</h4>
+            <nav class="flex flex-col gap-3 text-[13px] text-gray-400">
+                <a href="#" class="hover:text-accent transition-colors">Sneaker Nam</a>
+                <a href="#" class="hover:text-accent transition-colors">Sneaker Nữ</a>
+                <a href="#" class="hover:text-accent transition-colors">Dép Crocs</a>
+            </nav>
+        </div>
+        <div class="flex flex-col gap-4">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-white">Dịch vụ</h4>
+            <nav class="flex flex-col gap-3 text-[13px] text-gray-400">
+                <a href="#" class="hover:text-accent transition-colors">Theo dõi đơn hàng</a>
+                <a href="#" class="hover:text-accent transition-colors">Chính sách đổi trả</a>
+                <a href="#" class="hover:text-accent transition-colors">Hướng dẫn chọn size</a>
+            </nav>
+        </div>
+        <div class="flex flex-col gap-4">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-white">Liên hệ</h4>
+            <div class="text-[13px] text-gray-400 space-y-4">
+                <p class="flex items-start gap-3"><i class="ti ti-map-pin text-[18px] mt-0.5"></i> 123 Đường ABC, Quận 1, TP. HCM</p>
+                <p class="flex items-center gap-3"><i class="ti ti-phone text-[18px]"></i> 0123 456 789</p>
+                <p class="flex items-center gap-3"><i class="ti ti-mail text-[18px]"></i> support@stepup.vn</p>
+            </div>
+        </div>
+    </div>
+    <div class="container-custom py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-[12px] text-gray-500">© 2026 StepUp Store. Bản quyền dự án Fullstack Web.</p>
+        <div class="flex gap-4 text-gray-500 text-3xl">
+            <i class="ti ti-brand-visa"></i>
+            <i class="ti ti-brand-mastercard"></i>
+            <i class="ti ti-brand-paypal"></i>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Mobile Menu
+document.getElementById('hamburger').onclick = function() {
+    document.getElementById('mobileMenu').classList.toggle('hidden');
+}
+
+// Add to Cart
+let cartCount = 3;
+function addToCart(e, btn) {
+    e.preventDefault(); 
+    e.stopPropagation();
+
+    cartCount++;
+    document.getElementById('cartCount').textContent = cartCount;
+    showToast('Đã thêm sản phẩm vào giỏ hàng! 🛒');
+    
+    const originalText = btn.innerHTML;
+    // Đổi chữ nút thành "Đã thêm"
+    if (btn.classList.contains('btn-cart')) {
+        btn.innerHTML = '<i class="ti ti-check text-sm"></i> Xong';
+    } else {
+        btn.innerHTML = 'Đã Mua';
+    }
+    
+    btn.classList.add('!bg-[#4CAF50]', '!text-white', '!border-[#4CAF50]');
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('!bg-[#4CAF50]', '!text-white', '!border-[#4CAF50]');
+    }, 2000);
+}
+
+// Wishlist
+function toggleWish(e, btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const active = btn.classList.toggle('active');
+    showToast(active ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích');
+}
+
+// Toast Notification
+let toastTimer;
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        t.classList.remove('show');
+    }, 3000);
+}
+
+// Sort Buttons
+function setSort(btn) {
+    document.querySelectorAll('.sort-btn').forEach(b => {
+        b.classList.remove('active-sort', 'bg-accent', 'text-white');
+        b.classList.add('bg-white', 'text-[#555]', 'border', 'border-border');
+    });
+    btn.classList.add('active-sort', 'bg-accent', 'text-white');
+    btn.classList.remove('bg-white', 'text-[#555]');
+}
+
+// Filter Toggle
+function toggleFilter(header) {
+    const body = header.nextElementSibling;
+    const icon = header.querySelector('.filter-icon');
+    const isOpen = body.style.display !== 'none' && body.style.display !== '';
+    body.style.display = isOpen ? 'none' : 'block';
+    icon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+</script>
+
+</body>
+</html>

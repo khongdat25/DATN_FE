@@ -1,27 +1,65 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
-@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 @import 'tailwindcss';
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
+@theme {
+  /* Colors */
+  --color-bg: #ffffff;
+  --color-surface: #fdfdfd;
+  --color-surface2: #f4f4f4;
+  --color-surface3: #e0e0e0;
+  --color-accent: #FF4D00;
+  --color-accent-hover: #e63d00;
+  --color-accent2: #00E5FF;
+  --color-accent2-dim: #00b8cc;
+  --color-gold: #F5A623;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-text-dim: #999999;
+  --color-border: #eaeaea;
+  --color-border-light: #dddddd;
+
+  /* Fonts */
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Animation */
+  --animate-float: float 3s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-16px); }
   }
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
   body {
-    background-color: #ffffff;
-    color: #1a1a1a;
-    font-family: 'DM Sans', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
     font-size: 1rem;
     line-height: 1.6;
   }
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background-color: var(--color-surface); }
+  ::-webkit-scrollbar-thumb { background-color: var(--color-border-light); border-radius: 3px; }
+}
+
+@layer utilities {
+  #toast.show { @apply translate-y-0 opacity-100 pointer-events-auto; }
+  .nav-links a.active { color: var(--color-accent); background-color: var(--color-surface2); font-weight: 500; }
+  .slide-dot.active { @apply w-6 rounded; background-color: var(--color-accent); }
+  .prod-wish.active { background-color: var(--color-accent); border-color: var(--color-accent); color: white; }
+  .sale-chip.active { background-color: white; color: var(--color-accent); }
+  .bestseller-chip {
+    background-color: var(--color-surface2);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    @apply py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all;
   }
-  ::-webkit-scrollbar-track {
-    background-color: #fdfdfd;
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: #dddddd;
-    border-radius: 3px;
-  }
+  .bestseller-chip:hover,
+  .bestseller-chip.active { background-color: var(--color-accent); border-color: var(--color-accent); color: white; }
+  .size-chip.active { border-color: var(--color-accent); color: var(--color-accent); background-color: rgba(255,77,0,.08); }
+  .chat-window.open { @apply scale-100 translate-y-0 opacity-100 pointer-events-auto; }
+  .scroll-top.visible { @apply opacity-100 pointer-events-auto; }
 }

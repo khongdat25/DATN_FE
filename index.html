@@ -8,67 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              bg: '#ffffff',
-              surface: '#fdfdfd',
-              surface2: '#f4f4f4',
-              surface3: '#e0e0e0',
-              accent: '#FF4D00',
-              'accent-hover': '#e63d00',
-              accent2: '#00E5FF',
-              'accent2-dim': '#00b8cc',
-              gold: '#F5A623',
-              text: '#1a1a1a',
-              'text-muted': '#666666',
-              'text-dim': '#999999',
-              border: '#eaeaea',
-              'border-light': '#dddddd',
-            },
-            fontFamily: {
-              display: ['"Outfit"', 'sans-serif'],
-              body: ['"Inter"', 'sans-serif'],
-            },
-            animation: {
-              float: 'float 3s ease-in-out infinite',
-            },
-            keyframes: {
-              float: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-16px)' },
-              }
-            }
-          }
-        }
-      }
-    </script>
-    <style type="text/tailwindcss">
-      @layer base {
-        html { scroll-behavior: smooth; }
-        body {
-          @apply bg-bg text-text font-body text-base leading-[1.6];
-        }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { @apply bg-surface; }
-        ::-webkit-scrollbar-thumb { @apply bg-border-light rounded-[3px]; }
-      }
-      @layer utilities {
-        #toast.show { @apply translate-y-0 opacity-100 pointer-events-auto; }
-        .nav-links a.active { @apply text-accent bg-surface2 font-medium; }
-        .slide-dot.active { @apply w-6 rounded bg-accent; }
-        .prod-wish.active { @apply bg-accent border-accent text-white; }
-        .sale-chip.active { @apply bg-white text-accent; }
-        .bestseller-chip { @apply bg-surface2 text-text-muted border border-border py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all hover:bg-accent hover:border-accent hover:text-white; }
-        .bestseller-chip.active { @apply bg-accent border-accent text-white; }
-        .size-chip.active { @apply border-accent text-accent bg-[rgba(255,77,0,.08)]; }
-        .chat-window.open { @apply scale-100 translate-y-0 opacity-100 pointer-events-auto; }
-        .scroll-top.visible { @apply opacity-100 pointer-events-auto; }
-      }
-    </style>
+
   </head>
   <body>
     <div id="app"></div>

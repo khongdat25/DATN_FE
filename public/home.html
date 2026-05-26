@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaigonShoes – Sneaker & Crocs Store</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#ffffff',
+          surface: '#fdfdfd',
+          surface2: '#f4f4f4',
+          surface3: '#e0e0e0',
+          accent: '#FF4D00', // Đã chuyển sang Cam
+          'accent-hover': '#e63d00',
+          accent2: '#00E5FF',
+          'accent2-dim': '#00b8cc',
+          gold: '#FFB800',
+          text: '#1a1a1a',
+          'text-muted': '#4B4B4B',
+          'text-dim': '#A0A0A0',
+          border: '#E8E8E8',
+          'border-light': '#F0F0F0',
+        },
+        fontFamily: {
+          display: ['var(--font-display)'],
+          heading: ['var(--font-heading)'],
+          text: ['var(--font-text)'],
+          body: ['var(--font-body)'],
+        },
+        animation: {
+          float: 'float 3s ease-in-out infinite',
+        },
+        keyframes: {
+          float: {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-16px)' },
+          }
+        }
+      }
+    }
+  }
+</script>
+<style type="text/tailwindcss">
+  @layer base {
+    :root {
+      --font-display: 'Futura PT', 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+      --font-heading: 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+      --font-text: 'Helvetica Now Text', 'Helvetica Neue', Arial, sans-serif;
+      --font-body: 'Helvetica Neue', Arial, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      @apply bg-bg text-text font-body text-base leading-[1.6];
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { @apply bg-surface; }
+    ::-webkit-scrollbar-thumb { @apply bg-border-light rounded-[3px]; }
+  }
+  @layer utilities {
+    /* JS Toggle Classes */
+    #toast.show { @apply translate-y-0 opacity-100 pointer-events-auto; }
+    .nav-links a.active { @apply text-accent bg-surface2 font-medium; }
+    .slide-dot.active { @apply w-6 rounded bg-accent; }
+    .prod-wish.active { @apply bg-accent border-accent text-white; }
+    .sale-chip.active { @apply bg-white text-accent; }
+    
+    /* Bestseller Chip Custom Class */
+    .bestseller-chip { @apply bg-surface2 text-text-muted border border-border py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all hover:bg-accent hover:border-accent hover:text-white; }
+    .bestseller-chip.active { @apply bg-accent border-accent text-white; }
+    
+    .size-chip.active { @apply border-accent text-accent bg-accent/5; }
+    .chat-window.open { @apply scale-100 translate-y-0 opacity-100 pointer-events-auto; }
+    .scroll-top.visible { @apply opacity-100 pointer-events-auto; }
+  }
+</style>
+<style>
+  /* ===== Section Wrapper ===== */
+  .section-wrapper {
+    background: #ffffff;
+    border: 1.5px solid #E8E8E8;
+    border-radius: 12px;
+    padding: 28px 28px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.3s ease;
+  }
+  .section-wrapper:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  }
+  @media (max-width: 768px) {
+    .section-wrapper { padding: 18px 14px; border-radius: 10px; }
+  }
+
+  /* ===== Crocs-style borderless card ===== */
+  .cv2 { transition: all 0.35s ease; cursor: pointer; }
+  .cv2:hover { transform: translateY(-6px); }
+  .cv2 .ci { background: transparent; overflow: hidden; position: relative; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 80px; }
+  .cv2 .ci .ci-inner { transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); display: flex; align-items: center; justify-content: center; width:100%; height:100%; }
+  .cv2:hover .ci .ci-inner { transform: scale(1.07); }
+  .cv2 .ci .ci-add { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); color: #fff; text-align: center; padding: 11px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transform: translateY(100%); transition: transform 0.3s ease; cursor: pointer; border: none; width: 100%; }
+  .cv2:hover .ci .ci-add { transform: translateY(0); }
+  .ci-b { position: absolute; top: 10px; left: 10px; font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; z-index: 2; color: #fff; }
+  .ci-wish { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; background: #fff; border: 1px solid #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; z-index: 3; transition: all 0.2s; }
+  .ci-wish:hover, .ci-wish.active { background: #FF4D00; border-color: #FF4D00; color: #fff; }
+</style>
+</head>
+<body>
+
+<div id="toast" class="fixed bottom-[30px] right-[30px] z-[9999] bg-bg border border-border-light border-l-[3px] border-l-accent py-[14px] px-5 rounded-md text-sm flex items-center gap-[10px] translate-y-[100px] opacity-0 transition-all duration-300 pointer-events-none max-w-[320px] shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
+  <i class="ti ti-check text-accent text-lg"></i>
+  <span id="toast-msg">Đã thực hiện!</span>
+</div>
+
+<button class="scroll-top fixed bottom-[100px] right-[28px] w-10 h-10 bg-bg border border-border rounded-sm flex items-center justify-center text-lg text-text-muted opacity-0 pointer-events-none transition-all duration-200 z-[200] cursor-pointer shadow-[0_4px_10px_rgba(0,0,0,0.1)] hover:bg-accent hover:border-accent hover:text-white" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="ti ti-arrow-up"></i>
+</button>
+
+<div class="bg-accent text-center py-[9px] px-5 text-xs tracking-[2px] uppercase font-medium text-white [&>span]:mx-4 flex justify-center flex-wrap gap-2">
+  <span>🚀 FREE SHIP đơn từ 500K</span>
+  <span class="hidden md:inline">|</span>
+  <span>⚡ FLASH SALE mỗi ngày 12H–14H</span>
+  <span class="hidden md:inline">|</span>
+  <span>🎁 Tặng quà khi mua từ 1 triệu</span>
+</div>
+
+<header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200]">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <nav class="flex items-center justify-between h-[72px] gap-4">
+      <a href="#" class="font-display text-[26px] tracking-[3px] font-bold">SAIGON<span class="text-accent">SHOES</span></a>
+      <ul class="nav-links flex gap-1 max-md:hidden">
+        <li><a href="#" class="active block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trang chủ</a></li>
+        <li><a href="#sneaker" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Sneaker</a></li>
+        <li><a href="#crocs" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Dép Crocs</a></li>
+        <li><a href="#products" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Sandal</a></li>
+        <li><a href="#flash" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Khuyến mãi</a></li>
+        <li><a href="#blog" class="block py-2.5 px-4 text-sm text-text-muted tracking-[0.5px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Tin tức</a></li>
+      </ul>
+      <div class="flex items-center gap-[6px]">
+        <div class="flex items-center bg-surface2 border border-border rounded-sm overflow-hidden transition-colors focus-within:border-accent max-md:hidden">
+          <input type="text" placeholder="Tìm kiếm sản phẩm..." id="searchInput" class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[160px] font-body placeholder:text-text-dim">
+          <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-colors hover:text-accent"><i class="ti ti-search"></i></button>
+        </div>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Yêu thích"><i class="ti ti-heart"></i></button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Thông báo">
+          <i class="ti ti-bell"></i>
+          <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">2</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Giỏ hàng" id="cartBtn">
+          <i class="ti ti-shopping-cart"></i>
+          <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center" id="cartCount">3</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent max-md:hidden" title="Tài khoản"><i class="ti ti-user"></i></button>
+        <button class="hidden flex-col gap-[5px] bg-transparent border-none p-2 max-md:flex" id="hamburger" aria-label="Menu">
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+        </button>
+      </div>
+    </nav>
+  </div>
+  <div class="hidden bg-bg border-t border-border py-4 px-5 [&.open]:block" id="mobileMenu">
+    <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Trang chủ</a>
+    <a href="#sneaker" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Sneaker</a>
+    <a href="#crocs" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Dép Crocs</a>
+    <a href="#products" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Sandal</a>
+    <a href="#flash" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Khuyến mãi</a>
+    <a href="#blog" class="block py-3 text-[15px] text-text-muted border-none transition-colors hover:text-accent">Tin tức</a>
+  </div>
+</header>
+
+<section class="relative overflow-hidden bg-surface">
+  <div class="flex transition-transform duration-700 ease-[cubic-bezier(.4,0,.2,1)]" id="slides">
+    <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('images/banner_sneaker.png'); background-size:cover; background-position:center;"></div>
+    <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('images/banner_crocs.png'); background-size:cover; background-position:center;"></div>
+    <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('images/banner_sale.png'); background-size:cover; background-position:center;"></div>
+  </div>
+  <button class="absolute top-1/2 -translate-y-1/2 left-5 bg-white/20 backdrop-blur-sm border border-white/30 w-[44px] h-[44px] rounded-full flex items-center justify-center text-[20px] text-white transition-all z-10 hover:bg-accent hover:border-accent" id="slidePrev"><i class="ti ti-chevron-left"></i></button>
+  <button class="absolute top-1/2 -translate-y-1/2 right-5 bg-white/20 backdrop-blur-sm border border-white/30 w-[44px] h-[44px] rounded-full flex items-center justify-center text-[20px] text-white transition-all z-10 hover:bg-accent hover:border-accent" id="slideNext"><i class="ti ti-chevron-right"></i></button>
+  <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2" id="slideIndicators"></div>
+</section>
+
+<section class="py-8 border-y border-border" id="categories">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <div class="section-wrapper">
+    <div class="flex justify-between items-end mb-9">
+      <div>
+        <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">DANH MỤC SẢN PHẨM</h2>
+        <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Khám phá các dòng giày & dép đa dạng</p>
+      </div>
+      <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Tất cả danh mục <i class="ti ti-arrow-right"></i></a>
+    </div>
+    <div class="grid grid-cols-6 max-lg:grid-cols-3 max-[480px]:grid-cols-2 gap-[14px]">
+      <div class="group bg-surface border border-border rounded-md py-6 px-[14px] text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.05)] before:content-[''] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]">
+        <span class="text-[36px] mb-[10px] block">👟</span>
+        <div class="text-[11px] tracking-[1.5px] uppercase text-text-muted font-medium transition-colors group-hover:text-accent">Sneaker</div>
+        <div class="text-[10px] text-text-dim mt-1">128 sản phẩm</div>
+      </div>
+      <div class="group bg-surface border border-border rounded-md py-6 px-[14px] text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.05)] before:content-[''] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]">
+        <span class="text-[36px] mb-[10px] block">🥿</span>
+        <div class="text-[11px] tracking-[1.5px] uppercase text-text-muted font-medium transition-colors group-hover:text-accent">Dép Crocs</div>
+        <div class="text-[10px] text-text-dim mt-1">86 sản phẩm</div>
+      </div>
+      <div class="group bg-surface border border-border rounded-md py-6 px-[14px] text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.05)] before:content-[''] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]">
+        <span class="text-[36px] mb-[10px] block">👡</span>
+        <div class="text-[11px] tracking-[1.5px] uppercase text-text-muted font-medium transition-colors group-hover:text-accent">Sandal</div>
+        <div class="text-[10px] text-text-dim mt-1">54 sản phẩm</div>
+      </div>
+      <div class="group bg-surface border border-border rounded-md py-6 px-[14px] text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.05)] before:content-[''] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]">
+        <span class="text-[36px] mb-[10px] block">🏃</span>
+        <div class="text-[11px] tracking-[1.5px] uppercase text-text-muted font-medium transition-colors group-hover:text-accent">Running</div>
+        <div class="text-[10px] text-text-dim mt-1">72 sản phẩm</div>
+      </div>
+      <div class="group bg-surface border border-border rounded-md py-6 px-[14px] text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.05)] before:content-[''] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]">
+        <span class="text-[36px] mb-[10px] block">🎒</span>
+        <div class="text-[11px] tracking-[1.5px] uppercase text-text-muted font-medium transition-colors group-hover:text-accent">Phụ Kiện</div>
+        <div class="text-[10px] text-text-dim mt-1">35 sản phẩm</div>
+      </div>
+      <div class="group bg-surface border-accent rounded-md py-6 px-[14px] text-center cursor-pointer transition-all relative overflow-hidden hover:border-accent hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.05)] before:content-[''] before:absolute before:inset-0 before:bg-accent before:opacity-0 before:transition-opacity hover:before:opacity-[0.03]">
+        <span class="text-[36px] mb-[10px] block text-accent">🔥</span>
+        <div class="text-[11px] tracking-[1.5px] uppercase text-accent font-medium">Flash Sale</div>
+        <div class="text-[10px] text-text-dim mt-1">Hôm nay!</div>
+      </div>
+    </div>
+    </div><!-- /.section-wrapper -->
+  </div>
+</section>
+
+<section class="bg-surface border-b border-border" id="flash">
+  <div class="max-w-[1200px] mx-auto px-5 py-8">
+    <div class="section-wrapper">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4 max-md:flex-col max-md:items-start">
+      <div class="flex items-center gap-5 flex-wrap">
+        <div class="font-display text-[32px] tracking-[2px] flex items-center gap-[10px] uppercase font-bold"><i class="ti ti-bolt text-accent text-[28px] animate-pulse"></i> FLASH SALE</div>
+        <div class="flex items-center gap-[6px]">
+          <div class="text-center"><div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-sm flex items-center justify-center tracking-[2px] shadow-sm" id="cdH">02</div><div class="text-[9px] text-text-muted tracking-[1px] uppercase mt-[3px] text-center">Giờ</div></div>
+          <div class="font-display text-[24px] text-accent pb-3">:</div>
+          <div class="text-center"><div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-sm flex items-center justify-center tracking-[2px] shadow-sm" id="cdM">47</div><div class="text-[9px] text-text-muted tracking-[1px] uppercase mt-[3px] text-center">Phút</div></div>
+          <div class="font-display text-[24px] text-accent pb-3">:</div>
+          <div class="text-center"><div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-sm flex items-center justify-center tracking-[2px] shadow-sm" id="cdS">33</div><div class="text-[9px] text-text-muted tracking-[1px] uppercase mt-[3px] text-center">Giây</div></div>
+        </div>
+      </div>
+      <div class="bg-gradient-to-br from-accent to-[#ff7043] text-white text-[12px] tracking-[2px] uppercase py-2 px-5 rounded-full font-bold shadow-sm">🔥 Giảm đến 50%</div>
+    </div>
+
+    <div class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
+      <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
+        <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+          <img src="images/nike-air-force-1.png" class="w-full h-full object-contain p-3 bg-white" alt="Nike Air Force 1">
+          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+            <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-35%</span>
+          </div>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1.5px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+        </div>
+        <div class="p-4 pt-5 flex flex-col flex-1">
+          <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Nike</div>
+          <div class="text-[15px] font-bold mb-[8px] whitespace-nowrap overflow-hidden text-ellipsis text-text">Air Force 1 '07 White</div>
+          <div class="flex items-baseline gap-1.5 mb-4 min-h-[52px] content-start flex-wrap min-w-0">
+            <span class="font-display text-[20px] text-accent tracking-[0.5px] font-bold">1.290.000đ</span>
+            <span class="text-[13px] text-text-dim line-through">1.990.000đ</span>
+          </div>
+          <div class="mb-4">
+            <div class="flex justify-between text-[10px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">
+              <span>Đã bán 78/100</span>
+              <span>78%</span>
+            </div>
+            <div class="h-[5px] bg-surface3 rounded-full overflow-hidden">
+              <div class="h-full bg-accent rounded-full transition-all duration-1000" style="width:78%"></div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-auto">
+            <button class="flex-1 bg-surface2 text-text border border-border p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-white" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+            <button class="flex-1 bg-accent text-white border-none p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-colors hover:bg-accent-hover">Mua ngay</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
+        <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+          <img src="images/puma-black1.png" class="w-full h-full object-contain p-3 bg-white" alt="Crocs Classic Clog">
+          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+            <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-20%</span>
+            <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent2-dim shadow-sm">HOT</span>
+          </div>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+        </div>
+        <div class="p-4 pt-5 flex flex-col flex-1">
+          <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Crocs</div>
+          <div class="text-[15px] font-bold mb-[8px] whitespace-nowrap overflow-hidden text-ellipsis text-text">Classic Clog Black</div>
+          <div class="flex items-baseline gap-1.5 mb-4 min-h-[52px] content-start flex-wrap min-w-0">
+            <span class="font-display text-[20px] text-accent tracking-[0.5px] font-bold">712.000đ</span>
+            <span class="text-[13px] text-text-dim line-through">890.000đ</span>
+          </div>
+          <div class="mb-4">
+            <div class="flex justify-between text-[10px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">
+              <span>Đã bán 92/100</span>
+              <span>92%</span>
+            </div>
+            <div class="h-[5px] bg-surface3 rounded-full overflow-hidden">
+              <div class="h-full bg-accent rounded-full transition-all duration-1000" style="width:92%"></div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-auto">
+            <button class="flex-1 bg-surface2 text-text border border-border p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-white" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+            <button class="flex-1 bg-accent text-white border-none p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-colors hover:bg-accent-hover">Mua ngay</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
+        <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+          <img src="images/adidas-samba-og1.png" class="w-full h-full object-contain p-3 bg-white" alt="Adidas Samba OG">
+          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+            <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-40%</span>
+          </div>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+        </div>
+        <div class="p-4 pt-5 flex flex-col flex-1">
+          <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Adidas</div>
+          <div class="text-[15px] font-bold mb-[8px] whitespace-nowrap overflow-hidden text-ellipsis text-text">Samba OG White/Black</div>
+          <div class="flex items-baseline gap-1.5 mb-4 min-h-[52px] content-start flex-wrap min-w-0">
+            <span class="font-display text-[20px] text-accent tracking-[0.5px] font-bold">1.590.000đ</span>
+            <span class="text-[13px] text-text-dim line-through">2.650.000đ</span>
+          </div>
+          <div class="mb-4">
+            <div class="flex justify-between text-[10px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">
+              <span>Đã bán 62/100</span>
+              <span>62%</span>
+            </div>
+            <div class="h-[5px] bg-surface3 rounded-full overflow-hidden">
+              <div class="h-full bg-accent rounded-full transition-all duration-1000" style="width:62%"></div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-auto">
+            <button class="flex-1 bg-surface2 text-text border border-border p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-white" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+            <button class="flex-1 bg-accent text-white border-none p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-colors hover:bg-accent-hover">Mua ngay</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
+        <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+          <img src="images/nike-bred1.png" class="w-full h-full object-contain p-3 bg-white" alt="Air Jordan 1">
+          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+            <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-45%</span>
+            <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent2-dim shadow-sm">HOT</span>
+          </div>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+        </div>
+        <div class="p-4 pt-5 flex flex-col flex-1">
+          <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Jordan</div>
+          <div class="text-[15px] font-bold mb-[8px] whitespace-nowrap overflow-hidden text-ellipsis text-text">Air Jordan 1 Retro High OG</div>
+          <div class="flex items-baseline gap-1.5 mb-4 min-h-[52px] content-start flex-wrap min-w-0">
+            <span class="font-display text-[20px] text-accent tracking-[0.5px] font-bold">2.090.000đ</span>
+            <span class="text-[13px] text-text-dim line-through">3.800.000đ</span>
+          </div>
+          <div class="mb-4">
+            <div class="flex justify-between text-[10px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">
+              <span>Đã bán 91/100</span>
+              <span>91%</span>
+            </div>
+            <div class="h-[5px] bg-surface3 rounded-full overflow-hidden">
+              <div class="h-full bg-accent rounded-full transition-all duration-1000" style="width:91%"></div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-auto">
+            <button class="flex-1 bg-surface2 text-text border border-border p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-white" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+            <button class="flex-1 bg-accent text-white border-none p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-colors hover:bg-accent-hover">Mua ngay</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
+        <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+          <img src="images/nike-mid1.png" class="w-full h-full object-contain p-3 bg-white" alt="Converse Chuck 70">
+          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+            <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-25%</span>
+          </div>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+        </div>
+        <div class="p-4 pt-5 flex flex-col flex-1">
+          <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Converse</div>
+          <div class="text-[15px] font-bold mb-[8px] whitespace-nowrap overflow-hidden text-ellipsis text-text">Chuck 70 Classic High Top</div>
+          <div class="flex items-baseline gap-1.5 mb-4 min-h-[52px] content-start flex-wrap min-w-0">
+            <span class="font-display text-[20px] text-accent tracking-[0.5px] font-bold">1.350.000đ</span>
+            <span class="text-[13px] text-text-dim line-through">1.800.000đ</span>
+          </div>
+          <div class="mb-4">
+            <div class="flex justify-between text-[10px] font-bold text-text-muted mb-1.5 uppercase tracking-wide">
+              <span>Đã bán 85/100</span>
+              <span>85%</span>
+            </div>
+            <div class="h-[5px] bg-surface3 rounded-full overflow-hidden">
+              <div class="h-full bg-accent rounded-full transition-all duration-1000" style="width:85%"></div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-auto">
+            <button class="flex-1 bg-surface2 text-text border border-border p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-white" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+            <button class="flex-1 bg-accent text-white border-none p-[10px] text-[11px] tracking-[1px] uppercase rounded-sm font-bold transition-colors hover:bg-accent-hover">Mua ngay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /.section-wrapper -->
+  </div>
+</section>
+
+<hr class="border-none border-t border-border m-0">
+
+<section class="py-8" id="sneaker">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <div class="section-wrapper">
+    <div class="flex justify-between items-end mb-9 flex-wrap gap-4">
+      <div>
+        <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">SẢN PHẨM BÁN CHẠY</h2>
+        <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Top sản phẩm được yêu thích nhất tháng này</p>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <button class="bestseller-chip active" onclick="filterBestSeller(this,'all')">Tất cả</button>
+        <button class="bestseller-chip" onclick="filterBestSeller(this,'sneaker')">Sneaker</button>
+        <button class="bestseller-chip" onclick="filterBestSeller(this,'crocs')">Crocs</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-6" id="bestSellerGrid">
+      <div class="cv2 prod-card" data-cat="sneaker">
+        <div class="ci mb-3">
+          <span class="ci-b" style="background:#FFB800;">#1</span>
+          <button class="ci-wish" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <div class="ci-inner"><img src="images/nike-pink1.png" class="w-full h-full object-contain p-3 bg-white" alt="Nike Air Force Shadow"></div>
+          <button class="ci-add" onclick="showToast('Đã thêm vào giỏ!')">+ Thêm vào giỏ</button>
+        </div>
+        <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">Nike</div>
+        <div class="text-[14px] font-semibold mb-[5px] whitespace-nowrap overflow-hidden text-ellipsis">Air Force 1 Shadow Women</div>
+        <div class="font-display text-[18px] text-accent font-bold">2.100.000đ</div>
+        <div class="text-[12px] text-gold mt-1">★★★★★ <span class="text-text-muted text-[11px]">(512)</span></div>
+      </div>
+      <div class="cv2 prod-card" data-cat="crocs">
+        <div class="ci mb-3">
+          <span class="ci-b" style="background:#FFB800;">#2</span>
+          <button class="ci-wish" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <div class="ci-inner"><img src="images/puma-ka1.webp" class="w-full h-full object-contain p-3 bg-white" alt="Crocs Classic Lined"></div>
+          <button class="ci-add" onclick="showToast('Đã thêm vào giỏ!')">+ Thêm vào giỏ</button>
+        </div>
+        <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">Crocs</div>
+        <div class="text-[14px] font-semibold mb-[5px] whitespace-nowrap overflow-hidden text-ellipsis">Classic Lined Clog Fuzzy</div>
+        <div class="font-display text-[18px] text-accent font-bold">1.200.000đ</div>
+        <div class="text-[12px] text-gold mt-1">★★★★★ <span class="text-text-muted text-[11px]">(389)</span></div>
+      </div>
+      <div class="cv2 prod-card" data-cat="sneaker">
+        <div class="ci mb-3">
+          <span class="ci-b" style="background:#FFB800;">#3</span>
+          <button class="ci-wish" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <div class="ci-inner"><img src="images/nike-university1.png" class="w-full h-full object-contain p-3 bg-white" alt="New Balance 550"></div>
+          <button class="ci-add" onclick="showToast('Đã thêm vào giỏ!')">+ Thêm vào giỏ</button>
+        </div>
+        <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">New Balance</div>
+        <div class="text-[14px] font-semibold mb-[5px] whitespace-nowrap overflow-hidden text-ellipsis">550 White Green</div>
+        <div class="font-display text-[18px] text-accent font-bold">2.800.000đ</div>
+        <div class="text-[12px] text-gold mt-1">★★★★★ <span class="text-text-muted text-[11px]">(276)</span></div>
+      </div>
+      <div class="cv2 prod-card" data-cat="crocs">
+        <div class="ci mb-3">
+          <span class="ci-b" style="background:#FFB800;">#4</span>
+          <button class="ci-wish" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <div class="ci-inner"><img src="images/puma-golden1.png" class="w-full h-full object-contain p-3 bg-white" alt="Crocs Mega Crush"></div>
+          <button class="ci-add" onclick="showToast('Đã thêm vào giỏ!')">+ Thêm vào giỏ</button>
+        </div>
+        <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">Crocs</div>
+        <div class="text-[14px] font-semibold mb-[5px] whitespace-nowrap overflow-hidden text-ellipsis">Mega Crush Sandal Women</div>
+        <div class="font-display text-[18px] text-accent font-bold">1.650.000đ</div>
+        <div class="text-[12px] text-gold mt-1">★★★★★ <span class="text-text-muted text-[11px]">(198)</span></div>
+      </div>
+  
+    </div>
+    </div><!-- /.section-wrapper -->
+  </div>
+</section>
+
+<hr class="border-none border-t border-border m-0">
+
+<section class="py-8" id="products">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <div class="section-wrapper">
+    <div class="flex justify-between items-end mb-9">
+      <div>
+        <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">SẢN PHẨM NỔI BẬT</h2>
+        <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Được chọn lọc kỹ càng cho bạn</p>
+      </div>
+      <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Xem tất cả <i class="ti ti-arrow-right"></i></a>
+    </div>
+    <div class="grid grid-cols-2 max-lg:grid-cols-1 gap-5">
+      <div class="bg-bg rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(0,0,0,.05)]">
+        <div class="h-[450px] max-lg:h-[260px] relative overflow-hidden">
+          <img src="images/nike-air1.png" class="w-full h-full object-contain p-3 bg-white" alt="Nike Air Max 97">
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,77,0,0.1),transparent_60%)]"></div>
+          <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-[2]">
+            <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-[#4CAF50]">NEW</span>
+            <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-gold">BESTSELLER</span>
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="text-[11px] text-text-muted tracking-[1.5px] uppercase mb-1">Nike × Off-White</div>
+          <div class="font-display text-[24px] whitespace-normal tracking-[1px] mb-2 text-text font-bold">Air Max 97 OW Collab Limited</div>
+          <div class="flex items-baseline gap-2 mb-2"><span class="font-display text-[28px] text-accent tracking-[0.5px] font-bold">4.500.000đ</span><span class="text-[12px] text-text-dim line-through">6.200.000đ</span></div>
+          <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">★★★★★ <span class="text-text-muted text-[11px]">(203 đánh giá)</span></div>
+          <div class="prod-sizes flex gap-[5px] flex-wrap mb-[10px]">
+            <span class="size-chip text-[10px] py-[3px] px-[7px] rounded-[3px] border border-border text-text-muted cursor-pointer transition-all duration-150 hover:border-accent hover:text-accent hover:bg-accent/5">38</span>
+            <span class="size-chip active text-[10px] py-[3px] px-[7px] rounded-[3px] border border-accent text-accent bg-accent/5 cursor-pointer transition-all duration-150">39</span>
+            <span class="size-chip text-[10px] py-[3px] px-[7px] rounded-[3px] border border-border text-text-muted cursor-pointer transition-all duration-150 hover:border-accent hover:text-accent hover:bg-accent/5">40</span>
+            <span class="size-chip text-[10px] py-[3px] px-[7px] rounded-[3px] border border-border text-text-muted cursor-pointer transition-all duration-150 hover:border-accent hover:text-accent hover:bg-accent/5">41</span>
+            <span class="size-chip text-[10px] py-[3px] px-[7px] rounded-[3px] border border-border text-text-muted cursor-pointer transition-all duration-150 hover:border-accent hover:text-accent hover:bg-accent/5">42</span>
+            <span class="size-chip text-[10px] py-[3px] px-[7px] rounded-[3px] border border-border text-text-muted cursor-pointer transition-all duration-150 hover:border-accent hover:text-accent hover:bg-accent/5">43</span>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-bg" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Thêm vào giỏ</button>
+            <button class="flex-1 bg-accent text-white border-none p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-colors hover:bg-accent-hover font-bold">Mua ngay</button>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="featured-small group bg-bg rounded-md flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)]">
+          <div class="w-[110px] min-w-[110px] overflow-hidden"><img src="images/puma-muse1.png" class="w-full h-full object-contain p-3 bg-white" alt="Crocs Mega Crush"></div>
+          <div class="feat-small-info p-[14px] flex-1">
+            <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">Crocs</div>
+            <div class="text-[13px] font-medium mb-[5px] text-text">Mega Crush Clog Platform</div>
+            <div class="flex items-baseline gap-2 mb-2"><span class="font-display text-[17px] text-accent tracking-[0.5px] font-bold">1.450.000đ</span><span class="text-[12px] text-text-dim line-through">1.800.000đ</span></div>
+            <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">★★★★★ <span class="text-text-muted text-[11px]">(205)</span></div>
+            <button class="bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] mt-2 w-full hover:border-accent hover:text-accent hover:bg-bg" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+          </div>
+        </div>
+        <div class="featured-small group bg-bg rounded-md flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)]">
+          <div class="w-[110px] min-w-[110px] overflow-hidden"><img src="images/adidas_samba_og_beige_1.png" class="w-full h-full object-contain p-3 bg-white" alt="Adidas Yeezy"></div>
+          <div class="feat-small-info p-[14px] flex-1">
+            <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">Adidas</div>
+            <div class="text-[13px] font-medium mb-[5px] text-text">Yeezy Boost 350 V2 Onyx</div>
+            <div class="flex items-baseline gap-2 mb-2"><span class="font-display text-[17px] text-accent tracking-[0.5px] font-bold">3.200.000đ</span><span class="text-[12px] text-text-dim line-through">4.500.000đ</span></div>
+            <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">★★★★★ <span class="text-text-muted text-[11px]">(178)</span></div>
+            <button class="bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] mt-2 w-full hover:border-accent hover:text-accent hover:bg-bg" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+          </div>
+        </div>
+        <div class="featured-small group bg-bg rounded-md flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)]">
+          <div class="w-[110px] min-w-[110px] overflow-hidden"><img src="images/adidas-samba-lt-1.png" class="w-full h-full object-contain p-3 bg-white" alt="Crocs Echo"></div>
+          <div class="feat-small-info p-[14px] flex-1">
+            <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">Crocs</div>
+            <div class="text-[13px] font-medium mb-[5px] text-text">Echo Sandal Unisex 2026</div>
+            <div class="flex items-baseline gap-2 mb-2"><span class="font-display text-[17px] text-accent tracking-[0.5px] font-bold">1.090.000đ</span></div>
+            <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">★★★★☆ <span class="text-text-muted text-[11px]">(67)</span></div>
+            <button class="bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] mt-2 w-full hover:border-accent hover:text-accent hover:bg-bg" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+          </div>
+        </div>
+        <div class="featured-small group bg-bg rounded-md flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)]">
+          <div class="w-[110px] min-w-[110px] overflow-hidden"><img src="images/nike-mid1.png" class="w-full h-full object-contain p-3 bg-white" alt="Nike Dunk Low"></div>
+          <div class="feat-small-info p-[14px] flex-1">
+            <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">Nike</div>
+            <div class="text-[13px] font-medium mb-[5px] text-text">Dunk Low Retro Panda</div>
+            <div class="flex items-baseline gap-2 mb-2"><span class="font-display text-[17px] text-accent tracking-[0.5px] font-bold">1.890.000đ</span><span class="text-[12px] text-text-dim line-through">2.300.000đ</span></div>
+            <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">★★★★★ <span class="text-text-muted text-[11px]">(334)</span></div>
+            <button class="bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] mt-2 w-full hover:border-accent hover:text-accent hover:bg-bg" onclick="addToCart(this)"><i class="ti ti-shopping-cart"></i> Giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /.section-wrapper -->
+  </div>
+</section>
+
+<hr class="border-none border-t border-border m-0">
+
+<section class="py-8" id="collection">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <div class="section-wrapper">
+    <div class="flex justify-between items-end mb-9">
+      <div>
+        <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">BỘ SƯU TẬP</h2>
+        <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Phong cách dành riêng cho bạn</p>
+      </div>
+      <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Xem tất cả <i class="ti ti-arrow-right"></i></a>
+    </div>
+    <div class="grid grid-cols-2 max-md:grid-cols-1 grid-rows-auto gap-4">
+      <div class="group rounded-xl overflow-hidden relative cursor-pointer bg-[linear-gradient(160deg,#fff0e6,#ffffff)] transition-transform hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(0,0,0,.1)] row-span-2 max-md:row-span-1">
+        <div class="h-full min-h-[380px] relative overflow-hidden z-[1]"><img src="images/nike-paris1.png" class="w-full h-full object-contain p-3 bg-white" alt="Streetwear"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-white/95 to-transparent/60 z-[2]"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 z-[3]">
+          <div class="text-[10px] tracking-[2px] uppercase text-accent mb-1.5 font-bold">● Mới ra mắt</div>
+          <h3 class="font-display text-text text-[clamp(22px,3vw,30px)] tracking-[1px] mb-1.5 font-bold">STREETWEAR<br>COLLECTION</h3>
+          <p class="text-[12px] text-text-muted leading-[1.5]">Sneaker đường phố đỉnh cao — phong cách riêng, cá tính mạnh.</p>
+          <a href="#" class="inline-flex items-center gap-[6px] mt-3.5 text-[12px] tracking-[1px] font-medium uppercase text-text border-b border-text-muted pb-[2px] transition-all group-hover:text-accent group-hover:border-accent">Khám phá <i class="ti ti-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="group bg-surface2 rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(0,0,0,.1)]">
+        <div class="h-full min-h-[200px] relative overflow-hidden z-[1]"><img src="images/puma-mb1.webp" class="w-full h-full object-contain p-3 bg-white" alt="Crocs 2026"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-white/95 to-transparent/60 z-[2]"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 z-[3]">
+          <div class="text-[10px] tracking-[2px] uppercase text-accent mb-1.5 font-bold">● Crocs Limited</div>
+          <h3 class="font-display text-text text-[clamp(22px,3vw,30px)] tracking-[1px] mb-1.5 font-bold">CROCS 2026</h3>
+          <p class="text-[12px] text-text-muted leading-[1.5]">Dòng Crocs giới hạn — mang một lần, nhớ mãi mãi.</p>
+          <a href="#" class="inline-flex items-center gap-[6px] mt-3.5 text-[12px] tracking-[1px] font-medium uppercase text-text border-b border-text-muted pb-[2px] transition-all group-hover:text-accent group-hover:border-accent">Xem ngay <i class="ti ti-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="group bg-surface2 rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(0,0,0,.1)]">
+        <div class="h-full min-h-[200px] relative overflow-hidden z-[1]"><img src="images/puma1.webp" class="w-full h-full object-cover" alt="Sport Performance"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-white/95 to-transparent/60 z-[2]"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 z-[3]">
+          <div class="text-[10px] tracking-[2px] uppercase text-accent mb-1.5 font-bold">● Sport Style</div>
+          <h3 class="font-display text-text text-[clamp(22px,3vw,30px)] tracking-[1px] mb-1.5 font-bold">SPORT<br>PERFORMANCE</h3>
+          <p class="text-[12px] text-text-muted leading-[1.5]">Giày thể thao chính hãng — vừa chạy vừa đẹp.</p>
+          <a href="#" class="inline-flex items-center gap-[6px] mt-3.5 text-[12px] tracking-[1px] font-medium uppercase text-text border-b border-text-muted pb-[2px] transition-all group-hover:text-accent group-hover:border-accent">Xem bộ sưu tập <i class="ti ti-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    </div><!-- /.section-wrapper -->
+  </div>
+</section>
+
+<hr class="border-none border-t border-border m-0">
+
+<section class="py-8" id="blog">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <div class="section-wrapper">
+    <div class="flex justify-between items-end mb-9">
+      <div>
+        <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">TIN TỨC & PHONG CÁCH</h2>
+        <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Xu hướng, tips mix đồ và tin tức sneaker mới nhất</p>
+      </div>
+      <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Tất cả bài viết <i class="ti ti-arrow-right"></i></a>
+    </div>
+    <div class="grid grid-cols-3 max-md:grid-cols-1 gap-5">
+      <div class="bg-bg border border-border rounded-md overflow-hidden transition-all hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.06)]">
+        <div class="h-[180px] bg-surface2 flex items-center justify-center text-[60px] relative overflow-hidden">
+          👟
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent/50 to-white/80"></div>
+          <span class="absolute top-3 left-3 bg-accent text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-[2] font-bold">Phong Cách</span>
+        </div>
+        <div class="p-[18px]">
+          <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">08 Tháng 5, 2026</div>
+          <h4 class="text-[15px] font-bold leading-[1.4] mb-2.5 text-text line-clamp-2">Top 10 cách phối đồ với Sneaker trắng cực cool cho mùa hè 2026</h4>
+          <p class="text-[13px] text-text-muted leading-[1.6] line-clamp-2 mb-3.5">Sneaker trắng không bao giờ lỗi mốt. Cùng khám phá các cách mix-match giúp bạn tỏa sáng mỗi ngày với đôi giày trắng yêu thích.</p>
+          <div class="flex items-center justify-between pt-3 border-t border-border">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-surface2 flex items-center justify-center text-[12px] text-text-muted">👤</div>
+              <span class="text-[12px] text-text-muted font-medium">Minh Anh</span>
+            </div>
+            <button class="flex items-center gap-[5px] bg-transparent border-none text-[12px] text-text-muted cursor-pointer transition-colors hover:text-accent" onclick="likeBlog(this)">
+              <i class="ti ti-heart"></i> <span>124</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="bg-bg border border-border rounded-md overflow-hidden transition-all hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.06)]">
+        <div class="h-[180px] bg-surface2 flex items-center justify-center text-[60px] relative overflow-hidden">
+          🥿
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent/50 to-white/80"></div>
+          <span class="absolute top-3 left-3 bg-accent text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-[2] font-bold">Review</span>
+        </div>
+        <div class="p-[18px]">
+          <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">05 Tháng 5, 2026</div>
+          <h4 class="text-[15px] font-bold leading-[1.4] mb-2.5 text-text line-clamp-2">Review Crocs Mega Crush 2026: Có đáng mua không? Trải nghiệm thực tế sau 3 tháng</h4>
+          <p class="text-[13px] text-text-muted leading-[1.6] line-clamp-2 mb-3.5">Crocs Mega Crush với đế cao 5cm đang làm mưa làm gió. Chúng mình đã dùng thử và đây là đánh giá trung thực nhất.</p>
+          <div class="flex items-center justify-between pt-3 border-t border-border">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-surface2 flex items-center justify-center text-[12px] text-text-muted">👤</div>
+              <span class="text-[12px] text-text-muted font-medium">Hương Trà</span>
+            </div>
+            <button class="flex items-center gap-[5px] bg-transparent border-none text-[12px] text-text-muted cursor-pointer transition-colors hover:text-accent" onclick="likeBlog(this)">
+              <i class="ti ti-heart"></i> <span>89</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="bg-bg border border-border rounded-md overflow-hidden transition-all hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.06)]">
+        <div class="h-[180px] bg-surface2 flex items-center justify-center text-[60px] relative overflow-hidden">
+          👟
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent/50 to-white/80"></div>
+          <span class="absolute top-3 left-3 bg-accent2-dim text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-[2] font-bold">Xu Hướng</span>
+        </div>
+        <div class="p-[18px]">
+          <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">02 Tháng 5, 2026</div>
+          <h4 class="text-[15px] font-bold leading-[1.4] mb-2.5 text-text line-clamp-2">5 đôi sneaker đang hot nhất 2026 mà mọi tín đồ streetwear phải có</h4>
+          <p class="text-[13px] text-text-muted leading-[1.6] line-clamp-2 mb-3.5">Từ Adidas Samba đến Nike Dunk Low — đây là những đôi sneaker đang được săn đón nhiều nhất trong năm nay.</p>
+          <div class="flex items-center justify-between pt-3 border-t border-border">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-surface2 flex items-center justify-center text-[12px] text-text-muted">👤</div>
+              <span class="text-[12px] text-text-muted font-medium">Khánh</span>
+            </div>
+            <button class="flex items-center gap-[5px] bg-transparent border-none text-[12px] text-text-muted cursor-pointer transition-colors hover:text-accent" onclick="likeBlog(this)">
+              <i class="ti ti-heart"></i> <span>201</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /.section-wrapper -->
+  </div>
+</section>
+
+<hr class="border-none border-t border-border m-0">
+
+<section class="py-8" id="reviews">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <div class="section-wrapper">
+    <div class="flex justify-between items-end mb-9">
+      <div>
+        <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">ĐÁNH GIÁ KHÁCH HÀNG</h2>
+        <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Hơn 12.000 khách hàng đã tin tưởng SaigonShoes</p>
+      </div>
+      <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Tất cả đánh giá <i class="ti ti-arrow-right"></i></a>
+    </div>
+    <div class="grid grid-cols-[200px_1fr] max-md:grid-cols-1 gap-9 items-center bg-bg border border-border rounded-xl p-7 mb-7">
+      <div class="text-center border-r border-border pr-9 max-md:border-r-0 max-md:border-b max-md:pr-0 max-md:pb-6">
+        <div class="font-display text-[72px] text-gold leading-[1]">4.9</div>
+        <div class="text-[24px] text-gold my-1.5">★★★★★</div>
+        <div class="text-[12px] text-text-muted">Dựa trên 12.384 đánh giá</div>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2 text-[12px]">
+          <div class="flex items-center gap-[3px] text-text-muted min-w-[30px]">5 <i class="ti ti-star text-gold text-[12px]"></i></div>
+          <div class="flex-1 h-1.5 bg-surface2 rounded-[3px] overflow-hidden"><div class="h-full bg-gold rounded-[3px]" style="width:82%"></div></div>
+          <span class="text-text-muted min-w-[35px] text-right">82%</span>
+        </div>
+        <div class="flex items-center gap-3 mb-2 text-[12px]">
+          <div class="flex items-center gap-[3px] text-text-muted min-w-[30px]">4 <i class="ti ti-star text-gold text-[12px]"></i></div>
+          <div class="flex-1 h-1.5 bg-surface2 rounded-[3px] overflow-hidden"><div class="h-full bg-gold rounded-[3px]" style="width:12%"></div></div>
+          <span class="text-text-muted min-w-[35px] text-right">12%</span>
+        </div>
+        <div class="flex items-center gap-3 mb-2 text-[12px]">
+          <div class="flex items-center gap-[3px] text-text-muted min-w-[30px]">3 <i class="ti ti-star text-gold text-[12px]"></i></div>
+          <div class="flex-1 h-1.5 bg-surface2 rounded-[3px] overflow-hidden"><div class="h-full bg-gold rounded-[3px]" style="width:4%"></div></div>
+          <span class="text-text-muted min-w-[35px] text-right">4%</span>
+        </div>
+        <div class="flex items-center gap-3 mb-2 text-[12px]">
+          <div class="flex items-center gap-[3px] text-text-muted min-w-[30px]">2 <i class="ti ti-star text-gold text-[12px]"></i></div>
+          <div class="flex-1 h-1.5 bg-surface2 rounded-[3px] overflow-hidden"><div class="h-full bg-gold rounded-[3px]" style="width:1%"></div></div>
+          <span class="text-text-muted min-w-[35px] text-right">1%</span>
+        </div>
+        <div class="flex items-center gap-3 mb-2 text-[12px]">
+          <div class="flex items-center gap-[3px] text-text-muted min-w-[30px]">1 <i class="ti ti-star text-gold text-[12px]"></i></div>
+          <div class="flex-1 h-1.5 bg-surface2 rounded-[3px] overflow-hidden"><div class="h-full bg-gold rounded-[3px]" style="width:1%"></div></div>
+          <span class="text-text-muted min-w-[35px] text-right">1%</span>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-3 max-md:grid-cols-1 gap-4">
+      <div class="bg-bg border border-border rounded-md p-[18px] transition-all hover:border-border-light hover:shadow-[0_8px_24px_rgba(0,0,0,.05)]">
+        <div class="flex items-center gap-2.5 mb-3">
+          <div class="w-10 h-10 rounded-full bg-surface2 flex items-center justify-center text-base font-medium text-accent font-display tracking-[1px] shrink-0">NT</div>
+          <div>
+            <div class="text-[14px] font-medium text-text">Nguyễn Thảo</div>
+            <div class="text-[11px] text-text-muted">10 tháng 5, 2026</div>
+          </div>
+          <span class="inline-flex items-center gap-1 text-[10px] text-[#4CAF50] ml-auto"><i class="ti ti-circle-check"></i> Đã mua</span>
+        </div>
+        <div class="text-[14px] text-gold mb-2.5">★★★★★</div>
+        <span class="inline-block text-[10px] bg-surface2 border border-border py-[3px] px-[9px] rounded-sm text-text-muted mb-2.5 tracking-[0.5px]">Nike Air Force 1 '07</span>
+        <div class="flex gap-1.5 mb-2.5 flex-wrap">
+          <div class="w-[50px] h-[50px] rounded-sm bg-surface2 border border-border flex items-center justify-center text-[20px] cursor-pointer transition-colors hover:border-accent">👟</div>
+          <div class="w-[50px] h-[50px] rounded-sm bg-surface2 border border-border flex items-center justify-center text-[20px] cursor-pointer transition-colors hover:border-accent">📦</div>
+        </div>
+        <p class="text-[13px] text-text-muted leading-[1.6] line-clamp-3">Giày đẹp lắm, đóng gói cẩn thận, giao hàng nhanh chỉ 1 ngày. Chất lượng y hệt hàng chính hãng mua ở store. Sẽ ủng hộ shop dài dài!</p>
+        <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
+          <button class="flex items-center gap-[5px] text-[11px] text-text-muted bg-transparent border-none transition-colors hover:text-accent" onclick="likeReview(this)"><i class="ti ti-thumb-up"></i> Hữu ích (23)</button>
+          <button class="flex items-center gap-[5px] text-[11px] text-text-muted bg-transparent border-none transition-colors hover:text-accent"><i class="ti ti-message"></i> Trả lời</button>
+        </div>
+      </div>
+      <div class="bg-bg border border-border rounded-md p-[18px] transition-all hover:border-border-light hover:shadow-[0_8px_24px_rgba(0,0,0,.05)]">
+        <div class="flex items-center gap-2.5 mb-3">
+          <div class="w-10 h-10 rounded-full bg-surface2 flex items-center justify-center text-base font-medium text-accent2-dim font-display tracking-[1px] shrink-0">MH</div>
+          <div>
+            <div class="text-[14px] font-medium text-text">Minh Hoàng</div>
+            <div class="text-[11px] text-text-muted">8 tháng 5, 2026</div>
+          </div>
+          <span class="inline-flex items-center gap-1 text-[10px] text-[#4CAF50] ml-auto"><i class="ti ti-circle-check"></i> Đã mua</span>
+        </div>
+        <div class="text-[14px] text-gold mb-2.5">★★★★★</div>
+        <span class="inline-block text-[10px] bg-surface2 border border-border py-[3px] px-[9px] rounded-sm text-text-muted mb-2.5 tracking-[0.5px]">Crocs Mega Crush Clog</span>
+        <div class="flex gap-1.5 mb-2.5 flex-wrap">
+          <div class="w-[50px] h-[50px] rounded-sm bg-surface2 border border-border flex items-center justify-center text-[20px] cursor-pointer transition-colors hover:border-accent">🥿</div>
+        </div>
+        <p class="text-[13px] text-text-muted leading-[1.6] line-clamp-3">Crocs Mega Crush đế cao siêu ngầu, đi êm chân kinh khủng. Mình order size 41 vừa chuẩn. Màu đen hợp với mọi outfit. 10 điểm không có chỗ chê!</p>
+        <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
+          <button class="flex items-center gap-[5px] text-[11px] text-text-muted bg-transparent border-none transition-colors hover:text-accent" onclick="likeReview(this)"><i class="ti ti-thumb-up"></i> Hữu ích (18)</button>
+          <button class="flex items-center gap-[5px] text-[11px] text-text-muted bg-transparent border-none transition-colors hover:text-accent"><i class="ti ti-message"></i> Trả lời</button>
+        </div>
+      </div>
+      <div class="bg-bg border border-border rounded-md p-[18px] transition-all hover:border-border-light hover:shadow-[0_8px_24px_rgba(0,0,0,.05)]">
+        <div class="flex items-center gap-2.5 mb-3">
+          <div class="w-10 h-10 rounded-full bg-surface2 flex items-center justify-center text-base font-medium text-gold font-display tracking-[1px] shrink-0">LN</div>
+          <div>
+            <div class="text-[14px] font-medium text-text">Lan Nhi</div>
+            <div class="text-[11px] text-text-muted">6 tháng 5, 2026</div>
+          </div>
+          <span class="inline-flex items-center gap-1 text-[10px] text-[#4CAF50] ml-auto"><i class="ti ti-circle-check"></i> Đã mua</span>
+        </div>
+        <div class="text-[14px] text-gold mb-2.5">★★★★★</div>
+        <span class="inline-block text-[10px] bg-surface2 border border-border py-[3px] px-[9px] rounded-sm text-text-muted mb-2.5 tracking-[0.5px]">Adidas Samba OG</span>
+        <div class="flex gap-1.5 mb-2.5 flex-wrap">
+          <div class="w-[50px] h-[50px] rounded-sm bg-surface2 border border-border flex items-center justify-center text-[20px] cursor-pointer transition-colors hover:border-accent">👟</div>
+          <div class="w-[50px] h-[50px] rounded-sm bg-surface2 border border-border flex items-center justify-center text-[20px] cursor-pointer transition-colors hover:border-accent">✨</div>
+          <div class="w-[50px] h-[50px] rounded-sm bg-surface2 border border-border flex items-center justify-center text-[20px] cursor-pointer transition-colors hover:border-accent">📸</div>
+        </div>
+        <p class="text-[13px] text-text-muted leading-[1.6] line-clamp-3">Adidas Samba đẹp mê hồn! Shop tư vấn nhiệt tình, cho mình xem ảnh thực tế trước khi mua. Giao hàng siêu nhanh, freeship luôn. Cảm ơn StepUp!</p>
+        <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
+          <button class="flex items-center gap-[5px] text-[11px] text-text-muted bg-transparent border-none transition-colors hover:text-accent" onclick="likeReview(this)"><i class="ti ti-thumb-up"></i> Hữu ích (35)</button>
+          <button class="flex items-center gap-[5px] text-[11px] text-text-muted bg-transparent border-none transition-colors hover:text-accent"><i class="ti ti-message"></i> Trả lời</button>
+        </div>
+      </div>
+    </div>
+    </div><!-- /.section-wrapper -->
+  </div>
+</section>
+
+<hr class="border-none border-t border-border m-0">
+
+<section class="py-8">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <div class="bg-[#111] rounded-xl p-10 max-md:py-8 max-md:px-5 text-center relative overflow-hidden before:content-[''] before:absolute before:w-[500px] before:h-[500px] before:rounded-full before:bg-[rgba(255,77,0,0.08)] before:-top-[140px] before:left-1/2 before:-translate-x-1/2 before:pointer-events-none">
+      <h2 class="font-display text-[32px] text-white tracking-[2px] mb-2 font-bold uppercase">ĐĂNG KÝ TÀI KHOẢN</h2>
+      <p class="text-[14px] text-white/60 mb-6">Trở thành thành viên SaigonShoes ngay để nhận thông báo Flash Sale, quà tặng và ưu đãi độc quyền mỗi tuần</p>
+      <div class="flex justify-center">
+        <button class="bg-accent text-white border-none py-[13px] px-9 font-display text-[16px] tracking-[2px] rounded-sm transition-colors hover:bg-accent-hover font-bold" onclick="showToast('Chuyển hướng đến trang đăng ký... 🚀')">ĐĂNG KÝ NGAY</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact" class="bg-[#111111] text-white mt-0">
+  <div class="w-full">
+    <!-- Footer top -->
+    <div class="max-w-[1200px] mx-auto px-6 pt-14 pb-10">
+      <div class="grid grid-cols-[1.6fr_1fr_1fr_1.2fr] max-lg:grid-cols-2 max-md:grid-cols-1 gap-10">
+        <!-- Brand -->
+        <div>
+          <div class="font-display text-[26px] font-bold tracking-[3px] mb-4">SAIGON<span class="text-accent">SHOES</span></div>
+          <p class="text-[13px] text-white/50 leading-[1.9] mb-6 max-w-[260px]">
+            Chúng tôi mang đến những đôi giày không chỉ là phụ kiện, mà là biểu tượng của phong cách và cá tính riêng. SaigonShoes — Đồng hành cùng mỗi bước chân của bạn.
+          </p>
+          <div class="flex gap-3">
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-facebook"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-instagram"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-tiktok"></i></a>
+          </div>
+        </div>
+
+        <!-- Khám phá -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">KHÁM PHÁ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nam</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nữ</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Dép Crocs</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Phụ kiện Jibbitz</a>
+          </nav>
+        </div>
+
+        <!-- Dịch vụ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">DỊCH VỤ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Theo dõi đơn hàng</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Chính sách đổi trả</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hướng dẫn chọn size</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hệ thống cửa hàng</a>
+          </nav>
+        </div>
+
+        <!-- Thông tin liên hệ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">THÔNG TIN</h4>
+          <div class="flex flex-col gap-3.5">
+            <div class="flex items-start gap-3">
+              <i class="ti ti-map-pin text-[16px] text-accent mt-[2px] shrink-0"></i>
+              <span class="text-[13px] text-white/60 leading-[1.6]">123 Đường ABC, Quận 1, TP. Hồ Chí Minh</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-phone text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">0123 456 789</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-mail text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">support@stepup.vn</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="border-t border-white/[0.07]">
+      <div class="max-w-[1200px] mx-auto px-6 py-5 flex items-center justify-between flex-wrap gap-4">
+        <p class="text-[12px] text-white/30">© 2026 SaigonShoes Store. Bản quyền thuộc về đội ngũ phát triển dự án.</p>
+        <div class="flex items-center gap-3 text-white/30">
+          <i class="ti ti-brand-visa text-[22px]"></i>
+          <i class="ti ti-brand-mastercard text-[22px]"></i>
+          <i class="ti ti-brand-paypal text-[22px]"></i>
+          <i class="ti ti-credit-card text-[22px]"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="fixed bottom-[28px] right-[28px] z-[300]">
+  <div class="chat-window absolute bottom-[70px] right-0 w-[320px] bg-bg border border-border rounded-lg overflow-hidden scale-80 translate-y-5 origin-bottom-right opacity-0 pointer-events-none transition-all duration-[0.25s] ease-[cubic-bezier(.4,0,.2,1)] shadow-[0_12px_40px_rgba(0,0,0,.15)]" id="chatWindow">
+    <div class="bg-accent py-[14px] px-4 flex items-center gap-2.5">
+      <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-[18px] text-white">🤖</div>
+      <div>
+        <div class="text-[14px] font-medium text-white">SaigonShoes AI</div>
+        <div class="text-[11px] text-white/90">● Đang hoạt động 24/7</div>
+      </div>
+      <button class="ml-auto bg-transparent border-none text-white/90 text-[20px] transition-colors hover:text-white cursor-pointer" onclick="toggleChat()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="h-[220px] overflow-y-auto p-[14px] flex flex-col gap-2.5" id="chatMsgs">
+      <div class="flex gap-2 items-end">
+        <div class="w-[26px] h-[26px] rounded-full bg-surface2 flex items-center justify-center text-[12px] shrink-0">🤖</div>
+        <div class="max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-[1.5] bg-surface2 text-text rounded-bl-[4px]">Xin chào! Mình là AI tư vấn của StepUp. Bạn cần tư vấn gì hôm nay? 👟</div>
+      </div>
+    </div>
+    <div class="flex gap-1.5 flex-wrap px-[14px] pb-2.5">
+      <button class="bg-surface2 border border-border text-text-muted text-[11px] py-[5px] px-2.5 rounded-[20px] transition-all cursor-pointer hover:border-accent hover:text-accent" onclick="sendSugg('Tư vấn size giày Nike')">Size giày Nike</button>
+      <button class="bg-surface2 border border-border text-text-muted text-[11px] py-[5px] px-2.5 rounded-[20px] transition-all cursor-pointer hover:border-accent hover:text-accent" onclick="sendSugg('Crocs nào đang hot?')">Crocs hot nhất</button>
+      <button class="bg-surface2 border border-border text-text-muted text-[11px] py-[5px] px-2.5 rounded-[20px] transition-all cursor-pointer hover:border-accent hover:text-accent" onclick="sendSugg('Chính sách đổi trả')">Đổi trả</button>
+    </div>
+    <div class="flex gap-2 py-3 px-[14px] border-t border-border">
+      <input class="flex-1 bg-surface2 border border-border rounded-[20px] py-2 px-[14px] text-[13px] text-text outline-none font-body transition-colors focus:border-accent focus:bg-bg" id="chatInput" type="text" placeholder="Nhắn tin..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="w-9 h-9 rounded-full bg-accent border-none flex items-center justify-center text-[16px] text-white transition-colors cursor-pointer hover:bg-accent-hover" onclick="sendChat()"><i class="ti ti-send"></i></button>
+    </div>
+  </div>
+  <button class="w-14 h-14 bg-accent text-white rounded-full flex items-center justify-center text-[24px] cursor-pointer shadow-[0_4px_20px_rgba(255,77,0,.3)] transition-all relative border-none hover:scale-[1.1]" onclick="toggleChat()">
+    💬
+    <span class="absolute top-0 right-0 w-3 h-3 bg-[#4CAF50] rounded-full border-2 border-bg"></span>
+  </button>
+</div>
+
+<script>
+// ===== SLIDER =====
+let currentSlide=0;const totalSlides=3;
+const slidesEl=document.getElementById('slides');
+const indicators=document.getElementById('slideIndicators');
+for(let i=0;i<totalSlides;i++){
+  const d=document.createElement('button');
+  d.className='slide-dot w-2 h-2 rounded-full bg-border-light border-none transition-all cursor-pointer'+(i===0?' active':'');
+  d.onclick=()=>goSlide(i);
+  indicators.appendChild(d);
+}
+function goSlide(n){
+  currentSlide=n;
+  slidesEl.style.transform=`translateX(-${n*100}%)`;
+  document.querySelectorAll('.slide-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+}
+document.getElementById('slidePrev').onclick=()=>goSlide((currentSlide-1+totalSlides)%totalSlides);
+document.getElementById('slideNext').onclick=()=>goSlide((currentSlide+1)%totalSlides);
+setInterval(()=>goSlide((currentSlide+1)%totalSlides),5000);
+
+// ===== COUNTDOWN =====
+let h=2,m=47,s=33;
+function tick(){
+  s--;if(s<0){s=59;m--;}if(m<0){m=59;h--;}if(h<0){h=2;m=59;s=59;}
+  document.getElementById('cdH').textContent=String(h).padStart(2,'0');
+  document.getElementById('cdM').textContent=String(m).padStart(2,'0');
+  document.getElementById('cdS').textContent=String(s).padStart(2,'0');
+}
+setInterval(tick,1000);
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ===== CART =====
+let cartCount=3;
+function addToCart(btn){
+  cartCount++;
+  document.getElementById('cartCount').textContent=cartCount;
+  const card=btn.closest('.prod-card,.featured-small,.feat-small-info');
+  const name=card?card.querySelector('.prod-name')?.textContent:'Sản phẩm';
+  showToast('Đã thêm "'+name.substring(0,30)+'" vào giỏ!');
+  btn.textContent='✓ Đã thêm';
+  btn.style.background='#4CAF50';
+  setTimeout(()=>{
+    btn.innerHTML='<i class="ti ti-shopping-cart"></i> Giỏ hàng';
+    btn.style.background='';
+  },2000);
+}
+
+// ===== WISHLIST =====
+function toggleWish(btn){
+  const active=btn.classList.toggle('active');
+  showToast(active?'Đã thêm vào yêu thích ❤️':'Đã xóa khỏi yêu thích');
+}
+
+// ===== BLOG LIKE =====
+function likeBlog(btn){
+  const span=btn.querySelector('span');
+  const n=parseInt(span.textContent);
+  span.textContent=btn.dataset.liked?n-1:n+1;
+  btn.dataset.liked=btn.dataset.liked?'':'1';
+  btn.style.color=btn.dataset.liked?'var(--accent)':'';
+}
+
+// ===== REVIEW LIKE =====
+function likeReview(btn){
+  const match=btn.textContent.match(/\((\d+)\)/);
+  if(match){
+    const n=parseInt(match[1]);
+    btn.innerHTML=`<i class="ti ti-thumb-up"></i> Hữu ích (${btn.dataset.liked?n-1:n+1})`;
+    btn.dataset.liked=btn.dataset.liked?'':'1';
+    btn.style.color=btn.dataset.liked?'var(--accent)':'';
+  }
+}
+
+// ===== SALE FILTER =====
+function filterSale(btn,cat){
+  document.querySelectorAll('.sale-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#saleGrid .prod-card').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
+  });
+}
+
+// ===== BESTSELLER FILTER =====
+function filterBestSeller(btn,cat){
+  document.querySelectorAll('.bestseller-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#bestSellerGrid .prod-card').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
+  });
+}
+
+// ===== SIZE CHIPS =====
+document.querySelectorAll('.size-chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    c.closest('.prod-sizes').querySelectorAll('.size-chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+
+// ===== HAMBURGER =====
+document.getElementById('hamburger').onclick=function(){
+  const m=document.getElementById('mobileMenu');
+  m.classList.toggle('open');
+};
+
+// ===== SCROLL TOP =====
+window.addEventListener('scroll',()=>{
+  document.getElementById('scrollTop').classList.toggle('visible',window.scrollY>400);
+});
+
+// ===== CHATBOT =====
+let chatOpen=false;
+function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chatWindow').classList.toggle('open',chatOpen);
+}
+const aiReplies=[
+  'Bạn muốn tìm mẫu nào? Mình có đủ Nike, Adidas, Crocs nhé! 😊',
+  'Size giày thường lấy theo số châu Âu. Bạn mang size bao nhiêu ở Việt Nam?',
+  'Crocs đang có rất nhiều mẫu hot như Mega Crush, Echo, Classic. Bạn thích phong cách nào?',
+  'Mình kiểm tra ngay cho bạn! Đơn hàng hiện đang ở trạng thái "Đang giao" 🚚',
+  'SaigonShoes có chính sách đổi trả 30 ngày, miễn phí nếu lỗi từ nhà sản xuất nhé!',
+  'Hiện tại đang có Flash Sale giảm đến 50% cho nhiều mẫu sneaker hot! ⚡'
+];
+let replyIdx=0;
+function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  addChatMsg(txt,'user');
+  inp.value='';
+  setTimeout(()=>{
+    addChatMsg(aiReplies[replyIdx%aiReplies.length],'ai');
+    replyIdx++;
+  },800);
+}
+function sendSugg(txt){
+  addChatMsg(txt,'user');
+  setTimeout(()=>{
+    addChatMsg(aiReplies[replyIdx%aiReplies.length],'ai');
+    replyIdx++;
+  },600);
+}
+function addChatMsg(txt,type){
+  const msgs=document.getElementById('chatMsgs');
+  const row=document.createElement('div');
+  row.className='flex gap-2 items-end'+(type==='user'?' flex-row-reverse':'');
+  row.innerHTML=`<div class="w-[26px] h-[26px] rounded-full bg-surface2 flex items-center justify-center text-[12px] shrink-0">${type==='ai'?'🤖':'👤'}</div><div class="max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-[1.5] ${type==='ai'?'bg-surface2 text-text rounded-bl-[4px]':'bg-accent text-white rounded-br-[4px]'}">${txt}</div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+</script>
+</body>
+</html>

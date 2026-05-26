@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về chúng tôi - STEPUP | Câu chuyện thương hiệu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bg: '#ffffff',
+              surface: '#fdfdfd',
+              surface2: '#f4f4f4',
+              surface3: '#e0e0e0',
+              accent: '#FF4D00',
+              'accent-hover': '#e63d00',
+              accent2: '#00E5FF',
+              'accent2-dim': '#00b8cc',
+              gold: '#FFB800',
+              text: '#1a1a1a',
+              'text-muted': '#4B4B4B',
+              'text-dim': '#A0A0A0',
+              border: '#E8E8E8',
+              'border-light': '#F0F0F0',
+            },
+            fontFamily: {
+              display: ['var(--font-display)'],
+              heading: ['var(--font-heading)'],
+              text: ['var(--font-text)'],
+              body: ['var(--font-body)'],
+            }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        :root {
+          --font-display: 'Futura PT', 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+          --font-heading: 'Helvetica Now Display', 'Helvetica Neue', Arial, sans-serif;
+          --font-text: 'Helvetica Now Text', 'Helvetica Neue', Arial, sans-serif;
+          --font-body: 'Helvetica Neue', Arial, sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+          @apply bg-bg text-text font-body text-base leading-[1.6];
+        }
+      }
+      @layer utilities {
+        #toast.show { @apply translate-y-0 opacity-100 pointer-events-auto; }
+        .nav-links a.active { @apply text-accent bg-surface2 font-medium; }
+      }
+    </style>
+    <style>
+        /* Mega Menu Styles */
+        .nav-item { position: static; }
+        .nav-item .mega-dropdown {
+            position: absolute;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            width: 720px;
+            background: #fff;
+            border: 1px solid #E8E8E8;
+            border-top: 3px solid #FF4D00;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .nav-item:hover .mega-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .mega-dropdown-inner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            padding: 24px 0 16px;
+        }
+        .mega-col { padding: 0 20px 16px; border-right: 1px solid #f0f0f0; }
+        .mega-col:last-child { border-right: none; }
+        .mega-col-title {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.2px;
+            text-transform: uppercase; color: #1a1a1a;
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 1.5px solid #E8E8E8;
+        }
+        .mega-col a {
+            display: block; font-size: 13px; color: #4B4B4B;
+            padding: 5px 0; text-decoration: none;
+            transition: color 0.15s; line-height: 1.4;
+        }
+        .mega-col a:hover { color: #FF4D00; }
+        .mega-footer { border-top: 1px solid #E8E8E8; padding: 10px 20px; display: flex; justify-content: flex-end; background: #fafafa; }
+        .mega-footer a { font-size: 12px; color: #FF4D00; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: gap 0.2s; }
+        .mega-footer a:hover { gap: 9px; }
+
+        :root {
+            --color-bg: #ffffff;
+            --color-surface: #fdfdfd;
+            --color-surface2: #f4f4f4;
+            --color-accent: #FF4D00;
+            --color-accent-hover: #e63d00;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-text-dim: #999999;
+            --color-border: #eaeaea;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 1200px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--color-accent);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 32px;
+        }
+
+        nav ul a {
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-text-muted);
+        }
+
+        nav ul a:hover,
+        nav ul a.active {
+            color: var(--color-accent);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-actions i {
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--color-text);
+            transition: 0.2s;
+        }
+
+        .header-actions i:hover {
+            color: var(--color-accent);
+        }
+
+        .btn-auth {
+            background: var(--color-text);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-auth:hover {
+            background: var(--color-accent);
+        }
+
+        /* Hero About */
+        .about-hero {
+            padding: 100px 0;
+            background: var(--color-surface);
+            text-align: center;
+        }
+
+        .about-hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(40px, 5vw, 64px);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .about-hero h1 span {
+            color: var(--color-accent);
+        }
+
+        .about-hero p {
+            font-size: 18px;
+            color: var(--color-text-muted);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--color-text-dim);
+            margin-bottom: 40px;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--color-accent);
+        }
+
+        /* Story Section */
+        .story {
+            padding: 100px 0;
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 80px;
+        }
+
+        .story-content h2 {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .story-content p {
+            margin-bottom: 20px;
+            color: var(--color-text-muted);
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .story-image {
+            position: relative;
+        }
+
+        .story-image img {
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .story-image::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--color-accent);
+            border-radius: 30px;
+            z-index: -1;
+        }
+
+        /* Values */
+        .values {
+            padding: 100px 0;
+            background: var(--color-surface2);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .section-title p {
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .value-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--color-accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .value-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--color-surface);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            color: var(--color-accent);
+            font-size: 32px;
+        }
+
+        .value-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .value-card p {
+            font-size: 15px;
+            color: var(--color-text-muted);
+        }
+
+        /* Stats */
+        .stats {
+            padding: 100px 0;
+            background: var(--color-text);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item h2 {
+            font-family: var(--font-display);
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--color-accent);
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        /* Team */
+        .team {
+            padding: 100px 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .team-card {
+            text-align: center;
+        }
+
+        .team-img {
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            aspect-ratio: 1/1;
+            background: var(--color-surface2);
+        }
+
+        .team-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+
+        .team-card:hover .team-img img {
+            transform: scale(1.1);
+        }
+
+        .team-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .team-card p {
+            font-size: 14px;
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-surface2);
+            padding: 80px 0 40px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .footer-about p {
+            color: var(--color-text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text);
+            font-size: 18px;
+        }
+
+        .social-link:hover {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .footer-col h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        .footer-links a:hover {
+            color: var(--color-accent);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            padding-top: 40px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--color-text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .story-grid {
+                gap: 40px;
+            }
+            .values-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .story-grid {
+                grid-template-columns: 1fr;
+            }
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+            nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="bg-accent text-center py-[9px] px-5 text-xs tracking-[2px] uppercase font-medium text-white [&>span]:mx-4 flex justify-center flex-wrap gap-2">
+  <span>🚀 FREE SHIP đơn từ 500K</span>
+  <span class="hidden md:inline">|</span>
+  <span>⚡ FLASH SALE mỗi ngày 12H–14H</span>
+  <span class="hidden md:inline">|</span>
+  <span>🎁 Tặng quà khi mua từ 1 triệu</span>
+</div>
+
+<header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200] relative">
+  <div class="max-w-[1200px] mx-auto px-5">
+    <nav class="flex items-center justify-between h-[72px] gap-4">
+      <a href="index.html" class="font-display text-[26px] tracking-[3px] font-bold shrink-0">SAIGON<span class="text-accent">SHOES</span></a>
+
+      <!-- Desktop Nav -->
+      <ul class="flex gap-0.5 max-md:hidden h-full items-center flex-1 justify-center">
+
+        <!-- Trang chủ -->
+        <li><a href="index.html" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trang chủ</a></li>
+
+        <!-- Nam -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nam <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike</div>
+                <a href="#">Air Force 1</a>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 1</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">SB Dunk</a>
+                <a href="#">Blazer Mid</a>
+                <a href="#">Air Jordan 1</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Adidas</div>
+                <a href="#">Adidas Samba</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Campus</a>
+                <a href="#">Adidas Superstar</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Adidas NMD</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">Ultraboost</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">New Balance</div>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">NB 574</a>
+                <a href="#">NB 990</a>
+                <a href="#">NB 991</a>
+                <a href="#">NB 2002R</a>
+                <a href="#">NB 9060</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Puma</div>
+                <a href="#">Puma RS-X</a>
+                <a href="#">Puma Thunder</a>
+                <a href="#">Puma Suede</a>
+                <a href="#">Puma Basket</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">Puma Velocity</a>
+                <a href="#">Puma Cali</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nam <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Nữ -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Nữ <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Giày Nike Nữ</div>
+                <a href="#">Air Force 1 Shadow</a>
+                <a href="#">Air Max 270</a>
+                <a href="#">Air Max 90</a>
+                <a href="#">React Infinity Run</a>
+                <a href="#">Dunk Low</a>
+                <a href="#">Free RN 5.0</a>
+                <a href="#">Blazer Mid</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Nữ</div>
+                <a href="#">Adidas Samba OG</a>
+                <a href="#">Adidas Gazelle</a>
+                <a href="#">Adidas Stan Smith</a>
+                <a href="#">Ultraboost 22</a>
+                <a href="#">Adidas Forum</a>
+                <a href="#">NMD R1</a>
+                <a href="#">Superstar</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs &amp; Sandal</div>
+                <a href="#">Classic Clog</a>
+                <a href="#">Mega Crush Clog</a>
+                <a href="#">Echo Sandal</a>
+                <a href="#">Crush Sandal</a>
+                <a href="#">Literide Pacer</a>
+                <a href="#">Crocband</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse All Star</a>
+                <a href="#">Vans Old Skool</a>
+                <a href="#">Puma Cali</a>
+                <a href="#">Puma Muse</a>
+                <a href="#">NB 530</a>
+                <a href="#">NB 550</a>
+                <a href="#">Reebok Classic</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Nữ <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Trẻ em -->
+        <li class="nav-item h-full flex items-center">
+          <a href="products.html" class="flex items-center gap-1 py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Trẻ em <i class="ti ti-chevron-down text-[10px] mt-[1px]"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-dropdown-inner">
+              <div class="mega-col">
+                <div class="mega-col-title">Nike Kids</div>
+                <a href="#">Air Force 1 Kids</a>
+                <a href="#">Dunk Low Kids</a>
+                <a href="#">Air Max 90 Kids</a>
+                <a href="#">React Infinity Kids</a>
+                <a href="#">Air Jordan 1 Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Adidas Kids</div>
+                <a href="#">Stan Smith Kids</a>
+                <a href="#">Superstar Kids</a>
+                <a href="#">Samba Kids</a>
+                <a href="#">NMD Kids</a>
+                <a href="#">Ultraboost Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Crocs Kids</div>
+                <a href="#">Classic Clog Kids</a>
+                <a href="#">Crocband Kids</a>
+                <a href="#">Literide Kids</a>
+                <a href="#">Echo Sandal Kids</a>
+                <a href="#">Classic Sandal Kids</a>
+              </div>
+              <div class="mega-col">
+                <div class="mega-col-title">Thương hiệu khác</div>
+                <a href="#">Converse Kids</a>
+                <a href="#">Vans Kids</a>
+                <a href="#">Puma Kids</a>
+                <a href="#">New Balance Kids</a>
+                <a href="#">Reebok Kids</a>
+              </div>
+            </div>
+            <div class="mega-footer"><a href="products.html">Xem tất cả giày Trẻ em <i class="ti ti-arrow-right"></i></a></div>
+          </div>
+        </li>
+
+        <!-- Giới thiệu -->
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Giới thiệu</a></li>
+
+        <!-- Tin tức -->
+        <li><a href="index.html#blog" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Tin tức</a></li>
+
+        <!-- Liên hệ -->
+        <li><a href="#" class="block py-2.5 px-3.5 text-[13px] text-text-muted tracking-[0.4px] rounded-sm transition-all whitespace-nowrap hover:text-accent hover:bg-surface2">Liên hệ</a></li>
+
+      </ul>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-[6px]">
+        <div class="flex items-center bg-surface2 border border-border rounded-sm overflow-hidden transition-colors focus-within:border-accent max-md:hidden">
+          <input type="text" placeholder="Tìm kiếm..." class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[140px] font-body placeholder:text-text-dim">
+          <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-colors hover:text-accent"><i class="ti ti-search"></i></button>
+        </div>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Yêu thích"><i class="ti ti-heart"></i></button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Thông báo">
+          <i class="ti ti-bell"></i>
+          <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">2</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent" title="Giỏ hàng">
+          <i class="ti ti-shopping-cart"></i>
+          <span id="cartCount" class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center">3</span>
+        </button>
+        <button class="w-10 h-10 flex items-center justify-center rounded-sm bg-transparent border-none text-text-muted text-xl relative transition-all hover:bg-surface2 hover:text-accent max-md:hidden" title="Tài khoản"><i class="ti ti-user"></i></button>
+        <button class="hidden flex-col gap-[5px] bg-transparent border-none p-2 max-md:flex" id="hamburger" aria-label="Menu" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+          <span class="block w-[22px] h-[2px] bg-text transition-all duration-300"></span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="hidden bg-white border-t border-border py-4 px-5" id="mobileMenu">
+    <a href="index.html" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Trang chủ</a>
+    <a href="#" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Giới thiệu</a>
+    <a href="index.html#blog" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent">Tin tức</a>
+    <a href="#" class="block py-3 text-[15px] text-text-muted transition-colors hover:text-accent">Liên hệ</a>
+  </div>
+</header>
+
+    <!-- About Hero -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Trang chủ</a>
+                <span>/</span>
+                <span>Giới thiệu</span>
+            </div>
+            <h1>Nâng tầm <span>bước chân</span><br>vươn tới tương lai</h1>
+            <p>STEPUP không chỉ là một cửa hàng giày, chúng tôi là người đồng hành cùng bạn trên mọi nẻo đường, mang lại sự tự tin và phong cách dẫn đầu.</p>
+        </div>
+    </section>
+
+    <!-- Story -->
+    <section class="story">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-image">
+                    <img src="images/about_story.png" alt="Câu chuyện STEPUP">
+                </div>
+                <div class="story-content">
+                    <h2>Câu chuyện của chúng tôi</h2>
+                    <p>Bắt đầu từ niềm đam mê mãnh liệt với những đôi giày thể thao, STEPUP được thành lập với mục tiêu mang đến cho cộng đồng những sản phẩm chính hãng, chất lượng và thời thượng nhất.</p>
+                    <p>Chúng tôi hiểu rằng mỗi đôi giày không chỉ là phụ kiện, mà còn là biểu tượng của cá tính và khát vọng. Vì vậy, STEPUP luôn không ngừng tìm kiếm và cập nhật những bộ sưu tập mới nhất từ các thương hiệu hàng đầu thế giới.</p>
+                    <p>Hành trình của chúng tôi được viết nên bởi sự tin tưởng của hàng ngàn khách hàng. Đó chính là động lực để STEPUP ngày càng hoàn thiện và phát triển mạnh mẽ hơn.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values -->
+    <section class="values">
+        <div class="container">
+            <div class="section-title">
+                <h2>Giá trị cốt lõi</h2>
+                <p>Những nguyên tắc vàng giúp STEPUP xây dựng niềm tin vững chắc trong lòng khách hàng.</p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon"><i class="ti ti-medal"></i></div>
+                    <h3>Chất lượng hàng đầu</h3>
+                    <p>Cam kết 100% sản phẩm chính hãng, được kiểm định nghiêm ngặt trước khi đến tay khách hàng.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon"><i class="ti ti-bulb"></i></div>
+                    <h3>Luôn luôn sáng tạo</h3>
+                    <p>Không ngừng cập nhật xu hướng mới, mang đến những trải nghiệm mua sắm hiện đại và tiện lợi.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon"><i class="ti ti-heart"></i></div>
+                    <h3>Tận tâm phục vụ</h3>
+                    <p>Khách hàng là trung tâm. Chúng tôi luôn lắng nghe và hỗ trợ bạn bằng tất cả sự nhiệt huyết.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h2>10K+</h2>
+                    <p>Khách hàng tin dùng</p>
+                </div>
+                <div class="stat-item">
+                    <h2>50+</h2>
+                    <p>Thương hiệu đối tác</p>
+                </div>
+                <div class="stat-item">
+                    <h2>05+</h2>
+                    <p>Năm kinh nghiệm</p>
+                </div>
+                <div class="stat-item">
+                    <h2>100%</h2>
+                    <p>Hài lòng dịch vụ</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section class="team">
+        <div class="container">
+            <div class="section-title">
+                <h2>Đội ngũ sáng lập</h2>
+                <p>Những con người đầy nhiệt huyết đứng sau sự thành công của STEPUP.</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-img">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400" alt="CEO">
+                    </div>
+                    <h3>Nguyễn Văn A</h3>
+                    <p>Founder & CEO</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-img">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="COO">
+                    </div>
+                    <h3>Trần Thị B</h3>
+                    <p>Giám đốc vận hành</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-img">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400" alt="CMO">
+                    </div>
+                    <h3>Lê Văn C</h3>
+                    <p>Giám đốc Marketing</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-img">
+                        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400" alt="CSO">
+                    </div>
+                    <h3>Phạm Thị D</h3>
+                    <p>Trưởng bộ phận CSKH</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<footer id="contact" class="bg-[#111111] text-white mt-0">
+  <div class="w-full">
+    <!-- Footer top -->
+    <div class="max-w-[1200px] mx-auto px-6 pt-14 pb-10">
+      <div class="grid grid-cols-[1.6fr_1fr_1fr_1.2fr] max-lg:grid-cols-2 max-md:grid-cols-1 gap-10">
+        <!-- Brand -->
+        <div>
+          <div class="font-display text-[26px] font-bold tracking-[3px] mb-4">SAIGON<span class="text-accent">SHOES</span></div>
+          <p class="text-[13px] text-white/50 leading-[1.9] mb-6 max-w-[260px]">
+            Chúng tôi mang đến những đôi giày không chỉ là phụ kiện, mà là biểu tượng của phong cách và cá tính riêng. SaigonShoes — Đồng hành cùng mỗi bước chân của bạn.
+          </p>
+          <div class="flex gap-3">
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-facebook"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-instagram"></i></a>
+            <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-tiktok"></i></a>
+          </div>
+        </div>
+
+        <!-- Khám phá -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">KHÁM PHÁ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nam</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nữ</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Dép Crocs</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Phụ kiện Jibbitz</a>
+          </nav>
+        </div>
+
+        <!-- Dịch vụ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">DỊCH VỤ</h4>
+          <nav class="flex flex-col gap-3">
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Theo dõi đơn hàng</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Chính sách đổi trả</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hướng dẫn chọn size</a>
+            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Hệ thống cửa hàng</a>
+          </nav>
+        </div>
+
+        <!-- Thông tin liên hệ -->
+        <div>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">THÔNG TIN</h4>
+          <div class="flex flex-col gap-3.5">
+            <div class="flex items-start gap-3">
+              <i class="ti ti-map-pin text-[16px] text-accent mt-[2px] shrink-0"></i>
+              <span class="text-[13px] text-white/60 leading-[1.6]">123 Đường ABC, Quận 1, TP. Hồ Chí Minh</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-phone text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">0123 456 789</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ti ti-mail text-[16px] text-accent shrink-0"></i>
+              <span class="text-[13px] text-white/60">support@stepup.vn</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="border-t border-white/[0.07]">
+      <div class="max-w-[1200px] mx-auto px-6 py-5 flex items-center justify-between flex-wrap gap-4">
+        <p class="text-[12px] text-white/30">© 2026 SaigonShoes Store. Bản quyền thuộc về đội ngũ phát triển dự án.</p>
+        <div class="flex items-center gap-3 text-white/30">
+          <i class="ti ti-brand-visa text-[22px]"></i>
+          <i class="ti ti-brand-mastercard text-[22px]"></i>
+          <i class="ti ti-brand-paypal text-[22px]"></i>
+          <i class="ti ti-credit-card text-[22px]"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+</body>
+
+</html>
