@@ -10,17 +10,17 @@
           <!-- Countdown -->
           <div class="flex items-center gap-[6px]">
             <div class="text-center">
-              <div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-sm flex items-center justify-center tracking-[2px]">{{ pad(hours) }}</div>
+              <div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-lg shadow-[0_4px_12px_rgba(255,77,0,0.2)] flex items-center justify-center tracking-[2px] transition-transform hover:scale-105">{{ pad(hours) }}</div>
               <div class="text-[9px] text-text-muted tracking-[1px] uppercase mt-[3px] text-center">Giờ</div>
             </div>
             <div class="font-display text-[24px] text-accent pb-3">:</div>
             <div class="text-center">
-              <div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-sm flex items-center justify-center tracking-[2px]">{{ pad(minutes) }}</div>
+              <div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-lg shadow-[0_4px_12px_rgba(255,77,0,0.2)] flex items-center justify-center tracking-[2px] transition-transform hover:scale-105">{{ pad(minutes) }}</div>
               <div class="text-[9px] text-text-muted tracking-[1px] uppercase mt-[3px] text-center">Phút</div>
             </div>
             <div class="font-display text-[24px] text-accent pb-3">:</div>
             <div class="text-center">
-              <div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-sm flex items-center justify-center tracking-[2px]">{{ pad(seconds) }}</div>
+              <div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-lg shadow-[0_4px_12px_rgba(255,77,0,0.2)] flex items-center justify-center tracking-[2px] transition-transform hover:scale-105">{{ pad(seconds) }}</div>
               <div class="text-[9px] text-text-muted tracking-[1px] uppercase mt-[3px] text-center">Giây</div>
             </div>
           </div>
