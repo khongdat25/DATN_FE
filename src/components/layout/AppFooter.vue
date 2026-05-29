@@ -4,7 +4,7 @@
       <div class="grid grid-cols-[2fr_1fr_1fr_1fr] max-lg:grid-cols-2 max-md:grid-cols-1 gap-12 pb-10">
         <!-- Brand -->
         <div>
-          <div class="font-display text-[24px] tracking-[3px] mb-3 text-white">STEP<span class="text-accent">UP</span></div>
+          <div class="font-display text-[24px] tracking-[3px] mb-3 text-white">SAIGON<span class="text-accent">SHOES</span></div>
           <p class="text-[13px] text-white/50 leading-[1.7] max-w-[260px] mb-5">Cửa hàng giày sneaker, dép Crocs và sandal chính hãng hàng đầu tại TP.HCM. Cam kết chất lượng — giá tốt — giao nhanh.</p>
           <div class="flex gap-2.5">
             <a href="#" class="w-[38px] h-[38px] bg-white/10 border border-white/15 rounded-sm flex items-center justify-center text-[18px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white" title="Facebook"><i class="ti ti-brand-facebook"></i></a>
@@ -44,7 +44,7 @@
       </div>
       <!-- Bottom Bar -->
       <div class="border-t border-white/10 py-5 flex items-center justify-between flex-wrap gap-3">
-        <span class="text-[12px] text-white/30">© 2026 StepUp Store. All rights reserved. Designed for Fullstack Web Project.</span>
+        <span class="text-[12px] text-white/30">© 2026 SaigonShoes Store. All rights reserved. Designed for Fullstack Web Project.</span>
         <div class="flex items-center gap-2.5">
           <span class="bg-white/10 border border-white/15 rounded-sm py-[5px] px-2.5 text-[11px] text-white/60 tracking-[0.5px]">COD</span>
           <span class="bg-white/10 border border-white/15 rounded-sm py-[5px] px-2.5 text-[11px] text-white/60 tracking-[0.5px]">VNPay</span>

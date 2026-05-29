@@ -9,7 +9,7 @@
       <div class="bg-accent py-[14px] px-4 flex items-center gap-2.5">
         <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-[18px] text-white">🤖</div>
         <div>
-          <div class="text-[14px] font-medium text-white">StepUp AI</div>
+          <div class="text-[14px] font-medium text-white">SaigonShoes AI</div>
           <div class="text-[11px] text-white/90">● Đang hoạt động 24/7</div>
         </div>
         <button class="ml-auto bg-transparent border-none text-white/90 text-[20px] transition-colors hover:text-white" @click="toggleChat">
@@ -75,12 +75,12 @@ const aiReplies = [
   'Size giày thường lấy theo số châu Âu. Bạn mang size bao nhiêu ở Việt Nam?',
   'Crocs đang có rất nhiều mẫu hot như Mega Crush, Echo, Classic. Bạn thích phong cách nào?',
   'Mình kiểm tra ngay cho bạn! Đơn hàng hiện đang ở trạng thái "Đang giao" 🚚',
-  'StepUp có chính sách đổi trả 30 ngày, miễn phí nếu lỗi từ nhà sản xuất nhé!',
+  'SaigonShoes có chính sách đổi trả 30 ngày, miễn phí nếu lỗi từ nhà sản xuất nhé!',
   'Hiện tại đang có Flash Sale giảm đến 50% cho nhiều mẫu sneaker hot! ⚡'
 ]
 
 const messages = ref([
-  { type: 'ai', text: 'Xin chào! Mình là AI tư vấn của StepUp. Bạn cần tư vấn gì hôm nay? 👟' },
+  { type: 'ai', text: 'Xin chào! Mình là AI tư vấn của SaigonShoes. Bạn cần tư vấn gì hôm nay? 👟' },
   { type: 'ai', text: 'Mình có thể giúp bạn: chọn size, gợi ý sản phẩm, kiểm tra đơn hàng hoặc hỏi về chính sách đổi trả!' }
 ])
 

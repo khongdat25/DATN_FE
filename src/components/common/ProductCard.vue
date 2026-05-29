@@ -2,8 +2,9 @@
   <!-- Reusable Product Card -->
   <div class="group prod-card bg-bg border border-border rounded-md overflow-hidden transition-all relative hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)]">
     <!-- Image Area -->
-    <div class="h-[200px] bg-surface2 flex items-center justify-center text-[80px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
-      {{ product.icon }}
+    <div class="h-[200px] bg-surface2 flex items-center justify-center relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+      <img v-if="product.image" :src="product.image" class="w-full h-full object-contain p-3 bg-white transition-transform duration-500 group-hover:scale-105" :alt="product.name" />
+      <span v-else class="text-[80px]">{{ product.icon }}</span>
       <!-- Badges -->
       <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-[2]">
         <span
@@ -15,12 +16,12 @@
       <!-- Wish Button -->
       <button
         :class="['prod-wish absolute top-[10px] right-[10px] w-8 h-8 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all duration-300 cursor-pointer hover:bg-accent hover:border-accent hover:text-white active:scale-90', { active: wished }]"
-        @click="toggleWish"
+        @click.stop="toggleWish"
       ><i class="ti ti-heart"></i></button>
       <!-- Add to Cart hover button -->
       <button
         class="absolute -bottom-12 left-0 right-0 bg-white/95 backdrop-blur-md border-none border-t border-border text-accent text-xl p-3.5 transition-all duration-300 ease-out z-[2] group-hover:bottom-0 hover:bg-accent hover:text-white active:bg-accent-hover flex items-center justify-center"
-        @click="doAddToCart"
+        @click.stop="doAddToCart"
       ><i class="ti ti-shopping-cart-plus"></i></button>
     </div>
 

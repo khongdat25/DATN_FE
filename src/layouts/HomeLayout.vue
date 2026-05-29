@@ -19,10 +19,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, provide } from 'vue'
-import AppHeader from '../components/home/AppHeader.vue'
-import AppFooter from '../components/home/AppFooter.vue'
-import ToastNotification from '../components/home/ToastNotification.vue'
-import ChatBot from '../components/home/ChatBot.vue'
+import AppHeader from '../components/layout/AppHeader.vue'
+import AppFooter from '../components/layout/AppFooter.vue'
+import ToastNotification from '../components/layout/ToastNotification.vue'
+import ChatBot from '../components/layout/ChatBot.vue'
 
 const toastRef = ref(null)
 const showScrollTop = ref(false)
