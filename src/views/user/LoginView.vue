@@ -130,7 +130,7 @@ const loading = ref(false)
 async function handleLogin() {
   loading.value = true
   try {
-    // kết nối api
+    // kết nối ap
     const response = await axiosInstance.post('/login', {
       email: form.value.email,
       password: form.value.password
@@ -160,13 +160,14 @@ async function handleLogin() {
     }
   } catch (error) {
     console.error('Login error:', error)
-    // Lỗi validation (422) hoặc hết hạn phiên đã được xử lý tập trung ở axios.js
-    // Ở đây ta chỉ xử lý thông báo bổ sung nếu API trả lỗi khác
-    if (error.response && error.response.data && error.response.data.message) {
+    const status = error.response ? error.response.status : null
+    // Lỗi 422, 401, 403, 404, 500 đã được axios interceptor xử lý tự động
+    // Chỉ hiện popup riêng cho các lỗi chưa được interceptor xử lý
+    if (status && ![401, 403, 404, 422, 500].includes(status)) {
       Swal.fire({
         icon: 'error',
         title: 'Đăng nhập thất bại',
-        text: error.response.data.message,
+        text: error.response?.data?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.',
         confirmButtonColor: '#FF4D00'
       })
     }

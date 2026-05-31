@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sản phẩm | SAIGONSHOES Admin</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              accent: '#FF4D00',
+              'accent-hover': '#e63d00',
+              surface: '#ffffff',
+              background: '#f8fafc',
+              border: '#e2e8f0',
+            },
+            fontFamily: {
+              display: ['Outfit', 'sans-serif'],
+              body: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <style>
+        /* Custom scrollbar for sidebar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        /* Slide transition for collapsing variants */
+        .variant-row {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-slate-800 antialiased min-h-screen flex">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/40 z-[290] hidden md:hidden backdrop-blur-xs transition-opacity duration-300"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-slate-900 text-slate-300 z-[300] -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800 flex flex-col">
+        <!-- Logo -->
+        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800">
+            <a href="dashboard.html" class="font-display text-xl tracking-[2px] font-bold text-white flex items-center gap-1.5">
+                SAIGON<span class="text-accent font-extrabold">SHOES</span>
+                <span class="text-[9px] bg-accent/20 text-accent font-bold px-1.5 py-0.5 rounded-sm tracking-normal uppercase ml-1">Admin</span>
+            </a>
+            <!-- Mobile Menu Close Button -->
+            <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-white p-1 focus:outline-none">
+                <i class="ti ti-x text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+            <div class="text-[10px] uppercase font-bold tracking-[2px] text-slate-500 px-3 mb-2">QUẢN TRỊ HỆ THỐNG</div>
+            
+            <a href="dashboard.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-layout-dashboard text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Tổng quan (Dashboard)</span>
+            </a>
+
+            <a href="products.html" class="flex items-center gap-3 px-3 py-3 rounded-xl text-white bg-accent font-semibold shadow-[0_4px_12px_rgba(255,77,0,0.25)] transition-all duration-200 group text-sm">
+                <i class="ti ti-shoe text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý sản phẩm</span>
+            </a>
+
+            <a href="categories.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-category text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý danh mục</span>
+            </a>
+
+            <a href="banners.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-photo text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý Banner</span>
+            </a>
+
+            <a href="orders.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-shopping-cart text-lg group-hover:scale-110 transition-transform"></i>
+                <span class="flex-1 text-left">Quản lý đơn hàng</span>
+                <span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">5</span>
+            </a>
+
+            <a href="vouchers.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-ticket text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Mã giảm giá (Vouchers)</span>
+            </a>
+
+            <a href="flashsales.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-flame text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Chiến dịch Flash Sale</span>
+            </a>
+
+            <a href="users.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-users text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý người dùng</span>
+            </a>
+        </nav>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-800 space-y-1.5">
+            <a href="../index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group">
+                <i class="ti ti-home text-base group-hover:-translate-x-0.5 transition-transform"></i>
+                <span>Quay về Cửa hàng</span>
+            </a>
+            <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 hover:text-red-400 transition-colors group text-left border-none bg-transparent cursor-pointer font-medium">
+                <i class="ti ti-logout text-base group-hover:translate-x-0.5 transition-transform"></i>
+                <span>Đăng xuất tài khoản</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
+        
+        <!-- Header -->
+        <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-[100] backdrop-blur-md bg-white/95">
+            <div class="flex items-center gap-4">
+                <button id="menuToggleBtn" class="md:hidden text-slate-500 hover:text-slate-800 p-1 flex items-center justify-center rounded-lg hover:bg-slate-100 focus:outline-none">
+                    <i class="ti ti-menu-2 text-xl"></i>
+                </button>
+                
+                <!-- Breadcrumbs -->
+                <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                    <span class="hover:text-slate-600 cursor-pointer">Admin</span>
+                    <i class="ti ti-chevron-right text-[10px]"></i>
+                    <span class="text-slate-800 font-semibold uppercase tracking-wider text-[11px]">Quản lý sản phẩm</span>
+                </div>
+            </div>
+
+            <!-- Header Tools -->
+            <div class="flex items-center gap-4">
+                <!-- Search bar -->
+                <div class="relative hidden md:flex items-center text-slate-400 focus-within:text-accent">
+                    <i class="ti ti-search absolute left-3.5 text-base"></i>
+                    <input type="text" placeholder="Tìm nhanh..." class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none w-48 focus:w-60 focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all duration-300 placeholder:text-slate-400">
+                </div>
+
+                <!-- Notifications -->
+                <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-500 hover:text-accent hover:bg-orange-50 relative transition-all duration-200 border-none cursor-pointer focus:outline-none">
+                    <i class="ti ti-bell text-lg"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full animate-ping"></span>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full"></span>
+                </button>
+
+                <div class="w-[1px] h-6 bg-slate-100"></div>
+
+                <!-- Admin Profile Dropdown -->
+                <div class="relative group">
+                    <button class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-50 transition-colors border-none bg-transparent cursor-pointer text-left focus:outline-none">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" alt="Avatar" class="w-8 h-8 rounded-lg object-cover ring-2 ring-slate-100">
+                        <div class="hidden sm:block">
+                            <div class="text-xs font-semibold text-slate-800 leading-none mb-1">Admin SaigonShoes</div>
+                            <div class="text-[9px] uppercase tracking-wider font-bold text-accent leading-none">Quản trị viên</div>
+                        </div>
+                        <i class="ti ti-chevron-down text-xs text-slate-400"></i>
+                    </button>
+                    
+                    <!-- Dropdown Content -->
+                    <div class="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-slate-100 rounded-xl shadow-xl py-1.5 z-[150]">
+                        <div class="px-4 py-2 border-b border-slate-100 text-[11px] text-slate-400 font-medium">Hồ sơ cá nhân</div>
+                        <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-user text-sm"></i>Thông tin cá nhân</a>
+                        <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-settings text-sm"></i>Cấu hình hệ thống</a>
+                        <div class="h-[1px] bg-slate-100 my-1"></div>
+                        <button onclick="logout()" class="w-full text-left px-4 py-2 text-xs text-red-500 font-bold hover:bg-red-50 transition-colors flex items-center gap-2 border-none bg-transparent cursor-pointer"><i class="ti ti-logout text-sm"></i>Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+            
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Danh sách Sản phẩm 👟</h1>
+                    <p class="text-sm text-slate-500 mt-1">Quản lý kho sản phẩm, thiết lập giá bán và kiểm soát biến thể kích cỡ chi tiết.</p>
+                </div>
+                <div>
+                    <button id="addProductBtn" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 border-none cursor-pointer">
+                        <i class="ti ti-plus text-base"></i> Thêm sản phẩm mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters & Search Toolbar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
+                <!-- Search -->
+                <div class="relative w-full md:w-80 text-slate-400 focus-within:text-accent">
+                    <i class="ti ti-search absolute left-3.5 top-1/2 -translate-y-1/2 text-base"></i>
+                    <input type="text" placeholder="Tìm tên sản phẩm, mã..." class="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none w-full focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all duration-300 placeholder:text-slate-400">
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+                    <select class="bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer">
+                        <option>Tất cả danh mục</option>
+                        <option>Sneaker Nam</option>
+                        <option>Sneaker Nữ</option>
+                        <option>Dép Crocs</option>
+                    </select>
+
+                    <select class="bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer">
+                        <option>Tất cả thương hiệu</option>
+                        <option>Nike</option>
+                        <option>Adidas</option>
+                        <option>Puma</option>
+                    </select>
+
+                    <select class="bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer">
+                        <option>Mọi trạng thái</option>
+                        <option>Đang bán (Active)</option>
+                        <option>Hết hàng (Out of stock)</option>
+                        <option>Nháp (Draft)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Product Table -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-left">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="py-4 px-6 w-10"></th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">ẢNH / TÊN</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">THƯƠNG HIỆU</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">DANH MỤC</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KHO BIẾN THỂ</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KHOẢNG GIÁ VÉ</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">TRẠNG THÁI</th>
+                                <th class="py-4 px-6 w-24"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            
+                            <!-- Product 1 -->
+                            <tr class="hover:bg-slate-50/30 transition-all cursor-pointer font-medium" onclick="toggleVariants('p1-variants', this)">
+                                <td class="py-4 px-6 text-center text-slate-400">
+                                    <i class="ti ti-chevron-right text-base transition-transform duration-200 chevron-icon"></i>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 bg-slate-50 border border-slate-100 rounded-lg p-1.5 flex items-center justify-center shrink-0">
+                                            <img src="../images/p1.png" alt="Pro" class="max-w-full max-h-full object-contain">
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-bold text-slate-900 hover:text-accent">StepUp Air Max One</span>
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">SKU: SS-AF1-01</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6 text-xs text-slate-700">Nike</td>
+                                <td class="py-4 px-6 text-xs text-slate-700">Sneaker Nam</td>
+                                <td class="py-4 px-6 text-xs">
+                                    <span class="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded text-[10px]">
+                                        3 Biến thể (Tổng 24 đôi)
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-xs font-bold text-slate-900">
+                                    1.200.000₫ - 1.350.000₫
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Đang bán
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <button onclick="openEditProductModal(this, 'p1-variants')" class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Collapsible Variants Product 1 -->
+                            <tr id="p1-variants" class="hidden bg-slate-50/60 variant-row">
+                                <td colspan="8" class="p-6 border-b border-slate-100">
+                                    <div class="pl-10 space-y-3">
+                                        <div class="text-[10px] font-bold tracking-[1.5px] text-slate-400 uppercase flex items-center gap-1.5">
+                                            <i class="ti ti-list-details"></i> Chi tiết các biến thể kích thước (Variants details)
+                                        </div>
+                                        <div class="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-xs max-w-2xl">
+                                            <table class="w-full text-left text-xs border-collapse">
+                                                <thead>
+                                                    <tr class="bg-slate-100/80 text-slate-500 font-bold border-b border-slate-100">
+                                                        <th class="p-3">SIZE / KÍCH CỠ</th>
+                                                        <th class="p-3">MÀU SẮC</th>
+                                                        <th class="p-3">TỒN KHO</th>
+                                                        <th class="p-3">GIÁ BÁN GỐC</th>
+                                                        <th class="p-3 text-accent font-bold"><i class="ti ti-flame"></i> GIÁ FLASH SALE (20%)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-100 font-medium">
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 39</td>
+                                                        <td class="p-3 text-slate-500">Cam Trắng</td>
+                                                        <td class="p-3 font-bold text-slate-800">10 đôi</td>
+                                                        <td class="p-3 text-slate-400 line-through">1.200.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">960.000₫</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 40</td>
+                                                        <td class="p-3 text-slate-500">Cam Trắng</td>
+                                                        <td class="p-3 font-bold text-slate-800">8 đôi</td>
+                                                        <td class="p-3 text-slate-400 line-through">1.250.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">1.000.000₫</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 41</td>
+                                                        <td class="p-3 text-slate-500">Cam Trắng</td>
+                                                        <td class="p-3 font-bold text-slate-800">6 đôi</td>
+                                                        <td class="p-3 text-slate-400 line-through">1.350.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">1.080.000₫</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Product 2 -->
+                            <tr class="hover:bg-slate-50/30 transition-all cursor-pointer font-medium" onclick="toggleVariants('p2-variants', this)">
+                                <td class="py-4 px-6 text-center text-slate-400">
+                                    <i class="ti ti-chevron-right text-base transition-transform duration-200 chevron-icon"></i>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 bg-slate-50 border border-slate-100 rounded-lg p-1.5 flex items-center justify-center shrink-0">
+                                            <img src="../images/p2.png" alt="Pro" class="max-w-full max-h-full object-contain">
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-bold text-slate-900 hover:text-accent">StepUp Pro Dunker</span>
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">SKU: SS-AF1-02</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6 text-xs text-slate-700">Nike</td>
+                                <td class="py-4 px-6 text-xs text-slate-700">Sneaker Nam</td>
+                                <td class="py-4 px-6 text-xs">
+                                    <span class="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded text-[10px]">
+                                        3 Biến thể (Tổng 15 đôi)
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-xs font-bold text-slate-900">
+                                    2.100.000₫
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Đang bán
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <button onclick="openEditProductModal(this, 'p2-variants')" class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Collapsible Variants Product 2 -->
+                            <tr id="p2-variants" class="hidden bg-slate-50/60 variant-row">
+                                <td colspan="8" class="p-6 border-b border-slate-100">
+                                    <div class="pl-10 space-y-3">
+                                        <div class="text-[10px] font-bold tracking-[1.5px] text-slate-400 uppercase flex items-center gap-1.5">
+                                            <i class="ti ti-list-details"></i> Chi tiết các biến thể kích thước (Variants details)
+                                        </div>
+                                        <div class="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-xs max-w-2xl">
+                                            <table class="w-full text-left text-xs border-collapse">
+                                                <thead>
+                                                    <tr class="bg-slate-100/80 text-slate-500 font-bold border-b border-slate-100">
+                                                        <th class="p-3">SIZE / KÍCH CỠ</th>
+                                                        <th class="p-3">MÀU SẮC</th>
+                                                        <th class="p-3">TỒN KHO</th>
+                                                        <th class="p-3">GIÁ BÁN GỐC</th>
+                                                        <th class="p-3 text-accent font-bold"><i class="ti ti-flame"></i> GIÁ FLASH SALE (20%)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-100 font-medium">
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 40</td>
+                                                        <td class="p-3 text-slate-500">Đen Đỏ</td>
+                                                        <td class="p-3 font-bold text-slate-800">5 đôi</td>
+                                                        <td class="p-3 text-slate-400 line-through">2.100.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">1.680.000₫</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 41</td>
+                                                        <td class="p-3 text-slate-500">Đen Đỏ</td>
+                                                        <td class="p-3 font-bold text-slate-800">5 đôi</td>
+                                                        <td class="p-3 text-slate-400 line-through">2.100.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">1.680.000₫</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 42</td>
+                                                        <td class="p-3 text-slate-500">Đen Đỏ</td>
+                                                        <td class="p-3 font-bold text-slate-800">5 đôi</td>
+                                                        <td class="p-3 text-slate-400 line-through">2.100.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">1.680.000₫</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Product 3 -->
+                            <tr class="hover:bg-slate-50/30 transition-all cursor-pointer font-medium" onclick="toggleVariants('p3-variants', this)">
+                                <td class="py-4 px-6 text-center text-slate-400">
+                                    <i class="ti ti-chevron-right text-base transition-transform duration-200 chevron-icon"></i>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 bg-slate-50 border border-slate-100 rounded-lg p-1.5 flex items-center justify-center shrink-0">
+                                            <img src="../images/p3.png" alt="Pro" class="max-w-full max-h-full object-contain">
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-bold text-slate-900 hover:text-accent">StepUp Sport Flyknit</span>
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">SKU: SS-AD-01</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6 text-xs text-slate-700">Adidas</td>
+                                <td class="py-4 px-6 text-xs text-slate-700">Sneaker Nữ</td>
+                                <td class="py-4 px-6 text-xs">
+                                    <span class="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded text-[10px]">
+                                        2 Biến thể (Tổng 30 đôi)
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-xs font-bold text-slate-900">
+                                    1.400.000₫
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span> Hết hàng
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <button onclick="openEditProductModal(this, 'p3-variants')" class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Collapsible Variants Product 3 -->
+                            <tr id="p3-variants" class="hidden bg-slate-50/60 variant-row">
+                                <td colspan="8" class="p-6 border-b border-slate-100">
+                                    <div class="pl-10 space-y-3">
+                                        <div class="text-[10px] font-bold tracking-[1.5px] text-slate-400 uppercase flex items-center gap-1.5">
+                                            <i class="ti ti-list-details"></i> Chi tiết các biến thể kích thước (Variants details)
+                                        </div>
+                                        <div class="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-xs max-w-2xl">
+                                            <table class="w-full text-left text-xs border-collapse">
+                                                <thead>
+                                                    <tr class="bg-slate-100/80 text-slate-500 font-bold border-b border-slate-100">
+                                                        <th class="p-3">SIZE / KÍCH CỠ</th>
+                                                        <th class="p-3">MÀU SẮC</th>
+                                                        <th class="p-3">TỒN KHO</th>
+                                                        <th class="p-3">GIÁ BÁN GỐC</th>
+                                                        <th class="p-3 text-accent font-bold"><i class="ti ti-flame"></i> GIÁ FLASH SALE (20%)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-100 font-medium">
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 36</td>
+                                                        <td class="p-3 text-slate-500">Hồng Phấn</td>
+                                                        <td class="p-3 font-bold text-red-500">0 đôi (Đã hết)</td>
+                                                        <td class="p-3 text-slate-400 line-through">1.400.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">1.120.000₫</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="p-3 font-semibold text-slate-800">Size 37</td>
+                                                        <td class="p-3 text-slate-500">Hồng Phấn</td>
+                                                        <td class="p-3 font-bold text-red-500">0 đôi (Đã hết)</td>
+                                                        <td class="p-3 text-slate-400 line-through">1.400.000₫</td>
+                                                        <td class="p-3 text-accent font-bold">1.120.000₫</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Pagination -->
+                <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <span class="text-xs text-slate-400">Hiển thị 1 - 3 của 3 sản phẩm</span>
+                    <div class="flex items-center gap-1.5">
+                        <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer" disabled><i class="ti ti-chevron-left text-sm"></i></button>
+                        <button class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center text-xs font-bold border-none cursor-pointer">1</button>
+                        <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer" disabled><i class="ti ti-chevron-right text-sm"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="h-16 border-t border-slate-100 bg-white flex items-center justify-between px-6 md:px-8 text-xs text-slate-400 shrink-0">
+            <div>© 2026 SaigonShoes Admin Panel. Bản quyền thuộc về đội ngũ dự án.</div>
+            <div class="hidden sm:block">Phiên bản 2.1.0 (Stable HTML)</div>
+        </footer>
+    </div>
+
+    <!-- Sleek Add Product Modal Mockup -->
+    <div id="addProductModal" class="fixed inset-0 z-[500] hidden items-center justify-center p-4">
+        <!-- Modal Backdrop -->
+        <div id="modalBackdrop" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs transition-opacity duration-300"></div>
+        
+        <!-- Modal Content Container -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden z-10 transition-transform duration-300 scale-95 opacity-0 duration-300" id="modalBox">
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="font-display text-lg font-bold text-slate-950">Thêm sản phẩm mới 🆕</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Nhập các thông tin cơ bản và thiết lập các biến thể kích cỡ.</p>
+                </div>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Body -->
+            <form onsubmit="handleFormSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-5">
+                <!-- Name -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tên sản phẩm *</label>
+                    <input type="text" placeholder="Ví dụ: StepUp Air Force 1" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all placeholder:text-slate-400">
+                </div>
+
+                <!-- Category & Brand -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Danh mục *</label>
+                        <select required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all cursor-pointer">
+                            <option value="">Chọn danh mục</option>
+                            <option>Sneaker Nam</option>
+                            <option>Sneaker Nữ</option>
+                            <option>Dép Crocs</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Thương hiệu *</label>
+                        <select required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all cursor-pointer">
+                            <option value="">Chọn thương hiệu</option>
+                            <option>Nike</option>
+                            <option>Adidas</option>
+                            <option>Puma</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="h-[1px] bg-slate-100"></div>
+
+                <!-- Variants Configuration Section -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider"><i class="ti ti-list-numbers"></i> Cấu hình các biến thể (Variants) *</label>
+                        <button type="button" onclick="addVariantFormRow()" class="text-accent hover:text-accent-hover text-xs font-bold flex items-center gap-1 border-none bg-transparent cursor-pointer">
+                            + Thêm dòng
+                        </button>
+                    </div>
+                    
+                    <div id="variantsInputContainer" class="space-y-3">
+                        <!-- Variant Form Row 1 -->
+                        <div class="grid grid-cols-4 gap-3 items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                            <div>
+                                <span class="block text-[10px] text-slate-400 font-bold mb-1">SIZE *</span>
+                                <input type="number" placeholder="40" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-400 font-bold mb-1">TỒN KHO *</span>
+                                <input type="number" placeholder="10" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-400 font-bold mb-1">GIÁ GỐC *</span>
+                                <input type="text" placeholder="1.200.000" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                            </div>
+                            <div class="flex items-end justify-between h-full pt-4">
+                                <span class="text-[10px] text-slate-400 font-bold mb-1"></span>
+                                <button type="button" onclick="removeVariantFormRow(this)" class="text-red-400 hover:text-red-600 p-2 rounded hover:bg-red-50 border-none bg-transparent cursor-pointer flex items-center justify-center">
+                                    <i class="ti ti-trash text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit buttons -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+                    <button type="button" id="cancelModalBtn" class="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all cursor-pointer">
+                        Hủy
+                    </button>
+                    <button type="submit" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md transition-all border-none cursor-pointer">
+                        Lưu sản phẩm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="fixed inset-0 z-[500] hidden items-center justify-center p-4">
+        <!-- Modal Backdrop -->
+        <div id="editProductModalBackdrop" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs transition-opacity duration-300"></div>
+        
+        <!-- Modal Content Container -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden z-10 transition-transform duration-300 scale-95 opacity-0" id="editProductModalBox">
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="font-display text-lg font-bold text-slate-950">Chỉnh sửa sản phẩm ✍️</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Cập nhật thông tin cơ bản và các biến thể kích cỡ.</p>
+                </div>
+                <button id="closeEditProductModalBtn" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Body -->
+            <form onsubmit="handleEditProductSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-5">
+                <!-- Name -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tên sản phẩm *</label>
+                    <input type="text" id="editProductNameInput" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all placeholder:text-slate-400">
+                </div>
+
+                <!-- Category & Brand -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Danh mục *</label>
+                        <select id="editProductCategoryInput" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all cursor-pointer">
+                            <option>Sneaker Nam</option>
+                            <option>Sneaker Nữ</option>
+                            <option>Dép Crocs</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Thương hiệu *</label>
+                        <select id="editProductBrandInput" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all cursor-pointer">
+                            <option>Nike</option>
+                            <option>Adidas</option>
+                            <option>Puma</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="h-[1px] bg-slate-100"></div>
+
+                <!-- Variants Configuration Section -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider"><i class="ti ti-list-numbers"></i> Cấu hình các biến thể (Variants) *</label>
+                        <button type="button" onclick="addEditVariantFormRow()" class="text-accent hover:text-accent-hover text-xs font-bold flex items-center gap-1 border-none bg-transparent cursor-pointer">
+                            + Thêm dòng
+                        </button>
+                    </div>
+                    
+                    <div id="editVariantsInputContainer" class="space-y-3">
+                        <!-- Dynamic Variant Rows go here -->
+                    </div>
+                </div>
+
+                <!-- Submit buttons -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+                    <button type="button" id="cancelEditProductModalBtn" class="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all cursor-pointer">
+                        Hủy
+                    </button>
+                    <button type="submit" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md transition-all border-none cursor-pointer">
+                        Lưu sản phẩm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notification System -->
+    <div id="toast" class="fixed bottom-5 right-5 z-[1000] bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold translate-y-12 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-sm shrink-0">👟</div>
+        <span id="toastMessage">Đã lưu sản phẩm thành công!</span>
+    </div>
+
+    <!-- Page Scripts -->
+    <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        
+        // Modal Elements
+        const addProductModal = document.getElementById('addProductModal');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const modalBox = document.getElementById('modalBox');
+
+        // Toggle Sidebar on mobile
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarBackdrop.classList.toggle('hidden');
+        }
+
+        menuToggleBtn.addEventListener('click', toggleSidebar);
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+        sidebarBackdrop.addEventListener('click', toggleSidebar);
+
+        // Simulated Logout
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            alert('Đăng xuất thành công!');
+            window.location.href = '../login.html';
+        }
+
+        // Accordion (Toggle) Variants detailed table
+        function toggleVariants(variantId, clickedRow) {
+            const variantRow = document.getElementById(variantId);
+            const chevron = clickedRow.querySelector('.chevron-icon');
+            
+            if (variantRow.classList.contains('hidden')) {
+                variantRow.classList.remove('hidden');
+                if (chevron) chevron.classList.add('rotate-90');
+            } else {
+                variantRow.classList.add('hidden');
+                if (chevron) chevron.classList.remove('rotate-90');
+            }
+        }
+
+        // Modal triggers
+        function openModal() {
+            addProductModal.classList.remove('hidden');
+            addProductModal.classList.add('flex');
+            setTimeout(() => {
+                modalBox.classList.remove('scale-95', 'opacity-0');
+                modalBox.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalBox.classList.remove('scale-100', 'opacity-100');
+            modalBox.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                addProductModal.classList.add('hidden');
+                addProductModal.classList.remove('flex');
+            }, 200);
+        }
+
+        addProductBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+        document.getElementById('modalBackdrop').addEventListener('click', closeModal);
+
+        // Add Variant row dynamically in Add Product Form
+        function addVariantFormRow() {
+            const container = document.getElementById('variantsInputContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-4 gap-3 items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100';
+            newRow.innerHTML = `
+                <div>
+                    <span class="block text-[10px] text-slate-400 font-bold mb-1">SIZE *</span>
+                    <input type="number" placeholder="40" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                </div>
+                <div>
+                    <span class="block text-[10px] text-slate-400 font-bold mb-1">TỒN KHO *</span>
+                    <input type="number" placeholder="10" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                </div>
+                <div>
+                    <span class="block text-[10px] text-slate-400 font-bold mb-1">GIÁ GỐC *</span>
+                    <input type="text" placeholder="1.200.000" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                </div>
+                <div class="flex items-end justify-between h-full pt-4">
+                    <span class="text-[10px] text-slate-400 font-bold mb-1"></span>
+                    <button type="button" onclick="removeVariantFormRow(this)" class="text-red-400 hover:text-red-600 p-2 rounded hover:bg-red-50 border-none bg-transparent cursor-pointer flex items-center justify-center">
+                        <i class="ti ti-trash text-base"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
+
+        // Delete Variant row in form
+        function removeVariantFormRow(button) {
+            const container = document.getElementById('variantsInputContainer');
+            if (container.children.length > 1) {
+                button.closest('.grid').remove();
+            } else {
+                alert('Sản phẩm phải chứa tối thiểu một biến thể (Variant)!');
+            }
+        }
+
+        // Form Submit
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            alert('Sản phẩm đã được lưu trữ thành công!');
+            closeModal();
+        }
+
+        // Edit Product Modal Elements
+        const editProductModal = document.getElementById('editProductModal');
+        const closeEditProductModalBtn = document.getElementById('closeEditProductModalBtn');
+        const cancelEditProductModalBtn = document.getElementById('cancelEditProductModalBtn');
+        const editProductModalBox = document.getElementById('editProductModalBox');
+        
+        let editProductCurrentRow = null;
+        let editProductVariantId = null;
+
+        function openEditProductModal(button, variantId) {
+            editProductCurrentRow = button.closest('tr');
+            editProductVariantId = variantId;
+            
+            const name = editProductCurrentRow.querySelector('.font-bold.text-slate-900').textContent;
+            const brand = editProductCurrentRow.cells[2].textContent.trim();
+            const category = editProductCurrentRow.cells[3].textContent.trim();
+            
+            document.getElementById('editProductNameInput').value = name;
+            document.getElementById('editProductBrandInput').value = brand;
+            document.getElementById('editProductCategoryInput').value = category;
+            
+            // Populate variant rows
+            const container = document.getElementById('editVariantsInputContainer');
+            container.innerHTML = '';
+            
+            const subTableRow = document.getElementById(variantId);
+            const variantRows = subTableRow.querySelectorAll('tbody tr');
+            
+            variantRows.forEach(vRow => {
+                const size = vRow.cells[0].textContent.replace('Size ', '').trim();
+                const color = vRow.cells[1].textContent.trim(); // keep color for rendering
+                const stock = vRow.cells[2].textContent.replace(' đôi', '').trim();
+                const price = vRow.cells[3].textContent.replace('₫', '').replace(/\./g, '').trim();
+                
+                const newRow = document.createElement('div');
+                newRow.className = 'grid grid-cols-4 gap-3 items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100';
+                newRow.innerHTML = `
+                    <div>
+                        <span class="block text-[10px] text-slate-400 font-bold mb-1">SIZE *</span>
+                        <input type="number" value="${size}" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                    </div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 font-bold mb-1">TỒN KHO *</span>
+                        <input type="number" value="${stock}" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                    </div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 font-bold mb-1">GIÁ GỐC *</span>
+                        <input type="text" value="${new Intl.NumberFormat('vi-VN').format(price)}" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                    </div>
+                    <input type="hidden" value="${color}">
+                    <div class="flex items-end justify-between h-full pt-4">
+                        <span class="text-[10px] text-slate-400 font-bold mb-1"></span>
+                        <button type="button" onclick="removeEditVariantFormRow(this)" class="text-red-400 hover:text-red-600 p-2 rounded hover:bg-red-50 border-none bg-transparent cursor-pointer flex items-center justify-center">
+                            <i class="ti ti-trash text-base"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(newRow);
+            });
+            
+            editProductModal.classList.remove('hidden');
+            editProductModal.classList.add('flex');
+            setTimeout(() => {
+                editProductModalBox.classList.remove('scale-95', 'opacity-0');
+                editProductModalBox.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeEditProductModal() {
+            editProductModalBox.classList.remove('scale-100', 'opacity-100');
+            editProductModalBox.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                editProductModal.classList.add('hidden');
+                editProductModal.classList.remove('flex');
+            }, 200);
+        }
+
+        closeEditProductModalBtn.addEventListener('click', closeEditProductModal);
+        cancelEditProductModalBtn.addEventListener('click', closeEditProductModal);
+        document.getElementById('editProductModalBackdrop').addEventListener('click', closeEditProductModal);
+
+        function addEditVariantFormRow() {
+            const container = document.getElementById('editVariantsInputContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'grid grid-cols-4 gap-3 items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100';
+            newRow.innerHTML = `
+                <div>
+                    <span class="block text-[10px] text-slate-400 font-bold mb-1">SIZE *</span>
+                    <input type="number" placeholder="40" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                </div>
+                <div>
+                    <span class="block text-[10px] text-slate-400 font-bold mb-1">TỒN KHO *</span>
+                    <input type="number" placeholder="10" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                </div>
+                <div>
+                    <span class="block text-[10px] text-slate-400 font-bold mb-1">GIÁ GỐC *</span>
+                    <input type="text" placeholder="1.200.000" required class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all">
+                </div>
+                <input type="hidden" value="Cam Trắng">
+                <div class="flex items-end justify-between h-full pt-4">
+                    <span class="text-[10px] text-slate-400 font-bold mb-1"></span>
+                    <button type="button" onclick="removeEditVariantFormRow(this)" class="text-red-400 hover:text-red-600 p-2 rounded hover:bg-red-50 border-none bg-transparent cursor-pointer flex items-center justify-center">
+                        <i class="ti ti-trash text-base"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeEditVariantFormRow(button) {
+            const container = document.getElementById('editVariantsInputContainer');
+            if (container.children.length > 1) {
+                button.closest('.grid').remove();
+            } else {
+                alert('Sản phẩm phải chứa tối thiểu một biến thể (Variant)!');
+            }
+        }
+
+        function handleEditProductSubmit(event) {
+            event.preventDefault();
+            
+            if (!editProductCurrentRow || !editProductVariantId) return;
+            
+            const name = document.getElementById('editProductNameInput').value;
+            const category = document.getElementById('editProductCategoryInput').value;
+            const brand = document.getElementById('editProductBrandInput').value;
+            
+            // Collect variants
+            const variantRows = document.getElementById('editVariantsInputContainer').children;
+            let totalStock = 0;
+            let prices = [];
+            
+            const subTableRow = document.getElementById(editProductVariantId);
+            const tbody = subTableRow.querySelector('tbody');
+            tbody.innerHTML = ''; // rebuild subtable rows
+            
+            const formatVND = (num) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num).replace('₫', '₫');
+            
+            for (let i = 0; i < variantRows.length; i++) {
+                const grid = variantRows[i];
+                const inputs = grid.querySelectorAll('input');
+                const size = inputs[0].value;
+                const stock = parseInt(inputs[1].value);
+                const rawPrice = parseFloat(inputs[2].value.replace(/\./g, ''));
+                const color = inputs[3].value;
+                
+                totalStock += stock;
+                prices.push(rawPrice);
+                
+                // Add to sub-table DOM
+                const salePrice = rawPrice * 0.8; // 20% discount showcase
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-800">Size ${size}</td>
+                        <td class="p-3 text-slate-500">${color}</td>
+                        <td class="p-3 font-bold text-slate-800">${stock} đôi</td>
+                        <td class="p-3 text-slate-400 line-through">${formatVND(rawPrice)}</td>
+                        <td class="p-3 text-accent font-bold">${formatVND(salePrice)}</td>
+                    </tr>
+                `;
+            }
+            
+            // Update parent row in table
+            editProductCurrentRow.querySelector('.font-bold.text-slate-900').textContent = name;
+            editProductCurrentRow.cells[2].textContent = brand;
+            editProductCurrentRow.cells[3].textContent = category;
+            
+            // Update variants count
+            editProductCurrentRow.cells[4].innerHTML = `
+                <span class="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded text-[10px]">
+                    ${variantRows.length} Biến thể (Tổng ${totalStock} đôi)
+                </span>
+            `;
+            
+            // Update price range
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            if (minPrice === maxPrice) {
+                editProductCurrentRow.cells[5].textContent = formatVND(minPrice);
+            } else {
+                editProductCurrentRow.cells[5].textContent = `${formatVND(minPrice)} - ${formatVND(maxPrice)}`;
+            }
+            
+            closeEditProductModal();
+            
+            // Trigger a beautiful success Toast
+            const toast = document.getElementById('toast');
+            if (toast) {
+                const toastMessage = document.getElementById('toastMessage');
+                toastMessage.textContent = `Đã lưu thay đổi cho sản phẩm: ${name}! ✨`;
+                toast.querySelector('div').textContent = '👟';
+                
+                toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+                }, 3000);
+            } else {
+                alert(`Đã lưu thay đổi cho sản phẩm: ${name}! ✨`);
+            }
+        }
+
+
+    </script>
+</body>
+</html>

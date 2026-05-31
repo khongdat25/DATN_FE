@@ -47,11 +47,27 @@ axiosInstance.interceptors.response.use(
             });
         } else if (status === 422) {
             const errors = error.response.data.errors;
-            const firstError = errors ? Object.values(errors)[0][0] : 'Dữ liệu không hợp lệ';
+            let firstError = errors ? Object.values(errors)[0][0] : 'Dữ liệu không hợp lệ';
+            
+            // Dịch các thông báo lỗi phổ biến từ Laravel sang tiếng Việt
+            const translations = {
+                'The email has already been taken.': 'Email này đã được sử dụng. Vui lòng dùng email khác.',
+                'The email field is required.': 'Vui lòng nhập email.',
+                'The email field must be a valid email address.': 'Email không đúng định dạng.',
+                'The password field is required.': 'Vui lòng nhập mật khẩu.',
+                'The password field must be at least 6 characters.': 'Mật khẩu phải có ít nhất 6 ký tự.',
+                'The password field must be at least 8 characters.': 'Mật khẩu phải có ít nhất 8 ký tự.',
+                'The phone has already been taken.': 'Số điện thoại này đã được sử dụng.',
+                'The phone field is required.': 'Vui lòng nhập số điện thoại.',
+                'The name field is required.': 'Vui lòng nhập họ tên.',
+            };
+            firstError = translations[firstError] || firstError;
+
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi xác thực',
                 text: firstError,
+                confirmButtonColor: '#FF4D00'
             });
         } else if (status === 404) {
             Swal.fire({

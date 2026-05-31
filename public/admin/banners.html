@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Banner Quảng cáo | SAIGONSHOES Admin</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              accent: '#FF4D00',
+              'accent-hover': '#e63d00',
+              surface: '#ffffff',
+              background: '#f8fafc',
+              border: '#e2e8f0',
+            },
+            fontFamily: {
+              display: ['Outfit', 'sans-serif'],
+              body: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <style>
+        /* Custom scrollbar for sidebar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-slate-800 antialiased min-h-screen flex">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/40 z-[290] hidden md:hidden backdrop-blur-xs transition-opacity duration-300"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-slate-900 text-slate-300 z-[300] -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800 flex flex-col">
+        <!-- Logo -->
+        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800">
+            <a href="dashboard.html" class="font-display text-xl tracking-[2px] font-bold text-white flex items-center gap-1.5">
+                SAIGON<span class="text-accent font-extrabold">SHOES</span>
+                <span class="text-[9px] bg-accent/20 text-accent font-bold px-1.5 py-0.5 rounded-sm tracking-normal uppercase ml-1">Admin</span>
+            </a>
+            <!-- Mobile Menu Close Button -->
+            <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-white p-1 focus:outline-none">
+                <i class="ti ti-x text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+            <div class="text-[10px] uppercase font-bold tracking-[2px] text-slate-500 px-3 mb-2">QUẢN TRỊ HỆ THỐNG</div>
+            
+            <a href="dashboard.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-layout-dashboard text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Tổng quan (Dashboard)</span>
+            </a>
+
+            <a href="products.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-shoe text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý sản phẩm</span>
+            </a>
+
+            <a href="categories.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-category text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý danh mục</span>
+            </a>
+
+            <a href="banners.html" class="flex items-center gap-3 px-3 py-3 rounded-xl text-white bg-accent font-semibold shadow-[0_4px_12px_rgba(255,77,0,0.25)] transition-all duration-200 group text-sm">
+                <i class="ti ti-photo text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý Banner</span>
+            </a>
+
+            <a href="orders.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-shopping-cart text-lg group-hover:scale-110 transition-transform"></i>
+                <span class="flex-1 text-left">Quản lý đơn hàng</span>
+                <span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">5</span>
+            </a>
+
+            <a href="vouchers.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-ticket text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Mã giảm giá (Vouchers)</span>
+            </a>
+
+            <a href="flashsales.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-flame text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Chiến dịch Flash Sale</span>
+            </a>
+
+            <a href="users.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-users text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý người dùng</span>
+            </a>
+        </nav>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-800 space-y-1.5">
+            <a href="../index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group">
+                <i class="ti ti-home text-base group-hover:-translate-x-0.5 transition-transform"></i>
+                <span>Quay về Cửa hàng</span>
+            </a>
+            <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 hover:text-red-400 transition-colors group text-left border-none bg-transparent cursor-pointer font-medium">
+                <i class="ti ti-logout text-base group-hover:translate-x-0.5 transition-transform"></i>
+                <span>Đăng xuất tài khoản</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
+        
+        <!-- Header -->
+        <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-[100] backdrop-blur-md bg-white/95">
+            <div class="flex items-center gap-4">
+                <button id="menuToggleBtn" class="md:hidden text-slate-500 hover:text-slate-800 p-1 flex items-center justify-center rounded-lg hover:bg-slate-100 focus:outline-none">
+                    <i class="ti ti-menu-2 text-xl"></i>
+                </button>
+                
+                <!-- Breadcrumbs -->
+                <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                    <span class="hover:text-slate-600 cursor-pointer">Admin</span>
+                    <i class="ti ti-chevron-right text-[10px]"></i>
+                    <span class="text-slate-800 font-semibold uppercase tracking-wider text-[11px]">Quản lý Banner</span>
+                </div>
+            </div>
+
+            <!-- Header Tools -->
+            <div class="flex items-center gap-4">
+                <!-- Search bar -->
+                <div class="relative hidden md:flex items-center text-slate-400 focus-within:text-accent">
+                    <i class="ti ti-search absolute left-3.5 text-base"></i>
+                    <input type="text" placeholder="Tìm nhanh..." class="pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none w-48 focus:w-60 focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all duration-300 placeholder:text-slate-400">
+                </div>
+
+                <!-- Notifications -->
+                <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-500 hover:text-accent hover:bg-orange-50 relative transition-all duration-200 border-none cursor-pointer focus:outline-none">
+                    <i class="ti ti-bell text-lg"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full animate-ping"></span>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full"></span>
+                </button>
+
+                <div class="w-[1px] h-6 bg-slate-100"></div>
+
+                <!-- Admin Profile Dropdown -->
+                <div class="relative group">
+                    <button class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-50 transition-colors border-none bg-transparent cursor-pointer text-left focus:outline-none">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" alt="Avatar" class="w-8 h-8 rounded-lg object-cover ring-2 ring-slate-100">
+                        <div class="hidden sm:block">
+                            <div class="text-xs font-semibold text-slate-800 leading-none mb-1">Admin SaigonShoes</div>
+                            <div class="text-[9px] uppercase tracking-wider font-bold text-accent leading-none">Quản trị viên</div>
+                        </div>
+                        <i class="ti ti-chevron-down text-xs text-slate-400"></i>
+                    </button>
+                    
+                    <!-- Dropdown Content -->
+                    <div class="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-slate-100 rounded-xl shadow-xl py-1.5 z-[150]">
+                        <div class="px-4 py-2 border-b border-slate-100 text-[11px] text-slate-400 font-medium">Hồ sơ cá nhân</div>
+                        <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-user text-sm"></i>Thông tin cá nhân</a>
+                        <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-settings text-sm"></i>Cấu hình hệ thống</a>
+                        <div class="h-[1px] bg-slate-100 my-1"></div>
+                        <button onclick="logout()" class="w-full text-left px-4 py-2 text-xs text-red-500 font-bold hover:bg-red-50 transition-colors flex items-center gap-2 border-none bg-transparent cursor-pointer"><i class="ti ti-logout text-sm"></i>Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+            
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Quản lý Banner Quảng cáo 🖼️</h1>
+                    <p class="text-sm text-slate-500 mt-1">Quản lý các slide quảng cáo hiển thị trên trang chủ và các phân khu khuyến mãi của cửa hàng.</p>
+                </div>
+                <div>
+                    <button id="addBannerBtn" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 border-none cursor-pointer font-display">
+                        <i class="ti ti-plus text-base"></i> Thêm Banner mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Filter Tabs -->
+            <div class="flex border-b border-slate-200 text-xs font-semibold overflow-x-auto whitespace-nowrap bg-white px-6 rounded-t-2xl border-t border-x border-slate-100 shadow-2xs">
+                <button onclick="filterBanners('all', this)" class="py-4 px-4 text-accent border-b-2 border-accent transition-all cursor-pointer font-bold focus:outline-none">
+                    Tất cả banner (4)
+                </button>
+                <button onclick="filterBanners('active', this)" class="py-4 px-4 text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all cursor-pointer focus:outline-none">
+                    Đang hiển thị (2)
+                </button>
+                <button onclick="filterBanners('scheduled', this)" class="py-4 px-4 text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all cursor-pointer focus:outline-none">
+                    Chờ kích hoạt (1)
+                </button>
+                <button onclick="filterBanners('expired', this)" class="py-4 px-4 text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all cursor-pointer focus:outline-none">
+                    Đã hết hạn/Tạm khóa (1)
+                </button>
+            </div>
+
+            <!-- Toolbar & Search -->
+            <div class="bg-white p-4 rounded-b-2xl border-b border-x border-slate-100 shadow-2xs flex flex-col md:flex-row gap-4 items-center justify-between">
+                <!-- Search bar -->
+                <div class="relative w-full md:w-80 text-slate-400 focus-within:text-accent">
+                    <i class="ti ti-search absolute left-3.5 top-1/2 -translate-y-1/2 text-base"></i>
+                    <input type="text" id="bannerSearchInput" oninput="searchBanners()" placeholder="Tìm kiếm tên banner, vị trí, liên kết..." class="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none w-full focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all duration-300 placeholder:text-slate-400">
+                </div>
+
+                <!-- Action filters -->
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+                    <select class="bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer font-semibold">
+                        <option>Sắp xếp: Mới nhất</option>
+                        <option>Sắp xếp: Vị trí hiển thị</option>
+                        <option>Sắp xếp: Ngày kết thúc</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Banners Table -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-left" id="bannersTable">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-36">ẢNH PREVIEW</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">THÔNG TIN BANNER</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">VỊ TRÍ HIỂN THỊ</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">THỜI GIAN HIỂN THỊ</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">TRẠNG THÁI</th>
+                                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KÍCH HOẠT</th>
+                                <th class="py-4 px-6 w-24"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            
+                            <!-- Banner 1 -->
+                            <tr class="hover:bg-slate-50/30 transition-all font-medium banner-row" data-status="active">
+                                <td class="py-4 px-6">
+                                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=300" alt="Sneaker Hè" class="w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50 banner-img">
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="text-xs font-bold text-slate-900 banner-title">Bộ Sưu Tập Sneaker Hè 2026</div>
+                                    <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                                        <i class="ti ti-link text-xs"></i>
+                                        <a href="products.html" class="hover:text-accent font-semibold banner-link">products.html</a>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-100 banner-position">
+                                        Trang chủ - Slider chính (Hero)
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-xs text-slate-500 font-mono banner-dates">
+                                    01/06/2026 - 31/08/2026
+                                </td>
+                                <td class="py-4 px-6 status-td">
+                                    <span class="status-badge inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">
+                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full indicator"></span> <span class="text">Đang hiển thị</span>
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked onchange="toggleBannerActive('banner-1', this)" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                                    </label>
+                                </td>
+                                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <button onclick="openEditBannerModal(this)"
+                                            data-id="banner-1"
+                                            data-title="Bộ Sưu Tập Sneaker Hè 2026"
+                                            data-img="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=300"
+                                            data-link="products.html"
+                                            data-position="Trang chủ - Slider chính (Hero)"
+                                            data-start="2026-06-01"
+                                            data-end="2026-08-31"
+                                            data-status="active"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Banner 2 -->
+                            <tr class="hover:bg-slate-50/30 transition-all font-medium banner-row" data-status="active">
+                                <td class="py-4 px-6">
+                                    <img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&q=80&w=300" alt="Sneaker Chạy Bộ" class="w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50 banner-img">
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="text-xs font-bold text-slate-900 banner-title">Siêu Sale Giày Chạy Bộ - Giảm 30%</div>
+                                    <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                                        <i class="ti ti-link text-xs"></i>
+                                        <a href="flashsales.html" class="hover:text-accent font-semibold banner-link">flashsales.html</a>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center gap-1 bg-cyan-50 text-cyan-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-cyan-100 banner-position">
+                                        Trang chủ - Giữa trang
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-xs text-slate-500 font-mono banner-dates">
+                                    15/05/2026 - 15/06/2026
+                                </td>
+                                <td class="py-4 px-6 status-td">
+                                    <span class="status-badge inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">
+                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full indicator"></span> <span class="text">Đang hiển thị</span>
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked onchange="toggleBannerActive('banner-2', this)" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                                    </label>
+                                </td>
+                                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <button onclick="openEditBannerModal(this)"
+                                            data-id="banner-2"
+                                            data-title="Siêu Sale Giày Chạy Bộ - Giảm 30%"
+                                            data-img="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&q=80&w=300"
+                                            data-link="flashsales.html"
+                                            data-position="Trang chủ - Giữa trang"
+                                            data-start="2026-05-15"
+                                            data-end="2026-06-15"
+                                            data-status="active"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Banner 3 -->
+                            <tr class="hover:bg-slate-50/30 transition-all font-medium banner-row" data-status="scheduled">
+                                <td class="py-4 px-6">
+                                    <img src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&q=80&w=300" alt="Phụ kiện" class="w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50 banner-img opacity-80">
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="text-xs font-bold text-slate-900 banner-title">Ưu đãi Phụ kiện Vệ sinh Giày</div>
+                                    <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                                        <i class="ti ti-link text-xs"></i>
+                                        <a href="categories.html" class="hover:text-accent font-semibold banner-link">categories.html</a>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-100 banner-position">
+                                        Trang chủ - Chân trang
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-xs text-slate-500 font-mono banner-dates">
+                                    01/07/2026 - 31/07/2026
+                                </td>
+                                <td class="py-4 px-6 status-td">
+                                    <span class="status-badge inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100">
+                                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full indicator"></span> <span class="text">Chờ kích hoạt</span>
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked onchange="toggleBannerActive('banner-3', this)" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                                    </label>
+                                </td>
+                                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <button onclick="openEditBannerModal(this)"
+                                            data-id="banner-3"
+                                            data-title="Ưu đãi Phụ kiện Vệ sinh Giày"
+                                            data-img="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&q=80&w=300"
+                                            data-link="categories.html"
+                                            data-position="Trang chủ - Chân trang"
+                                            data-start="2026-07-01"
+                                            data-end="2026-07-31"
+                                            data-status="scheduled"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Banner 4 -->
+                            <tr class="hover:bg-slate-50/30 transition-all font-medium banner-row opacity-60" data-status="expired">
+                                <td class="py-4 px-6">
+                                    <img src="https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&q=80&w=300" alt="Leather" class="w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50 banner-img grayscale">
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="text-xs font-bold text-slate-900 banner-title line-through">Bộ Sưu Tập Giày Da Đông 2025</div>
+                                    <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                                        <i class="ti ti-link text-xs"></i>
+                                        <a href="products.html" class="hover:text-accent font-semibold banner-link line-through">products.html</a>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-100 banner-position">
+                                        Trang chủ - Slider chính (Hero)
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-xs text-slate-500 font-mono banner-dates">
+                                    01/11/2025 - 28/02/2026
+                                </td>
+                                <td class="py-4 px-6 status-td">
+                                    <span class="status-badge inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200">
+                                        <span class="w-1.5 h-1.5 bg-slate-400 rounded-full indicator"></span> <span class="text">Đã hết hạn</span>
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" onchange="toggleBannerActive('banner-4', this)" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                                    </label>
+                                </td>
+                                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                                    <div class="flex items-center gap-2 justify-end">
+                                        <button onclick="openEditBannerModal(this)"
+                                            data-id="banner-4"
+                                            data-title="Bộ Sưu Tập Giày Da Đông 2025"
+                                            data-img="https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&q=80&w=300"
+                                            data-link="products.html"
+                                            data-position="Trang chủ - Slider chính (Hero)"
+                                            data-start="2025-11-01"
+                                            data-end="2026-02-28"
+                                            data-status="expired"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Pagination -->
+                <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <span class="text-xs text-slate-400" id="tablePaginationInfo">Hiển thị 1 - 4 của 4 banner</span>
+                    <div class="flex items-center gap-1.5">
+                        <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer" disabled><i class="ti ti-chevron-left text-sm"></i></button>
+                        <button class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center text-xs font-bold border-none cursor-pointer font-display">1</button>
+                        <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer" disabled><i class="ti ti-chevron-right text-sm"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="h-16 border-t border-slate-100 bg-white flex items-center justify-between px-6 md:px-8 text-xs text-slate-400 shrink-0">
+            <div>© 2026 SaigonShoes Admin Panel. Bản quyền thuộc về đội ngũ dự án.</div>
+            <div class="hidden sm:block">Phiên bản 2.1.0 (Stable HTML)</div>
+        </footer>
+    </div>
+
+    <!-- Add Banner Modal -->
+    <div id="addBannerModal" class="fixed inset-0 z-[500] hidden items-center justify-center p-4">
+        <!-- Modal Backdrop -->
+        <div id="modalBackdrop" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs transition-opacity duration-300"></div>
+        
+        <!-- Modal Container -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden z-10 transition-transform duration-300 scale-95 opacity-0" id="modalBox">
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div>
+                    <h3 class="font-display text-lg font-bold text-slate-950">Thêm Banner quảng cáo mới 🖼️</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Tạo mới chiến dịch slide banner cho trang bán hàng.</p>
+                </div>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form onsubmit="handleFormSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- Title -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tiêu đề Banner *</label>
+                    <input type="text" placeholder="Ví dụ: Bộ sưu tập giày thể thao thu đông" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all placeholder:text-slate-400 font-medium text-slate-800">
+                </div>
+
+                <!-- Image URL -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Đường dẫn ảnh Banner *</label>
+                    <input type="text" value="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=400" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all font-mono text-slate-700">
+                    <span class="text-[10px] text-slate-400 mt-1 block">Khuyên dùng tỷ lệ banner rộng (hình chữ nhật).</span>
+                </div>
+
+                <!-- Display Position -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Vị trí hiển thị *</label>
+                    <select required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-semibold cursor-pointer">
+                        <option value="Trang chủ - Slider chính (Hero)">Trang chủ - Slider chính (Hero)</option>
+                        <option value="Trang chủ - Giữa trang">Trang chủ - Giữa trang</option>
+                        <option value="Trang chủ - Chân trang">Trang chủ - Chân trang</option>
+                    </select>
+                </div>
+
+                <!-- Target Link -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Liên kết điều hướng *</label>
+                    <input type="text" placeholder="Ví dụ: products.html" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-medium">
+                </div>
+
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ngày bắt đầu *</label>
+                        <input type="date" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ngày kết thúc *</label>
+                        <input type="date" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-medium">
+                    </div>
+                </div>
+
+                <!-- Footer buttons -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+                    <button type="button" id="cancelModalBtn" class="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all cursor-pointer">
+                        Hủy
+                    </button>
+                    <button type="submit" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md transition-all border-none cursor-pointer">
+                        Tạo Banner
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Banner Modal -->
+    <div id="editBannerModal" class="fixed inset-0 z-[500] hidden items-center justify-center p-4">
+        <!-- Modal Backdrop -->
+        <div id="editBannerModalBackdrop" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs transition-opacity duration-300"></div>
+        
+        <!-- Modal Container -->
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden z-10 transition-transform duration-300 scale-95 opacity-0" id="editBannerModalBox">
+            <!-- Modal Header -->
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div>
+                    <h3 class="font-display text-lg font-bold text-slate-950">Chỉnh sửa Banner quảng cáo 🖼️</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Cập nhật cấu hình và nội dung hình ảnh của banner.</p>
+                </div>
+                <button id="closeEditBannerModalBtn" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form onsubmit="handleEditBannerSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <input type="hidden" id="editBannerIdInput">
+                
+                <!-- Title -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tiêu đề Banner *</label>
+                    <input type="text" id="editBannerTitleInput" placeholder="Tiêu đề..." required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-800 font-medium">
+                </div>
+
+                <!-- Image URL -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Đường dẫn ảnh Banner *</label>
+                    <input type="text" id="editBannerImgInput" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all font-mono text-slate-700">
+                </div>
+
+                <!-- Display Position -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Vị trí hiển thị *</label>
+                    <select id="editBannerPositionSelect" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-semibold cursor-pointer">
+                        <option value="Trang chủ - Slider chính (Hero)">Trang chủ - Slider chính (Hero)</option>
+                        <option value="Trang chủ - Giữa trang">Trang chủ - Giữa trang</option>
+                        <option value="Trang chủ - Chân trang">Trang chủ - Chân trang</option>
+                    </select>
+                </div>
+
+                <!-- Target Link -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Liên kết điều hướng *</label>
+                    <input type="text" id="editBannerLinkInput" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-medium">
+                </div>
+
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ngày bắt đầu *</label>
+                        <input type="date" id="editBannerStartInput" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ngày kết thúc *</label>
+                        <input type="date" id="editBannerEndInput" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-medium">
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Trạng thái hoạt động *</label>
+                    <select id="editBannerStatusSelect" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-semibold cursor-pointer">
+                        <option value="active">Đang hiển thị</option>
+                        <option value="scheduled">Chờ kích hoạt</option>
+                        <option value="expired">Đã hết hạn/Tạm khóa</option>
+                    </select>
+                </div>
+
+                <!-- Footer buttons -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+                    <button type="button" id="cancelEditBannerModalBtn" class="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all cursor-pointer">
+                        Hủy
+                    </button>
+                    <button type="submit" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl shadow-md transition-all border-none cursor-pointer">
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notification System -->
+    <div id="toast" class="fixed bottom-5 right-5 z-[1000] bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold translate-y-12 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-sm shrink-0">🖼️</div>
+        <span id="toastMessage">Đã lưu cấu hình banner!</span>
+    </div>
+
+    <!-- Page Scripts -->
+    <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        
+        // Modal Elements
+        const addBannerModal = document.getElementById('addBannerModal');
+        const addBannerBtn = document.getElementById('addBannerBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const modalBox = document.getElementById('modalBox');
+
+        // Toggle Sidebar on mobile
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarBackdrop.classList.toggle('hidden');
+        }
+
+        menuToggleBtn.addEventListener('click', toggleSidebar);
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+        sidebarBackdrop.addEventListener('click', toggleSidebar);
+
+        // Simulated Logout
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            alert('Đăng xuất thành công!');
+            window.location.href = '../login.html';
+        }
+
+        // Toast Notification System
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        let toastTimeout;
+
+        function showToast(message, emoji = '🖼️') {
+            toastMessage.textContent = message;
+            toast.querySelector('div').textContent = emoji;
+            
+            toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Modal Open/Close triggers
+        function openModal() {
+            addBannerModal.classList.remove('hidden');
+            addBannerModal.classList.add('flex');
+            setTimeout(() => {
+                modalBox.classList.remove('scale-95', 'opacity-0');
+                modalBox.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        // Close modal
+        function closeModal() {
+            modalBox.classList.remove('scale-100', 'opacity-100');
+            modalBox.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                addBannerModal.classList.add('hidden');
+                addBannerModal.classList.remove('flex');
+            }, 300);
+        }
+
+        addBannerBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+        document.getElementById('modalBackdrop').addEventListener('click', closeModal);
+
+        // Handle Add Banner Submit
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const inputs = e.target.querySelectorAll('input, select');
+            const title = inputs[0].value;
+            const img = inputs[1].value;
+            const position = inputs[2].value;
+            const link = inputs[3].value;
+            const start = inputs[4].value;
+            const end = inputs[5].value;
+
+            // Formatted dates
+            const startFormatted = start.split('-').reverse().join('/');
+            const endFormatted = end.split('-').reverse().join('/');
+
+            // Add new row to table mock
+            const tableBody = document.querySelector('#bannersTable tbody');
+            const newId = 'banner-' + (tableBody.children.length + 1);
+            
+            const newRow = document.createElement('tr');
+            newRow.className = 'hover:bg-slate-50/30 transition-all font-medium banner-row';
+            newRow.setAttribute('data-status', 'active');
+            newRow.innerHTML = `
+                <td class="py-4 px-6">
+                    <img src="${img}" alt="${title}" class="w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50 banner-img">
+                </td>
+                <td class="py-4 px-6">
+                    <div class="text-xs font-bold text-slate-900 banner-title">${title}</div>
+                    <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                        <i class="ti ti-link text-xs"></i>
+                        <a href="${link}" class="hover:text-accent font-semibold banner-link">${link}</a>
+                    </div>
+                </td>
+                <td class="py-4 px-6">
+                    <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-100 banner-position">
+                        ${position}
+                    </span>
+                </td>
+                <td class="py-4 px-6 text-xs text-slate-500 font-mono banner-dates">
+                    ${startFormatted} - ${endFormatted}
+                </td>
+                <td class="py-4 px-6 status-td">
+                    <span class="status-badge inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full indicator"></span> <span class="text">Đang hiển thị</span>
+                    </span>
+                </td>
+                <td class="py-4 px-6">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked onchange="toggleBannerActive('${newId}', this)" class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                    </label>
+                </td>
+                <td class="py-4 px-6 text-right" onclick="event.stopPropagation()">
+                    <div class="flex items-center gap-2 justify-end">
+                        <button onclick="openEditBannerModal(this)"
+                            data-id="${newId}"
+                            data-title="${title}"
+                            data-img="${img}"
+                            data-link="${link}"
+                            data-position="${position}"
+                            data-start="${start}"
+                            data-end="${end}"
+                            data-status="active"
+                            class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs">
+                            <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                        </button>
+                        <button class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"><i class="ti ti-trash text-sm"></i></button>
+                    </div>
+                </td>
+            `;
+            
+            tableBody.insertBefore(newRow, tableBody.firstChild);
+            closeModal();
+            showToast('Tạo Banner quảng cáo mới thành công! 🚀');
+            updateCountSummary();
+        }
+
+        // Toggle Switch handler
+        function toggleBannerActive(id, checkbox) {
+            const tr = checkbox.closest('tr');
+            const statusTd = tr.querySelector('.status-td');
+            const imgEl = tr.querySelector('.banner-img');
+            
+            if (checkbox.checked) {
+                tr.classList.remove('opacity-60');
+                if (imgEl) imgEl.classList.remove('grayscale');
+                tr.setAttribute('data-status', 'active');
+                
+                statusTd.innerHTML = `
+                    <span class="status-badge inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full indicator"></span> <span class="text">Đang hiển thị</span>
+                    </span>
+                `;
+                showToast('Đã kích hoạt hiển thị banner! 🟢');
+            } else {
+                tr.classList.add('opacity-60');
+                if (imgEl) imgEl.classList.add('grayscale');
+                tr.setAttribute('data-status', 'expired');
+                
+                statusTd.innerHTML = `
+                    <span class="status-badge inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-100">
+                        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full indicator"></span> <span class="text">Tạm khóa</span>
+                    </span>
+                `;
+                showToast('Đã ẩn banner quảng cáo! 🟡');
+            }
+            updateCountSummary();
+        }
+
+        // Edit Banner Modal triggers
+        const editBannerModal = document.getElementById('editBannerModal');
+        const editBannerModalBox = document.getElementById('editBannerModalBox');
+        let currentEditingRow = null;
+
+        function openEditBannerModal(btn) {
+            currentEditingRow = btn.closest('tr');
+            
+            const id = btn.getAttribute('data-id');
+            const title = btn.getAttribute('data-title');
+            const img = btn.getAttribute('data-img');
+            const link = btn.getAttribute('data-link');
+            const position = btn.getAttribute('data-position');
+            const start = btn.getAttribute('data-start');
+            const end = btn.getAttribute('data-end');
+            const status = btn.getAttribute('data-status');
+
+            document.getElementById('editBannerIdInput').value = id;
+            document.getElementById('editBannerTitleInput').value = title;
+            document.getElementById('editBannerImgInput').value = img;
+            document.getElementById('editBannerLinkInput').value = link;
+            document.getElementById('editBannerPositionSelect').value = position;
+            document.getElementById('editBannerStartInput').value = start;
+            document.getElementById('editBannerEndInput').value = end;
+            document.getElementById('editBannerStatusSelect').value = status;
+
+            editBannerModal.classList.remove('hidden');
+            editBannerModal.classList.add('flex');
+            setTimeout(() => {
+                editBannerModalBox.classList.remove('scale-95', 'opacity-0');
+                editBannerModalBox.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        function closeEditBannerModal() {
+            editBannerModalBox.classList.remove('scale-100', 'opacity-100');
+            editBannerModalBox.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                editBannerModal.classList.add('hidden');
+                editBannerModal.classList.remove('flex');
+            }, 300);
+        }
+
+        document.getElementById('closeEditBannerModalBtn').addEventListener('click', closeEditBannerModal);
+        document.getElementById('cancelEditBannerModalBtn').addEventListener('click', closeEditBannerModal);
+        document.getElementById('editBannerModalBackdrop').addEventListener('click', closeEditBannerModal);
+
+        // Handle Edit Banner Form Submit
+        function handleEditBannerSubmit(e) {
+            e.preventDefault();
+            if (!currentEditingRow) return;
+
+            const id = document.getElementById('editBannerIdInput').value;
+            const title = document.getElementById('editBannerTitleInput').value;
+            const img = document.getElementById('editBannerImgInput').value;
+            const link = document.getElementById('editBannerLinkInput').value;
+            const position = document.getElementById('editBannerPositionSelect').value;
+            const start = document.getElementById('editBannerStartInput').value;
+            const end = document.getElementById('editBannerEndInput').value;
+            const status = document.getElementById('editBannerStatusSelect').value;
+
+            // Format dates
+            const startFormatted = start.split('-').reverse().join('/');
+            const endFormatted = end.split('-').reverse().join('/');
+
+            // Update DOM row
+            const titleEl = currentEditingRow.querySelector('.banner-title');
+            const imgEl = currentEditingRow.querySelector('.banner-img');
+            const linkEl = currentEditingRow.querySelector('.banner-link');
+            const positionEl = currentEditingRow.querySelector('.banner-position');
+            const datesEl = currentEditingRow.querySelector('.banner-dates');
+            const statusTd = currentEditingRow.querySelector('.status-td');
+            const checkbox = currentEditingRow.querySelector('input[type="checkbox"]');
+
+            titleEl.textContent = title;
+            imgEl.src = img;
+            imgEl.alt = title;
+            linkEl.textContent = link;
+            linkEl.href = link;
+            positionEl.textContent = position;
+            datesEl.textContent = `${startFormatted} - ${endFormatted}`;
+
+            // Reset classes
+            currentEditingRow.className = 'hover:bg-slate-50/30 transition-all font-medium banner-row';
+            imgEl.className = 'w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50 banner-img';
+            currentEditingRow.setAttribute('data-status', status);
+
+            // Update position badge style based on position
+            if (position.includes('Hero')) {
+                positionEl.className = 'inline-flex items-center gap-1 bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-100 banner-position';
+            } else if (position.includes('Giữa')) {
+                positionEl.className = 'inline-flex items-center gap-1 bg-cyan-50 text-cyan-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-cyan-100 banner-position';
+            } else {
+                positionEl.className = 'inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-100 banner-position';
+            }
+
+            // Update status badge
+            if (status === 'active') {
+                checkbox.checked = true;
+                statusTd.innerHTML = `
+                    <span class="status-badge inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full indicator"></span> <span class="text">Đang hiển thị</span>
+                    </span>
+                `;
+            } else if (status === 'scheduled') {
+                checkbox.checked = true;
+                currentEditingRow.classList.add('opacity-80');
+                statusTd.innerHTML = `
+                    <span class="status-badge inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-100">
+                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full indicator"></span> <span class="text">Chờ kích hoạt</span>
+                    </span>
+                `;
+            } else {
+                checkbox.checked = false;
+                currentEditingRow.classList.add('opacity-60');
+                imgEl.classList.add('grayscale');
+                statusTd.innerHTML = `
+                    <span class="status-badge inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200">
+                        <span class="w-1.5 h-1.5 bg-slate-400 rounded-full indicator"></span> <span class="text">Đã hết hạn</span>
+                    </span>
+                `;
+            }
+
+            // Update edit button data attributes for next edit
+            const editBtn = currentEditingRow.querySelector('button[onclick="openEditBannerModal(this)"]');
+            editBtn.setAttribute('data-title', title);
+            editBtn.setAttribute('data-img', img);
+            editBtn.setAttribute('data-link', link);
+            editBtn.setAttribute('data-position', position);
+            editBtn.setAttribute('data-start', start);
+            editBtn.setAttribute('data-end', end);
+            editBtn.setAttribute('data-status', status);
+
+            closeEditBannerModal();
+            showToast('Đã lưu các thay đổi cấu hình banner! 💾');
+            updateCountSummary();
+        }
+
+        // Live Search Banners
+        function searchBanners() {
+            const query = document.getElementById('bannerSearchInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.banner-row');
+
+            rows.forEach(row => {
+                const title = row.querySelector('.banner-title').textContent.toLowerCase();
+                const position = row.querySelector('.banner-position').textContent.toLowerCase();
+                const link = row.querySelector('.banner-link').textContent.toLowerCase();
+
+                if (title.includes(query) || position.includes(query) || link.includes(query)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        // Tabs status filter
+        let currentTabFilter = 'all';
+        function filterBanners(status, btn) {
+            // Update tabs active state
+            const tabs = btn.parentNode.querySelectorAll('button');
+            tabs.forEach(t => {
+                t.className = 'py-4 px-4 text-slate-500 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all cursor-pointer focus:outline-none';
+            });
+            btn.className = 'py-4 px-4 text-accent border-b-2 border-accent transition-all cursor-pointer font-bold focus:outline-none';
+
+            currentTabFilter = status;
+            const rows = document.querySelectorAll('.banner-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const rowStatus = row.getAttribute('data-status');
+                
+                if (status === 'all' || rowStatus === status) {
+                    row.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('tablePaginationInfo').textContent = `Hiển thị 1 - ${visibleCount} của ${visibleCount} banner`;
+        }
+
+        // Dynamically update total values in filters
+        function updateCountSummary() {
+            const rows = document.querySelectorAll('.banner-row');
+            let total = rows.length;
+            let active = 0;
+            let scheduled = 0;
+            let expired = 0;
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                if (status === 'active') active++;
+                else if (status === 'scheduled') scheduled++;
+                else expired++;
+            });
+
+            const tabs = document.querySelectorAll('button[onclick^="filterBanners"]');
+            tabs[0].textContent = `Tất cả banner (${total})`;
+            tabs[1].textContent = `Đang hiển thị (${active})`;
+            tabs[2].textContent = `Chờ kích hoạt (${scheduled})`;
+            tabs[3].textContent = `Đã hết hạn/Tạm khóa (${expired})`;
+        }
+
+        // Init setup
+        updateCountSummary();
+    </script>
+</body>
+</html>

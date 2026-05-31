@@ -22,18 +22,6 @@ const routes = [
         path: '/login',
         component: () => import('../views/user/LoginView.vue'),
         name: 'login'
-    },
-    // Admin Routes
-    {
-        path: '/admin',
-        component: () => import('../views/admin/Dashboard.vue'),
-        name: 'admin.dashboard',
-        meta: { requiresAuth: true, role: 'admin' }
-    },
-    {
-        path: '/admin/products',
-        component: () => import('../views/admin/ProductList.vue'),
-        name: 'admin.products'
     }
 ];
 

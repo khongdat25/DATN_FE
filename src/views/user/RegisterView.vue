@@ -166,13 +166,14 @@ async function handleRegister() {
     }
   } catch (error) {
     console.error('Registration error:', error)
-    // Error notification is handled automatically by axiosInstance interceptors,
-    // but in case success is false in response without throwing error:
-    if (error.response && error.response.data && error.response.data.message) {
+    const status = error.response ? error.response.status : null
+    // Lỗi 422 (validation) đã được axios interceptor xử lý tự động (hiện SweetAlert chi tiết)
+    // Chỉ hiện popup riêng cho các lỗi KHÔNG phải 422 và chưa được interceptor xử lý
+    if (status && ![401, 403, 404, 422, 500].includes(status)) {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi đăng ký',
-        text: error.response.data.message,
+        text: error.response?.data?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.',
         confirmButtonColor: '#FF4D00'
       })
     }
