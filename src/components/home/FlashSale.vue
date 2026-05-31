@@ -29,8 +29,13 @@
           <div class="bg-gradient-to-br from-accent to-[#ff7043] text-white text-[12px] tracking-[2px] uppercase py-2 px-5 rounded-full font-bold shadow-sm">🔥 Giảm đến 50%</div>
         </div>
 
+        <!-- Loading Skeleton -->
+        <div v-if="loading" class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
+          <div v-for="i in 5" :key="i" class="bg-surface2 rounded-md animate-pulse h-[320px]"></div>
+        </div>
+
         <!-- Products Grid (col-5) -->
-        <div class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
+        <div v-else class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
           <ProductCard
             v-for="product in flashProducts"
             :key="product.id"
@@ -38,6 +43,12 @@
             @add-to-cart="$emit('add-to-cart', $event)"
             @toggle-wish="$emit('toggle-wish', $event)"
           />
+        </div>
+
+        <!-- Empty state -->
+        <div v-if="!loading && flashProducts.length === 0" class="text-center py-12 text-text-muted">
+          <i class="ti ti-bolt-off text-[48px] block mb-3"></i>
+          <p>Hiện không có Flash Sale nào đang diễn ra</p>
         </div>
       </div>
     </div>
@@ -47,10 +58,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import ProductCard from '../common/ProductCard.vue'
+import { getFlashSales } from '../../api/homeService'
+
+const BASE_STORAGE_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'
 
 defineEmits(['add-to-cart', 'toggle-wish'])
 
-// Countdown logic
+// --- Countdown ---
 let h = 2, m = 47, s = 33
 const hours = ref(h), minutes = ref(m), seconds = ref(s)
 let timer = null
@@ -65,14 +79,58 @@ function tick() {
   hours.value = h; minutes.value = m; seconds.value = s
 }
 
-onMounted(() => { timer = setInterval(tick, 1000) })
-onUnmounted(() => { clearInterval(timer) })
+// --- Data ---
+const flashProducts = ref([])
+const loading = ref(true)
 
-const flashProducts = [
-  { id: 1, brand: 'Nike', name: 'Air Force 1 \'07 White', price: '1.290.000đ', oldPrice: '1.990.000đ', image: '/images/nike-air-force-1.png', rating: '★★★★★', reviews: '128', soldCount: 78, total: 100, badges: [{ label: '-35%', color: 'bg-accent shadow-sm' }] },
-  { id: 2, brand: 'Crocs', name: 'Classic Clog Black', price: '712.000đ', oldPrice: '890.000đ', image: '/images/puma-black1.png', rating: '★★★★☆', reviews: '341', soldCount: 92, total: 100, badges: [{ label: '-20%', color: 'bg-accent shadow-sm' }, { label: 'HOT', color: 'bg-accent2-dim shadow-sm' }] },
-  { id: 3, brand: 'Adidas', name: 'Samba OG White/Black', price: '1.590.000đ', oldPrice: '2.650.000đ', image: '/images/adidas-samba-og1.png', rating: '★★★★★', reviews: '89', soldCount: 62, total: 100, badges: [{ label: '-40%', color: 'bg-accent shadow-sm' }] },
-  { id: 4, brand: 'Jordan', name: 'Air Jordan 1 Retro High OG', price: '2.090.000đ', oldPrice: '3.800.000đ', image: '/images/nike-bred1.png', rating: '★★★★★', reviews: '412', soldCount: 91, total: 100, badges: [{ label: '-45%', color: 'bg-accent shadow-sm' }, { label: 'HOT', color: 'bg-accent2-dim shadow-sm' }] },
-  { id: 5, brand: 'Converse', name: 'Chuck 70 Classic High Top', price: '1.350.000đ', oldPrice: '1.800.000đ', image: '/images/nike-mid1.png', rating: '★★★★☆', reviews: '210', soldCount: 85, total: 100, badges: [{ label: '-25%', color: 'bg-accent shadow-sm' }] },
-]
+function getImageUrl(image) {
+  if (!image) return null
+  if (image.startsWith('http')) return image
+  return `${BASE_STORAGE_URL}/storage/${image}`
+}
+
+function mapFlashProduct(item, index) {
+  const product = item.product || {}
+  // Ưu tiên: variant image → product image đầu tiên
+  const variantImg = product.variants?.[0]?.image
+  const productImg = product.images?.[0]?.image
+  const rawImage = variantImg || productImg || null
+
+  // Tính giá sau giảm: discount_value là % hoặc số tiền tùy BE
+  const basePrice = product.variants?.[0]?.price || 0
+  const discountValue = item.discount_value || 0
+  const salePrice = basePrice > 0
+    ? Math.round(basePrice * (1 - discountValue / 100))
+    : 0
+
+  return {
+    id: item.id,
+    brand: product.category?.name || 'SaigonShoes',
+    name: product.name || 'Sản phẩm',
+    price: salePrice > 0 ? salePrice.toLocaleString('vi-VN') + 'đ' : 'Liên hệ',
+    oldPrice: basePrice > 0 ? basePrice.toLocaleString('vi-VN') + 'đ' : null,
+    image: getImageUrl(rawImage),
+    rating: '★★★★★',
+    reviews: product.sold || 0,
+    soldCount: item.sold || 0,
+    total: item.quantity_limit || 100,
+    badges: [{ label: `-${discountValue}%`, color: 'bg-accent shadow-sm' }],
+  }
+}
+
+onMounted(async () => {
+  timer = setInterval(tick, 1000)
+  try {
+    const res = await getFlashSales()
+    const flashSales = res.data || []
+    // Lấy tất cả items từ tất cả flash sale đang chạy, tối đa 5 sp
+    const allItems = flashSales.flatMap(fs => fs.items || [])
+    flashProducts.value = allItems.slice(0, 5).map(mapFlashProduct)
+  } catch (e) {
+    flashProducts.value = []
+  } finally {
+    loading.value = false
+  }
+})
+onUnmounted(() => { clearInterval(timer) })
 </script>

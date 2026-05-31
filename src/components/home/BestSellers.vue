@@ -18,8 +18,13 @@
           </div>
         </div>
 
-        <!-- Bestsellers Grid using cv2 card classes -->
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-6" id="bestSellerGrid">
+        <!-- Loading Skeleton -->
+        <div v-if="loading" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-6">
+          <div v-for="i in 5" :key="i" class="bg-surface2 rounded-md animate-pulse h-[280px]"></div>
+        </div>
+
+        <!-- Bestsellers Grid -->
+        <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-6" id="bestSellerGrid">
           <div
             v-for="product in filteredProducts"
             :key="product.id"
@@ -49,19 +54,29 @@
             </div>
           </div>
         </div>
+
+        <!-- Empty state -->
+        <div v-if="!loading && filteredProducts.length === 0" class="text-center py-12 text-text-muted">
+          <p>Không có sản phẩm nào trong danh mục này</p>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, onMounted } from 'vue'
+import { getBestSellings } from '../../api/homeService'
+
+const BASE_STORAGE_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'
 
 const addToCart = inject('addToCart', (p) => {})
 const showToast = inject('showToast', (msg) => {})
 
 const activeFilter = ref('all')
 const wishes = ref({})
+const bestSellers = ref([])
+const loading = ref(true)
 
 const filters = [
   { key: 'all', label: 'Tất cả' },
@@ -78,17 +93,47 @@ function doAddToCart(product) {
   addToCart(product)
 }
 
-const bestSellers = [
-  { id: 20, rank: 1, brand: 'Nike', name: 'Air Force 1 Shadow Women', price: '2.100.000đ', image: '/images/nike-pink1.png', rating: '★★★★★', reviews: '512', cat: 'sneaker' },
-  { id: 21, rank: 2, brand: 'Crocs', name: 'Classic Lined Clog Fuzzy', price: '1.200.000đ', image: '/images/puma-ka1.webp', rating: '★★★★★', reviews: '389', cat: 'crocs' },
-  { id: 22, rank: 3, brand: 'New Balance', name: '550 White Green', price: '2.800.000đ', image: '/images/nike-university1.png', rating: '★★★★★', reviews: '276', cat: 'sneaker' },
-  { id: 23, rank: 4, brand: 'Crocs', name: 'Mega Crush Sandal Women', price: '1.650.000đ', image: '/images/puma-golden1.png', rating: '★★★★★', reviews: '198', cat: 'crocs' },
-  { id: 24, rank: 5, brand: 'Adidas', name: 'Samba OG White/Black', price: '1.590.000đ', image: '/images/adidas-samba-og1.png', rating: '★★★★★', reviews: '415', cat: 'sneaker' },
-]
+function getImageUrl(image) {
+  if (!image) return '/images/nike-pink1.png'
+  if (image.startsWith('http')) return image
+  return `${BASE_STORAGE_URL}/storage/${image}`
+}
+
+function getCat(categoryName) {
+  const name = (categoryName || '').toLowerCase()
+  if (name.includes('crocs') || name.includes('dép')) return 'crocs'
+  return 'sneaker'
+}
 
 const filteredProducts = computed(() => {
-  if (activeFilter.value === 'all') return bestSellers
-  return bestSellers.filter(p => p.cat === activeFilter.value)
+  if (activeFilter.value === 'all') return bestSellers.value
+  return bestSellers.value.filter(p => p.cat === activeFilter.value)
+})
+
+onMounted(async () => {
+  try {
+    const res = await getBestSellings()
+    const products = res.data || []
+    bestSellers.value = products.map((p, index) => {
+      const rawImage = p.variants?.[0]?.image || null
+      const basePrice = p.variants?.[0]?.price || 0
+      return {
+        id: p.id,
+        rank: index + 1,
+        brand: p.category?.name || 'SaigonShoes',
+        name: p.name,
+        price: basePrice > 0 ? basePrice.toLocaleString('vi-VN') + 'đ' : 'Liên hệ',
+        image: getImageUrl(rawImage),
+        rating: '★★★★★',
+        reviews: p.sold || 0,
+        cat: getCat(p.category?.name),
+      }
+    })
+  } catch (e) {
+    bestSellers.value = []
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
