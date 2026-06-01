@@ -23,8 +23,9 @@
           <div
             v-for="product in filteredProducts"
             :key="product.id"
-            class="cv2 prod-card"
+            class="cv2 prod-card cursor-pointer"
             :data-cat="product.cat"
+            @click="goToDetail(product)"
           >
             <div class="ci mb-3 relative overflow-hidden aspect-square bg-transparent flex items-center justify-center">
               <span class="ci-b bg-gold text-white font-extrabold text-[9px] uppercase tracking-wide px-2 py-0.5 rounded-sm absolute top-2.5 left-2.5 z-10 shadow-sm">#{{ product.rank }}</span>
@@ -56,6 +57,10 @@
 
 <script setup>
 import { ref, computed, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import { allProducts } from '../../data/products.js'
+
+const router = useRouter()
 
 const addToCart = inject('addToCart', (p) => {})
 const showToast = inject('showToast', (msg) => {})
@@ -78,13 +83,17 @@ function doAddToCart(product) {
   addToCart(product)
 }
 
-const bestSellers = [
-  { id: 20, rank: 1, brand: 'Nike', name: 'Air Force 1 Shadow Women', price: '2.100.000đ', image: '/images/nike-pink1.png', rating: '★★★★★', reviews: '512', cat: 'sneaker' },
-  { id: 21, rank: 2, brand: 'Crocs', name: 'Classic Lined Clog Fuzzy', price: '1.200.000đ', image: '/images/puma-ka1.webp', rating: '★★★★★', reviews: '389', cat: 'crocs' },
-  { id: 22, rank: 3, brand: 'New Balance', name: '550 White Green', price: '2.800.000đ', image: '/images/nike-university1.png', rating: '★★★★★', reviews: '276', cat: 'sneaker' },
-  { id: 23, rank: 4, brand: 'Crocs', name: 'Mega Crush Sandal Women', price: '1.650.000đ', image: '/images/puma-golden1.png', rating: '★★★★★', reviews: '198', cat: 'crocs' },
-  { id: 24, rank: 5, brand: 'Adidas', name: 'Samba OG White/Black', price: '1.590.000đ', image: '/images/adidas-samba-og1.png', rating: '★★★★★', reviews: '415', cat: 'sneaker' },
-]
+function goToDetail(product) {
+  router.push({ name: 'product-detail', params: { id: product.id } })
+}
+
+const bestSellers = allProducts
+  .filter(p => p.id >= 20 && p.id <= 24)
+  .map((p, idx) => ({
+    ...p,
+    rank: idx + 1,
+    cat: p.category === 'Dép Crocs' ? 'crocs' : 'sneaker'
+  }))
 
 const filteredProducts = computed(() => {
   if (activeFilter.value === 'all') return bestSellers

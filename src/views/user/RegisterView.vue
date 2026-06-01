@@ -6,8 +6,9 @@
       <div class="blob blob-2"></div>
 
       <div class="register-container z-10 w-full max-w-[480px] px-4">
-        <router-link to="/" class="logo font-display text-[28px] tracking-[3px] text-center block mb-8 text-text">
-          SAIGON<span class="text-accent font-bold">SHOES</span>
+        <router-link to="/" class="flex flex-col items-center gap-2.5 text-center mb-8 group select-none">
+          <img src="/images/logo.png" alt="SaigonShoes Logo" class="h-16 w-16 object-contain transition-transform duration-500 group-hover:scale-105 mix-blend-multiply" onerror="this.style.display='none'">
+          <span class="logo font-display text-[26px] tracking-[3px] text-text font-bold">SAIGON<span class="text-accent font-bold">SHOES</span></span>
         </router-link>
         
         <div class="register-card bg-bg p-8 md:p-10 rounded-[24px] border border-border shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden">

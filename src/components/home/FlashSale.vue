@@ -35,8 +35,10 @@
             v-for="product in flashProducts"
             :key="product.id"
             :product="product"
+            :show-cart-button="false"
             @add-to-cart="$emit('add-to-cart', $event)"
             @toggle-wish="$emit('toggle-wish', $event)"
+            @click="goToDetail(product)"
           />
         </div>
       </div>
@@ -46,7 +48,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { allProducts } from '../../data/products.js'
 import ProductCard from '../common/ProductCard.vue'
+
+const router = useRouter()
 
 defineEmits(['add-to-cart', 'toggle-wish'])
 
@@ -68,11 +74,9 @@ function tick() {
 onMounted(() => { timer = setInterval(tick, 1000) })
 onUnmounted(() => { clearInterval(timer) })
 
-const flashProducts = [
-  { id: 1, brand: 'Nike', name: 'Air Force 1 \'07 White', price: '1.290.000đ', oldPrice: '1.990.000đ', image: '/images/nike-air-force-1.png', rating: '★★★★★', reviews: '128', soldCount: 78, total: 100, badges: [{ label: '-35%', color: 'bg-accent shadow-sm' }] },
-  { id: 2, brand: 'Crocs', name: 'Classic Clog Black', price: '712.000đ', oldPrice: '890.000đ', image: '/images/puma-black1.png', rating: '★★★★☆', reviews: '341', soldCount: 92, total: 100, badges: [{ label: '-20%', color: 'bg-accent shadow-sm' }, { label: 'HOT', color: 'bg-accent2-dim shadow-sm' }] },
-  { id: 3, brand: 'Adidas', name: 'Samba OG White/Black', price: '1.590.000đ', oldPrice: '2.650.000đ', image: '/images/adidas-samba-og1.png', rating: '★★★★★', reviews: '89', soldCount: 62, total: 100, badges: [{ label: '-40%', color: 'bg-accent shadow-sm' }] },
-  { id: 4, brand: 'Jordan', name: 'Air Jordan 1 Retro High OG', price: '2.090.000đ', oldPrice: '3.800.000đ', image: '/images/nike-bred1.png', rating: '★★★★★', reviews: '412', soldCount: 91, total: 100, badges: [{ label: '-45%', color: 'bg-accent shadow-sm' }, { label: 'HOT', color: 'bg-accent2-dim shadow-sm' }] },
-  { id: 5, brand: 'Converse', name: 'Chuck 70 Classic High Top', price: '1.350.000đ', oldPrice: '1.800.000đ', image: '/images/nike-mid1.png', rating: '★★★★☆', reviews: '210', soldCount: 85, total: 100, badges: [{ label: '-25%', color: 'bg-accent shadow-sm' }] },
-]
+function goToDetail(product) {
+  router.push({ name: 'product-detail', params: { id: product.id } })
+}
+
+const flashProducts = allProducts.filter(p => p.id >= 11 && p.id <= 15)
 </script>
