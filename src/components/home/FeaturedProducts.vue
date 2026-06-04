@@ -2,24 +2,34 @@
   <section class="py-8" id="products">
     <div class="max-w-[1200px] mx-auto px-5">
       <div class="section-wrapper">
-        <div class="flex justify-between items-end mb-9">
-          <div>
-            <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">SẢN PHẨM NỔI BẬT</h2>
-            <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Được chọn lọc kỹ càng cho bạn</p>
+        <div class="grid grid-cols-3 items-center mb-6 gap-4 max-md:flex max-md:flex-col max-md:items-start max-md:gap-3">
+          <!-- Left: Title -->
+          <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold whitespace-nowrap">SẢN PHẨM NỔI BẬT</h2>
+          <!-- Center: Collab Filter Chips -->
+          <div class="flex gap-2 flex-wrap justify-center max-md:justify-start">
+            <button
+              v-for="f in collabFilters"
+              :key="f.key"
+              :class="['py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all border font-medium',
+                activeCollab === f.key
+                  ? 'bg-accent border-accent text-white shadow-sm'
+                  : 'bg-surface2 text-text-muted border-border hover:bg-accent hover:border-accent hover:text-white']"
+              @click="activeCollab = f.key"
+            >{{ f.label }}</button>
           </div>
-          <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Xem tất cả <i class="ti ti-arrow-right"></i></a>
+          <!-- Right: View all -->
+          <div class="flex justify-end max-md:justify-start">
+            <a href="/products" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Xem tất cả <i class="ti ti-arrow-right"></i></a>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 max-lg:grid-cols-1 gap-5">
           <!-- Large Featured Card -->
           <div class="bg-bg rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(0,0,0,.05)]" @click="goToDetail(featured)">
-            <div class="h-[450px] max-lg:h-[260px] relative overflow-hidden">
+            <div class="h-[280px] max-lg:h-[220px] relative overflow-hidden">
               <img :src="featured.image" class="w-full h-full object-contain p-3 bg-white" :alt="featured.name">
               <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,77,0,0.1),transparent_60%)]"></div>
-              <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-[2]">
-                <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-[#4CAF50]">NEW</span>
-                <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-gold">BESTSELLER</span>
-              </div>
+
             </div>
             <div class="p-6 text-left">
               <div class="text-[11px] text-text-muted tracking-[1.5px] uppercase mb-1 font-bold">{{ featured.brand }}</div>
@@ -70,9 +80,14 @@
                 <div class="flex items-center gap-1 text-[12px] text-gold mb-[10px]">
                   {{ item.rating }} <span class="text-text-muted text-[11px]">({{ item.reviews }})</span>
                 </div>
-                <button class="bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] mt-2 w-full hover:border-accent hover:text-accent hover:bg-bg cursor-pointer font-bold" @click.stop="doAddToCart(item)">
-                  <i class="ti ti-shopping-cart"></i> Giỏ hàng
-                </button>
+                <div class="flex gap-1.5 mt-2">
+                  <button class="flex-1 bg-surface2 text-text border border-border p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-all flex items-center justify-center gap-[6px] hover:border-accent hover:text-accent hover:bg-bg cursor-pointer font-bold" @click.stop="doAddToCart(item)">
+                    <i class="ti ti-shopping-cart"></i> Giỏ hàng
+                  </button>
+                  <button class="flex-1 bg-accent text-white border-none p-[9px] text-[11px] tracking-[1px] uppercase rounded-sm transition-colors hover:bg-accent-hover font-bold cursor-pointer" @click.stop="doBuyNow(item)">
+                    Mua ngay
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -90,6 +105,13 @@ import { allProducts } from '../../data/products.js'
 const router = useRouter()
 
 const addToCart = inject('addToCart', (p) => {})
+
+const activeCollab = ref('all')
+const collabFilters = [
+  { key: 'all', label: 'Tất cả' },
+  { key: 'collab', label: 'Collab Anime' },
+  { key: 'limited', label: 'Limited' },
+]
 
 const sizes = ['38', '39', '40', '41', '42', '43']
 const selectedSize = ref('39')
@@ -109,7 +131,7 @@ function goToDetail(product) {
 
 const featured = allProducts.find(p => p.id === 30)
 
-const smallProducts = allProducts.filter(p => p.id >= 31 && p.id <= 34)
+const smallProducts = allProducts.filter(p => p.id >= 31 && p.id <= 33)
 </script>
 
 <style scoped>
