@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Bài viết (Blog) | SAIGONSHOES Admin</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tabler Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              accent: '#FF4D00',
+              'accent-hover': '#e63d00',
+              surface: '#ffffff',
+              background: '#f8fafc',
+              border: '#e2e8f0',
+            },
+            fontFamily: {
+              display: ['Outfit', 'sans-serif'],
+              body: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* Custom scrollbar for sidebar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-slate-800 antialiased min-h-screen flex">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/40 z-290 hidden md:hidden backdrop-blur-xs transition-opacity duration-300"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-slate-900 text-slate-300 z-300 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800 flex flex-col">
+        <!-- Logo -->
+        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800">
+            <a href="dashboard.html" class="font-display text-xl tracking-[2px] font-bold text-white flex items-center gap-1.5">
+                SAIGON<span class="text-accent font-extrabold">SHOES</span>
+                <span class="text-[9px] bg-accent/20 text-accent font-bold px-1.5 py-0.5 rounded-sm tracking-normal uppercase ml-1">Admin</span>
+            </a>
+            <!-- Mobile Menu Close Button -->
+            <button id="closeSidebarBtn" class="md:hidden text-slate-400 hover:text-white p-1 focus:outline-none">
+                <i class="ti ti-x text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+            <div class="text-[10px] uppercase font-bold tracking-[2px] text-slate-500 px-3 mb-2">QUẢN TRỊ HỆ THỐNG</div>
+            
+            <a href="dashboard.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-layout-dashboard text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Tổng quan (Dashboard)</span>
+            </a>
+
+            <a href="products.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-shoe text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý sản phẩm</span>
+            </a>
+
+            <a href="categories.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-category text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý danh mục</span>
+            </a>
+
+            <a href="banners.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-photo text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý Banner</span>
+            </a>
+
+            <a href="blogs.html" class="flex items-center gap-3 px-3 py-3 rounded-xl text-white bg-accent font-semibold shadow-[0_4px_12px_rgba(255,77,0,0.25)] transition-all duration-200 group text-sm">
+                <i class="ti ti-news text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý Bài viết (Blog)</span>
+            </a>
+
+            <a href="orders.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-shopping-cart text-lg group-hover:scale-110 transition-transform"></i>
+                <span class="flex-1 text-left">Quản lý đơn hàng</span>
+                <span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">5</span>
+            </a>
+
+            <a href="vouchers.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-ticket text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Mã giảm giá (Vouchers)</span>
+            </a>
+
+            <a href="flashsales.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-flame text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Chiến dịch Flash Sale</span>
+            </a>
+
+            <a href="users.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-users text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Quản lý người dùng</span>
+            </a>
+
+            <a href="reviews.html" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group text-sm text-slate-400">
+                <i class="ti ti-star text-lg group-hover:scale-110 transition-transform"></i>
+                <span>Phản hồi & Đánh giá</span>
+            </a>
+        </nav>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-800 space-y-1.5">
+            <a href="../index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group">
+                <i class="ti ti-home text-base group-hover:-translate-x-0.5 transition-transform"></i>
+                <span>Quay về Cửa hàng</span>
+            </a>
+            <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 hover:text-red-400 transition-colors group text-left border-none bg-transparent cursor-pointer font-medium">
+                <i class="ti ti-logout text-base group-hover:translate-x-0.5 transition-transform"></i>
+                <span>Đăng xuất tài khoản</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
+        
+        <!-- Header -->
+        <header class="h-20 border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-100 backdrop-blur-md bg-white/95">
+            <div class="flex items-center gap-4">
+                <button id="menuToggleBtn" class="md:hidden text-slate-500 hover:text-slate-800 p-1 flex items-center justify-center rounded-lg hover:bg-slate-100 focus:outline-none">
+                    <i class="ti ti-menu-2 text-xl"></i>
+                </button>
+                
+                <!-- Breadcrumbs -->
+                <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                    <span class="hover:text-slate-600 cursor-pointer">Admin</span>
+                    <i class="ti ti-chevron-right text-[10px]"></i>
+                    <span class="text-slate-800 font-semibold uppercase tracking-wider text-[11px]">Quản lý Bài viết (Blog)</span>
+                </div>
+            </div>
+
+            <!-- Profile / Actions -->
+            <div class="flex items-center gap-4">
+                <a href="../index.html" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-colors relative" title="Xem Cửa hàng">
+                    <i class="ti ti-external-link text-xl"></i>
+                </a>
+                
+                <div class="h-8 w-px bg-slate-100"></div>
+
+                <!-- Admin Info -->
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center font-display font-bold text-sm">
+                        AD
+                    </div>
+                    <div class="hidden sm:block text-left">
+                        <p class="text-xs font-bold text-slate-800">Quản trị viên</p>
+                        <p class="text-[10px] text-slate-400">admin@saigonshoes.com</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body Workspace -->
+        <main class="flex-1 p-6 md:p-8 space-y-6">
+            
+            <!-- Page Header Title & Button -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="text-left">
+                    <h1 class="font-display text-2xl font-bold text-slate-900 tracking-wide">Quản lý Bài viết (Blog / Tin tức)</h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Quản lý và xuất bản các tin tức xu hướng, hướng dẫn vệ sinh và các chiến dịch của SaigonShoes.</p>
+                </div>
+                <button onclick="openAddModal()" class="inline-flex items-center gap-2 bg-accent text-white px-5 py-3 rounded-xl text-sm font-semibold tracking-wide hover:bg-accent-hover transition-all active:scale-[0.98] shadow-lg shadow-accent/20 cursor-pointer w-fit text-left">
+                    <i class="ti ti-plus text-lg"></i> Viết bài mới
+                </button>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <!-- Total Posts -->
+                <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+                    <div class="absolute right-4 top-4 text-slate-100 group-hover:text-accent/10 transition-colors duration-300">
+                        <i class="ti ti-news text-5xl"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng số bài viết</p>
+                    <p class="text-2xl font-bold text-slate-800 mt-2" id="statTotal">12</p>
+                    <p class="text-[10px] text-green-500 mt-1 flex items-center gap-1"><i class="ti ti-trending-up"></i> +2 bài viết tuần này</p>
+                </div>
+
+                <!-- Published Posts -->
+                <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+                    <div class="absolute right-4 top-4 text-slate-100 group-hover:text-green-500/10 transition-colors duration-300">
+                        <i class="ti ti-circle-check text-5xl"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Đã xuất bản</p>
+                    <p class="text-2xl font-bold mt-2 text-green-600" id="statPublished">8</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Đang hiển thị trên Website</p>
+                </div>
+
+                <!-- Draft Posts -->
+                <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+                    <div class="absolute right-4 top-4 text-slate-100 group-hover:text-yellow-500/10 transition-colors duration-300">
+                        <i class="ti ti-file-pencil text-5xl"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Bài viết nháp</p>
+                    <p class="text-2xl font-bold mt-2 text-yellow-600" id="statDraft">4</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Chờ biên tập viên phê duyệt</p>
+                </div>
+
+                <!-- Total Views -->
+                <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+                    <div class="absolute right-4 top-4 text-slate-100 group-hover:text-blue-500/10 transition-colors duration-300">
+                        <i class="ti ti-eye text-5xl"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng lượt xem</p>
+                    <p class="text-2xl font-bold mt-2 text-blue-600">8,420</p>
+                    <p class="text-[10px] text-green-500 mt-1 flex items-center gap-1"><i class="ti ti-trending-up"></i> +15% so với tháng trước</p>
+                </div>
+            </div>
+
+            <!-- Toolbar & Filter Area -->
+            <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- Search -->
+                <div class="relative w-full md:w-80">
+                    <i class="ti ti-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                    <input type="text" id="searchInput" oninput="filterPosts()" placeholder="Tìm kiếm bài viết..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all">
+                </div>
+
+                <!-- Category & Status Filters -->
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
+                    <select id="catFilter" onchange="filterPosts()" class="bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs text-slate-600 outline-none cursor-pointer focus:border-accent transition-colors">
+                        <option value="all">Tất cả chuyên mục</option>
+                        <option value="Xu hướng">Xu hướng</option>
+                        <option value="Hướng dẫn">Hướng dẫn</option>
+                        <option value="Sự kiện">Sự kiện</option>
+                        <option value="Khuyến mãi">Khuyến mãi</option>
+                    </select>
+
+                    <select id="statusFilter" onchange="filterPosts()" class="bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs text-slate-600 outline-none cursor-pointer focus:border-accent transition-colors">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="published">Đã xuất bản</option>
+                        <option value="draft">Bản nháp</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Main Listing Table Card -->
+            <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/75 border-b border-slate-100 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                                <th class="py-4 px-6">Bài viết</th>
+                                <th class="py-4 px-6">Chuyên mục</th>
+                                <th class="py-4 px-6">Lượt xem</th>
+                                <th class="py-4 px-6">Trạng thái</th>
+                                <th class="py-4 px-6">Ngày tạo</th>
+                                <th class="py-4 px-6 text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postsTableBody" class="divide-y divide-slate-100 text-xs">
+                            <!-- Rows will be injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="tableEmptyState" class="hidden text-center py-16">
+                    <i class="ti ti-news text-5xl text-slate-200 block mb-3 animate-pulse"></i>
+                    <p class="text-sm font-semibold text-slate-800">Không tìm thấy bài viết nào</p>
+                    <p class="text-xs text-slate-400 mt-1">Vui lòng điều chỉnh điều kiện lọc hoặc từ khóa tìm kiếm.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Slide-over / Modal for Writing or Editing post -->
+    <div id="postModal" class="fixed inset-0 z-500 hidden items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div onclick="closeModal()" class="absolute inset-0 bg-black/40 backdrop-blur-xs"></div>
+        
+        <!-- Modal content -->
+        <div class="bg-white rounded-3xl w-full max-w-[640px] shadow-2xl border border-slate-100 z-10 overflow-hidden flex flex-col max-h-[90vh]">
+            <header class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-display text-lg font-bold text-slate-900 tracking-wide" id="modalTitle">Viết bài mới</h3>
+                <button onclick="closeModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            </header>
+            
+            <form id="postForm" onsubmit="handleFormSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-4 text-left">
+                <input type="hidden" id="postIdInput">
+                
+                <!-- Title input -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tiêu đề bài viết <span class="text-accent">*</span></label>
+                    <input type="text" id="postTitle" required placeholder="Nhập tiêu đề hấp dẫn..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all">
+                </div>
+
+                <!-- Category & Status -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Chuyên mục <span class="text-accent">*</span></label>
+                        <select id="postCategory" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-600 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all">
+                            <option value="Xu hướng">Xu hướng</option>
+                            <option value="Hướng dẫn">Hướng dẫn</option>
+                            <option value="Sự kiện">Sự kiện</option>
+                            <option value="Khuyến mãi">Khuyến mãi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Trạng thái <span class="text-accent">*</span></label>
+                        <select id="postStatus" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-600 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all">
+                            <option value="published">Đã xuất bản (Công khai)</option>
+                            <option value="draft">Bản nháp (Nội bộ)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Thumbnail field -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Hình ảnh đại diện <span class="text-accent">*</span></label>
+                    <div class="flex gap-2">
+                        <select id="postImage" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-600 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all">
+                            <option value="news_featured.png">news_featured.png (Ảnh đại diện Sự kiện)</option>
+                            <option value="news_1.png">news_1.png (Ảnh đại diện Vệ sinh giày)</option>
+                            <option value="news_2.png">news_2.png (Ảnh phối đồ Sneaker)</option>
+                            <option value="cat1.png">cat1.png (Ảnh Khuyến mãi vàng)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Excerpt text -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tóm tắt ngắn <span class="text-accent">*</span></label>
+                    <textarea id="postExcerpt" required rows="2" placeholder="Tóm tắt ngắn gọn nội dung hiển thị ở danh sách bài viết..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all resize-none"></textarea>
+                </div>
+
+                <!-- Detailed Rich Text Area -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Nội dung chi tiết bài viết <span class="text-accent">*</span></label>
+                    <textarea id="postContent" required rows="6" placeholder="Viết nội dung bài đăng của bạn ở đây. Hỗ trợ hiển thị dạng văn bản dài..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all resize-none"></textarea>
+                </div>
+
+                <!-- Action Button in form -->
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-600 transition-colors cursor-pointer">Hủy bỏ</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent text-white hover:bg-accent-hover text-xs font-semibold transition-colors cursor-pointer">Lưu thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Centralized mock data matching the active Vue news list
+        let posts = [
+            {
+                id: 1,
+                title: 'Sự kiện ra mắt bộ sưu tập giới hạn "Future Walk" của SaigonShoes',
+                category: 'Sự kiện',
+                excerpt: 'Chiêm ngưỡng những siêu phẩm Sneaker mang phong cách tương lai với sự kết hợp đột phá giữa nghệ thuật thiết kế đương đại.',
+                date: '15 Tháng 5, 2026',
+                author: 'Admin',
+                image: 'news_featured.png',
+                views: 1240,
+                status: 'published'
+            },
+            {
+                id: 2,
+                title: 'Cách vệ sinh giày Sneaker trắng luôn sáng bóng như mới tại nhà',
+                category: 'Hướng dẫn',
+                excerpt: 'Giày trắng bị bám bẩn luôn là nỗi phiền toái lớn của cộng đồng yêu giày. Khám phá 5 bước đơn giản cực dễ dàng.',
+                date: '12 Tháng 5, 2026',
+                author: 'Admin',
+                image: 'news_1.png',
+                views: 954,
+                status: 'published'
+            },
+            {
+                id: 3,
+                title: 'Gợi ý các outfit phối đồ với Sneaker cực chất năng động cho mùa hè',
+                category: 'Xu hướng',
+                excerpt: 'Mùa hè năng động chính là thời điểm hoàn hảo nhất để bạn trình diễn các outfit thời trang đầy màu sắc của mình.',
+                date: '10 Tháng 5, 2026',
+                author: 'Editor',
+                image: 'news_2.png',
+                views: 742,
+                status: 'published'
+            },
+            {
+                id: 4,
+                title: 'Đại tiệc sinh nhật SaigonShoes tròn 5 tuổi - Bùng nổ giảm giá tới 50%',
+                category: 'Khuyến mãi',
+                excerpt: 'Mừng cột mốc sinh nhật đáng nhớ, SaigonShoes mang đến chương trình ưu đãi lớn nhất năm với hàng ngàn deal sốc.',
+                date: '08 Tháng 5, 2026',
+                author: 'Admin',
+                image: 'cat1.png',
+                views: 2420,
+                status: 'published'
+            },
+            {
+                id: 5,
+                title: 'Bản thảo: Top 5 xu hướng giày thể thao dự kiến lên ngôi cuối năm 2026',
+                category: 'Xu hướng',
+                excerpt: 'Khám phá sớm các công nghệ đột phá, chất liệu đế đệm siêu đàn hồi sẽ thống trị tủ đồ của các Sneakerheads.',
+                date: '30 Tháng 5, 2026',
+                author: 'Editor',
+                image: 'news_2.png',
+                views: 0,
+                status: 'draft'
+            },
+            {
+                id: 6,
+                title: 'Bản thảo: Hướng dẫn chi tiết cách đo size chân chuẩn để đặt giày từ xa',
+                category: 'Hướng dẫn',
+                excerpt: 'Tránh hoàn toàn tình trạng đặt sai size, chật gót hoặc kích mũi giày với cách đo bàn chân bằng thước chuẩn xác.',
+                date: '28 Tháng 5, 2026',
+                author: 'Admin',
+                image: 'news_1.png',
+                views: 0,
+                status: 'draft'
+            }
+        ];
+
+        // Toggle Sidebar on mobile
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const menuToggleBtn = document.getElementById('menuToggleBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+
+        menuToggleBtn?.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarBackdrop.classList.remove('hidden');
+        });
+
+        closeSidebarBtn?.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+        });
+
+        sidebarBackdrop?.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+        });
+
+        // Load data on start
+        window.addEventListener('DOMContentLoaded', () => {
+            renderPosts();
+        });
+
+        function updateStatistics() {
+            const total = posts.length;
+            const published = posts.filter(p => p.status === 'published').length;
+            const draft = posts.filter(p => p.status === 'draft').length;
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statPublished').innerText = published;
+            document.getElementById('statDraft').innerText = draft;
+        }
+
+        // Render table listing rows
+        function renderPosts(filteredArray = posts) {
+            const tableBody = document.getElementById('postsTableBody');
+            tableBody.innerHTML = '';
+
+            if (filteredArray.length === 0) {
+                document.getElementById('tableEmptyState').classList.remove('hidden');
+                updateStatistics();
+                return;
+            }
+            document.getElementById('tableEmptyState').classList.add('hidden');
+
+            filteredArray.forEach(post => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/75 transition-colors border-b border-slate-100 text-slate-600";
+                
+                // Status badge
+                let statusBadge = '';
+                if (post.status === 'published') {
+                    statusBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600"><span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Đã công khai</span>`;
+                } else {
+                    statusBadge = `<span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-yellow-50 text-yellow-600"><span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>Bản nháp</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="py-4 px-6 font-semibold text-slate-800 max-w-[280px]">
+                        <div class="flex items-center gap-3">
+                            <div class="h-12 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
+                                <img src="../images/${post.image}" alt="Thumb" class="h-full w-full object-cover">
+                            </div>
+                            <span class="truncate block hover:text-accent cursor-pointer transition-colors" title="${post.title}">${post.title}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-semibold uppercase tracking-wider">${post.category}</span>
+                    </td>
+                    <td class="py-4 px-6 font-semibold">${post.views.toLocaleString()}</td>
+                    <td class="py-4 px-6">${statusBadge}</td>
+                    <td class="py-4 px-6 text-slate-400 font-medium">${post.date}</td>
+                    <td class="py-4 px-6 text-right space-x-1">
+                        <button onclick="openEditModal(${post.id})" class="p-2 text-slate-400 hover:text-accent hover:bg-accent/5 rounded-lg transition-colors cursor-pointer" title="Chỉnh sửa"><i class="ti ti-edit text-base"></i></button>
+                        <button onclick="handleDelete(${post.id})" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-lg transition-colors cursor-pointer" title="Xóa"><i class="ti ti-trash text-base"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            updateStatistics();
+        }
+
+        // Live filter searches
+        function filterPosts() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const selectedCat = document.getElementById('catFilter').value;
+            const selectedStatus = document.getElementById('statusFilter').value;
+
+            let result = posts.filter(post => {
+                const matchesSearch = post.title.toLowerCase().includes(searchQuery) || post.excerpt.toLowerCase().includes(searchQuery);
+                const matchesCat = selectedCat === 'all' || post.category === selectedCat;
+                const matchesStatus = selectedStatus === 'all' || post.status === selectedStatus;
+                
+                return matchesSearch && matchesCat && matchesStatus;
+            });
+
+            renderPosts(result);
+        }
+
+        // Modal triggers
+        const postModal = document.getElementById('postModal');
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = "Viết bài viết mới";
+            document.getElementById('postIdInput').value = "";
+            document.getElementById('postForm').reset();
+            postModal.classList.remove('hidden');
+            postModal.classList.add('flex');
+        }
+
+        function openEditModal(id) {
+            const post = posts.find(p => p.id === id);
+            if (!post) return;
+
+            document.getElementById('modalTitle').innerText = "Chỉnh sửa bài viết";
+            document.getElementById('postIdInput').value = post.id;
+            document.getElementById('postTitle').value = post.title;
+            document.getElementById('postCategory').value = post.category;
+            document.getElementById('postStatus').value = post.status;
+            document.getElementById('postImage').value = post.image;
+            document.getElementById('postExcerpt').value = post.excerpt;
+            document.getElementById('postContent').value = post.excerpt; // Populate description too
+
+            postModal.classList.remove('hidden');
+            postModal.classList.add('flex');
+        }
+
+        function closeModal() {
+            postModal.classList.add('hidden');
+            postModal.classList.remove('flex');
+        }
+
+        // Handle Add/Edit save submission
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('postIdInput').value;
+            const title = document.getElementById('postTitle').value;
+            const category = document.getElementById('postCategory').value;
+            const status = document.getElementById('postStatus').value;
+            const image = document.getElementById('postImage').value;
+            const excerpt = document.getElementById('postExcerpt').value;
+
+            const currentDate = new Date();
+            const formattedDate = currentDate.getDate() + ' Tháng ' + (currentDate.getMonth() + 1) + ', ' + currentDate.getFullYear();
+
+            if (id) {
+                // Edit existing post
+                const post = posts.find(p => p.id === parseInt(id));
+                if (post) {
+                    post.title = title;
+                    post.category = category;
+                    post.status = status;
+                    post.image = image;
+                    post.excerpt = excerpt;
+                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã cập nhật bài viết!',
+                    text: 'Các thông tin chỉnh sửa đã được lưu vào bản lưu trữ.',
+                    confirmButtonColor: '#FF4D00'
+                });
+            } else {
+                // Add new post
+                const newPost = {
+                    id: posts.length ? Math.max(...posts.map(p => p.id)) + 1 : 1,
+                    title: title,
+                    category: category,
+                    excerpt: excerpt,
+                    date: formattedDate,
+                    author: 'Admin',
+                    image: image,
+                    views: 0,
+                    status: status
+                };
+                posts.unshift(newPost);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm bài viết mới!',
+                    text: 'Bài viết mới đã được lưu thành công vào cơ sở dữ liệu.',
+                    confirmButtonColor: '#FF4D00'
+                });
+            }
+
+            closeModal();
+            renderPosts();
+        }
+
+        // Delete post trigger
+        function handleDelete(id) {
+            Swal.fire({
+                title: 'Xác nhận xóa bài viết?',
+                text: 'Hành động này sẽ gỡ hoàn toàn bài viết và không thể khôi phục lại!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#FF4D00',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Đồng ý xóa!',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    posts = posts.filter(p => p.id !== id);
+                    renderPosts();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã xóa bài viết!',
+                        text: 'Bài viết đã bị gỡ bỏ vĩnh viễn khỏi hệ thống.',
+                        confirmButtonColor: '#FF4D00'
+                    });
+                }
+            });
+        }
+
+        // Fake Logout Alert
+        function logout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất?',
+                text: 'Bạn sẽ quay lại màn hình đăng nhập tài khoản admin.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#FF4D00',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Đăng xuất!',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -2,12 +2,12 @@
   <section class="relative overflow-hidden bg-surface">
     <!-- Slides container -->
     <div
-      class="flex transition-transform duration-700 ease-[cubic-bezier(.4,0,.2,1)]"
+      class="flex transition-transform duration-700 ease-in-out"
       :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
     >
-      <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('/images/banner_sneaker.png'); background-size:cover; background-position:center;"></div>
-      <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('/images/banner_crocs.png'); background-size:cover; background-position:center;"></div>
-      <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('/images/banner_sale.png'); background-size:cover; background-position:center;"></div>
+      <div class="min-w-full h-[calc(100vh-165px)] min-h-[450px] max-md:h-[200px]" style="background-image:url('/images/banner_sneaker.png'); background-size:cover; background-position:center;"></div>
+      <div class="min-w-full h-[calc(100vh-165px)] min-h-[450px] max-md:h-[200px]" style="background-image:url('/images/banner_crocs.png'); background-size:cover; background-position:center;"></div>
+      <div class="min-w-full h-[calc(100vh-165px)] min-h-[450px] max-md:h-[200px]" style="background-image:url('/images/banner_sale.png'); background-size:cover; background-position:center;"></div>
     </div>
 
     <!-- Navigation Buttons -->

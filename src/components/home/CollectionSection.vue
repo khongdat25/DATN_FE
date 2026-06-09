@@ -29,7 +29,7 @@
               <div>
                 <div class="text-[10px] text-white/50 tracking-[2px] uppercase font-medium mb-1">Crocs Limited 2026</div>
                 <h3 class="font-display text-white text-[22px] tracking-[1px] font-bold leading-tight">CROCS COLLECTION</h3>
-                <p class="text-white/60 text-[12px] mt-1 leading-[1.5]">Cá tính, thoải mái, không đụng hàng.</p>
+                <p class="text-white/60 text-[12px] mt-1 leading-normal">Cá tính, thoải mái, không đụng hàng.</p>
               </div>
               <span class="shrink-0 flex items-center gap-2 bg-accent text-white text-[11px] font-bold tracking-[1px] uppercase px-4 py-2.5 rounded-full transition-all duration-300 group-hover:bg-white group-hover:text-[#1a1a2e]">
                 Xem ngay <i class="ti ti-arrow-right"></i>
@@ -52,7 +52,7 @@
               <div>
                 <div class="text-[10px] text-white/50 tracking-[2px] uppercase font-medium mb-1">Giày thể thao chính hãng</div>
                 <h3 class="font-display text-white text-[22px] tracking-[1px] font-bold leading-tight">SPORT PERFORMANCE</h3>
-                <p class="text-white/60 text-[12px] mt-1 leading-[1.5]">Hiệu suất đỉnh, phong cách không lỗi.</p>
+                <p class="text-white/60 text-[12px] mt-1 leading-normal">Hiệu suất đỉnh, phong cách không lỗi.</p>
               </div>
               <span class="shrink-0 flex items-center gap-2 bg-white text-[#111] text-[11px] font-bold tracking-[1px] uppercase px-4 py-2.5 rounded-full transition-all duration-300 group-hover:bg-accent group-hover:text-white">
                 Khám phá <i class="ti ti-arrow-right"></i>

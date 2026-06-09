@@ -110,12 +110,12 @@
 </head>
 <body>
 
-<div id="toast" class="fixed bottom-[30px] right-[30px] z-[9999] bg-bg border border-border-light border-l-[3px] border-l-accent py-[14px] px-5 rounded-md text-sm flex items-center gap-[10px] translate-y-[100px] opacity-0 transition-all duration-300 pointer-events-none max-w-[320px] shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
+<div id="toast" class="fixed bottom-[30px] right-[30px] z-9999 bg-bg border border-border-light border-l-[3px] border-l-accent py-[14px] px-5 rounded-md text-sm flex items-center gap-[10px] translate-y-[100px] opacity-0 transition-all duration-300 pointer-events-none max-w-[320px] shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
   <i class="ti ti-check text-accent text-lg"></i>
   <span id="toast-msg">Đã thực hiện!</span>
 </div>
 
-<button class="scroll-top fixed bottom-[100px] right-[28px] w-10 h-10 bg-bg border border-border rounded-sm flex items-center justify-center text-lg text-text-muted opacity-0 pointer-events-none transition-all duration-200 z-[200] cursor-pointer shadow-[0_4px_10px_rgba(0,0,0,0.1)] hover:bg-accent hover:border-accent hover:text-white" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+<button class="scroll-top fixed bottom-[100px] right-[28px] w-10 h-10 bg-bg border border-border rounded-sm flex items-center justify-center text-lg text-text-muted opacity-0 pointer-events-none transition-all duration-200 z-200 cursor-pointer shadow-[0_4px_10px_rgba(0,0,0,0.1)] hover:bg-accent hover:border-accent hover:text-white" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <i class="ti ti-arrow-up"></i>
 </button>
 
@@ -127,7 +127,7 @@
   <span>🎁 Tặng quà khi mua từ 1 triệu</span>
 </div>
 
-<header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200]">
+<header class="bg-white/95 backdrop-blur-md border-b border-border sticky top-0 z-200">
   <div class="max-w-[1200px] mx-auto px-5">
     <nav class="flex items-center justify-between h-[72px] gap-4">
       <a href="#" class="font-display text-[26px] tracking-[3px] font-bold">SAIGON<span class="text-accent">SHOES</span></a>
@@ -173,7 +173,7 @@
 </header>
 
 <section class="relative overflow-hidden bg-surface">
-  <div class="flex transition-transform duration-700 ease-[cubic-bezier(.4,0,.2,1)]" id="slides">
+  <div class="flex transition-transform duration-700 ease-in-out" id="slides">
     <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('images/banner_sneaker.png'); background-size:cover; background-position:center;"></div>
     <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('images/banner_crocs.png'); background-size:cover; background-position:center;"></div>
     <div class="min-w-full h-[600px] max-md:h-[260px]" style="background-image:url('images/banner_sale.png'); background-size:cover; background-position:center;"></div>
@@ -243,19 +243,19 @@
           <div class="text-center"><div class="bg-accent text-white font-display text-[24px] min-w-[48px] h-[48px] rounded-sm flex items-center justify-center tracking-[2px] shadow-sm" id="cdS">33</div><div class="text-[9px] text-text-muted tracking-[1px] uppercase mt-[3px] text-center">Giây</div></div>
         </div>
       </div>
-      <div class="bg-gradient-to-br from-accent to-[#ff7043] text-white text-[12px] tracking-[2px] uppercase py-2 px-5 rounded-full font-bold shadow-sm">🔥 Giảm đến 50%</div>
+      <div class="bg-linear-to-br from-accent to-[#ff7043] text-white text-[12px] tracking-[2px] uppercase py-2 px-5 rounded-full font-bold shadow-sm">🔥 Giảm đến 50%</div>
     </div>
 
     <div class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
       <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
         <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
           <img src="images/nike-air-force-1.png" class="w-full h-full object-contain p-3 bg-white" alt="Nike Air Force 1">
-          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+          <div class="absolute top-[10px] left-[10px] z-2 flex flex-col gap-1.5">
             <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-35%</span>
           </div>
-          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
           
-          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1.5px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1.5px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-2 group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
         </div>
         <div class="p-4 pt-5 flex flex-col flex-1">
           <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Nike</div>
@@ -283,13 +283,13 @@
       <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
         <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
           <img src="images/puma-black1.png" class="w-full h-full object-contain p-3 bg-white" alt="Crocs Classic Clog">
-          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+          <div class="absolute top-[10px] left-[10px] z-2 flex flex-col gap-1.5">
             <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-20%</span>
             <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent2-dim shadow-sm">HOT</span>
           </div>
-          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
           
-          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-2 group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
         </div>
         <div class="p-4 pt-5 flex flex-col flex-1">
           <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Crocs</div>
@@ -317,12 +317,12 @@
       <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
         <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
           <img src="images/adidas-samba-og1.png" class="w-full h-full object-contain p-3 bg-white" alt="Adidas Samba OG">
-          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+          <div class="absolute top-[10px] left-[10px] z-2 flex flex-col gap-1.5">
             <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-40%</span>
           </div>
-          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
           
-          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-2 group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
         </div>
         <div class="p-4 pt-5 flex flex-col flex-1">
           <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Adidas</div>
@@ -350,13 +350,13 @@
       <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
         <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
           <img src="images/nike-bred1.png" class="w-full h-full object-contain p-3 bg-white" alt="Air Jordan 1">
-          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+          <div class="absolute top-[10px] left-[10px] z-2 flex flex-col gap-1.5">
             <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-45%</span>
             <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent2-dim shadow-sm">HOT</span>
           </div>
-          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
           
-          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-2 group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
         </div>
         <div class="p-4 pt-5 flex flex-col flex-1">
           <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Jordan</div>
@@ -384,12 +384,12 @@
       <div class="group bg-bg rounded-md overflow-hidden transition-all relative hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] flex flex-col">
         <div class="h-[220px] relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
           <img src="images/nike-mid1.png" class="w-full h-full object-contain p-3 bg-white" alt="Converse Chuck 70">
-          <div class="absolute top-[10px] left-[10px] z-[2] flex flex-col gap-1.5">
+          <div class="absolute top-[10px] left-[10px] z-2 flex flex-col gap-1.5">
             <span class="inline-block text-[10px] font-bold tracking-[1px] uppercase py-[4px] px-2.5 rounded-sm text-white bg-accent shadow-sm">-25%</span>
           </div>
-          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
+          <button class="prod-wish absolute top-[10px] right-[10px] w-9 h-9 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all cursor-pointer hover:bg-accent hover:border-accent hover:text-white [&.active]:bg-accent [&.active]:border-accent [&.active]:text-white" onclick="toggleWish(this)"><i class="ti ti-heart"></i></button>
           
-          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-[2] group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
+          <button class="absolute -bottom-12 left-0 right-0 bg-white/95 border-none border-t border-border text-accent text-[12px] tracking-[1px] font-bold uppercase p-3.5 transition-[bottom] duration-250 ease z-2 group-hover:bottom-0 hover:bg-surface2" onclick="addToCart(this)">+ Thêm vào giỏ</button>
         </div>
         <div class="p-4 pt-5 flex flex-col flex-1">
           <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[4px] font-bold">Converse</div>
@@ -506,7 +506,7 @@
         <div class="h-[450px] max-lg:h-[260px] relative overflow-hidden">
           <img src="images/nike-air1.png" class="w-full h-full object-contain p-3 bg-white" alt="Nike Air Max 97">
           <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,77,0,0.1),transparent_60%)]"></div>
-          <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-[2]">
+          <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-2">
             <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-[#4CAF50]">NEW</span>
             <span class="inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white bg-gold">BESTSELLER</span>
           </div>
@@ -591,32 +591,32 @@
     </div>
     <div class="grid grid-cols-2 max-md:grid-cols-1 grid-rows-auto gap-4">
       <div class="group rounded-xl overflow-hidden relative cursor-pointer bg-[linear-gradient(160deg,#fff0e6,#ffffff)] transition-transform hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(0,0,0,.1)] row-span-2 max-md:row-span-1">
-        <div class="h-full min-h-[380px] relative overflow-hidden z-[1]"><img src="images/nike-paris1.png" class="w-full h-full object-contain p-3 bg-white" alt="Streetwear"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-white/95 to-transparent/60 z-[2]"></div>
-        <div class="absolute bottom-0 left-0 right-0 p-6 z-[3]">
+        <div class="h-full min-h-[380px] relative overflow-hidden z-1"><img src="images/nike-paris1.png" class="w-full h-full object-contain p-3 bg-white" alt="Streetwear"></div>
+        <div class="absolute inset-0 bg-linear-to-t from-white/95 to-transparent/60 z-2"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 z-3">
           <div class="text-[10px] tracking-[2px] uppercase text-accent mb-1.5 font-bold">● Mới ra mắt</div>
           <h3 class="font-display text-text text-[clamp(22px,3vw,30px)] tracking-[1px] mb-1.5 font-bold">STREETWEAR<br>COLLECTION</h3>
-          <p class="text-[12px] text-text-muted leading-[1.5]">Sneaker đường phố đỉnh cao — phong cách riêng, cá tính mạnh.</p>
+          <p class="text-[12px] text-text-muted leading-normal">Sneaker đường phố đỉnh cao — phong cách riêng, cá tính mạnh.</p>
           <a href="#" class="inline-flex items-center gap-[6px] mt-3.5 text-[12px] tracking-[1px] font-medium uppercase text-text border-b border-text-muted pb-[2px] transition-all group-hover:text-accent group-hover:border-accent">Khám phá <i class="ti ti-arrow-right"></i></a>
         </div>
       </div>
       <div class="group bg-surface2 rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(0,0,0,.1)]">
-        <div class="h-full min-h-[200px] relative overflow-hidden z-[1]"><img src="images/puma-mb1.webp" class="w-full h-full object-contain p-3 bg-white" alt="Crocs 2026"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-white/95 to-transparent/60 z-[2]"></div>
-        <div class="absolute bottom-0 left-0 right-0 p-6 z-[3]">
+        <div class="h-full min-h-[200px] relative overflow-hidden z-1"><img src="images/puma-mb1.webp" class="w-full h-full object-contain p-3 bg-white" alt="Crocs 2026"></div>
+        <div class="absolute inset-0 bg-linear-to-t from-white/95 to-transparent/60 z-2"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 z-3">
           <div class="text-[10px] tracking-[2px] uppercase text-accent mb-1.5 font-bold">● Crocs Limited</div>
           <h3 class="font-display text-text text-[clamp(22px,3vw,30px)] tracking-[1px] mb-1.5 font-bold">CROCS 2026</h3>
-          <p class="text-[12px] text-text-muted leading-[1.5]">Dòng Crocs giới hạn — mang một lần, nhớ mãi mãi.</p>
+          <p class="text-[12px] text-text-muted leading-normal">Dòng Crocs giới hạn — mang một lần, nhớ mãi mãi.</p>
           <a href="#" class="inline-flex items-center gap-[6px] mt-3.5 text-[12px] tracking-[1px] font-medium uppercase text-text border-b border-text-muted pb-[2px] transition-all group-hover:text-accent group-hover:border-accent">Xem ngay <i class="ti ti-arrow-right"></i></a>
         </div>
       </div>
       <div class="group bg-surface2 rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(0,0,0,.1)]">
-        <div class="h-full min-h-[200px] relative overflow-hidden z-[1]"><img src="images/puma1.webp" class="w-full h-full object-cover" alt="Sport Performance"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-white/95 to-transparent/60 z-[2]"></div>
-        <div class="absolute bottom-0 left-0 right-0 p-6 z-[3]">
+        <div class="h-full min-h-[200px] relative overflow-hidden z-1"><img src="images/puma1.webp" class="w-full h-full object-cover" alt="Sport Performance"></div>
+        <div class="absolute inset-0 bg-linear-to-t from-white/95 to-transparent/60 z-2"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 z-3">
           <div class="text-[10px] tracking-[2px] uppercase text-accent mb-1.5 font-bold">● Sport Style</div>
           <h3 class="font-display text-text text-[clamp(22px,3vw,30px)] tracking-[1px] mb-1.5 font-bold">SPORT<br>PERFORMANCE</h3>
-          <p class="text-[12px] text-text-muted leading-[1.5]">Giày thể thao chính hãng — vừa chạy vừa đẹp.</p>
+          <p class="text-[12px] text-text-muted leading-normal">Giày thể thao chính hãng — vừa chạy vừa đẹp.</p>
           <a href="#" class="inline-flex items-center gap-[6px] mt-3.5 text-[12px] tracking-[1px] font-medium uppercase text-text border-b border-text-muted pb-[2px] transition-all group-hover:text-accent group-hover:border-accent">Xem bộ sưu tập <i class="ti ti-arrow-right"></i></a>
         </div>
       </div>
@@ -641,8 +641,8 @@
       <div class="bg-bg border border-border rounded-md overflow-hidden transition-all hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.06)]">
         <div class="h-[180px] bg-surface2 flex items-center justify-center text-[60px] relative overflow-hidden">
           👟
-          <div class="absolute inset-0 bg-gradient-to-b from-transparent/50 to-white/80"></div>
-          <span class="absolute top-3 left-3 bg-accent text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-[2] font-bold">Phong Cách</span>
+          <div class="absolute inset-0 bg-linear-to-b from-transparent/50 to-white/80"></div>
+          <span class="absolute top-3 left-3 bg-accent text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-2 font-bold">Phong Cách</span>
         </div>
         <div class="p-[18px]">
           <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">08 Tháng 5, 2026</div>
@@ -662,8 +662,8 @@
       <div class="bg-bg border border-border rounded-md overflow-hidden transition-all hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.06)]">
         <div class="h-[180px] bg-surface2 flex items-center justify-center text-[60px] relative overflow-hidden">
           🥿
-          <div class="absolute inset-0 bg-gradient-to-b from-transparent/50 to-white/80"></div>
-          <span class="absolute top-3 left-3 bg-accent text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-[2] font-bold">Review</span>
+          <div class="absolute inset-0 bg-linear-to-b from-transparent/50 to-white/80"></div>
+          <span class="absolute top-3 left-3 bg-accent text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-2 font-bold">Review</span>
         </div>
         <div class="p-[18px]">
           <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">05 Tháng 5, 2026</div>
@@ -683,8 +683,8 @@
       <div class="bg-bg border border-border rounded-md overflow-hidden transition-all hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.06)]">
         <div class="h-[180px] bg-surface2 flex items-center justify-center text-[60px] relative overflow-hidden">
           👟
-          <div class="absolute inset-0 bg-gradient-to-b from-transparent/50 to-white/80"></div>
-          <span class="absolute top-3 left-3 bg-accent2-dim text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-[2] font-bold">Xu Hướng</span>
+          <div class="absolute inset-0 bg-linear-to-b from-transparent/50 to-white/80"></div>
+          <span class="absolute top-3 left-3 bg-accent2-dim text-white text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-2 font-bold">Xu Hướng</span>
         </div>
         <div class="p-[18px]">
           <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">02 Tháng 5, 2026</div>
@@ -720,7 +720,7 @@
     </div>
     <div class="grid grid-cols-[200px_1fr] max-md:grid-cols-1 gap-9 items-center bg-bg border border-border rounded-xl p-7 mb-7">
       <div class="text-center border-r border-border pr-9 max-md:border-r-0 max-md:border-b max-md:pr-0 max-md:pb-6">
-        <div class="font-display text-[72px] text-gold leading-[1]">4.9</div>
+        <div class="font-display text-[72px] text-gold leading-none">4.9</div>
         <div class="text-[24px] text-gold my-1.5">★★★★★</div>
         <div class="text-[12px] text-text-muted">Dựa trên 12.384 đánh giá</div>
       </div>
@@ -825,7 +825,7 @@
 
 <section class="py-8">
   <div class="max-w-[1200px] mx-auto px-5">
-    <div class="bg-[#111] rounded-xl p-10 max-md:py-8 max-md:px-5 text-center relative overflow-hidden before:content-[''] before:absolute before:w-[500px] before:h-[500px] before:rounded-full before:bg-[rgba(255,77,0,0.08)] before:-top-[140px] before:left-1/2 before:-translate-x-1/2 before:pointer-events-none">
+    <div class="bg-[#111] rounded-xl p-10 max-md:py-8 max-md:px-5 text-center relative overflow-hidden before:content-[''] before:absolute before:w-[500px] before:h-[500px] before:rounded-full before:bg-[rgba(255,77,0,0.08)] before:top-[-140px] before:left-1/2 before:-translate-x-1/2 before:pointer-events-none">
       <h2 class="font-display text-[32px] text-white tracking-[2px] mb-2 font-bold uppercase">ĐĂNG KÝ TÀI KHOẢN</h2>
       <p class="text-[14px] text-white/60 mb-6">Trở thành thành viên SaigonShoes ngay để nhận thông báo Flash Sale, quà tặng và ưu đãi độc quyền mỗi tuần</p>
       <div class="flex justify-center">
@@ -842,9 +842,8 @@
       <div class="grid grid-cols-[1.6fr_1fr_1fr_1.2fr] max-lg:grid-cols-2 max-md:grid-cols-1 gap-10">
         <!-- Brand -->
         <div>
-          <div class="font-display text-[26px] font-bold tracking-[3px] mb-4">SAIGON<span class="text-accent">SHOES</span></div>
-          <p class="text-[13px] text-white/50 leading-[1.9] mb-6 max-w-[260px]">
-            Chúng tôi mang đến những đôi giày không chỉ là phụ kiện, mà là biểu tượng của phong cách và cá tính riêng. SaigonShoes — Đồng hành cùng mỗi bước chân của bạn.
+          <p class="text-[13px] text-white/50 leading-[1.9] mb-6 max-w-[260px] pt-4">
+            Chuyên cung cấp giày sneaker chính hãng từ các thương hiệu hàng đầu thế giới: Nike, Adidas, Puma, New Balance, MLB, Biti's và Converse. Cam kết chất lượng — giá tốt — giao nhanh.
           </p>
           <div class="flex gap-3">
             <a href="#" class="w-9 h-9 border border-white/15 rounded-full flex items-center justify-center text-[17px] text-white/60 transition-all hover:bg-accent hover:border-accent hover:text-white"><i class="ti ti-brand-facebook"></i></a>
@@ -855,12 +854,15 @@
 
         <!-- Khám phá -->
         <div>
-          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">KHÁM PHÁ</h4>
+          <h4 class="font-display text-[12px] font-bold tracking-[2.5px] mb-5 uppercase text-white/40">SẢN PHẨM</h4>
           <nav class="flex flex-col gap-3">
-            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nam</a>
-            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Sneaker Nữ</a>
-            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Dép Crocs</a>
-            <a href="#" class="text-[13px] text-white/60 transition-colors hover:text-accent">Phụ kiện Jibbitz</a>
+            <a href="products.html?brand=Nike" class="text-[13px] text-white/60 transition-colors hover:text-accent">Giày Nike</a>
+            <a href="products.html?brand=Adidas" class="text-[13px] text-white/60 transition-colors hover:text-accent">Giày Adidas</a>
+            <a href="products.html?brand=New%20Balance" class="text-[13px] text-white/60 transition-colors hover:text-accent">Giày New Balance</a>
+            <a href="products.html?brand=Puma" class="text-[13px] text-white/60 transition-colors hover:text-accent">Giày Puma</a>
+            <a href="products.html?brand=MLB" class="text-[13px] text-white/60 transition-colors hover:text-accent">Giày MLB</a>
+            <a href="products.html?brand=Bitis" class="text-[13px] text-white/60 transition-colors hover:text-accent">Giày Biti's</a>
+            <a href="products.html?brand=Converse" class="text-[13px] text-white/60 transition-colors hover:text-accent">Giày Converse</a>
           </nav>
         </div>
 
@@ -899,7 +901,7 @@
     <!-- Footer bottom -->
     <div class="border-t border-white/[0.07]">
       <div class="max-w-[1200px] mx-auto px-6 py-5 flex items-center justify-between flex-wrap gap-4">
-        <p class="text-[12px] text-white/30">© 2026 SaigonShoes Store. Bản quyền thuộc về đội ngũ phát triển dự án.</p>
+        <p class="text-[12px] text-white/30">© 2026 Sneaker Store. Bản quyền thuộc về đội ngũ phát triển dự án.</p>
         <div class="flex items-center gap-3 text-white/30">
           <i class="ti ti-brand-visa text-[22px]"></i>
           <i class="ti ti-brand-mastercard text-[22px]"></i>
@@ -911,8 +913,8 @@
   </div>
 </footer>
 
-<div class="fixed bottom-[28px] right-[28px] z-[300]">
-  <div class="chat-window absolute bottom-[70px] right-0 w-[320px] bg-bg border border-border rounded-lg overflow-hidden scale-80 translate-y-5 origin-bottom-right opacity-0 pointer-events-none transition-all duration-[0.25s] ease-[cubic-bezier(.4,0,.2,1)] shadow-[0_12px_40px_rgba(0,0,0,.15)]" id="chatWindow">
+<div class="fixed bottom-[28px] right-[28px] z-300">
+  <div class="chat-window absolute bottom-[70px] right-0 w-[320px] bg-bg border border-border rounded-lg overflow-hidden scale-80 translate-y-5 origin-bottom-right opacity-0 pointer-events-none transition-all duration-[0.25s] ease-in-out shadow-[0_12px_40px_rgba(0,0,0,.15)]" id="chatWindow">
     <div class="bg-accent py-[14px] px-4 flex items-center gap-2.5">
       <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-[18px] text-white">🤖</div>
       <div>
@@ -924,7 +926,7 @@
     <div class="h-[220px] overflow-y-auto p-[14px] flex flex-col gap-2.5" id="chatMsgs">
       <div class="flex gap-2 items-end">
         <div class="w-[26px] h-[26px] rounded-full bg-surface2 flex items-center justify-center text-[12px] shrink-0">🤖</div>
-        <div class="max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-[1.5] bg-surface2 text-text rounded-bl-[4px]">Xin chào! Mình là AI tư vấn của StepUp. Bạn cần tư vấn gì hôm nay? 👟</div>
+        <div class="max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-normal bg-surface2 text-text rounded-bl-[4px]">Xin chào! Mình là AI tư vấn của StepUp. Bạn cần tư vấn gì hôm nay? 👟</div>
       </div>
     </div>
     <div class="flex gap-1.5 flex-wrap px-[14px] pb-2.5">
@@ -1099,7 +1101,7 @@ function addChatMsg(txt,type){
   const msgs=document.getElementById('chatMsgs');
   const row=document.createElement('div');
   row.className='flex gap-2 items-end'+(type==='user'?' flex-row-reverse':'');
-  row.innerHTML=`<div class="w-[26px] h-[26px] rounded-full bg-surface2 flex items-center justify-center text-[12px] shrink-0">${type==='ai'?'🤖':'👤'}</div><div class="max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-[1.5] ${type==='ai'?'bg-surface2 text-text rounded-bl-[4px]':'bg-accent text-white rounded-br-[4px]'}">${txt}</div>`;
+  row.innerHTML=`<div class="w-[26px] h-[26px] rounded-full bg-surface2 flex items-center justify-center text-[12px] shrink-0">${type==='ai'?'🤖':'👤'}</div><div class="max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-normal ${type==='ai'?'bg-surface2 text-text rounded-bl-[4px]':'bg-accent text-white rounded-br-[4px]'}">${txt}</div>`;
   msgs.appendChild(row);
   msgs.scrollTop=msgs.scrollHeight;
 }

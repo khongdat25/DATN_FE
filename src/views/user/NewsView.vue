@@ -21,7 +21,7 @@
     </section>
 
     <!-- Categories Filter Bar -->
-    <div class="bg-white border-b border-border sticky top-[72px] z-[100] shadow-sm">
+    <div class="bg-white border-b border-border sticky top-[72px] z-100 shadow-sm">
       <div class="max-w-[1200px] mx-auto px-5">
         <ul class="flex justify-start md:justify-center gap-8 py-4 overflow-x-auto whitespace-nowrap scrollbar-none">
           <li 

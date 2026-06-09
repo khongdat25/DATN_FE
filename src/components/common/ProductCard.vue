@@ -6,7 +6,7 @@
       <img v-if="product.image" :src="product.image" class="w-full h-full object-contain p-3 bg-white transition-transform duration-500 group-hover:scale-105" :alt="product.name" />
       <span v-else class="text-[80px]">{{ product.icon }}</span>
       <!-- Badges -->
-      <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-[2]">
+      <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-2">
         <span
           v-for="badge in product.badges"
           :key="badge.label"
@@ -15,12 +15,12 @@
       </div>
       <!-- Wish Button -->
       <button
-        :class="['prod-wish absolute top-[10px] right-[10px] w-8 h-8 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-[3] transition-all duration-300 cursor-pointer hover:bg-accent hover:border-accent hover:text-white active:scale-90', { active: wished }]"
+        :class="['prod-wish absolute top-[10px] right-[10px] w-8 h-8 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all duration-300 cursor-pointer hover:bg-accent hover:border-accent hover:text-white active:scale-90', { active: wished }]"
         @click.stop="toggleWish"
       ><i class="ti ti-heart"></i></button>
       <!-- Add to Cart hover button -->
       <button
-        class="absolute -bottom-12 left-0 right-0 bg-white/95 backdrop-blur-md border-none border-t border-border text-accent text-xl p-3.5 transition-all duration-300 ease-out z-[2] group-hover:bottom-0 hover:bg-accent hover:text-white active:bg-accent-hover flex items-center justify-center"
+        class="absolute -bottom-12 left-0 right-0 bg-white/95 backdrop-blur-md border-none border-t border-border text-accent text-xl p-3.5 transition-all duration-300 ease-out z-2 group-hover:bottom-0 hover:bg-accent hover:text-white active:bg-accent-hover flex items-center justify-center"
         @click.stop="doAddToCart"
       ><i class="ti ti-shopping-cart-plus"></i></button>
     </div>
@@ -50,14 +50,6 @@
       </div>
       <!-- Buttons -->
       <div class="flex gap-2">
-        <button
-          v-if="showCartButton"
-          :class="['w-11 h-11 border text-lg rounded-xl transition-all duration-300 flex items-center justify-center active:scale-90 shadow-sm hover:shadow-md', addedToCart ? 'bg-[#4CAF50] text-white border-[#4CAF50]' : 'bg-surface2 text-text border-border hover:border-accent hover:text-accent hover:bg-bg']"
-          @click.stop="doAddToCart"
-          :title="addedToCart ? 'Đã thêm' : 'Thêm vào giỏ'"
-        >
-          <i :class="[addedToCart ? 'ti ti-check' : 'ti ti-shopping-cart']"></i>
-        </button>
         <button @click.stop="doBuyNow" class="flex-1 bg-accent text-white border-none h-11 text-[11px] tracking-[1.5px] font-semibold uppercase rounded-xl shadow-[0_4px_12px_rgba(255,77,0,0.2)] transition-all duration-300 hover:bg-accent-hover hover:shadow-[0_6px_20px_rgba(255,77,0,0.3)] active:scale-95">Mua ngay</button>
       </div>
     </div>

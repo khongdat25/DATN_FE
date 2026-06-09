@@ -38,7 +38,7 @@
                   v-for="(img, idx) in product.images" 
                   :key="idx"
                   @click="setActiveImage(img.src, img.flip)"
-                  :class="['border-2 rounded-2xl bg-surface2 p-3 cursor-pointer h-24 flex items-center justify-center transition-all bg-white hover:border-accent hover:bg-white', activeImage === img.src && activeImageFlip === img.flip ? 'border-accent bg-white shadow-sm' : 'border-transparent']"
+                  :class="['border-2 rounded-2xl p-3 cursor-pointer h-24 flex items-center justify-center transition-all bg-white hover:border-accent hover:bg-white', activeImage === img.src && activeImageFlip === img.flip ? 'border-accent shadow-sm' : 'border-transparent']"
                 >
                   <img :src="img.src" :class="['max-h-full object-contain', img.flip ? 'scale-x-[-1]' : '']" :alt="'Thumb ' + (idx + 1)">
                 </div>

@@ -18,8 +18,8 @@
           >
             <div class="h-[180px] bg-surface2 flex items-center justify-center text-[60px] relative overflow-hidden">
               {{ post.icon }}
-              <div class="absolute inset-0 bg-gradient-to-b from-transparent/50 to-white/80"></div>
-              <span :class="['absolute top-3 left-3 text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-[2] font-bold', post.tagClass]">{{ post.tag }}</span>
+              <div class="absolute inset-0 bg-linear-to-b from-transparent/50 to-white/80"></div>
+              <span :class="['absolute top-3 left-3 text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-2 font-bold', post.tagClass]">{{ post.tag }}</span>
             </div>
             <div class="p-[18px] text-left">
               <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">{{ post.date }}</div>

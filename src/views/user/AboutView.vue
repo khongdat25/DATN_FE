@@ -52,7 +52,7 @@
                   <i class="ti ti-shoe"></i>
                 </div>
                 <h4 class="font-display font-bold text-xl text-text mb-2">SaigonShoes Store</h4>
-                <p class="text-xs text-text-muted uppercase font-bold tracking-widest text-accent">Est. 2020</p>
+                <p class="text-xs uppercase font-bold tracking-widest text-accent">Est. 2020</p>
               </div>
             </div>
           </div>
@@ -92,7 +92,7 @@
       <div class="max-w-[1200px] mx-auto px-5">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-white/10 text-center">
           <div v-for="(stat, idx) in stats" :key="idx" class="pt-6 md:pt-0 first:pt-0">
-            <h2 class="font-display text-4xl sm:text-5xl font-extrabold text-accent mb-2 tracking-wide font-black">{{ stat.number }}</h2>
+            <h2 class="font-display text-4xl sm:text-5xl text-accent mb-2 tracking-wide font-black">{{ stat.number }}</h2>
             <p class="text-[10px] tracking-[2px] uppercase font-bold text-white/50">{{ stat.label }}</p>
           </div>
         </div>

@@ -241,15 +241,15 @@ export const allProducts = [
   },
   {
     id: 8,
-    brand: 'Crocs',
-    name: 'Crocs Classic Crush Unisex Clog',
+    brand: 'Nike',
+    name: 'Nike Pegasus 40 Running Shoes',
     price: '1.390.000đ',
     oldPrice: '1.890.000đ',
     numericPrice: 1390000,
     image: '/images/puma-golden1.png',
     rating: '★★★★★',
     reviews: 248,
-    category: 'Dép Crocs',
+    category: 'Giày Thể Thao',
     gender: 'Nữ',
     sizes: ['36', '37', '38', '39', '40'],
     badges: [{ label: 'TREND', color: 'bg-accent' }],
@@ -265,8 +265,8 @@ export const allProducts = [
       { name: 'Màu Kem Bone', bg: '#f5ebe0' }
     ],
     specs: [
-      { name: 'Thương hiệu', value: 'Crocs' },
-      { name: 'Độ cao đế', value: '5.2 cm' }
+      { name: 'Thương hiệu', value: 'Nike' },
+      { name: 'Độ cao đế', value: '3.5 cm' }
     ]
   },
   {
@@ -331,15 +331,15 @@ export const allProducts = [
   },
   {
     id: 12,
-    brand: 'Crocs',
-    name: 'Classic Clog Black Special',
+    brand: 'Puma',
+    name: 'Puma Velocity Nitro Sport',
     price: '712.000đ',
     oldPrice: '890.000đ',
     numericPrice: 712000,
     image: '/images/puma-black1.png',
     rating: '★★★★☆',
     reviews: 341,
-    category: 'Dép Crocs',
+    category: 'Giày Thể Thao',
     gender: 'Nam',
     sizes: ['39', '40', '41', '42', '43'],
     badges: [{ label: '-20%', color: 'bg-accent shadow-sm' }, { label: 'HOT', color: 'bg-accent2-dim shadow-sm' }],
@@ -352,7 +352,7 @@ export const allProducts = [
       { name: 'Đen Bóng', bg: '#111111' }
     ],
     specs: [
-      { name: 'Thương hiệu', value: 'Crocs' }
+      { name: 'Thương hiệu', value: 'Puma' }
     ]
   },
   {
@@ -459,14 +459,14 @@ export const allProducts = [
   },
   {
     id: 21,
-    brand: 'Crocs',
-    name: 'Classic Lined Clog Cozy Fuzzy',
+    brand: 'Puma',
+    name: 'Puma Deviate Nitro 2 Sport',
     price: '1.200.000đ',
     numericPrice: 1200000,
     image: '/images/puma-ka1.webp',
     rating: '★★★★★',
     reviews: 389,
-    category: 'Dép Crocs',
+    category: 'Giày Thể Thao',
     gender: 'Nam',
     sizes: ['39', '40', '41', '42'],
     images: [
@@ -476,7 +476,7 @@ export const allProducts = [
       { name: 'Lông Cừu Kem', bg: '#f5f5dc' }
     ],
     specs: [
-      { name: 'Thương hiệu', value: 'Crocs' }
+      { name: 'Thương hiệu', value: 'Puma' }
     ]
   },
   {
@@ -503,14 +503,14 @@ export const allProducts = [
   },
   {
     id: 23,
-    brand: 'Crocs',
-    name: 'Mega Crush Sandal Women Platform',
+    brand: 'New Balance',
+    name: 'New Balance Fresh Foam X',
     price: '1.650.000đ',
     numericPrice: 1650000,
     image: '/images/puma-golden1.png',
     rating: '★★★★★',
     reviews: 198,
-    category: 'Dép Crocs',
+    category: 'Giày Thể Thao',
     gender: 'Nữ',
     sizes: ['36', '37', '38', '39'],
     images: [
@@ -520,7 +520,7 @@ export const allProducts = [
       { name: 'Nâu Đồng Cát', bg: '#b5a642' }
     ],
     specs: [
-      { name: 'Thương hiệu', value: 'Crocs' }
+      { name: 'Thương hiệu', value: 'New Balance' }
     ]
   },
   {
@@ -573,15 +573,15 @@ export const allProducts = [
   },
   {
     id: 31,
-    brand: 'Crocs',
-    name: 'Mega Crush Clog Platform Bone',
+    brand: 'Adidas',
+    name: 'Adidas Ultraboost Light Running',
     price: '1.450.000đ',
     oldPrice: '1.800.000đ',
     numericPrice: 1450000,
     image: '/images/puma-muse1.png',
     rating: '★★★★★',
     reviews: 205,
-    category: 'Dép Crocs',
+    category: 'Giày Thể Thao',
     gender: 'Nữ',
     sizes: ['36', '37', '38', '39'],
     images: [
@@ -591,7 +591,7 @@ export const allProducts = [
       { name: 'Màu Kem Xương', bg: '#e8e3d9' }
     ],
     specs: [
-      { name: 'Thương hiệu', value: 'Crocs' }
+      { name: 'Thương hiệu', value: 'Adidas' }
     ]
   },
   {
@@ -619,14 +619,14 @@ export const allProducts = [
   },
   {
     id: 33,
-    brand: 'Crocs',
-    name: 'Echo Sandal Unisex Streetwear',
+    brand: 'Nike',
+    name: 'Nike Zoom Fly 5 Sport',
     price: '1.090.000đ',
     numericPrice: 1090000,
     image: '/images/adidas-samba-lt-1.png',
     rating: '★★★★☆',
     reviews: 67,
-    category: 'Dép Crocs',
+    category: 'Giày Thể Thao',
     gender: 'Nam',
     sizes: ['39', '40', '41', '42', '43'],
     images: [
@@ -636,7 +636,7 @@ export const allProducts = [
       { name: 'Xám Xi Măng', bg: '#bdc3c7' }
     ],
     specs: [
-      { name: 'Thương hiệu', value: 'Crocs Echo' }
+      { name: 'Thương hiệu', value: 'Nike' }
     ]
   },
   {

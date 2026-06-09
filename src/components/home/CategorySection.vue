@@ -1,26 +1,36 @@
 <template>
-  <section class="py-8 border-y border-border" id="categories">
-    <div class="max-w-[1200px] mx-auto px-5">
-      <div class="section-wrapper">
-        <div class="flex justify-between items-end mb-9">
-          <div>
-            <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">DANH MỤC SẢN PHẨM</h2>
-            <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Khám phá các dòng giày & dép đa dạng</p>
+  <section class="py-4 bg-accent overflow-hidden relative" id="brand-marquee">
+    <!-- Left & Right Fade Shadows in Accent Orange -->
+    <div class="absolute top-0 left-0 w-32 h-full bg-linear-to-r from-accent to-transparent z-10 pointer-events-none"></div>
+    <div class="absolute top-0 right-0 w-32 h-full bg-linear-to-l from-accent to-transparent z-10 pointer-events-none"></div>
+
+    <div class="w-full">
+      <div class="marquee-container flex overflow-hidden select-none">
+        <div class="marquee-track">
+          <!-- First set of brands -->
+          <div class="flex items-center">
+            <router-link
+              v-for="brand in brands"
+              :key="'set1-' + brand.name"
+              :to="`/products?brand=${brand.param}`"
+              class="flex items-center gap-3.5 mx-8 transition-all duration-300 hover:scale-105"
+            >
+              <img :src="brand.logo" :alt="brand.name" class="h-6 object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" />
+              <span class="text-white/40 text-[11px] ml-6">★</span>
+            </router-link>
           </div>
-          <a href="#" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Tất cả danh mục <i class="ti ti-arrow-right"></i></a>
-        </div>
-        <div class="grid grid-cols-4 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-6">
-          <router-link
-            v-for="cat in categories"
-            :key="cat.name"
-            to="/products"
-            class="group bg-white border border-border hover:border-accent rounded-2xl py-8 px-6 text-center cursor-pointer transition-all relative overflow-hidden hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(255,77,0,0.08)] block"
-          >
-            <div class="font-display text-[15px] tracking-[2px] uppercase font-extrabold text-text transition-colors group-hover:text-accent mb-1.5">{{ cat.name }}</div>
-            <div class="text-[11px] text-text-dim uppercase tracking-wider font-semibold">{{ cat.count }}</div>
-            <!-- Decorative bottom accent bar on hover -->
-            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[3px] bg-accent transition-all duration-300 group-hover:w-2/3 rounded-t-full"></div>
-          </router-link>
+          <!-- Second set of brands (for seamless looping) -->
+          <div class="flex items-center">
+            <router-link
+              v-for="brand in brands"
+              :key="'set2-' + brand.name"
+              :to="`/products?brand=${brand.param}`"
+              class="flex items-center gap-3.5 mx-8 transition-all duration-300 hover:scale-105"
+            >
+              <img :src="brand.logo" :alt="brand.name" class="h-6 object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" />
+              <span class="text-white/40 text-[11px] ml-6">★</span>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -28,10 +38,34 @@
 </template>
 
 <script setup>
-const categories = [
-  { name: 'Giày Sneaker', count: '120+ sản phẩm' },
-  { name: 'Dép Crocs', count: '80+ sản phẩm' },
-  { name: 'Dép Sandal', count: '50+ sản phẩm' },
-  { name: 'Phụ Kiện', count: '30+ sản phẩm' }
+const brands = [
+  { name: 'Nike', logo: '/images/Logo_NIKE.svg', param: 'Nike' },
+  { name: 'Adidas', logo: '/images/Adidas_Logo.svg', param: 'Adidas' },
+  { name: 'Puma', logo: '/images/puma.svg', param: 'Puma' },
+  { name: 'New Balance', logo: '/images/New_Balance_logo.svg', param: 'New Balance' },
+  { name: 'MLB', logo: '/images/mlb.svg', param: 'MLB' },
+  { name: 'Biti\'s', logo: '/images/bitis.svg', param: 'Bitis' },
+  { name: 'Converse', logo: '/images/converse.svg', param: 'Converse' }
 ]
 </script>
+
+<style scoped>
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+</style>

@@ -1,9 +1,9 @@
 <template>
   <!-- Chatbot Widget -->
-  <div class="fixed bottom-[28px] right-[28px] z-[300]">
+  <div class="fixed bottom-[28px] right-[28px] z-300">
     <!-- Chat Window -->
     <div
-      :class="['chat-window absolute bottom-[70px] right-0 w-[320px] bg-bg border border-border rounded-lg overflow-hidden scale-80 translate-y-5 origin-bottom-right opacity-0 pointer-events-none transition-all duration-[0.25s] ease-[cubic-bezier(.4,0,.2,1)] shadow-[0_12px_40px_rgba(0,0,0,.15)]', { open: chatOpen }]"
+      :class="['chat-window absolute bottom-[70px] right-0 w-[320px] bg-bg border border-border rounded-lg overflow-hidden scale-80 translate-y-5 origin-bottom-right opacity-0 pointer-events-none transition-all duration-[0.25s] ease-in-out shadow-[0_12px_40px_rgba(0,0,0,.15)]', { open: chatOpen }]"
     >
       <!-- Header -->
       <div class="bg-accent py-[14px] px-4 flex items-center gap-2.5">
@@ -24,7 +24,7 @@
           <div class="w-[26px] h-[26px] rounded-full bg-surface2 flex items-center justify-center text-[12px] shrink-0">
             {{ msg.type === 'ai' ? '🤖' : '👤' }}
           </div>
-          <div :class="['max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-[1.5]',
+          <div :class="['max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-normal',
             msg.type === 'ai' ? 'bg-surface2 text-text rounded-bl-[4px]' : 'bg-accent text-white rounded-br-[4px]']">
             {{ msg.text }}
           </div>

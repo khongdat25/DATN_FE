@@ -9,7 +9,7 @@
   </div>
 
   <!-- Header -->
-  <header class="bg-white/95 backdrop-blur-[12px] border-b border-border sticky top-0 z-[200]">
+  <header class="bg-white/95 backdrop-blur-md border-b border-border sticky top-0 z-200">
     <div class="max-w-[1200px] mx-auto px-5">
       <nav class="flex items-center justify-between h-[72px] gap-4">
         <router-link to="/" class="flex items-center shrink-0 transition-all duration-300 group select-none">
@@ -29,53 +29,116 @@
               Sản phẩm <i class="ti ti-chevron-down text-[11px] transition-transform duration-200 group-hover:rotate-180"></i>
             </router-link>
             <div class="dropdown-mega absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0">
-              <div class="bg-white border border-border rounded-2xl shadow-xl p-6 flex gap-8 min-w-[500px]">
-                <!-- Dành cho Nam -->
-                <div class="flex-1 border-r border-border/60 pr-6 text-left">
-                  <p class="text-[12px] uppercase tracking-[2px] font-bold text-accent mb-4 pb-2 border-b border-border flex items-center gap-1.5">
-                    🙋‍♂️ Dành cho Nam
-                  </p>
-                  <div class="space-y-4">
-                    <div>
-                      <p class="text-[10px] uppercase font-bold tracking-wider text-text mb-2">👟 Giày Nam</p>
-                      <ul class="space-y-1.5 pl-2">
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Giày thể thao nam</router-link></li>
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Giày chạy bộ nam</router-link></li>
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Giày casual nam</router-link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <p class="text-[10px] uppercase font-bold tracking-wider text-text mb-2">🩴 Dép Crocs Nam</p>
-                      <ul class="space-y-1.5 pl-2">
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Crocs Classic nam</router-link></li>
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Dép sandal nam</router-link></li>
-                      </ul>
-                    </div>
+              <div class="bg-white border border-border rounded-2xl shadow-xl p-6 grid grid-cols-4 gap-x-8 gap-y-6 min-w-[840px]">
+                <!-- Giày Nike -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <router-link to="/products?brand=Nike" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img src="/images/Logo_NIKE.svg" alt="Nike" class="h-6 object-contain">
+                    </router-link>
                   </div>
+                  <ul class="space-y-1.5 pl-2">
+                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Air Force 1</router-link></li>
+                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Air Max</router-link></li>
+                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Dunk Low</router-link></li>
+                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Jordan</router-link></li>
+                  </ul>
                 </div>
 
-                <!-- Dành cho Nữ -->
-                <div class="flex-1 text-left">
-                  <p class="text-[12px] uppercase tracking-[2px] font-bold text-accent mb-4 pb-2 border-b border-border flex items-center gap-1.5">
-                    🙋‍♀️ Dành cho Nữ
-                  </p>
-                  <div class="space-y-4">
-                    <div>
-                      <p class="text-[10px] uppercase font-bold tracking-wider text-text mb-2">👟 Giày Nữ</p>
-                      <ul class="space-y-1.5 pl-2">
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Giày thể thao nữ</router-link></li>
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Giày chạy bộ nữ</router-link></li>
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Giày casual nữ</router-link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <p class="text-[10px] uppercase font-bold tracking-wider text-text mb-2">🩴 Dép Crocs Nữ</p>
-                      <ul class="space-y-1.5 pl-2">
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Crocs Classic nữ</router-link></li>
-                        <li><router-link to="/products" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Dép sandal nữ</router-link></li>
-                      </ul>
-                    </div>
+                <!-- Giày Adidas -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <router-link to="/products?brand=Adidas" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img src="/images/Adidas_Logo.svg" alt="Adidas" class="h-6 object-contain">
+                    </router-link>
                   </div>
+                  <ul class="space-y-1.5 pl-2">
+                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Samba OG</router-link></li>
+                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Superstar</router-link></li>
+                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Stan Smith</router-link></li>
+                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Ultraboost</router-link></li>
+                  </ul>
+                </div>
+
+                <!-- Giày New Balance -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <router-link to="/products?brand=New Balance" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img src="/images/New_Balance_logo.svg" alt="New Balance" class="h-6 object-contain">
+                    </router-link>
+                  </div>
+                  <ul class="space-y-1.5 pl-2">
+                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 530</router-link></li>
+                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 550</router-link></li>
+                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 574</router-link></li>
+                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 9060</router-link></li>
+                  </ul>
+                </div>
+
+                <!-- Giày Puma -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <router-link to="/products?brand=Puma" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img src="/images/puma.svg" alt="Puma" class="h-5 object-contain">
+                    </router-link>
+                  </div>
+                  <ul class="space-y-1.5 pl-2">
+                    <li><router-link to="/products?brand=Puma" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Puma Suede</router-link></li>
+                    <li><router-link to="/products?brand=Puma" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Puma RS-X</router-link></li>
+                  </ul>
+                </div>
+
+                <!-- Giày MLB -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <router-link to="/products?brand=MLB" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img src="/images/mlb.svg" alt="MLB" class="h-6.5 object-contain">
+                    </router-link>
+                  </div>
+                  <ul class="space-y-1.5 pl-2">
+                    <li><router-link to="/products?brand=MLB" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Chunky Liner</router-link></li>
+                    <li><router-link to="/products?brand=MLB" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Bigball Chunky</router-link></li>
+                    <li><router-link to="/products?brand=MLB" class="block text-[13px] text-text-muted hover:text-accent transition-colors">MLB Boston</router-link></li>
+                  </ul>
+                </div>
+
+                <!-- Giày Bitis -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <router-link to="/products?brand=Bitis" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img src="/images/bitis.svg" alt="Biti's" class="h-5.5 object-contain">
+                    </router-link>
+                  </div>
+                  <ul class="space-y-1.5 pl-2">
+                    <li><router-link to="/products?brand=Bitis" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Hunter Street</router-link></li>
+                    <li><router-link to="/products?brand=Bitis" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Hunter Feast</router-link></li>
+                    <li><router-link to="/products?brand=Bitis" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Hunter Core</router-link></li>
+                  </ul>
+                </div>
+
+                <!-- Giày Converse -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <router-link to="/products?brand=Converse" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img src="/images/converse.svg" alt="Converse" class="h-6 object-contain">
+                    </router-link>
+                  </div>
+                  <ul class="space-y-1.5 pl-2">
+                    <li><router-link to="/products?brand=Converse" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Chuck Taylor</router-link></li>
+                    <li><router-link to="/products?brand=Converse" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Chuck 70</router-link></li>
+                    <li><router-link to="/products?brand=Converse" class="block text-[13px] text-text-muted hover:text-accent transition-colors">One Star</router-link></li>
+                  </ul>
+                </div>
+
+                <!-- Xem tất cả card -->
+                <div class="flex flex-col justify-between p-4 bg-linear-to-br from-accent/5 to-accent/10 border border-accent/15 rounded-2xl hover:shadow-md transition-all duration-300 text-left">
+                  <div>
+                    <h4 class="text-[12px] font-bold text-accent font-display tracking-widest uppercase mb-1 flex items-center gap-1"><i class="ti ti-sparkles"></i> SaigonShoes</h4>
+                    <p class="text-[11px] text-text-muted leading-relaxed">Xem đầy đủ bộ sưu tập hơn 100+ mẫu giày hot trends nhất từ các hãng</p>
+                  </div>
+                  <router-link to="/products" class="inline-flex items-center gap-1.5 text-[12px] font-bold text-accent hover:underline group/btn mt-3 select-none">
+                    Tất cả sản phẩm <i class="ti ti-arrow-narrow-right transition-transform group-hover/btn:translate-x-1"></i>
+                  </router-link>
                 </div>
               </div>
             </div>
@@ -92,11 +155,98 @@
             <input type="text" placeholder="Tìm kiếm..." id="searchInput" class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[120px] font-body placeholder:text-text-dim">
             <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-all duration-300 hover:text-accent active:scale-90"><i class="ti ti-search"></i></button>
           </div>
-          <button class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Yêu thích"><i class="ti ti-heart"></i></button>
-          <button class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Thông báo">
-            <i class="ti ti-bell"></i>
-            <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm">2</span>
-          </button>
+
+          <!-- Notification Bell -->
+          <div class="relative" ref="notifRef">
+            <button
+              @click="toggleNotif"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90"
+              title="Thông báo"
+            >
+              <i class="ti ti-bell"></i>
+              <span
+                v-if="unreadCount > 0"
+                class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-bold min-w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm px-px"
+              >{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+            </button>
+
+            <!-- Dropdown Panel -->
+            <transition name="notif-drop">
+              <div
+                v-if="notifOpen"
+                class="absolute right-0 top-[calc(100%+10px)] w-[360px] bg-white border border-border rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] z-400 overflow-hidden"
+              >
+                <!-- Header -->
+                <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+                  <span class="font-display font-bold text-sm text-text tracking-wide">Thông báo</span>
+                  <button
+                    v-if="unreadCount > 0"
+                    @click="markAllRead"
+                    class="text-[11px] font-semibold text-accent hover:underline cursor-pointer bg-transparent border-none"
+                  >Đánh dấu tất cả đã đọc</button>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="flex gap-1 px-4 pt-3 pb-1">
+                  <button
+                    v-for="f in notifFilters"
+                    :key="f.key"
+                    @click="activeFilter = f.key"
+                    :class="[
+                      'px-3 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer',
+                      activeFilter === f.key
+                        ? 'bg-accent text-white border-accent'
+                        : 'bg-transparent text-text-muted border-border hover:border-accent hover:text-accent'
+                    ]"
+                  >{{ f.label }}</button>
+                </div>
+
+                <!-- List -->
+                <div class="max-h-[340px] overflow-y-auto">
+                  <div v-if="filteredNotifs.length === 0" class="text-center py-12 text-text-dim">
+                    <i class="ti ti-bell-off text-4xl block mb-2 opacity-40"></i>
+                    <p class="text-sm">Không có thông báo nào</p>
+                  </div>
+
+                  <div
+                    v-for="notif in filteredNotifs"
+                    :key="notif.id"
+                    @click="readNotif(notif)"
+                    :class="[
+                      'flex items-start gap-3.5 px-5 py-4 border-b border-border/60 last:border-b-0 cursor-pointer transition-colors',
+                      notif.read ? 'bg-white hover:bg-surface2/50' : 'bg-[rgba(255,77,0,0.02)] hover:bg-[rgba(255,77,0,0.04)]'
+                    ]"
+                  >
+                    <!-- Icon -->
+                    <div
+                      :class="['w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0', notif.iconBg]"
+                    >
+                      <i :class="['ti', notif.icon, notif.iconColor]"></i>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-start justify-between gap-2">
+                        <span :class="['text-[13px] leading-snug', notif.read ? 'font-medium text-text' : 'font-bold text-text']">{{ notif.title }}</span>
+                        <span v-if="!notif.read" class="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5"></span>
+                      </div>
+                      <p class="text-[11px] text-text-muted mt-0.5 leading-relaxed">{{ notif.body }}</p>
+                      <span class="text-[10px] text-text-dim mt-1 block">{{ notif.time }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-5 py-3 border-t border-border text-center">
+                  <router-link
+                    to="/profile"
+                    @click="notifOpen = false"
+                    class="text-[12px] font-bold text-accent hover:underline"
+                  >Xem tất cả thông báo →</router-link>
+                </div>
+              </div>
+            </transition>
+          </div>
           <router-link to="/cart" class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Giỏ hàng">
             <i class="ti ti-shopping-cart"></i>
             <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm">{{ cartCount }}</span>
@@ -108,7 +258,7 @@
                 <span class="max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">{{ userName }}</span>
                 <i class="ti ti-chevron-down text-[10px]"></i>
               </button>
-              <div class="dropdown-account absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-border rounded-xl shadow-xl py-2 z-[300]">
+              <div class="dropdown-account absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-border rounded-xl shadow-xl py-2 z-300">
                 <div class="px-4 py-2 border-b border-border text-xs text-text-muted font-medium text-left">Xin chào, {{ userName }}</div>
                 <router-link to="/profile" class="block w-full text-left px-4 py-2 text-sm text-text hover:bg-surface2 hover:text-accent transition-colors">Tài khoản của tôi</router-link>
                 <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors border-none bg-transparent cursor-pointer font-semibold">Đăng xuất</button>
@@ -155,10 +305,103 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, computed, onMounted, onUnmounted } from 'vue'
 
 const cartCount = inject('cartCount', ref(3))
 const menuOpen = ref(false)
+
+// ── Notification state ──────────────────────────────────────────────────────
+const notifOpen = ref(false)
+const notifRef = ref(null)
+const activeFilter = ref('all')
+
+const notifFilters = [
+  { key: 'all',    label: 'Tất cả' },
+  { key: 'order',  label: 'Đơn hàng' },
+  { key: 'promo',  label: 'Ưu đãi' },
+  { key: 'system', label: 'Hệ thống' }
+]
+
+const notifications = ref([
+  {
+    id: 1, type: 'order', read: false,
+    icon: 'ti-truck-delivery', iconBg: 'bg-blue-50', iconColor: 'text-blue-500',
+    title: 'Đơn hàng SGS-281938 đang được giao',
+    body: 'Shipper đang trên đường giao hàng đến bạn. Dự kiến nhận hàng hôm nay.',
+    time: '5 phút trước'
+  },
+  {
+    id: 2, type: 'order', read: false,
+    icon: 'ti-circle-check', iconBg: 'bg-green-50', iconColor: 'text-green-500',
+    title: 'Đơn hàng SGS-192847 đã hoàn thành',
+    body: 'Cảm ơn bạn đã mua hàng! Hãy để lại đánh giá cho sản phẩm nhé.',
+    time: '2 giờ trước'
+  },
+  {
+    id: 3, type: 'promo', read: false,
+    icon: 'ti-discount-2', iconBg: 'bg-[rgba(255,77,0,0.08)]', iconColor: 'text-accent',
+    title: '⚡ Flash Sale 12H–14H hôm nay!',
+    body: 'Giảm đến 40% hàng trăm mẫu giày hot. Số lượng có hạn, nhanh tay!',
+    time: '30 phút trước'
+  },
+  {
+    id: 4, type: 'promo', read: true,
+    icon: 'ti-gift', iconBg: 'bg-pink-50', iconColor: 'text-pink-500',
+    title: 'Quà sinh nhật dành cho bạn 🎁',
+    body: 'Voucher BIRTHDAY20 giảm 20% đang chờ bạn. Hạn sử dụng đến 30/06.',
+    time: '1 ngày trước'
+  },
+  {
+    id: 5, type: 'promo', read: true,
+    icon: 'ti-ticket', iconBg: 'bg-yellow-50', iconColor: 'text-yellow-600',
+    title: 'Bạn có voucher SAIGON50 chưa dùng',
+    body: 'Giảm 50.000₫ cho đơn hàng tiếp theo từ 500K. Hết hạn sau 3 ngày!',
+    time: '2 ngày trước'
+  },
+  {
+    id: 6, type: 'system', read: true,
+    icon: 'ti-shield-check', iconBg: 'bg-surface2', iconColor: 'text-text-muted',
+    title: 'Cập nhật chính sách bảo mật',
+    body: 'SaigonShoes đã cập nhật chính sách bảo mật. Vui lòng xem lại để nắm rõ.',
+    time: '1 tuần trước'
+  },
+  {
+    id: 7, type: 'system', read: true,
+    icon: 'ti-star', iconBg: 'bg-[rgba(255,215,0,0.1)]', iconColor: 'text-yellow-500',
+    title: 'Chào mừng bạn đến với SaigonShoes! 🎉',
+    body: 'Tài khoản của bạn đã được kích hoạt. Khám phá hàng nghìn mẫu giày hot ngay!',
+    time: '3 tuần trước'
+  }
+])
+
+const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
+
+const filteredNotifs = computed(() => {
+  if (activeFilter.value === 'all') return notifications.value
+  return notifications.value.filter(n => n.type === activeFilter.value)
+})
+
+function toggleNotif() {
+  notifOpen.value = !notifOpen.value
+}
+
+function readNotif(notif) {
+  notif.read = true
+}
+
+function markAllRead() {
+  notifications.value.forEach(n => { n.read = true })
+}
+
+// Đóng khi click bên ngoài
+function onClickOutside(e) {
+  if (notifRef.value && !notifRef.value.contains(e.target)) {
+    notifOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('click', onClickOutside))
+onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 const isLoggedIn = ref(false)
 const userName = ref('')
@@ -206,5 +449,16 @@ function toggleMenu() {
 
 .group:hover .ti-chevron-down {
   transform: rotate(180deg);
+}
+
+/* Notification dropdown animation */
+.notif-drop-enter-active,
+.notif-drop-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.notif-drop-enter-from,
+.notif-drop-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
 }
 </style>

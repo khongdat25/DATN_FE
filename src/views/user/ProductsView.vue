@@ -5,7 +5,7 @@
       <div class="max-w-[1200px] mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
         <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
         <i class="ti ti-chevron-right text-[10px]"></i>
-        <router-link to="/products" class="hover:text-accent transition-colors">Cửa hàng</router-link>
+        <router-link to="/products" class="hover:text-accent transition-colors">Sản phẩm</router-link>
         <i class="ti ti-chevron-right text-[10px]"></i>
         <span class="text-text font-semibold">Tất cả sản phẩm</span>
       </div>
@@ -38,6 +38,24 @@
                   <input type="checkbox" v-model="filters.categories" :value="cat" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
                   <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.categories.includes(cat) ? 'text-accent font-semibold' : 'text-text-muted']">
                     {{ cat }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand Filter -->
+          <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div @click="toggleSection('brand')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
+              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Thương Hiệu</p>
+              <i :class="['ti text-[12px] text-text-muted transition-transform duration-200', activeSections.brand ? 'ti-chevron-up' : 'ti-chevron-down']"></i>
+            </div>
+            <div v-show="activeSections.brand" class="px-4 pb-4">
+              <div class="flex flex-col gap-3">
+                <label v-for="brand in availableBrands" :key="brand" class="flex items-center gap-3 cursor-pointer group select-none">
+                  <input type="checkbox" v-model="filters.brands" :value="brand" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
+                  <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.brands.includes(brand) ? 'text-accent font-semibold' : 'text-text-muted']">
+                    {{ brand }}
                   </span>
                 </label>
               </div>
@@ -196,6 +214,7 @@ const showToast = inject('showToast', (msg) => {})
 // Layout sections toggling
 const activeSections = reactive({
   category: true,
+  brand: true,
   gender: true,
   price: true,
   size: true
@@ -206,7 +225,17 @@ function toggleSection(section) {
 }
 
 // Available options lists
-const availableCategories = ['Giày Sneaker', 'Dép Crocs', 'Dép Sandal', 'Phụ Kiện']
+const availableCategories = [
+  'Giày Nike',
+  'Giày Adidas',
+  'Giày New Balance',
+  'Giày Puma',
+  'Giày MLB',
+  "Giày Biti's",
+  'Giày Converse',
+  'Phụ Kiện'
+]
+const availableBrands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'MLB', 'Bitis', 'Converse']
 const availableGenders = ['Nam', 'Nữ']
 const availableSizes = ['38', '39', '40', '41', '42', '43', '44']
 
@@ -219,6 +248,7 @@ const sortOptions = [
 // Filters state
 const filters = reactive({
   categories: [],
+  brands: [],
   genders: [],
   priceFrom: null,
   priceTo: null,
@@ -242,7 +272,41 @@ const filteredProducts = computed(() => {
 
   // Filter by category
   if (filters.categories.length > 0) {
-    result = result.filter(p => filters.categories.includes(p.category))
+    result = result.filter(p => {
+      return filters.categories.some(cat => {
+        if (cat === 'Giày Nike') {
+          return p.brand?.toLowerCase() === 'nike' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
+        }
+        if (cat === 'Giày Adidas') {
+          return p.brand?.toLowerCase() === 'adidas' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
+        }
+        if (cat === 'Giày New Balance') {
+          return (p.brand?.toLowerCase() === 'new balance' || p.brand?.toLowerCase() === 'nb') && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
+        }
+        if (cat === 'Giày Puma') {
+          return p.brand?.toLowerCase() === 'puma' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
+        }
+        if (cat === 'Giày MLB') {
+          return p.brand?.toLowerCase() === 'mlb' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
+        }
+        if (cat === "Giày Biti's") {
+          return (p.brand?.toLowerCase() === 'bitis' || p.brand?.toLowerCase() === "biti's") && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
+        }
+        if (cat === 'Giày Converse') {
+          return p.brand?.toLowerCase() === 'converse' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
+        }
+
+        if (cat === 'Phụ Kiện') {
+          return p.category === 'Phụ Kiện' || p.category?.toLowerCase().includes('phụ kiện') || p.category?.toLowerCase().includes('accessories')
+        }
+        return p.category === cat
+      })
+    })
+  }
+
+  // Filter by brand
+  if (filters.brands.length > 0) {
+    result = result.filter(p => filters.brands.includes(p.brand))
   }
 
   // Filter by gender
@@ -317,6 +381,7 @@ function applyPriceFilter() {
 // Reset filters to defaults
 function resetFilters() {
   filters.categories = []
+  filters.brands = []
   filters.genders = []
   filters.priceFrom = null
   filters.priceTo = null
@@ -343,13 +408,30 @@ function goToDetail(product) {
 
 function applyQueryFilters() {
   const queryCategory = route.query.category
-  if (queryCategory && availableCategories.includes(queryCategory)) {
-    filters.categories = [queryCategory]
+  if (queryCategory) {
+    if (queryCategory === 'Giày Sneaker') {
+      filters.categories = ['Giày Nike', 'Giày Adidas', 'Giày New Balance', 'Giày Puma', 'Giày MLB', "Giày Biti's", 'Giày Converse']
+    } else if (availableCategories.includes(queryCategory)) {
+      filters.categories = [queryCategory]
+    } else {
+      filters.categories = []
+    }
+  } else {
+    filters.categories = []
   }
 
   const queryGender = route.query.gender
   if (queryGender && availableGenders.includes(queryGender)) {
     filters.genders = [queryGender]
+  } else {
+    filters.genders = []
+  }
+
+  const queryBrand = route.query.brand
+  if (queryBrand && availableBrands.includes(queryBrand)) {
+    filters.brands = [queryBrand]
+  } else {
+    filters.brands = []
   }
 }
 

@@ -56,10 +56,10 @@
 <body class="bg-background font-body text-slate-800 antialiased min-h-screen flex">
 
     <!-- Mobile Sidebar Backdrop -->
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/40 z-[290] hidden md:hidden backdrop-blur-xs transition-opacity duration-300"></div>
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/40 z-290 hidden md:hidden backdrop-blur-xs transition-opacity duration-300"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-slate-900 text-slate-300 z-[300] -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800 flex flex-col">
+    <aside id="sidebar" class="fixed top-0 bottom-0 left-0 w-64 bg-slate-900 text-slate-300 z-300 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800 flex flex-col">
         <!-- Logo -->
         <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800">
             <a href="dashboard.html" class="font-display text-xl tracking-[2px] font-bold text-white flex items-center gap-1.5">
@@ -135,7 +135,7 @@
     <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
         
         <!-- Header -->
-        <header class="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-[100] backdrop-blur-md bg-white/95">
+        <header class="h-20 border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-100 backdrop-blur-md bg-white/95">
             <div class="flex items-center gap-4">
                 <button id="menuToggleBtn" class="md:hidden text-slate-500 hover:text-slate-800 p-1 flex items-center justify-center rounded-lg hover:bg-slate-100 focus:outline-none">
                     <i class="ti ti-menu-2 text-xl"></i>
@@ -164,7 +164,7 @@
                     <span class="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full"></span>
                 </button>
 
-                <div class="w-[1px] h-6 bg-slate-100"></div>
+                <div class="w-px h-6 bg-slate-100"></div>
 
                 <!-- Admin Profile Dropdown -->
                 <div class="relative group">
@@ -178,11 +178,11 @@
                     </button>
                     
                     <!-- Dropdown Content -->
-                    <div class="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-slate-100 rounded-xl shadow-xl py-1.5 z-[150]">
+                    <div class="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-slate-100 rounded-xl shadow-xl py-1.5 z-150">
                         <div class="px-4 py-2 border-b border-slate-100 text-[11px] text-slate-400 font-medium">Hồ sơ cá nhân</div>
-                        <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-user text-sm"></i>Thông tin cá nhân</a>
-                        <a href="#" class="block px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-settings text-sm"></i>Cấu hình hệ thống</a>
-                        <div class="h-[1px] bg-slate-100 my-1"></div>
+                        <a href="#" class="px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-user text-sm"></i>Thông tin cá nhân</a>
+                        <a href="#" class="px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors flex items-center gap-2"><i class="ti ti-settings text-sm"></i>Cấu hình hệ thống</a>
+                        <div class="h-px bg-slate-100 my-1"></div>
                         <button onclick="logout()" class="w-full text-left px-4 py-2 text-xs text-red-500 font-bold hover:bg-red-50 transition-colors flex items-center gap-2 border-none bg-transparent cursor-pointer"><i class="ti ti-logout text-sm"></i>Đăng xuất</button>
                     </div>
                 </div>
@@ -201,7 +201,7 @@
             </div>
 
             <!-- Quick Filter Tabs -->
-            <div class="flex border-b border-slate-200 text-xs font-semibold overflow-x-auto whitespace-nowrap bg-white px-6 rounded-t-2xl border-t border-x border-slate-100 shadow-2xs">
+            <div class="flex border-b border-b-slate-200 text-xs font-semibold overflow-x-auto whitespace-nowrap bg-white px-6 rounded-t-2xl border-t border-x border-slate-100 shadow-2xs">
                 <button onclick="filterStatus('all', this)" class="py-4 px-4 text-accent border-b-2 border-accent transition-all cursor-pointer font-bold focus:outline-none">
                     Tất cả đơn hàng (3)
                 </button>
@@ -345,7 +345,7 @@
                                                     <span class="address-display text-slate-700 block mt-0.5 leading-relaxed font-semibold">28 Đường Số 1, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</span>
                                                 </div>
 
-                                                <div class="h-[1px] bg-slate-100"></div>
+                                                <div class="h-px bg-slate-100"></div>
                                                 
                                                 <!-- Action Control -->
                                                 <div>
@@ -446,7 +446,7 @@
                                                     <span class="address-display text-slate-700 block mt-0.5 leading-relaxed font-semibold">156 Nguyễn Văn Cừ, Phường 2, Quận 5, TP. Hồ Chí Minh</span>
                                                 </div>
 
-                                                <div class="h-[1px] bg-slate-100"></div>
+                                                <div class="h-px bg-slate-100"></div>
                                                 
                                                 <!-- Action Control -->
                                                 <div>
@@ -547,7 +547,7 @@
                                                     <span class="address-display text-slate-700 block mt-0.5 leading-relaxed font-semibold">45 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh</span>
                                                 </div>
 
-                                                <div class="h-[1px] bg-slate-100"></div>
+                                                <div class="h-px bg-slate-100"></div>
                                                 
                                                 <!-- Action Control -->
                                                 <div>
@@ -596,7 +596,7 @@
 
 
     <!-- Floating Custom Toast Notification System -->
-    <div id="toast" class="fixed bottom-5 right-5 z-[1000] bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold translate-y-12 opacity-0 pointer-events-none transition-all duration-300">
+    <div id="toast" class="fixed bottom-5 right-5 z-1000 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold translate-y-12 opacity-0 pointer-events-none transition-all duration-300">
         <div class="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-sm shrink-0">🛒</div>
         <span id="toastMessage">Đã cập nhật trạng thái đơn hàng!</span>
     </div>
