@@ -98,9 +98,10 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { allProducts } from '../../data/products.js'
+import { mapBackendProduct } from '../../data/products.js'
+import axiosInstance from '../../api/axios.js'
 
 const router = useRouter()
 
@@ -129,9 +130,34 @@ function goToDetail(product) {
   router.push({ name: 'product-detail', params: { id: product.id } })
 }
 
-const featured = allProducts.find(p => p.id === 30)
+const featured = ref({
+  id: 0,
+  brand: 'SaigonShoes',
+  name: 'Đang tải...',
+  price: '0đ',
+  image: '/images/placeholder.png',
+  images: [{ src: '/images/placeholder.png', flip: false }],
+  sizes: []
+})
 
-const smallProducts = allProducts.filter(p => p.id >= 31 && p.id <= 33)
+const smallProducts = ref([])
+
+async function fetchHotProducts() {
+  try {
+    const response = await axiosInstance.get('/hotproducts')
+    if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+      const mapped = response.data.map(mapBackendProduct)
+      featured.value = mapped[0]
+      smallProducts.value = mapped.slice(1, 4)
+    }
+  } catch (error) {
+    console.error('Failed to load hot products:', error)
+  }
+}
+
+onMounted(async () => {
+  await fetchHotProducts()
+})
 </script>
 
 <style scoped>

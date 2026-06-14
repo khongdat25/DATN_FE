@@ -31,12 +31,29 @@ axiosInstance.interceptors.response.use(
         const status = error.response ? error.response.status : null;
 
         if (status === 401) {
+            // Nếu là API login, hiển thị thông báo lỗi đăng nhập từ server
+            if (error.config && error.config.url && (error.config.url.endsWith('/login') || error.config.url.includes('/login/google'))) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đăng nhập thất bại',
+                    text: error.response?.data?.message || 'Tài khoản hoặc thông tin xác thực không chính xác.',
+                    confirmButtonColor: '#FF4D00'
+                });
+                return Promise.reject(error);
+            }
+
+            // Nếu đang đăng xuất hoặc request bị lỗi chính là logout, bỏ qua cảnh báo
+            if (localStorage.getItem('is_logging_out') === 'true' || (error.config && error.config.url && error.config.url.endsWith('/logout'))) {
+                return Promise.reject(error);
+            }
+
             Swal.fire({
                 icon: 'error',
                 title: 'Phiên đăng nhập hết hạn',
                 text: 'Vui lòng đăng nhập lại.',
             }).then(() => {
                 localStorage.removeItem('access_token');
+                localStorage.removeItem('user');
                 window.location.href = '/login';
             });
         } else if (status === 403) {

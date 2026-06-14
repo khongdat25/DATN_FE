@@ -350,6 +350,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const router = useRouter()
 
@@ -423,7 +424,13 @@ function loadUserData() {
     if (data.name)  user.name  = data.name
     if (data.email) user.email = data.email
     if (data.phone) user.phone = data.phone
-    if (data.dob)   user.dob   = data.dob
+    
+    // Ánh xạ ngày sinh: hỗ trợ cả dob hoặc birthday
+    const dobValue = data.birthday || data.dob
+    if (dobValue) {
+      user.dob = dobValue.split(' ')[0]
+    }
+    
     if (data.gender) user.gender = data.gender
   } catch {}
 }
@@ -503,9 +510,29 @@ function removeAddress(idx) {
 }
 
 // ─── Form handlers ────────────────────────────────────────────────────────────
-function handleSaveProfile() {
-  localStorage.setItem('user', JSON.stringify({ name: user.name, email: user.email, phone: user.phone, dob: user.dob, gender: user.gender }))
-  Swal.fire({ icon: 'success', title: 'Cập nhật thành công! 💾', text: 'Thông tin cá nhân của bạn đã được lưu.', confirmButtonColor: '#FF4D00' })
+async function handleSaveProfile() {
+  try {
+    const response = await axiosInstance.put('/user/profile', {
+      name: user.name,
+      phone: user.phone,
+      birthday: user.dob,
+      gender: user.gender
+    })
+
+    if (response.success) {
+      // Cập nhật lại thông tin user mới vào localStorage
+      localStorage.setItem('user', JSON.stringify(response.data.user))
+      
+      Swal.fire({ 
+        icon: 'success', 
+        title: 'Cập nhật thành công! 💾', 
+        text: 'Thông tin cá nhân của bạn đã được lưu trên hệ thống.', 
+        confirmButtonColor: '#FF4D00' 
+      })
+    }
+  } catch (error) {
+    console.error('Save profile error:', error)
+  }
 }
 
 function handleChangePassword() {
@@ -522,7 +549,7 @@ function handleChangePassword() {
     .then(() => { passwordForm.current = ''; passwordForm.new = ''; passwordForm.confirm = '' })
 }
 
-function handleLogout() {
+async function handleLogout() {
   Swal.fire({
     title: 'Đăng xuất?',
     text: 'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?',
@@ -532,10 +559,19 @@ function handleLogout() {
     cancelButtonText: 'Hủy',
     confirmButtonColor: '#FF4D00',
     cancelButtonColor: '#aaa'
-  }).then(result => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      localStorage.removeItem('user')
-      router.push({ name: 'login' })
+      localStorage.setItem('is_logging_out', 'true')
+      try {
+        await axiosInstance.post('/logout')
+      } catch (error) {
+        console.error('Logout error:', error)
+      } finally {
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('user')
+        localStorage.removeItem('is_logging_out')
+        window.location.href = '/login'
+      }
     }
   })
 }

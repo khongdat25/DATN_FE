@@ -696,3 +696,99 @@ export function getProductById(id) {
     ]
   }
 }
+
+export function mapBackendProduct(p) {
+  if (!p) return null;
+
+  // Find min price from variants
+  let minPrice = 0;
+  if (p.min_price !== undefined && p.min_price !== null) {
+    minPrice = parseFloat(p.min_price);
+  } else if (p.variants && p.variants.length > 0) {
+    const prices = p.variants.map(v => parseFloat(v.price)).filter(pr => !isNaN(pr));
+    if (prices.length > 0) {
+      minPrice = Math.min(...prices);
+    }
+  }
+
+  // Format price string in Vietnam Dong e.g. 1.250.000đ
+  const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(minPrice).replace(/\s/g, '').replace('₫', 'đ');
+
+  // Main image
+  let mainImage = '/images/placeholder.png';
+  if (p.images && p.images.length > 0) {
+    const imgPath = p.images[0].image;
+    mainImage = (imgPath.startsWith('http') || imgPath.startsWith('/')) ? imgPath : `/images/${imgPath}`;
+  } else if (p.variants && p.variants.length > 0) {
+    const vImg = p.variants[0].image;
+    if (vImg) {
+      mainImage = (vImg.startsWith('http') || vImg.startsWith('/')) ? vImg : `/images/${vImg}`;
+    }
+  }
+
+  const brandName = p.brand?.name || 'SaigonShoes';
+  const categoryName = p.category?.name || 'Giày Sneaker';
+  const avgRatingVal = parseFloat(p.avg_rating) || 5;
+  const ratingStars = '★'.repeat(Math.round(avgRatingVal)) + '☆'.repeat(5 - Math.round(avgRatingVal));
+
+  // Extract unique sizes from variants
+  let sizes = [];
+  if (p.variants && p.variants.length > 0) {
+    sizes = [...new Set(p.variants.map(v => {
+      if (v.size && v.size.name) return v.size.name;
+      return v.size_id ? String(v.size_id) : null;
+    }))].filter(s => s !== null);
+  }
+  if (sizes.length === 0) {
+    sizes = ['38', '39', '40', '41', '42', '43', '44'];
+  }
+
+  // Extract unique colors from variants
+  let colors = [];
+  if (p.variants && p.variants.length > 0) {
+    const uniqueColorNames = [...new Set(p.variants.map(v => v.color?.name).filter(Boolean))];
+    colors = uniqueColorNames.map(c => ({
+      name: c,
+      bg: c.toLowerCase() === 'đen' ? '#1a1a1a' : c.toLowerCase() === 'trắng' ? '#ffffff' : '#ccc'
+    }));
+  }
+
+  // Images list
+  let imagesList = [];
+  if (p.images && p.images.length > 0) {
+    imagesList = p.images.map(img => {
+      const src = (img.image.startsWith('http') || img.image.startsWith('/')) ? img.image : `/images/${img.image}`;
+      return { src, flip: false };
+    });
+  } else {
+    imagesList = [{ src: mainImage, flip: false }];
+  }
+
+  return {
+    id: p.id,
+    brand: brandName,
+    name: p.name,
+    price: formattedPrice,
+    numericPrice: minPrice,
+    oldPrice: minPrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(minPrice * 1.3).replace(/\s/g, '').replace('₫', 'đ') : null,
+    image: mainImage,
+    rating: ratingStars,
+    reviews: p.rating ? p.rating.length : 12,
+    category: categoryName,
+    gender: p.gender === 'male' ? 'Nam' : p.gender === 'female' ? 'Nữ' : 'Cả hai',
+    sizes: sizes,
+    badges: p.sold > 50 ? [{ label: 'HOT', color: 'bg-accent' }] : [],
+    soldCount: p.sold || 0,
+    total: (p.sold || 0) + 100,
+    isPopular: p.sold > 10,
+    isBestSeller: p.sold > 20,
+    isNew: true,
+    images: imagesList,
+    colors: colors,
+    specs: [
+      { name: 'Thương hiệu', value: brandName },
+      { name: 'Dòng sản phẩm', value: p.name }
+    ],
+    slug: p.slug
+  };
+}

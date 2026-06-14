@@ -300,7 +300,8 @@ import { ref, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import ProductCard from '@/components/common/ProductCard.vue'
-import { getProductById, allProducts } from '@/data/products.js'
+import { mapBackendProduct } from '@/data/products.js'
+import axiosInstance from '@/api/axios.js'
 import Swal from 'sweetalert2'
 
 const route = useRoute()
@@ -367,52 +368,67 @@ const reviewsList = [
 // Dynamically compute related products of same category
 const relatedProducts = ref([])
 
-function loadProduct(id) {
-  const data = getProductById(id)
-  product.value = data
+async function loadProduct(id) {
+  try {
+    const response = await axiosInstance.get(`/product/${id}`)
+    if (response.success && response.data) {
+      const data = mapBackendProduct(response.data)
+      product.value = data
 
-  // Set default gallery image
-  if (data.images && data.images.length > 0) {
-    activeImage.value = data.images[0].src
-    activeImageFlip.value = data.images[0].flip
-  } else {
-    activeImage.value = data.image || ''
-    activeImageFlip.value = false
+      // Set default gallery image
+      if (data.images && data.images.length > 0) {
+        activeImage.value = data.images[0].src
+        activeImageFlip.value = data.images[0].flip
+      } else {
+        activeImage.value = data.image || ''
+        activeImageFlip.value = false
+      }
+
+      // Set default color
+      if (data.colors && data.colors.length > 0) {
+        selectedColor.value = data.colors[0].name
+      } else {
+        selectedColor.value = ''
+      }
+
+      // Set default size (or fallback to first size)
+      if (data.sizes && data.sizes.length > 0) {
+        selectedSize.value = data.sizes[0]
+      } else {
+        selectedSize.value = ''
+      }
+
+      // Reset qty & wishlist state
+      qty.value = 1
+      wished.value = false
+
+      // Populate dynamic specs
+      if (data.specs && data.specs.length > 0) {
+        specs.value = data.specs
+      } else {
+        specs.value = [
+          { name: 'Thương hiệu', value: data.brand || 'SaigonShoes' },
+          { name: 'Dòng sản phẩm', value: data.name || 'Premium' },
+          { name: 'Bảo hành', value: '12 tháng chính hãng' }
+        ]
+      }
+
+      // Filter related products of the same category, excluding itself
+      try {
+        const prodRes = await axiosInstance.get('/products')
+        if (prodRes.success && Array.isArray(prodRes.data)) {
+          const allProdsMapped = prodRes.data.map(mapBackendProduct)
+          relatedProducts.value = allProdsMapped
+            .filter(p => p.category === data.category && p.id !== data.id)
+            .slice(0, 4)
+        }
+      } catch (err) {
+        console.error('Failed to load related products:', err)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load product detail:', error)
   }
-
-  // Set default color
-  if (data.colors && data.colors.length > 0) {
-    selectedColor.value = data.colors[0].name
-  } else {
-    selectedColor.value = ''
-  }
-
-  // Set default size (or fallback to first size)
-  if (data.sizes && data.sizes.length > 0) {
-    selectedSize.value = data.sizes[0]
-  } else {
-    selectedSize.value = ''
-  }
-
-  // Reset qty & wishlist state
-  qty.value = 1
-  wished.value = false
-
-  // Populate dynamic specs
-  if (data.specs && data.specs.length > 0) {
-    specs.value = data.specs
-  } else {
-    specs.value = [
-      { name: 'Thương hiệu', value: data.brand || 'SaigonShoes' },
-      { name: 'Dòng sản phẩm', value: data.name || 'Premium' },
-      { name: 'Bảo hành', value: '12 tháng chính hãng' }
-    ]
-  }
-
-  // Filter related products of the same category, excluding itself
-  relatedProducts.value = allProducts
-    .filter(p => p.category === data.category && p.id !== data.id)
-    .slice(0, 4)
 }
 
 // Watch Route ID for instant reactiveness upon navigation/clicks

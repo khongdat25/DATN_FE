@@ -306,6 +306,7 @@
 
 <script setup>
 import { ref, inject, computed, onMounted, onUnmounted } from 'vue'
+import axiosInstance from '@/api/axios.js'
 
 const cartCount = inject('cartCount', ref(3))
 const menuOpen = ref(false)
@@ -428,12 +429,20 @@ onMounted(() => {
   checkAuth()
 })
 
-function handleLogout() {
-  localStorage.removeItem('access_token')
-  localStorage.removeItem('user')
-  isLoggedIn.value = false
-  userName.value = ''
-  window.location.href = '/'
+async function handleLogout() {
+  localStorage.setItem('is_logging_out', 'true')
+  try {
+    await axiosInstance.post('/logout')
+  } catch (error) {
+    console.error('Logout error:', error)
+  } finally {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('is_logging_out')
+    isLoggedIn.value = false
+    userName.value = ''
+    window.location.href = '/'
+  }
 }
 
 function toggleMenu() {

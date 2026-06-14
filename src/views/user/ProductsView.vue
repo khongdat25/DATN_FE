@@ -204,7 +204,8 @@ import { ref, reactive, computed, inject, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import ProductCard from '@/components/common/ProductCard.vue'
-import { allProducts } from '@/data/products.js'
+import { mapBackendProduct } from '@/data/products.js'
+import axiosInstance from '@/api/axios.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -263,8 +264,19 @@ const filters = reactive({
 const currentPage = ref(1)
 const itemsPerPage = 8
 
-// Mock products database
-const products = ref(allProducts.filter(p => p.id >= 1 && p.id <= 9))
+// Products database loaded from BE API
+const products = ref([])
+
+async function fetchProducts() {
+  try {
+    const response = await axiosInstance.get('/products')
+    if (response.success && Array.isArray(response.data)) {
+      products.value = response.data.map(mapBackendProduct)
+    }
+  } catch (error) {
+    console.error('Failed to fetch products:', error)
+  }
+}
 
 // Computed filtered products
 const filteredProducts = computed(() => {
@@ -435,8 +447,9 @@ function applyQueryFilters() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   applyQueryFilters()
+  await fetchProducts()
 })
 
 watch(() => route.query, () => {

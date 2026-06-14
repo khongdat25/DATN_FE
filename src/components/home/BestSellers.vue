@@ -40,8 +40,6 @@
             :key="product.id"
             class="relative"
           >
-            <!-- Rank badge -->
-            <span class="absolute top-2.5 left-2.5 z-20 bg-gold text-white font-extrabold text-[9px] uppercase tracking-wide px-2 py-0.5 rounded-sm shadow-sm pointer-events-none">#{{ product.rank }}</span>
             <ProductCard
               :product="product"
               :show-cart-button="false"
@@ -58,9 +56,10 @@
 </template>
 
 <script setup>
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { allProducts } from '../../data/products.js'
+import { mapBackendProduct } from '../../data/products.js'
+import axiosInstance from '../../api/axios.js'
 import ProductCard from '../common/ProductCard.vue'
 
 const router = useRouter()
@@ -90,17 +89,33 @@ function goToDetail(product) {
   router.push({ name: 'product-detail', params: { id: product.id } })
 }
 
-const bestSellers = allProducts
-  .filter(p => p.id >= 20 && p.id <= 24)
-  .map((p, idx) => ({
-    ...p,
-    rank: idx + 1,
-    cat: p.category === 'Dép Crocs' ? 'crocs' : 'sneaker'
-  }))
+const bestSellers = ref([])
+
+async function fetchBestSellers() {
+  try {
+    const response = await axiosInstance.get('/bestsellings')
+    if (response.success && Array.isArray(response.data)) {
+      bestSellers.value = response.data.map((p, idx) => {
+        const mapped = mapBackendProduct(p)
+        return {
+          ...mapped,
+          rank: idx + 1,
+          cat: mapped.category === 'Dép Crocs' ? 'crocs' : 'sneaker'
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Failed to load best sellers:', error)
+  }
+}
+
+onMounted(async () => {
+  await fetchBestSellers()
+})
 
 const filteredProducts = computed(() => {
-  if (activeFilter.value === 'all') return bestSellers
-  return bestSellers.filter(p => p.cat === activeFilter.value)
+  if (activeFilter.value === 'all') return bestSellers.value
+  return bestSellers.value.filter(p => p.cat === activeFilter.value)
 })
 </script>
 

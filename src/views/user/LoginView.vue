@@ -82,12 +82,10 @@
             </div>
 
             <!-- Social Login -->
-            <div class="social-login grid grid-cols-2 gap-3 mb-8">
-              <button type="button" @click="handleSocialLogin('Google')" class="social-btn flex items-center justify-center gap-2 py-3 border border-border rounded-xl bg-bg text-sm font-semibold text-text cursor-pointer transition-all duration-200 hover:bg-surface2 hover:border-text-dim">
-                <i class="ti ti-brand-google text-lg" style="color: #DB4437;"></i> Google
-              </button>
-              <button type="button" @click="handleSocialLogin('Facebook')" class="social-btn flex items-center justify-center gap-2 py-3 border border-border rounded-xl bg-bg text-sm font-semibold text-text cursor-pointer transition-all duration-200 hover:bg-surface2 hover:border-text-dim">
-                <i class="ti ti-brand-facebook text-lg" style="color: #4267B2;"></i> Facebook
+            <div class="social-login flex flex-col items-center gap-3 mb-8">
+              <div id="googleBtn" class="w-full flex justify-center min-h-[44px]"></div>
+              <button type="button" @click="handleSocialLogin('Facebook')" class="social-btn flex items-center justify-center gap-2 w-full max-w-[300px] py-2.5 border border-border rounded-xl bg-bg text-sm font-semibold text-text cursor-pointer transition-all duration-200 hover:bg-surface2 hover:border-text-dim">
+                <i class="ti ti-brand-facebook text-lg" style="color: #4267B2;"></i> Tiếp tục với Facebook
               </button>
             </div>
 
@@ -106,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import axiosInstance from '@/api/axios.js'
@@ -170,6 +168,68 @@ async function handleLogin() {
     loading.value = false
   }
 }
+
+async function handleGoogleLoginSuccess(response) {
+  loading.value = true
+  try {
+    const res = await axiosInstance.post('/login/google', {
+      token: response.credential
+    })
+
+    if (res.success) {
+      if (res.data && res.data.access_token) {
+        localStorage.setItem('access_token', res.data.access_token)
+        localStorage.setItem('user', JSON.stringify(res.data.user))
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Đăng nhập thành công!',
+        text: res.message || 'Đăng nhập thành công bằng tài khoản Google.',
+        confirmButtonText: 'Bắt đầu mua sắm 🛍️',
+        confirmButtonColor: '#FF4D00'
+      }).then(() => {
+        window.location.href = '/'
+      })
+    }
+  } catch (error) {
+    console.error('Google login error:', error)
+    const status = error.response ? error.response.status : null
+    if (status && ![401, 403, 404, 422, 500].includes(status)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Đăng nhập Google thất bại',
+        text: error.response?.data?.message || 'Không thể đăng nhập bằng tài khoản Google. Vui lòng thử lại.',
+        confirmButtonColor: '#FF4D00'
+      })
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  /* global google */
+  if (typeof google !== 'undefined') {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "your-google-client-id.apps.googleusercontent.com";
+    google.accounts.id.initialize({
+      client_id: clientId,
+      callback: handleGoogleLoginSuccess
+    });
+    google.accounts.id.renderButton(
+      document.getElementById("googleBtn"),
+      { 
+        theme: "outline", 
+        size: "large", 
+        width: "300", 
+        text: "signin_with", 
+        shape: "rectangular"
+      }
+    );
+  } else {
+    console.error('Google SDK not loaded');
+  }
+})
 
 function handleForgotPassword() {
   Swal.fire({

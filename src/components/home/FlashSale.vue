@@ -49,7 +49,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { allProducts } from '../../data/products.js'
+import { mapBackendProduct } from '../../data/products.js'
+import axiosInstance from '../../api/axios.js'
 import ProductCard from '../common/ProductCard.vue'
 
 const router = useRouter()
@@ -71,12 +72,48 @@ function tick() {
   hours.value = h; minutes.value = m; seconds.value = s
 }
 
-onMounted(() => { timer = setInterval(tick, 1000) })
-onUnmounted(() => { clearInterval(timer) })
+const flashProducts = ref([])
+
+async function fetchFlashSale() {
+  try {
+    const response = await axiosInstance.get('/flashsales')
+    if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+      const activeSale = response.data[0]
+      if (activeSale && activeSale.items) {
+        flashProducts.value = activeSale.items.map(item => {
+          if (item.product) {
+            const mapped = mapBackendProduct(item.product)
+            if (item.discount_value) {
+              const originalPrice = parseFloat(mapped.numericPrice) || 0
+              const discountVal = parseFloat(item.discount_value) || 0
+              const flashPrice = originalPrice - discountVal
+              mapped.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
+              mapped.oldPrice = mapped.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ') : null
+              mapped.badges = [{ label: `-${Math.round((discountVal/originalPrice)*100)}%`, color: 'bg-accent' }]
+            }
+            mapped.soldCount = item.sold || 0
+            mapped.total = item.quantity_limit || 100
+            return mapped
+          }
+          return null
+        }).filter(Boolean)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load flash sale products:', error)
+  }
+}
+
+onMounted(async () => {
+  timer = setInterval(tick, 1000)
+  await fetchFlashSale()
+})
+
+onUnmounted(() => {
+  clearInterval(timer)
+})
 
 function goToDetail(product) {
   router.push({ name: 'product-detail', params: { id: product.id } })
 }
-
-const flashProducts = allProducts.filter(p => p.id >= 11 && p.id <= 15)
 </script>
