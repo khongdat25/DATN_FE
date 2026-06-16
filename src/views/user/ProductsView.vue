@@ -34,10 +34,11 @@
             </div>
             <div v-show="activeSections.category" class="px-4 pb-4">
               <div class="flex flex-col gap-3">
-                <label v-for="cat in availableCategories" :key="cat" class="flex items-center gap-3 cursor-pointer group select-none">
-                  <input type="checkbox" v-model="filters.categories" :value="cat" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
-                  <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.categories.includes(cat) ? 'text-accent font-semibold' : 'text-text-muted']">
-                    {{ cat }}
+                <div v-if="availableCategories.length === 0" class="text-xs text-text-dim italic">Đang tải...</div>
+                <label v-for="cat in availableCategories" :key="cat.id" class="flex items-center gap-3 cursor-pointer group select-none">
+                  <input type="checkbox" v-model="filters.categories" :value="cat.name" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
+                  <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.categories.includes(cat.name) ? 'text-accent font-semibold' : 'text-text-muted']">
+                    {{ cat.name }}
                   </span>
                 </label>
               </div>
@@ -105,7 +106,26 @@
 
         <!-- Product List & Sorting -->
         <div class="flex-1 min-w-0">
-          
+
+          <!-- Search Bar -->
+          <div class="relative mb-4">
+            <i class="ti ti-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
+            <input
+              v-model="searchQuery"
+              @input="onSearchInput"
+              type="text"
+              placeholder="Tìm kiếm sản phẩm... (VD: Nike, Adidas, Samba...)"
+              class="w-full pl-11 pr-10 py-3.5 bg-white border border-border rounded-2xl text-sm text-text outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all placeholder:text-text-dim"
+            >
+            <button
+              v-if="searchQuery"
+              @click="clearSearch"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-accent transition-colors cursor-pointer"
+            >
+              <i class="ti ti-x text-sm"></i>
+            </button>
+          </div>
+
           <!-- Sorting Toolbar -->
           <div class="bg-white px-5 py-3.5 border border-border rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 mb-6 shadow-sm">
             <div class="flex items-center gap-2 flex-wrap">
@@ -217,22 +237,10 @@ const activeSections = reactive({
   price: true,
   size: true
 })
+function toggleSection(section) { activeSections[section] = !activeSections[section] }
 
-function toggleSection(section) {
-  activeSections[section] = !activeSections[section]
-}
-
-// Available options lists
-const availableCategories = [
-  'Giày Nike',
-  'Giày Adidas',
-  'Giày New Balance',
-  'Giày Puma',
-  'Giày MLB',
-  "Giày Biti's",
-  'Giày Converse',
-  'Phụ Kiện'
-]
+// Categories loaded from API, brands/sizes stay static
+const availableCategories = ref([])
 const availableBrands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'MLB', 'Bitis', 'Converse']
 const availableSizes = ['38', '39', '40', '41', '42', '43', '44']
 
@@ -241,6 +249,10 @@ const sortOptions = [
   { label: 'Mới Nhất', value: 'newest' },
   { label: 'Bán Chạy', value: 'best-seller' }
 ]
+
+// Search
+const searchQuery = ref('')
+let debounceTimer = null
 
 // Filters state
 const filters = reactive({
@@ -255,20 +267,51 @@ const filters = reactive({
   priceSort: 'default'
 })
 
-// Pagination
 const currentPage = ref(1)
 const itemsPerPage = 8
-
-// Products database loaded from BE API
 const products = ref([])
 const isLoading = ref(true)
+
+// --- API functions ---
+async function fetchCategories() {
+  try {
+    const res = await axiosInstance.get('/categories')
+    if (res.success && Array.isArray(res.data)) {
+      availableCategories.value = res.data
+    }
+  } catch (e) {
+    console.error('Failed to fetch categories:', e)
+  }
+}
 
 async function fetchProducts() {
   isLoading.value = true
   try {
-    const response = await axiosInstance.get('/products')
-    if (response.success && Array.isArray(response.data)) {
-      products.value = response.data.map(mapBackendProduct)
+    const params = {}
+
+    // Text search (server-side)
+    if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
+
+    // Category filter: lookup ID from loaded categories
+    if (filters.categories.length > 0) {
+      const cat = availableCategories.value.find(c => filters.categories.includes(c.name))
+      if (cat?.id) params.category_id = cat.id
+    }
+
+    // Price filter (server-side)
+    if (filters.appliedPriceFrom !== null) params.min_price = filters.appliedPriceFrom
+    if (filters.appliedPriceTo !== null) params.max_price = filters.appliedPriceTo
+
+    // Sort (server-side)
+    if (filters.priceSort === 'low-to-high') params.sort = 'price_asc'
+    else if (filters.priceSort === 'high-to-low') params.sort = 'price_desc'
+    else if (filters.sortBy === 'best-seller') params.sort = 'sold_desc'
+    else if (filters.sortBy === 'newest') params.sort = 'newest'
+    else params.sort = 'sold_desc' // popular default
+
+    const res = await axiosInstance.get('/search', { params })
+    if (res.success && Array.isArray(res.data)) {
+      products.value = res.data.map(mapBackendProduct)
     }
   } catch (error) {
     console.error('Failed to fetch products:', error)
@@ -277,116 +320,60 @@ async function fetchProducts() {
   }
 }
 
-// Computed filtered products
+// Debounced search handler
+function onSearchInput() {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    currentPage.value = 1
+    fetchProducts()
+  }, 450)
+}
+
+function clearSearch() {
+  searchQuery.value = ''
+  currentPage.value = 1
+  fetchProducts()
+}
+
+// --- Computed: only brand + size are client-side (price/sort/category/q are server-side) ---
 const filteredProducts = computed(() => {
   let result = [...products.value]
-
-  // Filter by category
-  if (filters.categories.length > 0) {
-    result = result.filter(p => {
-      return filters.categories.some(cat => {
-        if (cat === 'Giày Nike') {
-          return p.brand?.toLowerCase() === 'nike' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
-        }
-        if (cat === 'Giày Adidas') {
-          return p.brand?.toLowerCase() === 'adidas' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
-        }
-        if (cat === 'Giày New Balance') {
-          return (p.brand?.toLowerCase() === 'new balance' || p.brand?.toLowerCase() === 'nb') && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
-        }
-        if (cat === 'Giày Puma') {
-          return p.brand?.toLowerCase() === 'puma' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
-        }
-        if (cat === 'Giày MLB') {
-          return p.brand?.toLowerCase() === 'mlb' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
-        }
-        if (cat === "Giày Biti's") {
-          return (p.brand?.toLowerCase() === 'bitis' || p.brand?.toLowerCase() === "biti's") && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
-        }
-        if (cat === 'Giày Converse') {
-          return p.brand?.toLowerCase() === 'converse' && (p.category === 'Giày Sneaker' || p.category === 'Giày Thể Thao')
-        }
-
-        if (cat === 'Phụ Kiện') {
-          return p.category === 'Phụ Kiện' || p.category?.toLowerCase().includes('phụ kiện') || p.category?.toLowerCase().includes('accessories')
-        }
-        return p.category === cat
-      })
-    })
-  }
-
-  // Filter by brand
   if (filters.brands.length > 0) {
-    result = result.filter(p => filters.brands.includes(p.brand))
+    result = result.filter(p =>
+      filters.brands.some(b => p.brand?.toLowerCase().includes(b.toLowerCase()))
+    )
   }
-
-
-
-  // Filter by size
   if (filters.sizes.length > 0) {
     result = result.filter(p => p.sizes.some(s => filters.sizes.includes(s)))
   }
-
-  // Filter by price
-  if (filters.appliedPriceFrom !== null) {
-    result = result.filter(p => p.numericPrice >= filters.appliedPriceFrom)
-  }
-  if (filters.appliedPriceTo !== null) {
-    result = result.filter(p => p.numericPrice <= filters.appliedPriceTo)
-  }
-
-  // Sorting metrics
-  if (filters.sortBy === 'popular') {
-    result.sort((a, b) => (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0) || b.reviews - a.reviews)
-  } else if (filters.sortBy === 'newest') {
-    result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0) || b.id - a.id)
-  } else if (filters.sortBy === 'best-seller') {
-    result.sort((a, b) => b.soldCount - a.soldCount)
-  }
-
-  // Price ordering select dropdown
-  if (filters.priceSort === 'low-to-high') {
-    result.sort((a, b) => a.numericPrice - b.numericPrice)
-  } else if (filters.priceSort === 'high-to-low') {
-    result.sort((a, b) => b.numericPrice - a.numericPrice)
-  }
-
   return result
 })
 
-// Pagination calculations
 const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage))
-
 const paginatedProducts = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage
-  return filteredProducts.value.slice(startIndex, startIndex + itemsPerPage)
+  const start = (currentPage.value - 1) * itemsPerPage
+  return filteredProducts.value.slice(start, start + itemsPerPage)
 })
 
-// Toggle specific size in filter array
+// --- Filter actions ---
 function toggleSizeFilter(size) {
   const idx = filters.sizes.indexOf(size)
-  if (idx >= 0) {
-    filters.sizes.splice(idx, 1)
-  } else {
-    filters.sizes.push(size)
-  }
+  if (idx >= 0) filters.sizes.splice(idx, 1)
+  else filters.sizes.push(size)
   currentPage.value = 1
 }
 
-// Sorting buttons
 function setSortBy(val) {
   filters.sortBy = val
   currentPage.value = 1
 }
 
-// Price filters trigger
 function applyPriceFilter() {
   filters.appliedPriceFrom = filters.priceFrom
   filters.appliedPriceTo = filters.priceTo
   currentPage.value = 1
 }
 
-// Reset filters to defaults
 function resetFilters() {
   filters.categories = []
   filters.brands = []
@@ -397,18 +384,15 @@ function resetFilters() {
   filters.sizes = []
   filters.sortBy = 'popular'
   filters.priceSort = 'default'
+  searchQuery.value = ''
   currentPage.value = 1
+  fetchProducts()
 }
 
-// Event handlers
-function handleAddToCart(product) {
-  addToCart(product)
-}
-
+function handleAddToCart(product) { addToCart(product) }
 function handleWish(payload) {
   showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
 }
-
 function goToDetail(product) {
   router.push({ name: 'product-detail', params: { id: product.id } })
 }
@@ -416,34 +400,32 @@ function goToDetail(product) {
 function applyQueryFilters() {
   const queryCategory = route.query.category
   if (queryCategory) {
-    if (queryCategory === 'Giày Sneaker') {
-      filters.categories = ['Giày Nike', 'Giày Adidas', 'Giày New Balance', 'Giày Puma', 'Giày MLB', "Giày Biti's", 'Giày Converse']
-    } else if (availableCategories.includes(queryCategory)) {
-      filters.categories = [queryCategory]
-    } else {
-      filters.categories = []
-    }
+    filters.categories = [queryCategory]
   } else {
     filters.categories = []
   }
-
-
-
   const queryBrand = route.query.brand
   if (queryBrand && availableBrands.includes(queryBrand)) {
     filters.brands = [queryBrand]
   } else {
     filters.brands = []
   }
+  const querySearch = route.query.q
+  if (querySearch) searchQuery.value = querySearch
 }
+
+// Watch server-side filter changes → refetch
+watch(
+  [() => filters.sortBy, () => filters.priceSort, () => filters.categories,
+   () => filters.appliedPriceFrom, () => filters.appliedPriceTo],
+  () => { currentPage.value = 1; fetchProducts() }
+)
+
+watch(() => route.query, () => { applyQueryFilters() })
 
 onMounted(async () => {
   applyQueryFilters()
-  await fetchProducts()
-})
-
-watch(() => route.query, () => {
-  applyQueryFilters()
+  await Promise.all([fetchCategories(), fetchProducts()])
 })
 </script>
 
