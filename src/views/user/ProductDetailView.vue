@@ -413,21 +413,25 @@ async function loadProduct(id) {
         ]
       }
 
-      // Filter related products of the same category, excluding itself
-      try {
-        const prodRes = await axiosInstance.get('/products')
-        if (prodRes.success && Array.isArray(prodRes.data)) {
-          const allProdsMapped = prodRes.data.map(mapBackendProduct)
-          relatedProducts.value = allProdsMapped
-            .filter(p => p.category === data.category && p.id !== data.id)
-            .slice(0, 4)
-        }
-      } catch (err) {
-        console.error('Failed to load related products:', err)
-      }
+      // Load related products asynchronously in the background without blocking the UI rendering
+      fetchRelatedProducts(data.category, data.id)
     }
   } catch (error) {
     console.error('Failed to load product detail:', error)
+  }
+}
+
+async function fetchRelatedProducts(categoryName, currentProductId) {
+  try {
+    const prodRes = await axiosInstance.get('/products')
+    if (prodRes.success && Array.isArray(prodRes.data)) {
+      const allProdsMapped = prodRes.data.map(mapBackendProduct)
+      relatedProducts.value = allProdsMapped
+        .filter(p => p.category === categoryName && p.id !== currentProductId)
+        .slice(0, 4)
+    }
+  } catch (err) {
+    console.error('Failed to load related products:', err)
   }
 }
 
@@ -545,5 +549,6 @@ input::-webkit-inner-spin-button {
 /* Firefox number input scrollbar remove */
 input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 </style>

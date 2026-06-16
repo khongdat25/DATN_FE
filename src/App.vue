@@ -3,7 +3,11 @@
 </script>
 
 <template>
-  <router-view />
+  <router-view v-slot="{ Component }">
+    <keep-alive :include="['HomeView', 'ProductsView']">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
 
 <style>

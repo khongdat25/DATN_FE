@@ -1,6 +1,8 @@
 <script setup>
-import { inject } from 'vue'
+import { inject, ref, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
+
+defineOptions({ name: 'HomeView' })
 import HomeLayout from '../../layouts/HomeLayout.vue'
 import HeroSlider from '../../components/home/HeroSlider.vue'
 import CategorySection from '../../components/home/CategorySection.vue'
@@ -13,6 +15,12 @@ import BlogSection from '../../components/home/BlogSection.vue'
 const router = useRouter()
 const addToCart = inject('addToCart', (p) => {})
 const showToast = inject('showToast', (msg) => {})
+
+const isLoggedIn = ref(false)
+
+onActivated(() => {
+  isLoggedIn.value = !!localStorage.getItem('access_token')
+})
 
 function handleAddToCart(product) {
   addToCart(product)
@@ -43,7 +51,7 @@ function handleSignup() {
     <BlogSection />
     <hr class="border-none border-t border-border m-0">
     <!-- CTA: Sign up -->
-    <section class="py-8">
+    <section v-if="!isLoggedIn" class="py-8">
       <div class="max-w-[1200px] mx-auto px-5">
         <div class="bg-[#111] rounded-xl p-10 max-md:py-8 max-md:px-5 text-center relative overflow-hidden before:content-[''] before:absolute before:w-[500px] before:h-[500px] before:rounded-full before:bg-[rgba(255,77,0,0.08)] before:top-[-140px] before:left-1/2 before:-translate-x-1/2 before:pointer-events-none">
           <h2 class="font-display text-[32px] text-white tracking-[2px] mb-2 font-bold uppercase">ĐĂNG KÝ TÀI KHOẢN</h2>

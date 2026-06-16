@@ -92,7 +92,7 @@
                 <div class="text-left">
                   <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
                     <router-link to="/products?brand=MLB" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/mlb.svg" alt="MLB" class="h-6.5 object-contain">
+                      <img src="/images/mlb.svg?v=2" alt="MLB" class="h-6.5 object-contain">
                     </router-link>
                   </div>
                   <ul class="space-y-1.5 pl-2">

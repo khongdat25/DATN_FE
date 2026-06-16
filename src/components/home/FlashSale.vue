@@ -30,7 +30,19 @@
         </div>
 
         <!-- Products Grid (col-5) -->
-        <div class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
+        <div v-if="isLoading" class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
+          <div v-for="i in 5" :key="i" class="border border-border rounded-2xl bg-white p-5 flex flex-col gap-4 animate-pulse shadow-sm">
+            <div class="bg-surface2 rounded-xl h-48 w-full"></div>
+            <div class="h-4 bg-surface2 rounded w-3/4"></div>
+            <div class="h-3 bg-surface2 rounded w-1/2"></div>
+            <div class="flex items-center justify-between mt-2">
+              <div class="h-5 bg-surface2 rounded w-1/3"></div>
+              <div class="h-8 bg-surface2 rounded-full w-8"></div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5">
           <ProductCard
             v-for="product in flashProducts"
             :key="product.id"
@@ -73,8 +85,10 @@ function tick() {
 }
 
 const flashProducts = ref([])
+const isLoading = ref(true)
 
 async function fetchFlashSale() {
+  isLoading.value = true
   try {
     const response = await axiosInstance.get('/flashsales')
     if (response.success && Array.isArray(response.data) && response.data.length > 0) {
@@ -101,6 +115,8 @@ async function fetchFlashSale() {
     }
   } catch (error) {
     console.error('Failed to load flash sale products:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 

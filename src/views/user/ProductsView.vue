@@ -62,23 +62,7 @@
             </div>
           </div>
 
-          <!-- Gender Filter -->
-          <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
-            <div @click="toggleSection('gender')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
-              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Giới Tính</p>
-              <i :class="['ti text-[12px] text-text-muted transition-transform duration-200', activeSections.gender ? 'ti-chevron-up' : 'ti-chevron-down']"></i>
-            </div>
-            <div v-show="activeSections.gender" class="px-4 pb-4">
-              <div class="flex flex-col gap-3">
-                <label v-for="gender in availableGenders" :key="gender" class="flex items-center gap-3 cursor-pointer group select-none">
-                  <input type="checkbox" v-model="filters.genders" :value="gender" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
-                  <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.genders.includes(gender) ? 'text-accent font-semibold' : 'text-text-muted']">
-                    {{ gender }}
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
+
 
           <!-- Price Range Filter -->
           <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
@@ -145,8 +129,20 @@
             </div>
           </div>
 
-          <!-- Product Grid -->
-          <div v-if="paginatedProducts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- Product Grid & Loading States -->
+          <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div v-for="i in 8" :key="i" class="border border-border rounded-2xl bg-white p-5 flex flex-col gap-4 animate-pulse shadow-sm">
+              <div class="bg-surface2 rounded-xl h-48 w-full"></div>
+              <div class="h-4 bg-surface2 rounded w-3/4"></div>
+              <div class="h-3 bg-surface2 rounded w-1/2"></div>
+              <div class="flex items-center justify-between mt-2">
+                <div class="h-5 bg-surface2 rounded w-1/3"></div>
+                <div class="h-8 bg-surface2 rounded-full w-8"></div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="paginatedProducts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <ProductCard 
               v-for="product in paginatedProducts" 
               :key="product.id" 
@@ -159,7 +155,7 @@
           
           <!-- Empty State -->
           <div v-else class="text-center py-20 bg-white border border-border rounded-2xl shadow-sm">
-            <i class="ti ti- moods ti-mood-empty text-[60px] text-text-dim block mb-4"></i>
+            <i class="ti ti-mood-empty text-[60px] text-text-dim block mb-4"></i>
             <h4 class="text-lg font-bold text-text mb-2">Không tìm thấy sản phẩm nào</h4>
             <p class="text-text-muted text-sm mb-6">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm của bạn xem sao.</p>
             <button @click="resetFilters" class="bg-accent text-white px-6 py-2.5 rounded-xl text-sm font-semibold tracking-wide hover:bg-accent-hover transition-colors active:scale-95 cursor-pointer">
@@ -202,6 +198,8 @@
 <script setup>
 import { ref, reactive, computed, inject, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+
+defineOptions({ name: 'ProductsView' })
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import ProductCard from '@/components/common/ProductCard.vue'
 import { mapBackendProduct } from '@/data/products.js'
@@ -216,7 +214,6 @@ const showToast = inject('showToast', (msg) => {})
 const activeSections = reactive({
   category: true,
   brand: true,
-  gender: true,
   price: true,
   size: true
 })
@@ -237,7 +234,6 @@ const availableCategories = [
   'Phụ Kiện'
 ]
 const availableBrands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'MLB', 'Bitis', 'Converse']
-const availableGenders = ['Nam', 'Nữ']
 const availableSizes = ['38', '39', '40', '41', '42', '43', '44']
 
 const sortOptions = [
@@ -250,7 +246,6 @@ const sortOptions = [
 const filters = reactive({
   categories: [],
   brands: [],
-  genders: [],
   priceFrom: null,
   priceTo: null,
   appliedPriceFrom: null,
@@ -266,8 +261,10 @@ const itemsPerPage = 8
 
 // Products database loaded from BE API
 const products = ref([])
+const isLoading = ref(true)
 
 async function fetchProducts() {
+  isLoading.value = true
   try {
     const response = await axiosInstance.get('/products')
     if (response.success && Array.isArray(response.data)) {
@@ -275,6 +272,8 @@ async function fetchProducts() {
     }
   } catch (error) {
     console.error('Failed to fetch products:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -321,10 +320,7 @@ const filteredProducts = computed(() => {
     result = result.filter(p => filters.brands.includes(p.brand))
   }
 
-  // Filter by gender
-  if (filters.genders.length > 0) {
-    result = result.filter(p => filters.genders.includes(p.gender))
-  }
+
 
   // Filter by size
   if (filters.sizes.length > 0) {
@@ -394,7 +390,6 @@ function applyPriceFilter() {
 function resetFilters() {
   filters.categories = []
   filters.brands = []
-  filters.genders = []
   filters.priceFrom = null
   filters.priceTo = null
   filters.appliedPriceFrom = null
@@ -432,12 +427,7 @@ function applyQueryFilters() {
     filters.categories = []
   }
 
-  const queryGender = route.query.gender
-  if (queryGender && availableGenders.includes(queryGender)) {
-    filters.genders = [queryGender]
-  } else {
-    filters.genders = []
-  }
+
 
   const queryBrand = route.query.brand
   if (queryBrand && availableBrands.includes(queryBrand)) {
@@ -467,5 +457,6 @@ input::-webkit-inner-spin-button {
 /* Firefox number input scrollbar remove */
 input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 </style>
