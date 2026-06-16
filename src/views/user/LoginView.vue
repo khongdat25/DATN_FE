@@ -140,15 +140,19 @@ async function handleLogin() {
         }
       }
 
+      const user = response.data?.user;
+      const isAdmin = user && user.role === 'admin';
+      const redirectUrl = isAdmin ? '/admin' : '/';
+      const confirmText = isAdmin ? 'Đến trang quản trị ⚙️' : 'Bắt đầu mua sắm 🛍️';
+
       Swal.fire({
         icon: 'success',
         title: 'Đăng nhập thành công!',
-        text: response.message || 'Chào mừng bạn đã quay trở lại SaigonShoes.',
-        confirmButtonText: 'Bắt đầu mua sắm 🛍️',
+        text: response.message || (isAdmin ? 'Chào mừng Admin quay lại hệ thống.' : 'Chào mừng bạn đã quay trở lại SaigonShoes.'),
+        confirmButtonText: confirmText,
         confirmButtonColor: '#FF4D00'
       }).then(() => {
-        // reload trang để AppHeader cập nhật tức thì trạng thái đăng nhập
-        window.location.href = '/'
+        window.location.href = redirectUrl
       })
     }
   } catch (error) {
@@ -182,14 +186,19 @@ async function handleGoogleLoginSuccess(response) {
         localStorage.setItem('user', JSON.stringify(res.data.user))
       }
 
+      const user = res.data?.user;
+      const isAdmin = user && user.role === 'admin';
+      const redirectUrl = isAdmin ? '/admin' : '/';
+      const confirmText = isAdmin ? 'Đến trang quản trị ⚙️' : 'Bắt đầu mua sắm 🛍️';
+
       Swal.fire({
         icon: 'success',
         title: 'Đăng nhập thành công!',
-        text: res.message || 'Đăng nhập thành công bằng tài khoản Google.',
-        confirmButtonText: 'Bắt đầu mua sắm 🛍️',
+        text: res.message || (isAdmin ? 'Chào mừng Admin quay lại hệ thống.' : 'Đăng nhập thành công bằng tài khoản Google.'),
+        confirmButtonText: confirmText,
         confirmButtonColor: '#FF4D00'
       }).then(() => {
-        window.location.href = '/'
+        window.location.href = redirectUrl
       })
     }
   } catch (error) {

@@ -251,6 +251,16 @@
             <i class="ti ti-shopping-cart"></i>
             <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm">{{ cartCount }}</span>
           </router-link>
+          <!-- Admin Quick Access Button -->
+          <router-link 
+            v-if="isAdmin" 
+            to="/admin" 
+            class="flex items-center gap-1.5 py-1.5 px-3 bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/20 rounded-xl text-xs font-bold transition-all duration-300 shadow-sm active:scale-95 max-md:hidden select-none cursor-pointer"
+            title="Quay lại trang quản trị"
+          >
+            <i class="ti ti-shield text-sm"></i>
+            <span>Trang Admin</span>
+          </router-link>
           <div class="relative group h-full flex items-center ml-1">
             <template v-if="isLoggedIn">
               <button class="flex items-center gap-1.5 py-1.5 px-3 bg-surface2 border border-border rounded-xl text-xs font-semibold text-text-muted transition-all duration-300 hover:text-accent hover:border-accent hover:bg-bg cursor-pointer shadow-sm active:scale-95">
@@ -260,6 +270,7 @@
               </button>
               <div class="dropdown-account absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-border rounded-xl shadow-xl py-2 z-300">
                 <div class="px-4 py-2 border-b border-border text-xs text-text-muted font-medium text-left">Xin chào, {{ userName }}</div>
+                <router-link v-if="isAdmin" to="/admin" class="block w-full text-left px-4 py-2 text-sm text-accent font-bold hover:bg-surface2 hover:text-accent transition-colors">Trang quản trị (Admin)</router-link>
                 <router-link to="/profile" class="block w-full text-left px-4 py-2 text-sm text-text hover:bg-surface2 hover:text-accent transition-colors">Tài khoản của tôi</router-link>
                 <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors border-none bg-transparent cursor-pointer font-semibold">Đăng xuất</button>
               </div>
@@ -284,6 +295,7 @@
     <div v-show="menuOpen" class="bg-bg border-t border-border py-4 px-5">
       <router-link to="/" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Trang chủ</router-link>
       <router-link to="/products" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Sản phẩm</router-link>
+      <router-link v-if="isAdmin" to="/admin" class="block py-3 text-[15px] text-accent font-bold border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Trang quản trị (Admin)</router-link>
       <router-link to="/about" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Giới thiệu</router-link>
       <router-link to="/news" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Tin tức</router-link>
       <router-link to="/contact" class="block py-3 text-[15px] text-text-muted border-none transition-colors hover:text-accent" @click="menuOpen = false">Liên hệ</router-link>
@@ -406,16 +418,19 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 const isLoggedIn = ref(false)
 const userName = ref('')
+const isAdmin = ref(false)
 
 function checkAuth() {
   const token = localStorage.getItem('access_token')
   isLoggedIn.value = !!token
+  isAdmin.value = false
   if (token) {
     try {
       const userStr = localStorage.getItem('user')
       if (userStr) {
         const user = JSON.parse(userStr)
         userName.value = user.name || 'Thành viên'
+        isAdmin.value = user && user.role === 'admin'
       } else {
         userName.value = 'Thành viên'
       }

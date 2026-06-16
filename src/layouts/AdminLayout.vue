@@ -1,0 +1,210 @@
+<template>
+  <div class="min-h-screen bg-slate-50 flex">
+    <!-- Sidebar -->
+    <aside 
+      :class="[
+        'fixed inset-y-0 left-0 z-100 w-64 bg-slate-900 text-slate-300 flex flex-col transition-all duration-300 transform md:translate-x-0 border-r border-slate-800',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      ]"
+    >
+      <!-- Logo -->
+      <div class="h-20 flex items-center justify-between px-6 border-b border-slate-800">
+        <router-link to="/admin" class="flex items-center gap-2 select-none">
+          <span class="font-display text-lg tracking-[2px] font-bold text-white">
+            SAIGON<span class="text-accent font-extrabold">SHOES</span>
+          </span>
+          <span class="bg-accent/20 text-accent text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border border-accent/20">
+            Admin
+          </span>
+        </router-link>
+        <!-- Mobile close button -->
+        <button @click="sidebarOpen = false" class="md:hidden text-slate-400 hover:text-white p-1 cursor-pointer">
+          <i class="ti ti-x text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+        <div class="text-[10px] uppercase font-bold tracking-[2px] text-slate-500 px-3 mb-2">QUẢN TRỊ HỆ THỐNG</div>
+        
+        <router-link 
+          v-for="item in navItems" 
+          :key="item.path" 
+          :to="item.path"
+          class="flex items-center gap-3 px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-400 hover:bg-slate-800 hover:text-white"
+          active-class="bg-accent! text-white! font-semibold shadow-lg shadow-accent/20"
+        >
+          <i :class="['ti text-lg group-hover:scale-110 transition-transform', item.icon]"></i>
+          <span>{{ item.name }}</span>
+        </router-link>
+      </nav>
+
+      <!-- User footer info -->
+      <div class="p-4 border-t border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-accent/10 text-accent flex items-center justify-center font-bold text-sm">
+            {{ adminInitial }}
+          </div>
+          <div class="min-w-0">
+            <p class="text-xs font-bold truncate text-slate-200">{{ adminName }}</p>
+            <p class="text-[10px] text-slate-400 truncate">Quản trị viên</p>
+          </div>
+        </div>
+        <button 
+          @click="handleLogout" 
+          class="p-2 text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-all cursor-pointer" 
+          title="Đăng xuất"
+        >
+          <i class="ti ti-logout text-lg"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
+      <!-- Top Header -->
+      <header class="h-20 bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-90 flex items-center justify-between px-6 md:px-8">
+        <!-- Toggle button & Page Title -->
+        <div class="flex items-center gap-4">
+          <button 
+            @click="sidebarOpen = !sidebarOpen" 
+            class="md:hidden p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors cursor-pointer"
+          >
+            <i class="ti ti-menu-2 text-xl"></i>
+          </button>
+          
+          <!-- Breadcrumbs -->
+          <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+            <span class="hover:text-slate-600 cursor-pointer">Admin</span>
+            <i class="ti ti-chevron-right text-[10px]"></i>
+            <span class="text-slate-800 font-semibold uppercase tracking-wider text-[11px]">{{ currentPageName }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-4">
+          <!-- Back to store button -->
+          <router-link 
+            to="/" 
+            class="hidden sm:flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-500 border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all active:scale-95"
+          >
+            <i class="ti ti-arrow-left"></i> Quay lại cửa hàng
+          </router-link>
+
+          <!-- Divider -->
+          <div class="h-6 w-px bg-slate-100 hidden sm:block"></div>
+
+          <!-- Account Dropdown -->
+          <div class="relative group">
+            <button class="flex items-center gap-3 p-1.5 hover:bg-slate-50 border border-slate-200 rounded-xl transition-all cursor-pointer">
+              <div class="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-bold text-sm">
+                {{ adminInitial }}
+              </div>
+              <div class="hidden sm:block text-left leading-none">
+                <span class="text-xs font-semibold text-slate-800 block truncate max-w-[100px]">{{ adminName }}</span>
+                <span class="text-[9px] uppercase tracking-wider font-bold text-accent block mt-0.5">Quản trị viên</span>
+              </div>
+              <i class="ti ti-chevron-down text-xs text-slate-400"></i>
+            </button>
+            
+            <div class="absolute right-0 top-full pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0 w-44 bg-white border border-slate-100 rounded-xl shadow-xl py-1 z-100">
+              <router-link to="/profile" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-accent transition-colors">Hồ sơ cá nhân</router-link>
+              <button @click="handleLogout" class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors border-none bg-transparent cursor-pointer font-semibold">Đăng xuất</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Slot -->
+      <main class="flex-1 p-6 md:p-8 bg-slate-50/50">
+        <div class="max-w-[1400px] mx-auto animate-fade-in text-left">
+          <slot />
+        </div>
+      </main>
+    </div>
+
+    <!-- Backdrop for mobile sidebar -->
+    <div 
+      v-if="sidebarOpen" 
+      @click="sidebarOpen = false" 
+      class="fixed inset-0 bg-slate-900/40 z-90 md:hidden backdrop-blur-xs transition-opacity duration-300"
+    ></div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import axiosInstance from '@/api/axios.js'
+
+const sidebarOpen = ref(false)
+const adminName = ref('Admin')
+const route = useRoute()
+
+const navItems = [
+  { name: 'Tổng quan', path: '/admin', icon: 'ti-layout-dashboard' },
+  { name: 'Sản phẩm', path: '/admin/products', icon: 'ti-shoe' },
+  { name: 'Danh mục', path: '/admin/categories', icon: 'ti-category' },
+  { name: 'Banner', path: '/admin/banners', icon: 'ti-photo' },
+  { name: 'Đơn hàng', path: '/admin/orders', icon: 'ti-shopping-cart' },
+  { name: 'Mã giảm giá', path: '/admin/vouchers', icon: 'ti-ticket' },
+  { name: 'Flash Sale', path: '/admin/flashsales', icon: 'ti-flame' },
+  { name: 'Người dùng', path: '/admin/users', icon: 'ti-users' },
+  { name: 'Bài viết (Blog)', path: '/admin/blogs', icon: 'ti-news' },
+  { name: 'Đánh giá', path: '/admin/reviews', icon: 'ti-star' },
+]
+
+const currentPageName = computed(() => {
+  const currentItem = navItems.find(item => item.path === route.path)
+  return currentItem ? currentItem.name : 'Trang Quản Trị'
+})
+
+const adminInitial = computed(() => adminName.value ? adminName.value.substring(0, 2).toUpperCase() : 'AD')
+
+function checkAdmin() {
+  try {
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      const user = JSON.parse(userStr)
+      adminName.value = user.name || 'Quản trị viên'
+    }
+  } catch (e) {
+    adminName.value = 'Quản trị viên'
+  }
+}
+
+onMounted(() => {
+  checkAdmin()
+})
+
+async function handleLogout() {
+  localStorage.setItem('is_logging_out', 'true')
+  try {
+    await axiosInstance.post('/logout')
+  } catch (error) {
+    console.error('Logout error:', error)
+  } finally {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('is_logging_out')
+    window.location.href = '/'
+  }
+}
+</script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

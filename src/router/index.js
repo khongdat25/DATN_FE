@@ -72,6 +72,67 @@ const routes = [
         path: '/contact',
         component: () => import('../views/user/ContactView.vue'),
         name: 'contact'
+    },
+    // Admin routes
+    {
+        path: '/admin',
+        component: () => import('../views/admin/DashboardView.vue'),
+        name: 'admin-dashboard',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/products',
+        component: () => import('../views/admin/ProductsView.vue'),
+        name: 'admin-products',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/categories',
+        component: () => import('../views/admin/CategoriesView.vue'),
+        name: 'admin-categories',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/banners',
+        component: () => import('../views/admin/BannersView.vue'),
+        name: 'admin-banners',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/orders',
+        component: () => import('../views/admin/OrdersView.vue'),
+        name: 'admin-orders',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/vouchers',
+        component: () => import('../views/admin/VouchersView.vue'),
+        name: 'admin-vouchers',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/flashsales',
+        component: () => import('../views/admin/FlashSalesView.vue'),
+        name: 'admin-flashsales',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/users',
+        component: () => import('../views/admin/UsersView.vue'),
+        name: 'admin-users',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/blogs',
+        component: () => import('../views/admin/BlogsView.vue'),
+        name: 'admin-blogs',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/reviews',
+        component: () => import('../views/admin/ReviewsView.vue'),
+        name: 'admin-reviews',
+        meta: { requiresAuth: true, requiresAdmin: true }
     }
 ];
 
@@ -84,12 +145,33 @@ const router = createRouter({
     }
 });
 
-// Navigation Guard (Bảo vệ các trang cần đăng nhập)
+// Navigation Guard (Bảo vệ các trang cần đăng nhập & phân quyền)
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('access_token');
 
-    if (to.meta.requiresAuth && !token) {
-        next({ name: 'login' }); // Chuyển về trang login thay vì home
+    if (to.meta.requiresAdmin) {
+        if (!token) {
+            next({ name: 'login' });
+        } else {
+            const userStr = localStorage.getItem('user');
+            let isAdmin = false;
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    isAdmin = user && user.role === 'admin';
+                } catch (e) {
+                    isAdmin = false;
+                }
+            }
+            if (isAdmin) {
+                next();
+            } else {
+                // Không phải admin, chuyển hướng về trang chủ
+                next({ name: 'home' });
+            }
+        }
+    } else if (to.meta.requiresAuth && !token) {
+        next({ name: 'login' }); // Chuyển về trang login
     } else {
         next();
     }
