@@ -12,9 +12,38 @@
 
     <main class="py-12 bg-bg">
       <div class="max-w-[1200px] mx-auto px-5">
-        
+
+        <!-- Skeleton Loading -->
+        <div v-if="isLoading" class="animate-pulse">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 pb-16">
+            <div class="flex flex-col gap-6">
+              <div class="bg-surface2 rounded-2xl h-[460px] w-full"></div>
+              <div class="grid grid-cols-4 gap-4">
+                <div v-for="i in 4" :key="i" class="bg-surface2 rounded-2xl h-24"></div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-5 pt-4">
+              <div class="h-3 bg-surface2 rounded w-1/4"></div>
+              <div class="h-9 bg-surface2 rounded w-3/4"></div>
+              <div class="h-4 bg-surface2 rounded w-1/3"></div>
+              <div class="h-px bg-border w-full my-2"></div>
+              <div class="h-10 bg-surface2 rounded w-1/2"></div>
+              <div class="flex gap-3 mt-2">
+                <div v-for="i in 3" :key="i" class="h-11 w-11 rounded-full bg-surface2"></div>
+              </div>
+              <div class="flex gap-2 flex-wrap mt-2">
+                <div v-for="i in 6" :key="i" class="h-11 w-14 bg-surface2 rounded-xl"></div>
+              </div>
+              <div class="flex gap-3 mt-4">
+                <div class="h-14 bg-surface2 rounded-xl flex-1"></div>
+                <div class="h-14 w-14 bg-surface2 rounded-xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Product Detail Section -->
-        <section class="pb-16">
+        <section v-else class="pb-16">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             
             <!-- Left: Gallery & Offers -->
@@ -189,8 +218,8 @@
           </div>
         </section>
 
-        <!-- Tabs Section -->
-        <section class="py-12 border-t border-border">
+        <!-- Tabs Section (only when loaded) -->
+        <section v-if="!isLoading" class="py-12 border-t border-border">
           <div class="flex justify-center border-b border-border mb-10 gap-10">
             <button 
               v-for="tab in tabs" 
@@ -233,11 +262,13 @@
           <div v-show="activeTab === 'reviews'" class="max-w-[800px] mx-auto space-y-8">
             <div class="flex items-center gap-10 p-6 bg-surface2 rounded-2xl border border-border/60">
               <div class="text-center">
-                <div class="font-display text-4xl font-extrabold text-text">4.8<span class="text-base text-text-dim font-normal">/5</span></div>
+                <div class="font-display text-4xl font-extrabold text-text">{{ avgRating }}<span class="text-base text-text-dim font-normal">/5</span></div>
                 <div class="flex text-gold justify-center my-2 text-sm gap-0.5">
-                  <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-half-filled"></i>
+                  <template v-for="n in 5" :key="n">
+                    <i :class="['ti', n <= Math.round(Number(avgRating)) ? 'ti-star-filled' : 'ti-star']"></i>
+                  </template>
                 </div>
-                <div class="text-xs text-text-muted">Dựa trên 128 đánh giá</div>
+                <div class="text-xs text-text-muted">Dựa trên {{ reviewsList.length }} đánh giá</div>
               </div>
               <div class="flex-1 flex justify-end">
                 <button @click="showWriteReview" class="bg-text text-white px-5 py-3 rounded-xl text-xs font-semibold hover:bg-accent hover:text-white transition-colors active:scale-95 cursor-pointer">
@@ -275,8 +306,8 @@
           </div>
         </section>
 
-        <!-- Related Products Section -->
-        <section class="py-12 border-t border-border mt-12 bg-surface2/30 rounded-3xl p-8 border">
+        <!-- Related Products Section (only when loaded) -->
+        <section v-if="!isLoading" class="py-12 border-t border-border mt-12 bg-surface2/30 rounded-3xl p-8 border">
           <h2 class="font-display text-2xl font-bold tracking-wider text-center mb-8 uppercase text-text">Sản phẩm liên quan</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             <ProductCard 
@@ -296,7 +327,7 @@
 </template>
 
 <script setup>
-import { ref, inject, watch } from 'vue'
+import { ref, computed, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import ProductCard from '@/components/common/ProductCard.vue'
@@ -338,37 +369,20 @@ const vouchers = ref([
   { title: 'Giảm 15%', desc: 'Đơn tối thiểu 1.500K', saved: false }
 ])
 
-const tabs = [
+const tabs = computed(() => [
   { id: 'desc', label: 'Mô tả sản phẩm' },
   { id: 'specs', label: 'Thông tin sản phẩm' },
-  { id: 'reviews', label: 'Đánh giá (128)' }
-]
+  { id: 'reviews', label: `Đánh giá (${reviewsList.value.length})` }
+])
 
 const specs = ref([])
+const reviewsList = ref([])
+const avgRating = ref('5.0')
 
-const reviewsList = [
-  {
-    name: 'Hoàng Trần',
-    stars: 5,
-    date: '15/05/2026',
-    comment: 'Giày mang cực kỳ êm chân, màu cam ngoài đời nhìn sáng và đẹp hơn trong ảnh rất nhiều. Shop đóng gói cẩn thận, hộp không bị móp méo. Sẽ ủng hộ tiếp!',
-    variant: 'Cam Trắng',
-    size: '41'
-  },
-  {
-    name: 'Minh Nguyễn',
-    stars: 4,
-    date: '10/05/2026',
-    comment: 'Giao hàng nhanh, form giày chuẩn. Tuy nhiên lúc mới mang hơi cứng ở phần gót một chút, đi vài hôm thì mềm ra ok. Điểm cộng là rất thoáng khí.',
-    variant: 'Đen Trắng',
-    size: '42'
-  }
-]
-
-// Dynamically compute related products of same category
-const relatedProducts = ref([])
+const isLoading = ref(true)
 
 async function loadProduct(id) {
+  isLoading.value = true
   try {
     const response = await axiosInstance.get(`/product/${id}`)
     if (response.success && response.data) {
@@ -391,18 +405,17 @@ async function loadProduct(id) {
         selectedColor.value = ''
       }
 
-      // Set default size (or fallback to first size)
+      // Set default size
       if (data.sizes && data.sizes.length > 0) {
         selectedSize.value = data.sizes[0]
       } else {
         selectedSize.value = ''
       }
 
-      // Reset qty & wishlist state
       qty.value = 1
       wished.value = false
 
-      // Populate dynamic specs
+      // Populate specs
       if (data.specs && data.specs.length > 0) {
         specs.value = data.specs
       } else {
@@ -413,13 +426,36 @@ async function loadProduct(id) {
         ]
       }
 
-      // Load related products asynchronously in the background without blocking the UI rendering
+      // Map real reviews from API rating array
+      const rawRatings = response.data.rating || []
+      if (rawRatings.length > 0) {
+        const total = rawRatings.reduce((sum, r) => sum + (r.rating || 5), 0)
+        avgRating.value = (total / rawRatings.length).toFixed(1)
+        reviewsList.value = rawRatings.map(r => ({
+          name: r.user?.name || 'Khách hàng',
+          stars: r.rating || 5,
+          date: new Date(r.created_at).toLocaleDateString('vi-VN'),
+          comment: r.comment || 'Sản phẩm tốt!',
+          variant: 'Chính hãng',
+          size: ''
+        }))
+      } else {
+        avgRating.value = '5.0'
+        reviewsList.value = []
+      }
+
+      // Load related products
       fetchRelatedProducts(data.category, data.id)
     }
   } catch (error) {
     console.error('Failed to load product detail:', error)
+  } finally {
+    isLoading.value = false
   }
 }
+
+// Related products
+const relatedProducts = ref([])
 
 async function fetchRelatedProducts(categoryName, currentProductId) {
   try {

@@ -146,35 +146,34 @@ const router = createRouter({
 });
 
 // Navigation Guard (Bảo vệ các trang cần đăng nhập & phân quyền)
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
     const token = localStorage.getItem('access_token');
 
     if (to.meta.requiresAdmin) {
         if (!token) {
-            next({ name: 'login' });
-        } else {
-            const userStr = localStorage.getItem('user');
-            let isAdmin = false;
-            if (userStr) {
-                try {
-                    const user = JSON.parse(userStr);
-                    isAdmin = user && user.role === 'admin';
-                } catch (e) {
-                    isAdmin = false;
-                }
-            }
-            if (isAdmin) {
-                next();
-            } else {
-                // Không phải admin, chuyển hướng về trang chủ
-                next({ name: 'home' });
+            return { name: 'login' };
+        }
+        const userStr = localStorage.getItem('user');
+        let isAdmin = false;
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                isAdmin = user && user.role === 'admin';
+            } catch (e) {
+                isAdmin = false;
             }
         }
-    } else if (to.meta.requiresAuth && !token) {
-        next({ name: 'login' }); // Chuyển về trang login
-    } else {
-        next();
+        if (!isAdmin) {
+            return { name: 'home' };
+        }
+        return true;
     }
+
+    if (to.meta.requiresAuth && !token) {
+        return { name: 'login' };
+    }
+
+    return true;
 });
 
 export default router;
