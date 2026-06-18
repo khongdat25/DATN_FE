@@ -287,9 +287,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
@@ -300,19 +301,35 @@ const isEditMode = ref(false)
 const toastShow = ref(false)
 const toastMessage = ref('')
 
-const categories = ref([
-  { code: 'CAT-SNNAM', name: 'Sneaker Nam', description: 'Các dòng giày thể thao năng động dành cho nam', productCount: 12, status: 'active' },
-  { code: 'CAT-SNNU', name: 'Sneaker Nữ', description: 'Dòng giày thể thao nhẹ nhàng, hợp thời trang cho nữ', productCount: 8, status: 'active' },
-  { code: 'CAT-CROCS', name: 'Dép Crocs', description: 'Dép nhựa lỗ đi mưa tiện dụng, thời trang trẻ em và người lớn', productCount: 4, status: 'active' },
-  { code: 'CAT-GIAYTAY', name: 'Giày Tây', description: 'Giày da bò nguyên tấm sang trọng dành cho các quý ông công sở', productCount: 0, status: 'paused' },
-  { code: 'CAT-PHUKIEN', name: 'Phụ kiện vệ sinh', description: 'Dung dịch xịt tạo bọt, bàn chải lông cừu, nano chống nước cho giày', productCount: 2, status: 'active' }
-])
+const categories = ref([])
 
 const formCategory = ref({
   code: '',
   name: '',
   description: '',
   status: 'active'
+})
+
+async function fetchCategories() {
+  try {
+    const response = await axiosInstance.get('/admincategory')
+    if (response && response.success) {
+      categories.value = response.data.map(cat => ({
+        id: cat.id,
+        code: cat.slug, // Map slug to code in the UI
+        name: cat.name,
+        description: cat.description || '',
+        productCount: cat.total || 0,
+        status: cat.status == 1 ? 'active' : 'paused'
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+  }
+}
+
+onMounted(() => {
+  fetchCategories()
 })
 
 const sortedAndFilteredCategories = computed(() => {
@@ -347,10 +364,15 @@ function showToast(msg) {
   }, 3000)
 }
 
-function toggleCategoryActive(cat) {
-  cat.status = cat.status === 'active' ? 'paused' : 'active'
-  const stateText = cat.status === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
-  showToast(`Đã ${stateText} danh mục "${cat.name}" thành công!`)
+async function toggleCategoryActive(cat) {
+  try {
+    const response = await axiosInstance.patch(`/toggle/${cat.id}`)
+    cat.status = cat.status === 'active' ? 'paused' : 'active'
+    const stateText = cat.status === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
+    showToast(`Đã ${stateText} danh mục "${cat.name}" thành công!`)
+  } catch (error) {
+    console.error('Error toggling category status:', error)
+  }
 }
 
 function openAddModal() {
@@ -374,38 +396,47 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveCategory() {
-  if (isEditMode.value) {
-    const idx = categories.value.findIndex(c => c.code === formCategory.value.code)
-    if (idx > -1) {
-      categories.value[idx] = { ...categories.value[idx], ...formCategory.value }
+async function saveCategory() {
+  try {
+    if (isEditMode.value) {
+      const catToEdit = categories.value.find(c => c.code === formCategory.value.code)
+      if (!catToEdit) return
+
+      const payload = {
+        name: formCategory.value.name,
+        slug: formCategory.value.code.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        description: formCategory.value.description,
+        status: formCategory.value.status === 'active' ? 1 : 0
+      }
+
+      const response = await axiosInstance.post(`/category_edit/${catToEdit.id}`, payload)
+      if (response && response.success) {
+        showToast(`Đã cập nhật danh mục "${formCategory.value.name}"!`)
+        await fetchCategories()
+        modalOpen.value = false
+      }
+    } else {
+      const slug = formCategory.value.code.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      
+      const payload = {
+        name: formCategory.value.name,
+        slug: slug,
+        description: formCategory.value.description
+      }
+
+      const response = await axiosInstance.post('/category_add', payload)
+      if (response && response.success) {
+        showToast(`Đã thêm danh mục mới "${formCategory.value.name}"!`)
+        await fetchCategories()
+        modalOpen.value = false
+      }
     }
-    showToast(`Đã cập nhật danh mục "${formCategory.value.name}"!`)
-  } else {
-    // Check code duplication
-    const exist = categories.value.find(c => c.code.toUpperCase() === formCategory.value.code.toUpperCase())
-    if (exist) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Trùng mã code!',
-        text: 'Mã danh mục này đã tồn tại trong hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
-      return
-    }
-    categories.value.push({
-      code: formCategory.value.code.toUpperCase(),
-      name: formCategory.value.name,
-      description: formCategory.value.description,
-      productCount: 0,
-      status: 'active'
-    })
-    showToast(`Đã thêm danh mục mới "${formCategory.value.name}"!`)
+  } catch (error) {
+    console.error('Error saving category:', error)
   }
-  modalOpen.value = false
 }
 
-function deleteCategory(code) {
+async function deleteCategory(code) {
   const cat = categories.value.find(c => c.code === code)
   if (!cat) return
   
@@ -418,15 +449,28 @@ function deleteCategory(code) {
     cancelButtonColor: '#94a3b8',
     confirmButtonText: 'Đồng ý xóa!',
     cancelButtonText: 'Hủy'
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      categories.value = categories.value.filter(c => c.code !== code)
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Danh mục đã được xóa bỏ khỏi hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
+      try {
+        const response = await axiosInstance.delete(`/category/${cat.id}`)
+        if (response && response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa!',
+            text: 'Danh mục đã được xóa bỏ khỏi hệ thống.',
+            confirmButtonColor: '#FF4D00'
+          })
+          await fetchCategories()
+        }
+      } catch (error) {
+        const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra khi xóa danh mục.'
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi xóa danh mục',
+          text: errorMsg,
+          confirmButtonColor: '#FF4D00'
+        })
+      }
     }
   })
 }

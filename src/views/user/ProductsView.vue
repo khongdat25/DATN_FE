@@ -275,7 +275,7 @@ const isLoading = ref(true)
 // --- API functions ---
 async function fetchCategories() {
   try {
-    const res = await axiosInstance.get('/categories')
+    const res = await axiosInstance.get('/getcategories')
     if (res.success && Array.isArray(res.data)) {
       availableCategories.value = res.data
     }

@@ -56,9 +56,9 @@
                 > 
                 Ghi nhớ đăng nhập
               </label>
-              <a href="#" class="forgot-pass text-accent font-semibold hover:underline" @click.prevent="handleForgotPassword">
+              <router-link to="/forgot-password" class="forgot-pass text-accent font-semibold hover:underline">
                 Quên mật khẩu?
-              </a>
+              </router-link>
             </div>
 
             <!-- Login Button -->

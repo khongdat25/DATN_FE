@@ -283,6 +283,7 @@ import { ref, computed, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const router = useRouter()
 const showToast = inject('showToast', () => {})
@@ -346,7 +347,45 @@ onMounted(() => {
 })
 
 // ─── Cart persistence ─────────────────────────────────────────────────────────
-function loadCart() {
+async function loadCart() {
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    try {
+      const response = await axiosInstance.get('/cart')
+      if (response && response.data) {
+        cartItems.value = response.data.map(item => {
+          const v = item.variant || {}
+          const p = v.product || {}
+          let img = '/images/placeholder.png'
+          if (p.images && p.images.length > 0) {
+            img = getImageUrl(p.images[0].image)
+          } else if (v.image) {
+            img = getImageUrl(v.image)
+          }
+          
+          return {
+            id: item.id,
+            variant_id: v.id,
+            productId: p.id || 1,
+            name: p.name || 'Sản phẩm',
+            variant: (v.color?.name || v.size?.name) 
+              ? `Màu ${v.color?.name || ''} · Size ${v.size?.name || ''}`
+              : 'Mặc định',
+            price: v.price || 0,
+            qty: item.quantity || 1,
+            image: img
+          }
+        })
+        saveLocalCopy()
+        updateHeaderCartCount()
+        return
+      }
+    } catch (e) {
+      console.error('Failed to load cart from API:', e)
+    }
+  }
+
+  // Guest mode fallback
   const local = localStorage.getItem('saigon_cart')
   if (local) {
     try {
@@ -355,58 +394,72 @@ function loadCart() {
       cartItems.value = []
     }
   } else {
-    // Mock data khi chưa có giỏ hàng
-    cartItems.value = [
-      {
-        id: 101,
-        productId: 1,
-        name: "Nike Air Force 1 '07 White Original",
-        variant: 'Màu Cam Trắng · Size 41',
-        price: 1290000,
-        qty: 1,
-        image: '/images/nike-air-force-1.png'
-      },
-      {
-        id: 102,
-        productId: 2,
-        name: 'Adidas Samba OG Core White/Black',
-        variant: 'Màu Đen Trắng · Size 42',
-        price: 1590000,
-        qty: 2,
-        image: '/images/adidas-samba-og1.png'
-      }
-    ]
-    saveCart()
+    cartItems.value = []
   }
   updateHeaderCartCount()
 }
 
-function saveCart() {
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/placeholder.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`
+  return `${serverUrl}${path}`
+}
+
+function saveLocalCopy() {
   localStorage.setItem('saigon_cart', JSON.stringify(cartItems.value))
-  updateHeaderCartCount()
 }
 
 function updateHeaderCartCount() {
   cartCount.value = cartItems.value.reduce((acc, item) => acc + item.qty, 0)
 }
 
+async function syncQtyToServer(item) {
+  const token = localStorage.getItem('access_token')
+  if (token && item.id) {
+    try {
+      await axiosInstance.put(`/cart/${item.id}`, { quantity: item.qty })
+    } catch (e) {
+      console.error('Failed to sync quantity to server:', e)
+    }
+  }
+}
+
 // ─── Qty ──────────────────────────────────────────────────────────────────────
-function increaseQty(item) {
-  if (item.qty < 10) { item.qty++; saveCart() }
+async function increaseQty(item) {
+  if (item.qty < 10) { 
+    item.qty++
+    saveLocalCopy()
+    updateHeaderCartCount()
+    await syncQtyToServer(item)
+  }
 }
 
-function decreaseQty(item) {
-  if (item.qty > 1) { item.qty--; saveCart() }
+async function decreaseQty(item) {
+  if (item.qty > 1) { 
+    item.qty--
+    saveLocalCopy()
+    updateHeaderCartCount()
+    await syncQtyToServer(item)
+  }
 }
 
-function onQtyChange(item) {
+async function onQtyChange(item) {
   if (!item.qty || item.qty < 1) item.qty = 1
   if (item.qty > 10) item.qty = 10
-  saveCart()
+  saveLocalCopy()
+  updateHeaderCartCount()
+  await syncQtyToServer(item)
 }
 
 // ─── Remove / Clear ──────────────────────────────────────────────────────────
-function removeItem(item) {
+async function removeItem(item) {
   Swal.fire({
     title: 'Xác nhận xóa?',
     text: `Bạn muốn xóa "${item.name}" khỏi giỏ hàng?`,
@@ -416,16 +469,25 @@ function removeItem(item) {
     cancelButtonText: 'Hủy',
     confirmButtonColor: '#FF4D00',
     cancelButtonColor: '#aaa'
-  }).then(result => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
+      const token = localStorage.getItem('access_token')
+      if (token && item.id) {
+        try {
+          await axiosInstance.delete(`/cart/${item.id}`)
+        } catch (e) {
+          console.error('Failed to delete cart item on server:', e)
+        }
+      }
       cartItems.value = cartItems.value.filter(i => i.id !== item.id)
-      saveCart()
+      saveLocalCopy()
+      updateHeaderCartCount()
       showToast('Đã xóa sản phẩm khỏi giỏ hàng')
     }
   })
 }
 
-function clearCart() {
+async function clearCart() {
   if (!cartItems.value.length) return
   Swal.fire({
     title: 'Xóa toàn bộ giỏ hàng?',
@@ -436,11 +498,22 @@ function clearCart() {
     cancelButtonText: 'Hủy',
     confirmButtonColor: '#FF4D00',
     cancelButtonColor: '#aaa'
-  }).then(result => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
+      const token = localStorage.getItem('access_token')
+      if (token) {
+        try {
+          await Promise.all(cartItems.value.map(i => {
+            if (i.id) return axiosInstance.delete(`/cart/${i.id}`)
+          }))
+        } catch (e) {
+          console.error('Failed to clear cart on server:', e)
+        }
+      }
       cartItems.value = []
       appliedVoucher.value = null
-      saveCart()
+      saveLocalCopy()
+      updateHeaderCartCount()
       showToast('Đã xóa toàn bộ giỏ hàng')
     }
   })

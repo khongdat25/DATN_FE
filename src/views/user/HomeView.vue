@@ -8,6 +8,7 @@ import HeroSlider from '../../components/home/HeroSlider.vue'
 import CategorySection from '../../components/home/CategorySection.vue'
 import FlashSale from '../../components/home/FlashSale.vue'
 import BestSellers from '../../components/home/BestSellers.vue'
+import NewProducts from '../../components/home/NewProducts.vue'
 import FeaturedProducts from '../../components/home/FeaturedProducts.vue'
 import CollectionSection from '../../components/home/CollectionSection.vue'
 import BlogSection from '../../components/home/BlogSection.vue'
@@ -43,6 +44,8 @@ function handleSignup() {
     <FlashSale @add-to-cart="handleAddToCart" @toggle-wish="handleWish" />
     <hr class="border-none border-t border-border m-0">
     <BestSellers @add-to-cart="handleAddToCart" @toggle-wish="handleWish" />
+    <hr class="border-none border-t border-border m-0">
+    <NewProducts @add-to-cart="handleAddToCart" @toggle-wish="handleWish" />
     <hr class="border-none border-t border-border m-0">
     <FeaturedProducts @add-to-cart="handleAddToCart" />
     <hr class="border-none border-t border-border m-0">

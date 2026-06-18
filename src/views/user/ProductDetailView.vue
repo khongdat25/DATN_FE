@@ -519,13 +519,28 @@ function doAddToCart() {
     return
   }
   
+  // Find matching variant
+  const matchingVariant = (product.value.rawVariants || []).find(v => {
+    const sizeName = v.size?.name || String(v.size_id)
+    const colorName = v.color?.name || String(v.color_id)
+    
+    const matchesSize = sizeName == String(selectedSize.value)
+    const matchesColor = product.value.colors && product.value.colors.length > 0 
+      ? colorName == String(selectedColor.value)
+      : true
+      
+    return matchesSize && matchesColor
+  })
+  
   const payload = {
     id: product.value.id,
+    variant_id: matchingVariant?.id || null,
     brand: product.value.brand,
-    name: product.value.colors && product.value.colors.length > 0 
-      ? `${product.value.name} - Màu ${selectedColor.value} - Size ${selectedSize.value}`
-      : `${product.value.name} - Size ${selectedSize.value}`,
-    price: product.value.price,
+    name: product.value.name,
+    variant_name: product.value.colors && product.value.colors.length > 0 
+      ? `Màu ${selectedColor.value} · Size ${selectedSize.value}`
+      : `Size ${selectedSize.value}`,
+    price: product.value.numericPrice || 0,
     image: activeImage.value,
     qty: qty.value
   }

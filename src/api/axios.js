@@ -30,6 +30,17 @@ axiosInstance.interceptors.response.use(
     (error) => {
         const status = error.response ? error.response.status : null;
 
+        // Xử lý lỗi kết nối hoặc quá thời gian phản hồi (timeout)
+        if (!error.response) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi kết nối',
+                text: 'Không thể kết nối tới máy chủ hoặc yêu cầu bị quá thời gian phản hồi (timeout). Vui lòng thử lại sau!',
+                confirmButtonColor: '#FF4D00'
+            });
+            return Promise.reject(error);
+        }
+
         if (status === 401) {
             // Nếu là API login, hiển thị thông báo lỗi đăng nhập từ server
             if (error.config && error.config.url && (error.config.url.endsWith('/login') || error.config.url.includes('/login/google'))) {

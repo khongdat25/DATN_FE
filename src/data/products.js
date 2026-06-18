@@ -789,6 +789,7 @@ export function mapBackendProduct(p) {
       { name: 'Thương hiệu', value: brandName },
       { name: 'Dòng sản phẩm', value: p.name }
     ],
-    slug: p.slug
+    slug: p.slug,
+    rawVariants: p.variants || []
   };
 }

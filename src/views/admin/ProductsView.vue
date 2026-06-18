@@ -31,18 +31,12 @@
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
           <select v-model="filterCategory" class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2.5 px-3 focus:outline-none cursor-pointer font-semibold text-slate-700">
             <option value="all">Tất cả danh mục</option>
-            <option>Sneaker Nam</option>
-            <option>Sneaker Nữ</option>
-            <option>Dép Crocs</option>
-            <option>Giày Tây</option>
-            <option>Phụ kiện vệ sinh</option>
+            <option v-for="cat in categoriesList" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
           </select>
 
           <select v-model="filterBrand" class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2.5 px-3 focus:outline-none cursor-pointer font-semibold text-slate-700">
             <option value="all">Tất cả thương hiệu</option>
-            <option>Nike</option>
-            <option>Adidas</option>
-            <option>Puma</option>
+            <option v-for="br in brandsList" :key="br.id" :value="br.name">{{ br.name }}</option>
           </select>
 
           <select v-model="filterStatus" class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2.5 px-3 focus:outline-none cursor-pointer font-semibold text-slate-700">
@@ -237,16 +231,26 @@
             >
           </div>
 
-          <!-- SKU -->
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mã sản phẩm (SKU) *</label>
+          <!-- SKU (Only in edit mode, read-only) -->
+          <div v-if="isEditMode">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mã sản phẩm (SKU)</label>
             <input 
               type="text" 
               v-model="formProduct.sku" 
-              placeholder="Ví dụ: SS-AF1-01" 
-              required 
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all placeholder:text-slate-400 uppercase font-mono text-slate-800 font-bold"
+              readonly
+              class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-xs outline-none uppercase font-mono text-slate-500 font-bold"
             >
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mô tả sản phẩm</label>
+            <textarea 
+              v-model="formProduct.description" 
+              placeholder="Nhập mô tả chi tiết sản phẩm..." 
+              rows="3"
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all placeholder:text-slate-400 text-slate-800 font-semibold resize-none"
+            ></textarea>
           </div>
 
           <!-- Category & Brand -->
@@ -254,29 +258,23 @@
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Danh mục *</label>
               <select 
-                v-model="formProduct.category" 
+                v-model="formProduct.category_id" 
                 required 
                 class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all cursor-pointer text-slate-700 font-semibold"
               >
                 <option value="">Chọn danh mục</option>
-                <option>Sneaker Nam</option>
-                <option>Sneaker Nữ</option>
-                <option>Dép Crocs</option>
-                <option>Giày Tây</option>
-                <option>Phụ kiện vệ sinh</option>
+                <option v-for="cat in categoriesList" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Thương hiệu *</label>
               <select 
-                v-model="formProduct.brand" 
+                v-model="formProduct.brand_id" 
                 required 
                 class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all cursor-pointer text-slate-700 font-semibold"
               >
                 <option value="">Chọn thương hiệu</option>
-                <option>Nike</option>
-                <option>Adidas</option>
-                <option>Puma</option>
+                <option v-for="br in brandsList" :key="br.id" :value="br.id">{{ br.name }}</option>
               </select>
             </div>
           </div>
@@ -305,23 +303,25 @@
               >
                 <div class="col-span-3">
                   <span class="block text-[10px] text-slate-400 font-bold mb-1">SIZE *</span>
-                  <input 
-                    type="number" 
-                    v-model="v.size" 
-                    placeholder="40" 
+                  <select 
+                    v-model="v.size_id" 
                     required 
-                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold"
+                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold cursor-pointer"
                   >
+                    <option value="">Chọn Size</option>
+                    <option v-for="sz in sizesList" :key="sz.id" :value="sz.id">Size {{ sz.name }}</option>
+                  </select>
                 </div>
                 <div class="col-span-3">
                   <span class="block text-[10px] text-slate-400 font-bold mb-1">MÀU SẮC *</span>
-                  <input 
-                    type="text" 
-                    v-model="v.color" 
-                    placeholder="Cam Trắng" 
+                  <select 
+                    v-model="v.color_id" 
                     required 
-                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold"
+                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold cursor-pointer"
                   >
+                    <option value="">Chọn Màu</option>
+                    <option v-for="cl in colorsList" :key="cl.id" :value="cl.id">{{ cl.name }}</option>
+                  </select>
                 </div>
                 <div class="col-span-3">
                   <span class="block text-[10px] text-slate-400 font-bold mb-1">TỒN KHO *</span>
@@ -380,9 +380,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const searchQuery = ref('')
 const filterCategory = ref('all')
@@ -394,56 +395,109 @@ const modalOpen = ref(false)
 const isEditMode = ref(false)
 const editingProductId = ref(null)
 
-const products = ref([
-  {
-    id: 1,
-    name: 'StepUp Air Max One',
-    sku: 'SS-AF1-01',
-    brand: 'Nike',
-    category: 'Sneaker Nam',
-    image: '/images/p1.png',
-    variants: [
-      { size: 39, color: 'Cam Trắng', stock: 10, price: 1200000 },
-      { size: 40, color: 'Cam Trắng', stock: 8, price: 1250000 },
-      { size: 41, color: 'Cam Trắng', stock: 6, price: 1350000 }
-    ]
-  },
-  {
-    id: 2,
-    name: 'StepUp Pro Dunker',
-    sku: 'SS-AF1-02',
-    brand: 'Nike',
-    category: 'Sneaker Nam',
-    image: '/images/p2.png',
-    variants: [
-      { size: 40, color: 'Đen Đỏ', stock: 5, price: 2100000 },
-      { size: 41, color: 'Đen Đỏ', stock: 5, price: 2100000 },
-      { size: 42, color: 'Đen Đỏ', stock: 5, price: 2100000 }
-    ]
-  },
-  {
-    id: 3,
-    name: 'StepUp Sport Flyknit',
-    sku: 'SS-AD-01',
-    brand: 'Adidas',
-    category: 'Sneaker Nữ',
-    image: '/images/p3.png',
-    variants: [
-      { size: 36, color: 'Hồng Phấn', stock: 0, price: 1400000 },
-      { size: 37, color: 'Hồng Phấn', stock: 0, price: 1400000 }
-    ]
-  }
-])
+const products = ref([])
+const categoriesList = ref([])
+const brandsList = ref([])
+
+const colorsList = [
+  { id: 1, name: 'Trắng' },
+  { id: 2, name: 'Đen' },
+  { id: 3, name: 'Xám' },
+  { id: 4, name: 'Xanh dương' }
+]
+
+const sizesList = [
+  { id: 39, name: '39' },
+  { id: 40, name: '40' },
+  { id: 41, name: '41' },
+  { id: 42, name: '42' },
+  { id: 43, name: '43' }
+]
 
 const formProduct = ref({
   name: '',
-  sku: '',
-  brand: '',
-  category: '',
+  category_id: '',
+  brand_id: '',
+  description: '',
   image: '/images/p1.png',
   variants: [
-    { size: 40, color: 'Trắng', stock: 10, price: 1000000 }
+    { size_id: 40, color_id: 1, stock: 10, price: 1000000 }
   ]
+})
+
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/p1.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`
+  return `${serverUrl}${path}`
+}
+
+async function fetchProducts() {
+  try {
+    const response = await axiosInstance.get('/adminproduct')
+    if (response && response.success) {
+      products.value = response.data.map(p => {
+        let img = '/images/p1.png'
+        if (p.images && p.images.length > 0) {
+          img = getImageUrl(p.images[0].image)
+        } else if (p.variants && p.variants.length > 0 && p.variants[0].image) {
+          img = getImageUrl(p.variants[0].image)
+        }
+        
+        return {
+          id: p.id,
+          name: p.name,
+          sku: p.variants && p.variants.length > 0 ? p.variants[0].sku : 'N/A',
+          brand: p.brand ? p.brand.name : 'N/A',
+          brand_id: p.brand_id,
+          category: p.category ? p.category.name : 'N/A',
+          category_id: p.category_id,
+          description: p.description || '',
+          image: img,
+          variants: (p.variants || []).map(v => ({
+            id: v.id,
+            size: v.size ? v.size.name : v.size_id,
+            size_id: v.size_id,
+            color: v.color ? v.color.name : v.color_id,
+            color_id: v.color_id,
+            stock: v.stock || 0,
+            price: v.price || 0,
+            sku: v.sku || ''
+          }))
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error)
+  }
+}
+
+async function loadFilterOptions() {
+  try {
+    const [catRes, brandRes] = await Promise.all([
+      axiosInstance.get('/getcategories'),
+      axiosInstance.get('/getbrands')
+    ])
+    if (catRes && catRes.success) {
+      categoriesList.value = catRes.data
+    }
+    if (brandRes && brandRes.success) {
+      brandsList.value = brandRes.data
+    }
+  } catch (error) {
+    console.error('Error loading filter options:', error)
+  }
+}
+
+onMounted(() => {
+  fetchProducts()
+  loadFilterOptions()
 })
 
 const filteredProducts = computed(() => {
@@ -491,7 +545,7 @@ function getPriceRange(product) {
 }
 
 function addVariantRow() {
-  formProduct.value.variants.push({ size: 40, color: 'Trắng', stock: 10, price: 1000000 })
+  formProduct.value.variants.push({ size_id: 40, color_id: 1, stock: 10, price: 1000000 })
 }
 
 function removeVariantRow(index) {
@@ -505,12 +559,12 @@ function openAddModal() {
   editingProductId.value = null
   formProduct.value = {
     name: '',
-    sku: '',
-    brand: '',
-    category: '',
+    category_id: '',
+    brand_id: '',
+    description: '',
     image: '/images/p1.png',
     variants: [
-      { size: 40, color: 'Trắng', stock: 10, price: 1000000 }
+      { size_id: 40, color_id: 1, stock: 10, price: 1000000 }
     ]
   }
   modalOpen.value = true
@@ -527,35 +581,53 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveProduct() {
-  if (isEditMode.value) {
-    const idx = products.value.findIndex(p => p.id === editingProductId.value)
-    if (idx > -1) {
-      products.value[idx] = { ...formProduct.value, id: editingProductId.value }
+async function saveProduct() {
+  try {
+    const payload = {
+      name: formProduct.value.name,
+      category_id: formProduct.value.category_id,
+      brand_id: formProduct.value.brand_id,
+      description: formProduct.value.description || '',
+      variants: formProduct.value.variants.map(v => ({
+        id: v.id || null,
+        size_id: v.size_id,
+        color_id: v.color_id,
+        stock: v.stock,
+        price: v.price
+      }))
     }
-    Swal.fire({
-      icon: 'success',
-      title: 'Đã cập nhật sản phẩm!',
-      text: 'Thông tin chỉnh sửa đã được cập nhật thành công.',
-      confirmButtonColor: '#FF4D00'
-    })
-  } else {
-    const newProduct = {
-      ...formProduct.value,
-      id: products.value.length ? Math.max(...products.value.map(p => p.id)) + 1 : 1
+
+    if (isEditMode.value) {
+      const response = await axiosInstance.post(`/product_edit/${editingProductId.value}`, payload)
+      if (response && response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã cập nhật sản phẩm!',
+          text: 'Thông tin chỉnh sửa đã được cập nhật thành công.',
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchProducts()
+        modalOpen.value = false
+      }
+    } else {
+      const response = await axiosInstance.post('/product_add', payload)
+      if (response && response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã thêm sản phẩm!',
+          text: 'Sản phẩm mới đã được lưu thành công vào kho.',
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchProducts()
+        modalOpen.value = false
+      }
     }
-    products.value.unshift(newProduct)
-    Swal.fire({
-      icon: 'success',
-      title: 'Đã thêm sản phẩm!',
-      text: 'Sản phẩm mới đã được lưu thành công vào kho.',
-      confirmButtonColor: '#FF4D00'
-    })
+  } catch (error) {
+    console.error('Error saving product:', error)
   }
-  modalOpen.value = false
 }
 
-function deleteProduct(id) {
+async function deleteProduct(id) {
   Swal.fire({
     title: 'Xác nhận xóa sản phẩm?',
     text: 'Hành động này sẽ xóa vĩnh viễn sản phẩm khỏi kho hàng!',
@@ -565,15 +637,22 @@ function deleteProduct(id) {
     cancelButtonColor: '#94a3b8',
     confirmButtonText: 'Đồng ý xóa!',
     cancelButtonText: 'Hủy'
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      products.value = products.value.filter(p => p.id !== id)
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Sản phẩm đã bị loại bỏ khỏi danh sách.',
-        confirmButtonColor: '#FF4D00'
-      })
+      try {
+        const response = await axiosInstance.delete(`/product/${id}`)
+        if (response && response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa!',
+            text: 'Sản phẩm đã bị loại bỏ khỏi danh sách.',
+            confirmButtonColor: '#FF4D00'
+          })
+          await fetchProducts()
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error)
+      }
     }
   })
 }

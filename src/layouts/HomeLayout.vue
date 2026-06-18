@@ -23,16 +23,63 @@ import AppHeader from '../components/layout/AppHeader.vue'
 import AppFooter from '../components/layout/AppFooter.vue'
 import ToastNotification from '../components/layout/ToastNotification.vue'
 import ChatBot from '../components/layout/ChatBot.vue'
+import axiosInstance from '../api/axios.js'
 
 const toastRef = ref(null)
 const showScrollTop = ref(false)
-const cartCount = ref(3)
+const cartCount = ref(0)
 
 // Provide cart count and toast to child components
 provide('cartCount', cartCount)
 provide('showToast', (msg) => toastRef.value?.show(msg))
-provide('addToCart', (product) => {
-  cartCount.value++
+provide('addToCart', async (product) => {
+  const token = localStorage.getItem('access_token')
+  if (token && product.variant_id) {
+    try {
+      await axiosInstance.post('/cart', {
+        variant_id: product.variant_id,
+        quantity: product.qty || 1
+      })
+    } catch (e) {
+      console.error('Failed to sync item to database cart:', e)
+    }
+  }
+
+  // Always update localStorage cart as backup/guest mode
+  const local = localStorage.getItem('saigon_cart')
+  let items = []
+  if (local) {
+    try {
+      items = JSON.parse(local)
+    } catch {
+      items = []
+    }
+  }
+
+  const existIndex = items.findIndex(i => {
+    if (product.variant_id && i.variant_id) {
+      return i.variant_id === product.variant_id
+    }
+    return i.productId === product.id && i.variant === product.variant_name
+  })
+
+  if (existIndex > -1) {
+    items[existIndex].qty += product.qty || 1
+  } else {
+    items.push({
+      id: product.variant_id || product.id,
+      variant_id: product.variant_id || null,
+      productId: product.id,
+      name: product.name,
+      variant: product.variant_name || '',
+      price: product.price || 0,
+      qty: product.qty || 1,
+      image: product.image
+    })
+  }
+  
+  localStorage.setItem('saigon_cart', JSON.stringify(items))
+  cartCount.value = items.reduce((acc, item) => acc + item.qty, 0)
   toastRef.value?.show(`Đã thêm "${product.name?.substring(0, 30) || 'Sản phẩm'}" vào giỏ!`)
 })
 
@@ -44,7 +91,22 @@ function onScroll() {
   showScrollTop.value = window.scrollY > 400
 }
 
-onMounted(() => window.addEventListener('scroll', onScroll))
+function initCartCount() {
+  const local = localStorage.getItem('saigon_cart')
+  if (local) {
+    try {
+      const items = JSON.parse(local)
+      cartCount.value = items.reduce((acc, item) => acc + item.qty, 0)
+    } catch {
+      cartCount.value = 0
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll)
+  initCartCount()
+})
 onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </script>
 
