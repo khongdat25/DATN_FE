@@ -408,8 +408,10 @@ function getImageUrl(imagePath) {
     return imagePath
   }
   const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
-  const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`
-  return `${serverUrl}${path}`
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
 }
 
 function saveLocalCopy() {

@@ -697,6 +697,21 @@ export function getProductById(id) {
   }
 }
 
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/placeholder.png';
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath;
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath;
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`;
+  }
+  return `${serverUrl}/images/${imagePath}`;
+}
+
 export function mapBackendProduct(p) {
   if (!p) return null;
 
@@ -717,13 +732,12 @@ export function mapBackendProduct(p) {
   // Main image
   let mainImage = '/images/placeholder.png';
   if (p.images && p.images.length > 0) {
-    const imgPath = p.images[0].image;
-    mainImage = (imgPath.startsWith('http') || imgPath.startsWith('/')) ? imgPath : `/images/${imgPath}`;
+    const firstImg = p.images[0];
+    const imgPath = typeof firstImg === 'string' ? firstImg : (firstImg?.image || '');
+    mainImage = getImageUrl(imgPath);
   } else if (p.variants && p.variants.length > 0) {
     const vImg = p.variants[0].image;
-    if (vImg) {
-      mainImage = (vImg.startsWith('http') || vImg.startsWith('/')) ? vImg : `/images/${vImg}`;
-    }
+    mainImage = getImageUrl(vImg);
   }
 
   const brandName = p.brand?.name || 'SaigonShoes';
@@ -757,8 +771,8 @@ export function mapBackendProduct(p) {
   let imagesList = [];
   if (p.images && p.images.length > 0) {
     imagesList = p.images.map(img => {
-      const src = (img.image.startsWith('http') || img.image.startsWith('/')) ? img.image : `/images/${img.image}`;
-      return { src, flip: false };
+      const imgPath = typeof img === 'string' ? img : (img?.image || '');
+      return { src: getImageUrl(imgPath), flip: false };
     });
   } else {
     imagesList = [{ src: mainImage, flip: false }];

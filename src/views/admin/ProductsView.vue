@@ -253,6 +253,47 @@
             ></textarea>
           </div>
 
+          <!-- Product Images Upload -->
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ảnh sản phẩm (Images)</label>
+            <div class="flex flex-wrap gap-3 mb-3">
+              <!-- Uploaded Previews -->
+              <div 
+                v-for="(img, idx) in formProduct.images" 
+                :key="idx" 
+                class="relative w-20 h-20 bg-slate-50 border border-slate-200 rounded-xl p-1.5 flex items-center justify-center group"
+              >
+                <img :src="getImageUrl(img)" class="max-w-full max-h-full object-contain">
+                <button 
+                  type="button" 
+                  @click="removeFormImage(idx)"
+                  class="absolute -top-1.5 -right-1.5 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors border-none cursor-pointer"
+                >
+                  <i class="ti ti-x text-[10px]"></i>
+                </button>
+              </div>
+              
+              <!-- File Input Trigger -->
+              <label 
+                v-if="!isUploading"
+                class="w-20 h-20 border-2 border-dashed border-slate-200 hover:border-accent rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors bg-slate-50/50 hover:bg-white"
+              >
+                <i class="ti ti-camera text-slate-400 text-lg"></i>
+                <span class="text-[9px] text-slate-400 font-bold">Thêm ảnh</span>
+                <input type="file" @change="onImageUpload" multiple class="hidden" accept="image/*">
+              </label>
+              
+              <!-- Uploading Spinner -->
+              <div 
+                v-else 
+                class="w-20 h-20 border border-slate-200 rounded-xl flex flex-col items-center justify-center bg-slate-50"
+              >
+                <i class="ti ti-loader animate-spin text-accent text-lg"></i>
+                <span class="text-[9px] text-slate-400 font-bold mt-1">Đang tải...</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Category & Brand -->
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -419,11 +460,13 @@ const formProduct = ref({
   category_id: '',
   brand_id: '',
   description: '',
-  image: '/images/p1.png',
+  images: [],
   variants: [
     { size_id: 40, color_id: 1, stock: 10, price: 1000000 }
   ]
 })
+
+const isUploading = ref(false)
 
 function getImageUrl(imagePath) {
   if (!imagePath) return '/images/p1.png'
@@ -434,8 +477,10 @@ function getImageUrl(imagePath) {
     return imagePath
   }
   const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
-  const path = imagePath.startsWith('/') ? imagePath : `/${imagePath}`
-  return `${serverUrl}${path}`
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
 }
 
 async function fetchProducts() {
@@ -445,7 +490,8 @@ async function fetchProducts() {
       products.value = response.data.map(p => {
         let img = '/images/p1.png'
         if (p.images && p.images.length > 0) {
-          img = getImageUrl(p.images[0].image)
+          const firstImg = p.images[0];
+          img = getImageUrl(typeof firstImg === 'string' ? firstImg : (firstImg?.image || ''));
         } else if (p.variants && p.variants.length > 0 && p.variants[0].image) {
           img = getImageUrl(p.variants[0].image)
         }
@@ -460,6 +506,7 @@ async function fetchProducts() {
           category_id: p.category_id,
           description: p.description || '',
           image: img,
+          images: p.images || [],
           variants: (p.variants || []).map(v => ({
             id: v.id,
             size: v.size ? v.size.name : v.size_id,
@@ -562,7 +609,7 @@ function openAddModal() {
     category_id: '',
     brand_id: '',
     description: '',
-    image: '/images/p1.png',
+    images: [],
     variants: [
       { size_id: 40, color_id: 1, stock: 10, price: 1000000 }
     ]
@@ -574,11 +621,64 @@ function openEditModal(product) {
   isEditMode.value = true
   editingProductId.value = product.id
   formProduct.value = JSON.parse(JSON.stringify(product)) // Deep clone
+  if (!formProduct.value.images) {
+    formProduct.value.images = []
+  }
   modalOpen.value = true
 }
 
 function closeModal() {
   modalOpen.value = false
+}
+
+async function onImageUpload(event) {
+  const files = event.target.files
+  if (!files || files.length === 0) return
+  
+  isUploading.value = true
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const formData = new FormData()
+      formData.append('image', files[i])
+      
+      const response = await axiosInstance.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      
+      if (response && response.success) {
+        if (!formProduct.value.images) {
+          formProduct.value.images = []
+        }
+        formProduct.value.images.push(response.filename)
+      }
+    }
+    Swal.fire({
+      icon: 'success',
+      title: 'Tải ảnh thành công!',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000
+    })
+  } catch (err) {
+    console.error('Failed to upload image:', err)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi tải ảnh',
+      text: 'Có lỗi xảy ra khi tải ảnh lên server.',
+      confirmButtonColor: '#FF4D00'
+    })
+  } finally {
+    isUploading.value = false
+  }
+}
+
+function removeFormImage(index) {
+  if (formProduct.value.images) {
+    formProduct.value.images.splice(index, 1)
+  }
 }
 
 async function saveProduct() {
@@ -588,6 +688,7 @@ async function saveProduct() {
       category_id: formProduct.value.category_id,
       brand_id: formProduct.value.brand_id,
       description: formProduct.value.description || '',
+      images: formProduct.value.images || [],
       variants: formProduct.value.variants.map(v => ({
         id: v.id || null,
         size_id: v.size_id,
