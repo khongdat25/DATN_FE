@@ -102,7 +102,7 @@ function doAddToCart(product) {
 }
 
 function goToDetail(product) {
-  router.push({ name: 'product-detail', params: { id: product.id } })
+  router.push({ name: 'product-detail', params: { id: product.slug || product.id } })
 }
 
 const bestSellers = ref([])

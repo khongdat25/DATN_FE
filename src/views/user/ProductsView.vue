@@ -26,10 +26,29 @@
             </button>
           </div>
 
-          <!-- Category Filter -->
+          <!-- Brand Filter -->
+          <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div @click="toggleSection('brand')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
+              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Thương Hiệu</p>
+              <i :class="['ti text-[12px] text-text-muted transition-transform duration-200', activeSections.brand ? 'ti-chevron-up' : 'ti-chevron-down']"></i>
+            </div>
+            <div v-show="activeSections.brand" class="px-4 pb-4">
+              <div class="flex flex-col gap-3">
+                <div v-if="availableBrands.length === 0" class="text-xs text-text-dim italic">Đang tải...</div>
+                <label v-for="brand in availableBrands" :key="brand.id" class="flex items-center gap-3 cursor-pointer group select-none">
+                  <input type="checkbox" v-model="filters.brands" :value="brand.name" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
+                  <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.brands.includes(brand.name) ? 'text-accent font-semibold' : 'text-text-muted']">
+                    {{ brand.name }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collection Filter -->
           <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
             <div @click="toggleSection('category')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
-              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Danh Mục</p>
+              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Bộ Sưu Tập</p>
               <i :class="['ti text-[12px] text-text-muted transition-transform duration-200', activeSections.category ? 'ti-chevron-up' : 'ti-chevron-down']"></i>
             </div>
             <div v-show="activeSections.category" class="px-4 pb-4">
@@ -39,24 +58,6 @@
                   <input type="checkbox" v-model="filters.categories" :value="cat.name" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
                   <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.categories.includes(cat.name) ? 'text-accent font-semibold' : 'text-text-muted']">
                     {{ cat.name }}
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- Brand Filter -->
-          <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
-            <div @click="toggleSection('brand')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
-              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Thương Hiệu</p>
-              <i :class="['ti text-[12px] text-text-muted transition-transform duration-200', activeSections.brand ? 'ti-chevron-up' : 'ti-chevron-down']"></i>
-            </div>
-            <div v-show="activeSections.brand" class="px-4 pb-4">
-              <div class="flex flex-col gap-3">
-                <label v-for="brand in availableBrands" :key="brand" class="flex items-center gap-3 cursor-pointer group select-none">
-                  <input type="checkbox" v-model="filters.brands" :value="brand" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
-                  <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.brands.includes(brand) ? 'text-accent font-semibold' : 'text-text-muted']">
-                    {{ brand }}
                   </span>
                 </label>
               </div>
@@ -241,7 +242,7 @@ function toggleSection(section) { activeSections[section] = !activeSections[sect
 
 // Categories loaded from API, brands/sizes stay static
 const availableCategories = ref([])
-const availableBrands = ['Nike', 'Adidas', 'Puma', 'New Balance', 'MLB', 'Bitis', 'Converse']
+const availableBrands = ref([])
 const availableSizes = ['38', '39', '40', '41', '42', '43', '44']
 
 const sortOptions = [
@@ -274,13 +275,54 @@ const isLoading = ref(true)
 
 // --- API functions ---
 async function fetchCategories() {
+  const cached = localStorage.getItem('saigon_categories')
+  if (cached) {
+    try {
+      availableCategories.value = JSON.parse(cached)
+      // Update cache in background
+      axiosInstance.get('/getcategories').then(res => {
+        if (res.data?.success && Array.isArray(res.data?.data)) {
+          localStorage.setItem('saigon_categories', JSON.stringify(res.data.data))
+        }
+      })
+      return
+    } catch (err) {}
+  }
+
   try {
     const res = await axiosInstance.get('/getcategories')
-    if (res.success && Array.isArray(res.data)) {
-      availableCategories.value = res.data
+    if (res.data?.success && Array.isArray(res.data?.data)) {
+      availableCategories.value = res.data.data
+      localStorage.setItem('saigon_categories', JSON.stringify(res.data.data))
     }
   } catch (e) {
     console.error('Failed to fetch categories:', e)
+  }
+}
+
+async function fetchBrands() {
+  const cached = localStorage.getItem('saigon_brands')
+  if (cached) {
+    try {
+      availableBrands.value = JSON.parse(cached)
+      // Update cache in background
+      axiosInstance.get('/getbrands').then(res => {
+        if (res.data?.success && Array.isArray(res.data?.data)) {
+          localStorage.setItem('saigon_brands', JSON.stringify(res.data.data))
+        }
+      })
+      return
+    } catch (err) {}
+  }
+
+  try {
+    const res = await axiosInstance.get('/getbrands')
+    if (res.data?.success && Array.isArray(res.data?.data)) {
+      availableBrands.value = res.data.data
+      localStorage.setItem('saigon_brands', JSON.stringify(res.data.data))
+    }
+  } catch (e) {
+    console.error('Failed to fetch brands:', e)
   }
 }
 
@@ -310,8 +352,8 @@ async function fetchProducts() {
     else params.sort = 'sold_desc' // popular default
 
     const res = await axiosInstance.get('/search', { params })
-    if (res.success && Array.isArray(res.data)) {
-      products.value = res.data.map(mapBackendProduct)
+    if (res.data?.success && Array.isArray(res.data?.data)) {
+      products.value = res.data.data.map(mapBackendProduct)
     }
   } catch (error) {
     console.error('Failed to fetch products:', error)
@@ -394,7 +436,8 @@ function handleWish(payload) {
   showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
 }
 function goToDetail(product) {
-  router.push({ name: 'product-detail', params: { id: product.id } })
+  // Navigate using slug (backend Detail route uses slug, not numeric id)
+  router.push({ name: 'product-detail', params: { id: product.slug || product.id } })
 }
 
 function applyQueryFilters() {
@@ -405,8 +448,13 @@ function applyQueryFilters() {
     filters.categories = []
   }
   const queryBrand = route.query.brand
-  if (queryBrand && availableBrands.includes(queryBrand)) {
-    filters.brands = [queryBrand]
+  if (queryBrand) {
+    const foundBrand = availableBrands.value.find(b => b.name.toLowerCase() === queryBrand.toLowerCase())
+    if (foundBrand) {
+      filters.brands = [foundBrand.name]
+    } else {
+      filters.brands = []
+    }
   } else {
     filters.brands = []
   }
@@ -414,18 +462,26 @@ function applyQueryFilters() {
   if (querySearch) searchQuery.value = querySearch
 }
 
+let isMounted = false
+
 // Watch server-side filter changes → refetch
 watch(
   [() => filters.sortBy, () => filters.priceSort, () => filters.categories,
    () => filters.appliedPriceFrom, () => filters.appliedPriceTo],
-  () => { currentPage.value = 1; fetchProducts() }
+  () => {
+    if (!isMounted) return
+    currentPage.value = 1
+    fetchProducts()
+  }
 )
 
 watch(() => route.query, () => { applyQueryFilters() })
 
 onMounted(async () => {
+  await Promise.all([fetchCategories(), fetchBrands()])
   applyQueryFilters()
-  await Promise.all([fetchCategories(), fetchProducts()])
+  await fetchProducts()
+  isMounted = true
 })
 </script>
 

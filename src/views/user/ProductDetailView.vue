@@ -381,12 +381,14 @@ const avgRating = ref('5.0')
 
 const isLoading = ref(true)
 
-async function loadProduct(id) {
+async function loadProduct(slug) {
   isLoading.value = true
   try {
-    const response = await axiosInstance.get(`/product/${id}`)
-    if (response.success && response.data) {
-      const data = mapBackendProduct(response.data)
+    // Backend route: GET /product/{slug} => returns { success, data: { product, related } }
+    const response = await axiosInstance.get(`/product/${slug}`)
+    if (response.data?.success && response.data?.data) {
+      const rawProduct = response.data.data.product
+      const data = mapBackendProduct(rawProduct)
       product.value = data
 
       // Set default gallery image
@@ -427,7 +429,7 @@ async function loadProduct(id) {
       }
 
       // Map real reviews from API rating array
-      const rawRatings = response.data.rating || []
+      const rawRatings = rawProduct.rating || []
       if (rawRatings.length > 0) {
         const total = rawRatings.reduce((sum, r) => sum + (r.rating || 5), 0)
         avgRating.value = (total / rawRatings.length).toFixed(1)
@@ -444,8 +446,12 @@ async function loadProduct(id) {
         reviewsList.value = []
       }
 
-      // Load related products
-      fetchRelatedProducts(data.category, data.id)
+      // Use related products returned directly from the Detail API
+      const rawRelated = response.data.data.related || []
+      relatedProducts.value = rawRelated
+        .map(mapBackendProduct)
+        .filter(Boolean)
+        .slice(0, 4)
     }
   } catch (error) {
     console.error('Failed to load product detail:', error)
@@ -454,32 +460,19 @@ async function loadProduct(id) {
   }
 }
 
-// Related products
+// Related products (populated directly from Detail API response)
 const relatedProducts = ref([])
 
-async function fetchRelatedProducts(categoryName, currentProductId) {
-  try {
-    const prodRes = await axiosInstance.get('/products')
-    if (prodRes.success && Array.isArray(prodRes.data)) {
-      const allProdsMapped = prodRes.data.map(mapBackendProduct)
-      relatedProducts.value = allProdsMapped
-        .filter(p => p.category === categoryName && p.id !== currentProductId)
-        .slice(0, 4)
-    }
-  } catch (err) {
-    console.error('Failed to load related products:', err)
-  }
-}
-
-// Watch Route ID for instant reactiveness upon navigation/clicks
+// Watch Route slug for instant reactiveness upon navigation/clicks
 watch(
   () => route.params.id,
-  (newId) => {
-    if (newId) {
-      loadProduct(newId)
-    } else {
-      // Default fallback if navigating to '/product-detail' mockup directly
-      loadProduct(1)
+  (newSlug) => {
+    if (newSlug) {
+      loadProduct(newSlug)
+    }
+    // If no slug (e.g. /product-detail mock), just show loading=false
+    else {
+      isLoading.value = false
     }
   },
   { immediate: true }
@@ -557,7 +550,8 @@ function handleWish(payload) {
 }
 
 function goToDetail(item) {
-  router.push({ name: 'product-detail', params: { id: item.id } })
+  // Navigate using slug (backend Detail route uses slug, not numeric id)
+  router.push({ name: 'product-detail', params: { id: item.slug || item.id } })
 }
 
 function showWriteReview() {
