@@ -263,6 +263,15 @@
                         <input type="text" v-model="newAddress.address" placeholder="Số nhà, tên đường, phường, quận, thành phố..."
                           class="w-full py-3 px-4 border border-border rounded-xl bg-surface text-sm outline-none focus:border-accent transition-all">
                       </div>
+                      <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-text-muted mb-1.5">Loại địa chỉ</label>
+                        <select v-model="newAddress.badge"
+                          class="w-full py-3 px-4 border border-border rounded-xl bg-surface text-sm outline-none focus:border-accent transition-all">
+                          <option value="Mặc định">Mặc định (Sử dụng thanh toán)</option>
+                          <option value="Nhà riêng">Nhà riêng</option>
+                          <option value="Văn phòng">Văn phòng</option>
+                        </select>
+                      </div>
                     </div>
                     <div class="flex gap-3 mt-4">
                       <button type="button" @click="addAddress"
@@ -380,23 +389,28 @@ const passwordForm = reactive({ current: '', new: '', confirm: '' })
 const orders = ref([])
 
 // ─── Addresses ────────────────────────────────────────────────────────────────
-const addresses = ref([
-  {
-    name: 'Nguyễn Minh Anh',
-    phone: '(+84) 987 654 321',
-    address: '123 Đường ABC, Phường X, Quận Y, Hà Nội',
-    isDefault: true
-  },
-  {
-    name: 'Nguyễn Minh Anh',
-    phone: '(+84) 987 654 321',
-    address: '456 Đường DEF, Phường Z, TP. Hồ Chí Minh',
-    isDefault: false
-  }
-])
+const addresses = ref([])
 
 const showAddForm = ref(false)
-const newAddress = reactive({ name: '', phone: '', address: '' })
+const newAddress = reactive({ name: '', phone: '', address: '', badge: 'Nhà riêng' })
+
+async function loadAddresses() {
+  try {
+    const response = await axiosInstance.get('/addresses')
+    if (response.success && response.data) {
+      addresses.value = response.data.map(item => ({
+        id: item.id,
+        name: item.name,
+        phone: item.phone,
+        address: item.address,
+        badge: item.badge,
+        isDefault: !!item.is_default
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load addresses:', error)
+  }
+}
 
 // ─── Membership data ──────────────────────────────────────────────────────────
 const benefits = [
@@ -415,6 +429,7 @@ const rankLevels = [
 onMounted(() => {
   loadUserData()
   loadOrdersData()
+  loadAddresses()
 })
 
 function loadUserData() {
@@ -478,22 +493,108 @@ function getStatusIcon(status) {
 }
 
 // ─── Address helpers ──────────────────────────────────────────────────────────
-function addAddress() {
+async function addAddress() {
   if (!newAddress.name || !newAddress.phone || !newAddress.address) {
     Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng điền đầy đủ thông tin địa chỉ.', confirmButtonColor: '#FF4D00' })
     return
   }
-  addresses.value.push({ ...newAddress, isDefault: false })
-  Object.assign(newAddress, { name: '', phone: '', address: '' })
-  showAddForm.value = false
-  Swal.fire({ icon: 'success', title: 'Đã thêm địa chỉ!', timer: 1500, showConfirmButton: false })
+  
+  Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+  
+  try {
+    const response = await axiosInstance.post('/addresses', {
+      name: newAddress.name,
+      phone: newAddress.phone,
+      address: newAddress.address,
+      badge: newAddress.badge,
+      is_default: newAddress.badge === 'Mặc định'
+    })
+    
+    Swal.close()
+    
+    if (response.success) {
+      Object.assign(newAddress, { name: '', phone: '', address: '', badge: 'Nhà riêng' })
+      showAddForm.value = false
+      await loadAddresses()
+      Swal.fire({ icon: 'success', title: 'Đã thêm địa chỉ!', timer: 1500, showConfirmButton: false })
+    }
+  } catch (error) {
+    Swal.close()
+    console.error('Failed to add address:', error)
+    Swal.fire({ icon: 'error', title: 'Lỗi', text: error.response?.data?.message || 'Không thể thêm địa chỉ.', confirmButtonColor: '#FF4D00' })
+  }
 }
 
-function editAddress(idx) {
-  Swal.fire({ icon: 'info', title: 'Tính năng đang phát triển', text: 'Chức năng chỉnh sửa địa chỉ sẽ sớm được cập nhật.', confirmButtonColor: '#FF4D00' })
+async function editAddress(idx) {
+  const addr = addresses.value[idx]
+  const { value: formValues } = await Swal.fire({
+    title: 'Cập nhật địa chỉ',
+    html:
+      `<div style="text-align: left; display: flex; flex-direction: column; gap: 12px;">` +
+      `  <div>` +
+      `    <label style="font-size: 13px; font-weight: 600; color: #666; display: block; margin-bottom: 4px;">Họ tên</label>` +
+      `    <input id="swal-input-name" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" value="${addr.name}">` +
+      `  </div>` +
+      `  <div>` +
+      `    <label style="font-size: 13px; font-weight: 600; color: #666; display: block; margin-bottom: 4px;">Số điện thoại</label>` +
+      `    <input id="swal-input-phone" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" value="${addr.phone}">` +
+      `  </div>` +
+      `  <div>` +
+      `    <label style="font-size: 13px; font-weight: 600; color: #666; display: block; margin-bottom: 4px;">Địa chỉ chi tiết</label>` +
+      `    <input id="swal-input-address" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box;" value="${addr.address}">` +
+      `  </div>` +
+      `  <div>` +
+      `    <label style="font-size: 13px; font-weight: 600; color: #666; display: block; margin-bottom: 4px;">Loại địa chỉ</label>` +
+      `    <select id="swal-input-badge" class="swal2-input" style="margin: 0; width: 100%; box-sizing: border-box; height: 48px; padding: 0 10px;">` +
+      `      <option value="Mặc định" ${addr.badge === 'Mặc định' ? 'selected' : ''}>Mặc định</option>` +
+      `      <option value="Nhà riêng" ${addr.badge === 'Nhà riêng' ? 'selected' : ''}>Nhà riêng</option>` +
+      `      <option value="Văn phòng" ${addr.badge === 'Văn phòng' ? 'selected' : ''}>Văn phòng</option>` +
+      `    </select>` +
+      `  </div>` +
+      `</div>`,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Cập nhật',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#FF4D00',
+    preConfirm: () => {
+      const name = document.getElementById('swal-input-name').value.trim()
+      const phone = document.getElementById('swal-input-phone').value.trim()
+      const address = document.getElementById('swal-input-address').value.trim()
+      const badge = document.getElementById('swal-input-badge').value
+      if (!name || !phone || !address) {
+        Swal.showValidationMessage('Vui lòng điền đầy đủ họ tên, số điện thoại và địa chỉ.')
+        return false
+      }
+      return { name, phone, address, badge }
+    }
+  })
+
+  if (formValues) {
+    Swal.fire({ title: 'Đang cập nhật...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+    try {
+      const response = await axiosInstance.put(`/addresses/${addr.id}`, {
+        name: formValues.name,
+        phone: formValues.phone,
+        address: formValues.address,
+        badge: formValues.badge,
+        is_default: formValues.badge === 'Mặc định'
+      })
+      Swal.close()
+      if (response.success) {
+        await loadAddresses()
+        Swal.fire({ icon: 'success', title: 'Cập nhật địa chỉ thành công!', timer: 1500, showConfirmButton: false })
+      }
+    } catch (error) {
+      Swal.close()
+      console.error('Failed to update address:', error)
+      Swal.fire({ icon: 'error', title: 'Lỗi', text: error.response?.data?.message || 'Không thể cập nhật địa chỉ.', confirmButtonColor: '#FF4D00' })
+    }
+  }
 }
 
 function removeAddress(idx) {
+  const addr = addresses.value[idx]
   Swal.fire({
     title: 'Xóa địa chỉ?',
     text: 'Bạn có chắc chắn muốn xóa địa chỉ này không?',
@@ -503,8 +604,22 @@ function removeAddress(idx) {
     cancelButtonText: 'Hủy',
     confirmButtonColor: '#FF4D00',
     cancelButtonColor: '#aaa'
-  }).then(result => {
-    if (result.isConfirmed) addresses.value.splice(idx, 1)
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      Swal.fire({ title: 'Đang xóa...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+      try {
+        const response = await axiosInstance.delete(`/addresses/${addr.id}`)
+        Swal.close()
+        if (response.success) {
+          await loadAddresses()
+          Swal.fire({ icon: 'success', title: 'Đã xóa địa chỉ!', timer: 1500, showConfirmButton: false })
+        }
+      } catch (error) {
+        Swal.close()
+        console.error('Failed to delete address:', error)
+        Swal.fire({ icon: 'error', title: 'Lỗi', text: error.response?.data?.message || 'Không thể xóa địa chỉ.', confirmButtonColor: '#FF4D00' })
+      }
+    }
   })
 }
 

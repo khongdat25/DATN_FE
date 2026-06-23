@@ -458,30 +458,36 @@ const voucherOpen = ref(false)
 const promoCode = ref('')
 const appliedVoucher = ref(null)
 
-// ─── Static Data ──────────────────────────────────────────────────────────────
-const savedAddresses = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    badge: 'Mặc định',
-    phone: '0123 456 789',
-    address: 'Số 123, Đường ABC, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh'
-  },
-  {
-    id: 2,
-    name: 'Trần Thị B',
-    badge: 'Nhà riêng',
-    phone: '0987 654 321',
-    address: 'Số 456, Đường XYZ, Phường 12, Quận Bình Thạnh, TP. Hồ Chí Minh'
-  },
-  {
-    id: 3,
-    name: 'Nguyễn Văn A',
-    badge: 'Văn phòng',
-    phone: '0123 456 789',
-    address: 'Tòa nhà Keangnam, Mễ Trì, Quận Nam Từ Liêm, Hà Nội'
+// ─── Address Data ──────────────────────────────────────────────────────────────
+const savedAddresses = ref([])
+
+async function loadAddresses() {
+  try {
+    const response = await axiosInstance.get('/addresses')
+    if (response.success && response.data) {
+      savedAddresses.value = response.data.map(item => ({
+        id: item.id,
+        name: item.name,
+        phone: item.phone,
+        address: item.address,
+        badge: item.badge,
+        isDefault: !!item.is_default
+      }))
+      
+      // Thiết lập địa chỉ được chọn mặc định từ danh sách
+      const defaultAddr = savedAddresses.value.find(a => a.isDefault || a.badge === 'Mặc định')
+      if (defaultAddr) {
+        selectedAddressId.value = defaultAddr.id
+        tempSelectedId.value = defaultAddr.id
+      } else if (savedAddresses.value.length > 0) {
+        selectedAddressId.value = savedAddresses.value[0].id
+        tempSelectedId.value = savedAddresses.value[0].id
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load addresses:', error)
   }
-]
+}
 
 const shippingMethods = [
   { id: 'standard', name: 'Giao hàng nhanh', desc: 'Nhận hàng từ 2 – 3 ngày làm việc', fee: 30000 },
@@ -502,7 +508,7 @@ const availableVouchers = [
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const selectedAddress = computed(() =>
-  savedAddresses.find(a => a.id === selectedAddressId.value) || savedAddresses[0]
+  savedAddresses.value.find(a => a.id === selectedAddressId.value) || savedAddresses.value[0] || {}
 )
 
 const shippingFee = computed(() => {
@@ -753,17 +759,26 @@ async function handlePlaceOrder() {
   } catch (error) {
     Swal.close()
     console.error('Checkout failed:', error)
+    
+    let errMsg = error.response?.data?.message || 'Có lỗi xảy ra trong quá trình xử lý đơn hàng. Vui lòng thử lại.'
+    if (error.response?.data?.errors) {
+      const details = Object.values(error.response.data.errors).flat().join('<br>')
+      errMsg = `<div style="text-align: left; font-size: 13px;">${errMsg}<br><br><strong>Chi tiết:</strong><br>${details}</div>`
+    }
+
     Swal.fire({
       icon: 'error',
       title: 'Đặt hàng thất bại',
-      text: error.response?.data?.message || 'Có lỗi xảy ra trong quá trình xử lý đơn hàng. Vui lòng thử lại.',
+      html: errMsg,
       confirmButtonColor: '#FF4D00'
     })
   }
 }
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
-onMounted(() => {
+onMounted(async () => {
+  await loadAddresses()
+
   const local = localStorage.getItem('saigon_checkout_summary')
   if (local) {
     try {

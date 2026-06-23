@@ -30,103 +30,21 @@
             </router-link>
             <div class="dropdown-mega absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0">
               <div class="bg-white border border-border rounded-2xl shadow-xl p-6 grid grid-cols-4 gap-x-8 gap-y-6 min-w-[840px]">
-                <!-- Giày Nike -->
-                <div class="text-left">
+                <!-- Cột Thương hiệu động -->
+                <div v-for="brand in brands" :key="brand.id" class="text-left">
                   <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link to="/products?brand=Nike" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/Logo_NIKE.svg" alt="Nike" class="h-6 object-contain">
+                    <router-link :to="`/products?brand=${brand.name}`" class="block transition-all duration-300 hover:scale-105 origin-left">
+                      <img v-if="getBrandLogo(brand.name)" :src="getBrandLogo(brand.name)" :alt="brand.name" class="h-6 object-contain">
+                      <span v-else class="text-sm font-bold text-text uppercase tracking-wider">{{ brand.name }}</span>
                     </router-link>
                   </div>
                   <ul class="space-y-1.5 pl-2">
-                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Air Force 1</router-link></li>
-                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Air Max</router-link></li>
-                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Dunk Low</router-link></li>
-                    <li><router-link to="/products?brand=Nike" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Jordan</router-link></li>
-                  </ul>
-                </div>
-
-                <!-- Giày Adidas -->
-                <div class="text-left">
-                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link to="/products?brand=Adidas" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/Adidas_Logo.svg" alt="Adidas" class="h-6 object-contain">
-                    </router-link>
-                  </div>
-                  <ul class="space-y-1.5 pl-2">
-                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Samba OG</router-link></li>
-                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Superstar</router-link></li>
-                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Stan Smith</router-link></li>
-                    <li><router-link to="/products?brand=Adidas" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Ultraboost</router-link></li>
-                  </ul>
-                </div>
-
-                <!-- Giày New Balance -->
-                <div class="text-left">
-                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link to="/products?brand=New Balance" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/New_Balance_logo.svg" alt="New Balance" class="h-6 object-contain">
-                    </router-link>
-                  </div>
-                  <ul class="space-y-1.5 pl-2">
-                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 530</router-link></li>
-                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 550</router-link></li>
-                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 574</router-link></li>
-                    <li><router-link to="/products?brand=New Balance" class="block text-[13px] text-text-muted hover:text-accent transition-colors">NB 9060</router-link></li>
-                  </ul>
-                </div>
-
-                <!-- Giày Puma -->
-                <div class="text-left">
-                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link to="/products?brand=Puma" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/puma.svg" alt="Puma" class="h-5 object-contain">
-                    </router-link>
-                  </div>
-                  <ul class="space-y-1.5 pl-2">
-                    <li><router-link to="/products?brand=Puma" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Puma Suede</router-link></li>
-                    <li><router-link to="/products?brand=Puma" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Puma RS-X</router-link></li>
-                  </ul>
-                </div>
-
-                <!-- Giày MLB -->
-                <div class="text-left">
-                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link to="/products?brand=MLB" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/mlb.svg?v=2" alt="MLB" class="h-6.5 object-contain">
-                    </router-link>
-                  </div>
-                  <ul class="space-y-1.5 pl-2">
-                    <li><router-link to="/products?brand=MLB" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Chunky Liner</router-link></li>
-                    <li><router-link to="/products?brand=MLB" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Bigball Chunky</router-link></li>
-                    <li><router-link to="/products?brand=MLB" class="block text-[13px] text-text-muted hover:text-accent transition-colors">MLB Boston</router-link></li>
-                  </ul>
-                </div>
-
-                <!-- Giày Bitis -->
-                <div class="text-left">
-                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link to="/products?brand=Bitis" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/bitis.svg" alt="Biti's" class="h-5.5 object-contain">
-                    </router-link>
-                  </div>
-                  <ul class="space-y-1.5 pl-2">
-                    <li><router-link to="/products?brand=Bitis" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Hunter Street</router-link></li>
-                    <li><router-link to="/products?brand=Bitis" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Hunter Feast</router-link></li>
-                    <li><router-link to="/products?brand=Bitis" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Hunter Core</router-link></li>
-                  </ul>
-                </div>
-
-                <!-- Giày Converse -->
-                <div class="text-left">
-                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link to="/products?brand=Converse" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img src="/images/converse.svg" alt="Converse" class="h-6 object-contain">
-                    </router-link>
-                  </div>
-                  <ul class="space-y-1.5 pl-2">
-                    <li><router-link to="/products?brand=Converse" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Chuck Taylor</router-link></li>
-                    <li><router-link to="/products?brand=Converse" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Chuck 70</router-link></li>
-                    <li><router-link to="/products?brand=Converse" class="block text-[13px] text-text-muted hover:text-accent transition-colors">One Star</router-link></li>
+                    <li v-for="series in getBrandSeries(brand.name)" :key="series">
+                      <router-link :to="`/products?brand=${brand.name}`" class="block text-[13px] text-text-muted hover:text-accent transition-colors">{{ series }}</router-link>
+                    </li>
+                    <li v-if="getBrandSeries(brand.name).length === 0">
+                      <router-link :to="`/products?brand=${brand.name}`" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Xem tất cả</router-link>
+                    </li>
                   </ul>
                 </div>
 
@@ -323,6 +241,52 @@ import axiosInstance from '@/api/axios.js'
 const cartCount = inject('cartCount', ref(3))
 const menuOpen = ref(false)
 
+// ── Brand loading state ──────────────────────────────────────────────────────
+const brands = ref([])
+
+const BRAND_LOGOS = {
+  'nike': '/images/Logo_NIKE.svg',
+  'adidas': '/images/Adidas_Logo.svg',
+  'new balance': '/images/New_Balance_logo.svg',
+  'puma': '/images/puma.svg',
+  'mlb': '/images/mlb.svg?v=2',
+  'bitis': '/images/bitis.svg',
+  'converse': '/images/converse.svg'
+}
+
+const BRAND_SERIES = {
+  'nike': ['Air Force 1', 'Air Max', 'Dunk Low', 'Jordan'],
+  'adidas': ['Samba OG', 'Superstar', 'Stan Smith', 'Ultraboost'],
+  'new balance': ['NB 530', 'NB 550', 'NB 574', 'NB 9060'],
+  'puma': ['Puma Suede', 'Puma RS-X'],
+  'mlb': ['Chunky Liner', 'Bigball Chunky', 'MLB Boston'],
+  'bitis': ['Hunter Street', 'Hunter Feast', 'Hunter Core'],
+  'converse': ['Chuck Taylor', 'Chuck 70', 'One Star']
+}
+
+function getBrandLogo(brandName) {
+  if (!brandName) return null
+  const key = brandName.toLowerCase().trim()
+  return BRAND_LOGOS[key] || null
+}
+
+function getBrandSeries(brandName) {
+  if (!brandName) return []
+  const key = brandName.toLowerCase().trim()
+  return BRAND_SERIES[key] || []
+}
+
+async function fetchBrands() {
+  try {
+    const res = await axiosInstance.get('/getbrands')
+    if (res && res.data) {
+      brands.value = res.data
+    }
+  } catch (e) {
+    console.error('Failed to fetch brands in Header:', e)
+  }
+}
+
 // ── Notification state ──────────────────────────────────────────────────────
 const notifOpen = ref(false)
 const notifRef = ref(null)
@@ -442,6 +406,7 @@ function checkAuth() {
 
 onMounted(() => {
   checkAuth()
+  fetchBrands()
 })
 
 async function handleLogout() {
