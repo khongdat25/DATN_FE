@@ -1,5 +1,5 @@
 <template>
-  <AdminLayout>
+  
     <div class="space-y-6">
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -283,12 +283,11 @@
       <div class="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-sm shrink-0">📁</div>
       <span>{{ toastMessage }}</span>
     </div>
-  </AdminLayout>
+  
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import AdminLayout from '@/layouts/AdminLayout.vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 

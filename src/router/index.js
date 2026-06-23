@@ -45,12 +45,14 @@ const routes = [
     {
         path: '/cart',
         component: () => import('../views/user/CartView.vue'),
-        name: 'cart'
+        name: 'cart',
+        meta: { requiresAuth: true }
     },
     {
         path: '/checkout',
         component: () => import('../views/user/CheckoutView.vue'),
-        name: 'checkout'
+        name: 'checkout',
+        meta: { requiresAuth: true }
     },
     {
         path: '/profile',

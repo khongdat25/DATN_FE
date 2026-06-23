@@ -59,7 +59,6 @@
             <ProductCard
               :product="product"
               :show-cart-button="false"
-              @add-to-cart="doAddToCart(product)"
               @toggle-wish="toggleWish(product)"
               @click="goToDetail(product)"
             />
@@ -80,7 +79,6 @@ import ProductCard from '../common/ProductCard.vue'
 
 const router = useRouter()
 
-const addToCart = inject('addToCart', (p) => {})
 const showToast = inject('showToast', (msg) => {})
 
 const activeFilter = ref('all')
@@ -95,10 +93,6 @@ const filters = [
 function toggleWish(product) {
   wishes.value[product.id] = !wishes.value[product.id]
   showToast(wishes.value[product.id] ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
-}
-
-function doAddToCart(product) {
-  addToCart(product)
 }
 
 function goToDetail(product) {

@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <!-- News Hero -->
     <section class="bg-surface2 py-16 text-center relative overflow-hidden">
       <div class="absolute w-[300px] h-[300px] rounded-full bg-accent/5 blur-[60px] top-10 right-10 pointer-events-none"></div>
@@ -164,13 +164,12 @@
         </form>
       </div>
     </section>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
 
 const router = useRouter()

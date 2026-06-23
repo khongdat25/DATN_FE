@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <!-- Page Header -->
     <div class="bg-white border-b border-border py-8">
       <div class="max-w-[1200px] mx-auto px-5">
@@ -342,13 +342,12 @@
         </div>
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 

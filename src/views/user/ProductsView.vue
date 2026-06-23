@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <!-- Breadcrumbs -->
     <div class="bg-surface2 py-4 border-b border-border">
       <div class="max-w-[1200px] mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
@@ -168,7 +168,6 @@
               v-for="product in paginatedProducts" 
               :key="product.id" 
               :product="product"
-              @add-to-cart="handleAddToCart"
               @toggle-wish="handleWish"
               @click="goToDetail(product)"
             />
@@ -213,7 +212,7 @@
         </div>
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
@@ -221,14 +220,12 @@ import { ref, reactive, computed, inject, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 defineOptions({ name: 'ProductsView' })
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import ProductCard from '@/components/common/ProductCard.vue'
 import { mapBackendProduct } from '@/data/products.js'
 import axiosInstance from '@/api/axios.js'
 
 const router = useRouter()
 const route = useRoute()
-const addToCart = inject('addToCart', (p) => {})
 const showToast = inject('showToast', (msg) => {})
 
 // Layout sections toggling
@@ -275,25 +272,10 @@ const isLoading = ref(true)
 
 // --- API functions ---
 async function fetchCategories() {
-  const cached = localStorage.getItem('saigon_categories')
-  if (cached) {
-    try {
-      availableCategories.value = JSON.parse(cached)
-      // Update cache in background
-      axiosInstance.get('/getcategories').then(res => {
-        if (res.data?.success && Array.isArray(res.data?.data)) {
-          localStorage.setItem('saigon_categories', JSON.stringify(res.data.data))
-        }
-      })
-      return
-    } catch (err) {}
-  }
-
   try {
     const res = await axiosInstance.get('/getcategories')
-    if (res.data?.success && Array.isArray(res.data?.data)) {
-      availableCategories.value = res.data.data
-      localStorage.setItem('saigon_categories', JSON.stringify(res.data.data))
+    if (res?.success && Array.isArray(res?.data)) {
+      availableCategories.value = res.data
     }
   } catch (e) {
     console.error('Failed to fetch categories:', e)
@@ -301,25 +283,10 @@ async function fetchCategories() {
 }
 
 async function fetchBrands() {
-  const cached = localStorage.getItem('saigon_brands')
-  if (cached) {
-    try {
-      availableBrands.value = JSON.parse(cached)
-      // Update cache in background
-      axiosInstance.get('/getbrands').then(res => {
-        if (res.data?.success && Array.isArray(res.data?.data)) {
-          localStorage.setItem('saigon_brands', JSON.stringify(res.data.data))
-        }
-      })
-      return
-    } catch (err) {}
-  }
-
   try {
     const res = await axiosInstance.get('/getbrands')
-    if (res.data?.success && Array.isArray(res.data?.data)) {
-      availableBrands.value = res.data.data
-      localStorage.setItem('saigon_brands', JSON.stringify(res.data.data))
+    if (res?.success && Array.isArray(res?.data)) {
+      availableBrands.value = res.data
     }
   } catch (e) {
     console.error('Failed to fetch brands:', e)
@@ -352,8 +319,8 @@ async function fetchProducts() {
     else params.sort = 'sold_desc' // popular default
 
     const res = await axiosInstance.get('/search', { params })
-    if (res.data?.success && Array.isArray(res.data?.data)) {
-      products.value = res.data.data.map(mapBackendProduct)
+    if (res?.success && Array.isArray(res?.data)) {
+      products.value = res.data.map(mapBackendProduct)
     }
   } catch (error) {
     console.error('Failed to fetch products:', error)
@@ -431,7 +398,6 @@ function resetFilters() {
   fetchProducts()
 }
 
-function handleAddToCart(product) { addToCart(product) }
 function handleWish(payload) {
   showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
 }

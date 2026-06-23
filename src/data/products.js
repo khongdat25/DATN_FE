@@ -712,6 +712,57 @@ function getImageUrl(imagePath) {
   return `${serverUrl}/images/${imagePath}`;
 }
 
+function valueFromObject(source, keys) {
+  if (!source || typeof source !== 'object') return null;
+
+  for (const key of keys) {
+    if (source[key] !== undefined && source[key] !== null && source[key] !== '') {
+      return source[key];
+    }
+  }
+
+  return null;
+}
+
+export function getVariantSizeName(variant) {
+  const size = variant?.size;
+  if (typeof size === 'string' || typeof size === 'number') return String(size);
+
+  return valueFromObject(size, ['name', 'value', 'size', 'label'])?.toString()
+    || valueFromObject(variant, ['size_name', 'size_value', 'size_label', 'size_id'])?.toString()
+    || '';
+}
+
+export function getVariantColorName(variant) {
+  const color = variant?.color;
+  if (typeof color === 'string' || typeof color === 'number') return String(color);
+
+  return valueFromObject(color, ['name', 'value', 'color', 'label'])?.toString()
+    || valueFromObject(variant, ['color_name', 'color_value', 'color_label', 'color_id'])?.toString()
+    || '';
+}
+
+function normalizeVariantText(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+export function findMatchingVariant(variants = [], selectedSize = '', selectedColor = '', hasColorOptions = false) {
+  const validVariants = variants.filter(v => v?.id !== undefined && v?.id !== null);
+  const normalizedSize = normalizeVariantText(selectedSize);
+  const normalizedColor = normalizeVariantText(selectedColor);
+
+  const matched = validVariants.find(v => {
+    const sizeName = normalizeVariantText(getVariantSizeName(v));
+    const colorName = normalizeVariantText(getVariantColorName(v));
+    const matchesSize = !normalizedSize || sizeName === normalizedSize;
+    const matchesColor = !hasColorOptions || !normalizedColor || colorName === normalizedColor;
+
+    return matchesSize && matchesColor;
+  });
+
+  return matched || (validVariants.length === 1 ? validVariants[0] : null);
+}
+
 export function mapBackendProduct(p) {
   if (!p) return null;
 
@@ -748,10 +799,7 @@ export function mapBackendProduct(p) {
   // Extract unique sizes from variants
   let sizes = [];
   if (p.variants && p.variants.length > 0) {
-    sizes = [...new Set(p.variants.map(v => {
-      if (v.size && v.size.name) return v.size.name;
-      return v.size_id ? String(v.size_id) : null;
-    }))].filter(s => s !== null);
+    sizes = [...new Set(p.variants.map(getVariantSizeName))].filter(Boolean);
   }
   if (sizes.length === 0) {
     sizes = ['38', '39', '40', '41', '42', '43', '44'];
@@ -760,7 +808,7 @@ export function mapBackendProduct(p) {
   // Extract unique colors from variants
   let colors = [];
   if (p.variants && p.variants.length > 0) {
-    const uniqueColorNames = [...new Set(p.variants.map(v => v.color?.name).filter(Boolean))];
+    const uniqueColorNames = [...new Set(p.variants.map(getVariantColorName).filter(Boolean))];
     colors = uniqueColorNames.map(c => ({
       name: c,
       bg: c.toLowerCase() === 'đen' ? '#1a1a1a' : c.toLowerCase() === 'trắng' ? '#ffffff' : '#ccc'

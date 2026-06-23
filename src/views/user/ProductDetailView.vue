@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <div class="bg-bg py-4 border-b border-border">
       <div class="max-w-[1200px] mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
         <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
@@ -185,9 +185,17 @@
 
                 <button 
                   @click="doAddToCart" 
+                  class="w-14 h-14 bg-accent/10 border border-accent/20 text-accent rounded-xl flex items-center justify-center text-xl transition-all active:scale-95 shadow-sm cursor-pointer shrink-0"
+                  title="Thêm vào giỏ hàng"
+                >
+                  <i class="ti ti-shopping-cart-plus"></i>
+                </button>
+
+                <button 
+                  @click="doBuyNow" 
                   class="flex-1 bg-accent text-white h-14 font-display font-bold text-sm tracking-wider uppercase rounded-xl flex items-center justify-center gap-2 hover:bg-accent-hover transition-all active:scale-[0.98] shadow-[0_8px_20px_rgba(255,77,0,0.15)] hover:shadow-[0_12px_25px_rgba(255,77,0,0.25)] cursor-pointer"
                 >
-                  <i class="ti ti-shopping-cart-plus text-lg"></i> Thêm vào giỏ hàng
+                  Mua ngay
                 </button>
 
                 <button 
@@ -323,13 +331,12 @@
 
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref, computed, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import ProductCard from '@/components/common/ProductCard.vue'
 import { mapBackendProduct } from '@/data/products.js'
 import axiosInstance from '@/api/axios.js'
@@ -386,8 +393,8 @@ async function loadProduct(slug) {
   try {
     // Backend route: GET /product/{slug} => returns { success, data: { product, related } }
     const response = await axiosInstance.get(`/product/${slug}`)
-    if (response.data?.success && response.data?.data) {
-      const rawProduct = response.data.data.product
+    if (response?.success && response?.data) {
+      const rawProduct = response.data.product
       const data = mapBackendProduct(rawProduct)
       product.value = data
 
@@ -447,7 +454,7 @@ async function loadProduct(slug) {
       }
 
       // Use related products returned directly from the Detail API
-      const rawRelated = response.data.data.related || []
+      const rawRelated = response.data.related || []
       relatedProducts.value = rawRelated
         .map(mapBackendProduct)
         .filter(Boolean)
@@ -501,7 +508,7 @@ function toggleWish() {
   showToast(wished.value ? 'Đã thêm sản phẩm vào danh sách yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
 }
 
-function doAddToCart() {
+async function doAddToCart() {
   if (!selectedSize.value) {
     Swal.fire({
       icon: 'warning',
@@ -509,7 +516,7 @@ function doAddToCart() {
       text: 'Vui lòng chọn kích thước giày trước khi thêm vào giỏ.',
       confirmButtonColor: '#FF4D00'
     })
-    return
+    return false
   }
   
   // Find matching variant
@@ -538,7 +545,88 @@ function doAddToCart() {
     qty: qty.value
   }
   
-  addToCart(payload)
+  return await addToCart(payload)
+}
+
+async function doBuyNow() {
+  if (!selectedSize.value) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Chưa chọn size',
+      text: 'Vui lòng chọn kích thước giày trước khi mua.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+  
+  const hasColorOptions = product.value.colors && product.value.colors.length > 0
+  const matchingVariant = (product.value.rawVariants || []).find(v => {
+    const sizeName = v.size?.name || String(v.size_id)
+    const colorName = v.color?.name || String(v.color_id)
+    const matchesSize = sizeName == String(selectedSize.value)
+    const matchesColor = hasColorOptions ? colorName == String(selectedColor.value) : true
+    return matchesSize && matchesColor
+  })
+  
+  if (!matchingVariant?.id) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi',
+      text: 'Không tìm thấy thông tin phân loại sản phẩm. Vui lòng chọn size/màu sắc đầy đủ.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    Swal.fire({
+      title: 'Yêu cầu đăng nhập',
+      text: 'Bạn cần đăng nhập để mua sản phẩm.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đăng nhập ngay',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#FF4D00',
+      cancelButtonColor: '#aaa'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push({ name: 'login' })
+      }
+    })
+    return
+  }
+
+  // Construct a temporary checkout summary for ONLY this item
+  const price = product.value.numericPrice || 0
+  const subtotal = price * qty.value
+  const shippingFee = subtotal >= 500000 ? 0 : 30000
+  
+  const buyNowItem = {
+    id: null, // no cart ID
+    variant_id: matchingVariant.id,
+    productId: product.value.id,
+    name: product.value.name,
+    variant: product.value.colors && product.value.colors.length > 0 
+      ? `Màu ${selectedColor.value} · Size ${selectedSize.value}`
+      : `Size ${selectedSize.value}`,
+    price: price,
+    qty: qty.value,
+    image: activeImage.value
+  }
+
+  const summary = {
+    items: [buyNowItem],
+    subtotal: subtotal,
+    shippingFee: shippingFee,
+    discountAmount: 0,
+    voucherCode: null,
+    total: subtotal + shippingFee,
+    isBuyNow: true
+  }
+
+  localStorage.setItem('saigon_checkout_summary', JSON.stringify(summary))
+  router.push({ name: 'checkout' })
 }
 
 function handleAddToCart(p) {

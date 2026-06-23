@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <!-- Page Header / Breadcrumb -->
     <div class="bg-white border-b border-border py-8">
       <div class="max-w-[1200px] mx-auto px-5">
@@ -275,13 +275,12 @@
 
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref, computed, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 
@@ -358,7 +357,9 @@ async function loadCart() {
           const p = v.product || {}
           let img = '/images/placeholder.png'
           if (p.images && p.images.length > 0) {
-            img = getImageUrl(p.images[0].image)
+            const firstImg = p.images[0]
+            const imgPath = typeof firstImg === 'string' ? firstImg : (firstImg?.image || '')
+            img = getImageUrl(imgPath)
           } else if (v.image) {
             img = getImageUrl(v.image)
           }
@@ -376,27 +377,15 @@ async function loadCart() {
             image: img
           }
         })
-        saveLocalCopy()
         updateHeaderCartCount()
         return
       }
     } catch (e) {
       console.error('Failed to load cart from API:', e)
     }
-  }
-
-  // Guest mode fallback
-  const local = localStorage.getItem('saigon_cart')
-  if (local) {
-    try {
-      cartItems.value = JSON.parse(local)
-    } catch {
-      cartItems.value = []
-    }
   } else {
-    cartItems.value = []
+    router.push({ name: 'login' })
   }
-  updateHeaderCartCount()
 }
 
 function getImageUrl(imagePath) {
@@ -414,21 +403,26 @@ function getImageUrl(imagePath) {
   return `${serverUrl}/images/${imagePath}`
 }
 
-function saveLocalCopy() {
-  localStorage.setItem('saigon_cart', JSON.stringify(cartItems.value))
-}
-
 function updateHeaderCartCount() {
   cartCount.value = cartItems.value.reduce((acc, item) => acc + item.qty, 0)
 }
 
-async function syncQtyToServer(item) {
+async function syncQtyToServer(item, oldQty) {
   const token = localStorage.getItem('access_token')
   if (token && item.id) {
     try {
       await axiosInstance.put(`/cart/${item.id}`, { quantity: item.qty })
+      updateHeaderCartCount()
     } catch (e) {
       console.error('Failed to sync quantity to server:', e)
+      item.qty = oldQty
+      updateHeaderCartCount()
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi cập nhật số lượng',
+        text: e.response?.data?.message || 'Không thể cập nhật số lượng sản phẩm. Vui lòng thử lại.',
+        confirmButtonColor: '#FF4D00'
+      })
     }
   }
 }
@@ -436,28 +430,40 @@ async function syncQtyToServer(item) {
 // ─── Qty ──────────────────────────────────────────────────────────────────────
 async function increaseQty(item) {
   if (item.qty < 10) { 
+    const oldQty = item.qty
     item.qty++
-    saveLocalCopy()
-    updateHeaderCartCount()
-    await syncQtyToServer(item)
+    await syncQtyToServer(item, oldQty)
   }
 }
 
 async function decreaseQty(item) {
   if (item.qty > 1) { 
+    const oldQty = item.qty
     item.qty--
-    saveLocalCopy()
-    updateHeaderCartCount()
-    await syncQtyToServer(item)
+    await syncQtyToServer(item, oldQty)
   }
 }
 
 async function onQtyChange(item) {
   if (!item.qty || item.qty < 1) item.qty = 1
   if (item.qty > 10) item.qty = 10
-  saveLocalCopy()
-  updateHeaderCartCount()
-  await syncQtyToServer(item)
+  
+  const token = localStorage.getItem('access_token')
+  if (token && item.id) {
+    try {
+      await axiosInstance.put(`/cart/${item.id}`, { quantity: item.qty })
+      updateHeaderCartCount()
+    } catch (e) {
+      console.error('Failed to sync quantity:', e)
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi cập nhật số lượng',
+        text: e.response?.data?.message || 'Không thể cập nhật số lượng.',
+        confirmButtonColor: '#FF4D00'
+      })
+      loadCart()
+    }
+  }
 }
 
 // ─── Remove / Clear ──────────────────────────────────────────────────────────
@@ -477,14 +483,19 @@ async function removeItem(item) {
       if (token && item.id) {
         try {
           await axiosInstance.delete(`/cart/${item.id}`)
+          cartItems.value = cartItems.value.filter(i => i.id !== item.id)
+          updateHeaderCartCount()
+          showToast('Đã xóa sản phẩm khỏi giỏ hàng')
         } catch (e) {
           console.error('Failed to delete cart item on server:', e)
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Không thể xóa sản phẩm. Vui lòng thử lại.',
+            confirmButtonColor: '#FF4D00'
+          })
         }
       }
-      cartItems.value = cartItems.value.filter(i => i.id !== item.id)
-      saveLocalCopy()
-      updateHeaderCartCount()
-      showToast('Đã xóa sản phẩm khỏi giỏ hàng')
     }
   })
 }
@@ -505,18 +516,21 @@ async function clearCart() {
       const token = localStorage.getItem('access_token')
       if (token) {
         try {
-          await Promise.all(cartItems.value.map(i => {
-            if (i.id) return axiosInstance.delete(`/cart/${i.id}`)
-          }))
+          await axiosInstance.delete('/cart/clear')
+          cartItems.value = []
+          appliedVoucher.value = null
+          updateHeaderCartCount()
+          showToast('Đã xóa toàn bộ giỏ hàng')
         } catch (e) {
           console.error('Failed to clear cart on server:', e)
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Không thể xóa giỏ hàng. Vui lòng thử lại.',
+            confirmButtonColor: '#FF4D00'
+          })
         }
       }
-      cartItems.value = []
-      appliedVoucher.value = null
-      saveLocalCopy()
-      updateHeaderCartCount()
-      showToast('Đã xóa toàn bộ giỏ hàng')
     }
   })
 }

@@ -48,7 +48,6 @@
             :key="product.id"
             :product="product"
             :show-cart-button="false"
-            @add-to-cart="$emit('add-to-cart', $event)"
             @toggle-wish="$emit('toggle-wish', $event)"
             @click="goToDetail(product)"
           />
@@ -67,7 +66,7 @@ import ProductCard from '../common/ProductCard.vue'
 
 const router = useRouter()
 
-defineEmits(['add-to-cart', 'toggle-wish'])
+defineEmits(['toggle-wish'])
 
 // Countdown logic
 let h = 2, m = 47, s = 33

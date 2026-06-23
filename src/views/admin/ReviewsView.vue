@@ -1,5 +1,5 @@
 <template>
-  <AdminLayout>
+  
     <div class="space-y-6 text-left">
       <!-- Page Title Header -->
       <div>
@@ -228,12 +228,11 @@
         <p class="text-xs text-slate-400 mt-1">Vui lòng thay đổi từ khóa hoặc điều chỉnh các bộ lọc sao/trạng thái.</p>
       </div>
     </div>
-  </AdminLayout>
+  
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import AdminLayout from '@/layouts/AdminLayout.vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 

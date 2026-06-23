@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <!-- About Hero Section -->
     <section class="relative bg-surface2 py-20 overflow-hidden">
       <!-- Background Blobs -->
@@ -125,11 +125,10 @@
 
       </div>
     </section>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
-import HomeLayout from '@/layouts/HomeLayout.vue'
 
 const values = [
   {

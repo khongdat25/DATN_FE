@@ -1,9 +1,32 @@
 <script setup>
-// App.vue giờ đây chỉ đóng vai trò là Layout tổng, hiển thị nội dung theo Route
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import HomeLayout from '@/layouts/HomeLayout.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+
+const route = useRoute()
+
+// Map layout name to layout component based on path
+const layoutComponent = computed(() => {
+  if (route.path.startsWith('/admin')) {
+    return AdminLayout
+  }
+  if (route.meta?.layout === 'none') {
+    return null
+  }
+  return HomeLayout
+})
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
+  <component :is="layoutComponent" v-if="layoutComponent">
+    <router-view v-slot="{ Component }">
+      <keep-alive :include="['HomeView', 'ProductsView']">
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
+  </component>
+  <router-view v-else v-slot="{ Component }">
     <keep-alive :include="['HomeView', 'ProductsView']">
       <component :is="Component" />
     </keep-alive>

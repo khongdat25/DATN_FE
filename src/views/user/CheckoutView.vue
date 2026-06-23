@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <!-- Page Header / Breadcrumb -->
     <div class="bg-white border-b border-border py-8">
       <div class="max-w-[1200px] mx-auto px-5">
@@ -159,29 +159,20 @@
                   class="mt-6 bg-[#fafafa] border border-border rounded-xl p-6"
                 >
                   <div class="flex items-start gap-6 flex-wrap sm:flex-nowrap">
-                    <!-- QR SVG -->
-                    <div class="bg-white p-4 rounded-xl border border-border shadow-sm flex items-center justify-center relative shrink-0">
-                      <svg viewBox="0 0 100 100" width="140" height="140" class="block">
-                        <path d="M0,0 h30 v10 h-20 v20 h-10 zM70,0 h30 v30 h-10 v-20 h-20 zM0,70 h10 v20 h20 v10 h-30 zM70,90 h20 v-20 h10 v30 h-30 z" fill="#1a1a1a"/>
-                        <rect x="10" y="10" width="15" height="15" fill="#1a1a1a"/>
-                        <rect x="75" y="10" width="15" height="15" fill="#1a1a1a"/>
-                        <rect x="10" y="75" width="15" height="15" fill="#1a1a1a"/>
-                        <circle cx="50" cy="50" r="10" fill="#FF4D00" opacity="0.8"/>
-                        <rect x="35" y="15" width="5" height="10" fill="#1a1a1a"/>
-                        <rect x="45" y="25" width="10" height="5" fill="#1a1a1a"/>
-                        <rect x="60" y="15" width="5" height="5" fill="#1a1a1a"/>
-                        <rect x="35" y="40" width="8" height="8" fill="#1a1a1a"/>
-                        <rect x="55" y="35" width="10" height="5" fill="#1a1a1a"/>
-                        <rect x="60" y="55" width="8" height="8" fill="#1a1a1a"/>
-                        <rect x="35" y="75" width="12" height="5" fill="#1a1a1a"/>
-                        <rect x="35" y="85" width="5" height="5" fill="#1a1a1a"/>
-                        <rect x="50" y="75" width="8" height="8" fill="#1a1a1a"/>
-                        <rect x="75" y="35" width="10" height="10" fill="#1a1a1a"/>
-                      </svg>
-                      <div
-                        class="absolute w-9 h-9 bg-white rounded-full flex items-center justify-center text-[9px] font-extrabold border-2 shadow"
-                        :style="{ color: qrInfo.color, borderColor: qrInfo.color }"
-                      >{{ qrInfo.logo }}</div>
+                    <!-- QR Code Image -->
+                    <div class="bg-white p-3 rounded-xl border border-border shadow-sm flex items-center justify-center relative shrink-0 w-[172px] h-[172px]">
+                      <img
+                        v-if="dynamicQrUrl"
+                        :src="dynamicQrUrl"
+                        alt="Mã QR Thanh toán"
+                        class="w-full h-full object-contain transition-opacity duration-300"
+                        :class="{ 'opacity-30': !qrLoaded }"
+                        @load="qrLoaded = true"
+                      />
+                      <!-- Spinner loading -->
+                      <div v-if="!qrLoaded" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-xl">
+                        <div class="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                      </div>
                     </div>
 
                     <!-- QR Details -->
@@ -421,14 +412,26 @@
       </transition>
     </Teleport>
 
-  </HomeLayout>
+  
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
+import QRCode from 'qrcode'
+
+const cartCount = inject('cartCount', ref(0))
+
+// ─── Cấu hình tài khoản nhận thanh toán ───────────────────────────────────────
+const SHOP_PAYMENT_CONFIG = {
+  bankId: 'MB', // Techcombank (TCB), Vietcombank (VCB), MB Bank (MB), ACB, etc.
+  bankAccount: '0936715847',
+  bankAccountName: 'NGUYEN KHONG DAT',
+  momoPhone: '0936715847',
+  momoName: 'NGUYEN KHONG DAT'
+}
 
 const router = useRouter()
 
@@ -525,28 +528,62 @@ const totalPrice = computed(() =>
 )
 
 // ─── QR Payment Info ─────────────────────────────────────────────────────────
+const qrMemo = ref('SGS' + Math.floor(100000 + Math.random() * 900000))
+const qrLoaded = ref(false)
+const momoQrBase64 = ref('')
+
 const qrInfo = computed(() => {
   if (form.paymentMethod === 'qr_bank') {
     return {
       title: 'Chuyển khoản VietQR',
-      account: 'CÔNG TY TNHH SAIGON SHOES',
-      number: '1903 5678 9999',
-      bank: 'Techcombank',
+      account: SHOP_PAYMENT_CONFIG.bankAccountName,
+      number: SHOP_PAYMENT_CONFIG.bankAccount,
+      bank: SHOP_PAYMENT_CONFIG.bankId === 'MB' ? 'MB Bank' : SHOP_PAYMENT_CONFIG.bankId,
       logo: 'QR',
       color: '#FF4D00'
     }
   }
   return {
     title: 'Thanh toán Ví MoMo',
-    account: 'CÔNG TY TNHH SAIGON SHOES',
-    number: '0123 456 789',
+    account: SHOP_PAYMENT_CONFIG.momoName,
+    number: SHOP_PAYMENT_CONFIG.momoPhone,
     bank: null,
     logo: 'MoMo',
     color: '#d81b60'
   }
 })
 
-const qrMemo = computed(() => 'SGS_' + Math.floor(100000 + Math.random() * 900000))
+const dynamicQrUrl = computed(() => {
+  if (form.paymentMethod === 'qr_bank') {
+    return `https://img.vietqr.io/image/${SHOP_PAYMENT_CONFIG.bankId}-${SHOP_PAYMENT_CONFIG.bankAccount}-compact2.png?amount=${totalPrice.value}&addInfo=${encodeURIComponent(qrMemo.value)}&accountName=${encodeURIComponent(SHOP_PAYMENT_CONFIG.bankAccountName)}`
+  } else if (form.paymentMethod === 'qr_wallet') {
+    return momoQrBase64.value
+  }
+  return ''
+})
+
+async function generateMomoQr() {
+  if (!SHOP_PAYMENT_CONFIG.momoPhone) return
+  const momoLink = `https://nhantien.momo.vn/${SHOP_PAYMENT_CONFIG.momoPhone}?amount=${totalPrice.value}&note=${encodeURIComponent(qrMemo.value)}`
+  try {
+    momoQrBase64.value = await QRCode.toDataURL(momoLink, {
+      width: 250,
+      margin: 1,
+      errorCorrectionLevel: 'M'
+    })
+    qrLoaded.value = true // Vì sinh offline ở client nên có thể set true ngay
+  } catch (err) {
+    console.error('Failed to generate MoMo QR:', err)
+  }
+}
+
+// Reset loading state and generate local QR if needed
+watch([() => form.paymentMethod, totalPrice], () => {
+  qrLoaded.value = false
+  if (form.paymentMethod === 'qr_wallet') {
+    generateMomoQr()
+  }
+})
 
 // ─── Voucher Suggestion ───────────────────────────────────────────────────────
 const suggestionStyle = computed(() => {
@@ -640,7 +677,7 @@ function formatPrice(val) {
   return Number(val).toLocaleString('vi-VN') + '₫'
 }
 
-function handlePlaceOrder() {
+async function handlePlaceOrder() {
   if (summary.value.items.length === 0) {
     Swal.fire({ icon: 'warning', title: 'Giỏ hàng trống!', text: 'Vui lòng thêm sản phẩm vào giỏ hàng trước khi đặt hàng.', confirmButtonColor: '#FF4D00' })
     return
@@ -648,11 +685,43 @@ function handlePlaceOrder() {
 
   Swal.fire({ title: 'Đang xử lý đặt hàng...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
 
-  setTimeout(() => {
+  try {
+    const userStr = localStorage.getItem('user')
+    const userObj = userStr ? JSON.parse(userStr) : {}
+    
+    let orderNote = form.note
+    if (form.paymentMethod !== 'cod') {
+      const paymentType = form.paymentMethod === 'qr_bank' ? 'VietQR' : 'MoMo'
+      const qrMemoText = `[Thanh toán qua ${paymentType} - Mã QR: ${qrMemo.value}]`
+      orderNote = orderNote ? `${orderNote}\n${qrMemoText}` : qrMemoText
+    }
+
+    const payload = {
+      name: selectedAddress.value.name,
+      email: userObj.email || '',
+      phone: selectedAddress.value.phone,
+      address: selectedAddress.value.address,
+      note: orderNote,
+      payment_method_id: form.paymentMethod === 'cod' ? 1 : (form.paymentMethod === 'qr_bank' ? 2 : 3),
+      voucher_id: appliedVoucher.value?.id || null
+    }
+
+    if (summary.value.isBuyNow && summary.value.items.length === 1) {
+      payload.variant_id = summary.value.items[0].variant_id
+      payload.quantity = summary.value.items[0].qty
+    }
+
+    // Call real backend API
+    const response = await axiosInstance.post('/checkout', payload)
+
     Swal.close()
 
+    // Map response or keep standard orderId for profile history display
+    const orderData = response.data || response
+    const dbOrderId = orderData.id || Math.floor(100000 + Math.random() * 900000)
+
     const newOrder = {
-      orderId: 'SGS-' + Math.floor(100000 + Math.random() * 900000),
+      orderId: 'SGS-' + dbOrderId,
       date: new Date().toLocaleDateString('vi-VN'),
       items: summary.value.items,
       total: totalPrice.value,
@@ -666,8 +735,12 @@ function handlePlaceOrder() {
     try { ordersList = JSON.parse(localOrders) || [] } catch {}
     ordersList.unshift(newOrder)
     localStorage.setItem('saigon_orders', JSON.stringify(ordersList))
-    localStorage.removeItem('saigon_cart')
     localStorage.removeItem('saigon_checkout_summary')
+    localStorage.removeItem('saigon_buy_now_item')
+
+    if (!summary.value.isBuyNow) {
+      cartCount.value = 0 // Reset cart count in header
+    }
 
     Swal.fire({
       icon: 'success',
@@ -676,7 +749,17 @@ function handlePlaceOrder() {
       confirmButtonText: 'Xem lịch sử đơn hàng 📦',
       confirmButtonColor: '#FF4D00'
     }).then(() => router.push({ name: 'profile' }))
-  }, 1500)
+
+  } catch (error) {
+    Swal.close()
+    console.error('Checkout failed:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Đặt hàng thất bại',
+      text: error.response?.data?.message || 'Có lỗi xảy ra trong quá trình xử lý đơn hàng. Vui lòng thử lại.',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
 }
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
@@ -696,18 +779,68 @@ onMounted(() => {
     const v = availableVouchers.find(x => x.code === summary.value.voucherCode)
     if (v) appliedVoucher.value = v
   }
+  if (form.paymentMethod === 'qr_wallet') {
+    generateMomoQr()
+  }
 })
 
-function loadFromCart() {
-  const local = localStorage.getItem('saigon_cart')
-  if (!local) { router.push({ name: 'cart' }); return }
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/placeholder.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
+
+async function loadFromCart() {
   try {
-    const items = JSON.parse(local)
-    if (!items.length) { router.push({ name: 'cart' }); return }
-    const subtotal = items.reduce((acc, i) => acc + i.price * i.qty, 0)
-    const shippingFee = subtotal >= 500000 ? 0 : 30000
-    summary.value = { items, subtotal, shippingFee, discountAmount: 0, voucherCode: null, total: subtotal + shippingFee }
-  } catch {
+    const response = await axiosInstance.get('/cart')
+    if (response && response.data) {
+      const items = response.data.map(item => {
+        const v = item.variant || {}
+        const p = v.product || {}
+        let img = '/images/placeholder.png'
+        if (p.images && p.images.length > 0) {
+          const firstImg = p.images[0]
+          const imgPath = typeof firstImg === 'string' ? firstImg : (firstImg?.image || '')
+          img = getImageUrl(imgPath)
+        } else if (v.image) {
+          img = getImageUrl(v.image)
+        }
+        
+        return {
+          id: item.id,
+          variant_id: v.id,
+          productId: p.id || 1,
+          name: p.name || 'Sản phẩm',
+          variant: (v.color?.name || v.size?.name) 
+            ? `Màu ${v.color?.name || ''} · Size ${v.size?.name || ''}`
+            : 'Mặc định',
+          price: v.price || 0,
+          qty: item.quantity || 1,
+          image: img
+        }
+      })
+
+      if (!items.length) {
+        router.push({ name: 'cart' })
+        return
+      }
+      const subtotal = items.reduce((acc, i) => acc + i.price * i.qty, 0)
+      const shippingFee = subtotal >= 500000 ? 0 : 30000
+      summary.value = { items, subtotal, shippingFee, discountAmount: 0, voucherCode: null, total: subtotal + shippingFee }
+    } else {
+      router.push({ name: 'cart' })
+    }
+  } catch (e) {
+    console.error('Failed to load cart for checkout:', e)
     router.push({ name: 'cart' })
   }
 }

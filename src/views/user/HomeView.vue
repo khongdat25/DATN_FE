@@ -3,7 +3,6 @@ import { inject, ref, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 
 defineOptions({ name: 'HomeView' })
-import HomeLayout from '../../layouts/HomeLayout.vue'
 import HeroSlider from '../../components/home/HeroSlider.vue'
 import CategorySection from '../../components/home/CategorySection.vue'
 import FlashSale from '../../components/home/FlashSale.vue'
@@ -14,7 +13,6 @@ import CollectionSection from '../../components/home/CollectionSection.vue'
 import BlogSection from '../../components/home/BlogSection.vue'
 
 const router = useRouter()
-const addToCart = inject('addToCart', (p) => {})
 const showToast = inject('showToast', (msg) => {})
 
 const isLoggedIn = ref(false)
@@ -22,10 +20,6 @@ const isLoggedIn = ref(false)
 onActivated(() => {
   isLoggedIn.value = !!localStorage.getItem('access_token')
 })
-
-function handleAddToCart(product) {
-  addToCart(product)
-}
 
 function handleWish(payload) {
   showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
@@ -37,17 +31,17 @@ function handleSignup() {
 </script>
 
 <template>
-  <HomeLayout>
+  
     <HeroSlider />
     <CategorySection />
     <hr class="border-none border-t border-border m-0">
-    <FlashSale @add-to-cart="handleAddToCart" @toggle-wish="handleWish" />
+    <FlashSale @toggle-wish="handleWish" />
     <hr class="border-none border-t border-border m-0">
-    <BestSellers @add-to-cart="handleAddToCart" @toggle-wish="handleWish" />
+    <BestSellers @toggle-wish="handleWish" />
     <hr class="border-none border-t border-border m-0">
-    <NewProducts @add-to-cart="handleAddToCart" @toggle-wish="handleWish" />
+    <NewProducts @toggle-wish="handleWish" />
     <hr class="border-none border-t border-border m-0">
-    <FeaturedProducts @add-to-cart="handleAddToCart" />
+    <FeaturedProducts />
     <hr class="border-none border-t border-border m-0">
     <CollectionSection />
     <hr class="border-none border-t border-border m-0">
@@ -65,7 +59,7 @@ function handleSignup() {
         </div>
       </div>
     </section>
-  </HomeLayout>
+  
 </template>
 
 

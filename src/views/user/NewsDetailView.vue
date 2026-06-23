@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <main class="py-12 bg-bg">
       <div class="max-w-[1200px] mx-auto px-5">
         
@@ -171,13 +171,12 @@
 
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
 
 const route = useRoute()

@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <main class="flex items-center justify-center py-[80px] min-h-[calc(100vh-72px-350px)] relative overflow-hidden bg-surface2">
       <!-- Decorative Elements -->
       <div class="blob blob-1"></div>
@@ -100,13 +100,12 @@
         </div>
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import axiosInstance from '@/api/axios.js'
 import Swal from 'sweetalert2'
 

@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <!-- Breadcrumbs -->
     <div class="bg-surface2 py-4 border-b border-border">
       <div class="max-w-[1200px] mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
@@ -196,12 +196,11 @@
 
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref, reactive, inject } from 'vue'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import Swal from 'sweetalert2'
 
 const showToast = inject('showToast', (msg) => {})

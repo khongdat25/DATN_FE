@@ -1,5 +1,5 @@
 <template>
-  <HomeLayout>
+  
     <main class="flex-1 flex items-center justify-center py-12 px-5 relative min-h-[calc(100vh-72px-340px)] bg-surface2 overflow-hidden">
       <!-- Decorative Background Blobs -->
       <div class="blob blob-1"></div>
@@ -95,12 +95,11 @@
         </div>
       </div>
     </main>
-  </HomeLayout>
+  
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import HomeLayout from '@/layouts/HomeLayout.vue'
 import axiosInstance from '@/api/axios.js'
 
 defineOptions({ name: 'ForgotPasswordView' })
