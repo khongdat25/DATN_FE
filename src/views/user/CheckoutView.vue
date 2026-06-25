@@ -151,63 +151,6 @@
                   <i :class="['text-2xl', method.icon]" :style="{ color: method.iconColor }"></i>
                 </label>
               </div>
-
-              <!-- QR Payment Box -->
-              <transition name="fade-slide">
-                <div
-                  v-if="form.paymentMethod !== 'cod'"
-                  class="mt-6 bg-[#fafafa] border border-border rounded-xl p-6"
-                >
-                  <div class="flex items-start gap-6 flex-wrap sm:flex-nowrap">
-                    <!-- QR Code Image -->
-                    <div class="bg-white p-3 rounded-xl border border-border shadow-sm flex items-center justify-center relative shrink-0 w-[172px] h-[172px]">
-                      <img
-                        v-if="dynamicQrUrl"
-                        :src="dynamicQrUrl"
-                        alt="Mã QR Thanh toán"
-                        class="w-full h-full object-contain transition-opacity duration-300"
-                        :class="{ 'opacity-30': !qrLoaded }"
-                        @load="qrLoaded = true"
-                      />
-                      <!-- Spinner loading -->
-                      <div v-if="!qrLoaded" class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-xl">
-                        <div class="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    </div>
-
-                    <!-- QR Details -->
-                    <div class="flex-1 w-full">
-                      <h4 class="font-display font-bold text-base text-text mb-3">{{ qrInfo.title }}</h4>
-                      <div class="flex flex-col gap-2">
-                        <div class="flex justify-between text-[13px] border-b border-dashed border-border pb-1.5">
-                          <span class="text-text-muted">Tài khoản:</span>
-                          <strong class="text-text font-semibold">{{ qrInfo.account }}</strong>
-                        </div>
-                        <div class="flex justify-between text-[13px] border-b border-dashed border-border pb-1.5">
-                          <span class="text-text-muted">Số TK / SĐT:</span>
-                          <strong class="text-text font-semibold">{{ qrInfo.number }}</strong>
-                        </div>
-                        <div v-if="qrInfo.bank" class="flex justify-between text-[13px] border-b border-dashed border-border pb-1.5">
-                          <span class="text-text-muted">Ngân hàng:</span>
-                          <strong class="text-text font-semibold">{{ qrInfo.bank }}</strong>
-                        </div>
-                        <div class="flex justify-between text-[13px] border-b border-dashed border-border pb-1.5">
-                          <span class="text-text-muted">Số tiền:</span>
-                          <strong class="text-accent font-bold text-base">{{ formatPrice(totalPrice) }}</strong>
-                        </div>
-                        <div class="flex justify-between text-[13px]">
-                          <span class="text-text-muted">Nội dung CK:</span>
-                          <strong class="font-mono text-[#2196f3] bg-[rgba(33,150,243,0.06)] px-1.5 py-0.5 rounded text-sm">{{ qrMemo }}</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex items-start gap-2 mt-5 pt-4 border-t border-border text-xs text-text-muted">
-                    <i class="ti ti-info-circle text-accent text-base shrink-0 mt-px"></i>
-                    Vui lòng quét mã đúng số tiền và nội dung chuyển khoản để đơn hàng được phê duyệt tự động ngay lập tức.
-                  </div>
-                </div>
-              </transition>
             </div>
 
             <!-- ⑤ Ghi chú -->
@@ -412,12 +355,14 @@
       </transition>
     </Teleport>
 
+    <!-- ── PayOS Payment Modal ── -->
+    <!-- Removed local PayOS payment modal. Redirection is handled directly to PayOS checkout page. -->
   
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, inject, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted, onUnmounted, inject, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 import QRCode from 'qrcode'
@@ -434,6 +379,7 @@ const SHOP_PAYMENT_CONFIG = {
 }
 
 const router = useRouter()
+const route = useRoute()
 
 // ─── State ───────────────────────────────────────────────────────────────────
 const summary = ref({
@@ -537,6 +483,8 @@ const totalPrice = computed(() =>
 const qrMemo = ref('SGS' + Math.floor(100000 + Math.random() * 900000))
 const qrLoaded = ref(false)
 const momoQrBase64 = ref('')
+
+
 
 const qrInfo = computed(() => {
   if (form.paymentMethod === 'qr_bank') {
@@ -717,8 +665,8 @@ async function handlePlaceOrder() {
       payload.quantity = summary.value.items[0].qty
     }
 
-    // Call real backend API
-    const response = await axiosInstance.post('/checkout', payload)
+    // Call real backend API (Extended timeout of 30 seconds for external payment link generation)
+    const response = await axiosInstance.post('/checkout', payload, { timeout: 30000 })
 
     Swal.close()
 
@@ -732,7 +680,7 @@ async function handlePlaceOrder() {
       items: summary.value.items,
       total: totalPrice.value,
       shipping: selectedAddress.value.address,
-      status: 'Chờ xác nhận',
+      status: 'pending', // Trạng thái 'pending' lúc bắt đầu
       paymentMethod: paymentMethods.find(m => m.id === form.paymentMethod)?.name || 'COD'
     }
 
@@ -744,17 +692,44 @@ async function handlePlaceOrder() {
     localStorage.removeItem('saigon_checkout_summary')
     localStorage.removeItem('saigon_buy_now_item')
 
-    if (!summary.value.isBuyNow) {
-      cartCount.value = 0 // Reset cart count in header
-    }
+    // If payment method is COD
+    if (form.paymentMethod === 'cod') {
+      if (!summary.value.isBuyNow) {
+        cartCount.value = 0 // Reset cart count in header
+      }
 
-    Swal.fire({
-      icon: 'success',
-      title: 'ĐẶT HÀNG THÀNH CÔNG! 🎉',
-      text: `Mã đơn hàng: ${newOrder.orderId}. SaigonShoes sẽ liên hệ sớm để xác nhận!`,
-      confirmButtonText: 'Xem lịch sử đơn hàng 📦',
-      confirmButtonColor: '#FF4D00'
-    }).then(() => router.push({ name: 'profile' }))
+      Swal.fire({
+        icon: 'success',
+        title: 'ĐẶT HÀNG THÀNH CÔNG! 🎉',
+        text: `Mã đơn hàng: ${newOrder.orderId}. SaigonShoes sẽ liên hệ sớm để xác nhận!`,
+        confirmButtonText: 'Xem lịch sử đơn hàng 📦',
+        confirmButtonColor: '#FF4D00'
+      }).then(() => router.push({ name: 'profile', query: { tab: 'orders' } }))
+    } else {
+      // If payment is QR (VietQR/MoMo)
+      const checkoutUrl = response.checkout_url || response.checkoutUrl || response.data?.checkout_url || response.data?.checkoutUrl
+      
+      if (checkoutUrl) {
+        // Clear cart count in header if not a Buy Now order
+        if (!summary.value.isBuyNow) {
+          cartCount.value = 0
+        }
+        // Redirect directly to PayOS checkout page
+        window.location.href = checkoutUrl
+      } else {
+        // Fallback mode if PayOS keys are not configured
+        if (!summary.value.isBuyNow) {
+          cartCount.value = 0
+        }
+        Swal.fire({
+          icon: 'success',
+          title: 'ĐẶT HÀNG THÀNH CÔNG! 🎉',
+          text: `Mã đơn hàng: ${newOrder.orderId}. Cổng thanh toán tạm thời bảo trì, đơn hàng của bạn đã được ghi nhận ở trạng thái Chờ duyệt!`,
+          confirmButtonText: 'Xem lịch sử đơn hàng 📦',
+          confirmButtonColor: '#FF4D00'
+        }).then(() => router.push({ name: 'profile', query: { tab: 'orders' } }))
+      }
+    }
 
   } catch (error) {
     Swal.close()
@@ -777,6 +752,49 @@ async function handlePlaceOrder() {
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
 onMounted(async () => {
+  // Handle redirect from PayOS cancel
+  if (route.query.status === 'cancelled' && route.query.order_id) {
+    const orderId = route.query.order_id
+    Swal.fire({
+      title: 'Đang hủy giao dịch...',
+      text: 'Vui lòng chờ trong giây lát.',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    })
+    try {
+      // 1. Call Backend to delete the order and restore cart
+      await axiosInstance.delete(`/user/orders/${orderId}`)
+
+      // 2. Remove from local orders in localStorage
+      const localOrders = localStorage.getItem('saigon_orders')
+      if (localOrders) {
+        try {
+          let ordersList = JSON.parse(localOrders) || []
+          ordersList = ordersList.filter(o => o.orderId !== 'SGS-' + orderId)
+          localStorage.setItem('saigon_orders', JSON.stringify(ordersList))
+        } catch (e) {
+          console.error(e)
+        }
+      }
+
+      Swal.close()
+      Swal.fire({
+        icon: 'info',
+        title: 'Đã hủy thanh toán',
+        text: 'Đơn hàng đã được hủy bỏ thành công. Các sản phẩm đã được khôi phục về giỏ hàng của bạn.',
+        confirmButtonText: 'Quay lại Giỏ hàng 🛒',
+        confirmButtonColor: '#FF4D00'
+      }).then(() => {
+        router.push({ name: 'cart' })
+      })
+    } catch (error) {
+      Swal.close()
+      console.error('Failed to cancel order on backend:', error)
+      router.push({ name: 'cart' })
+    }
+    return
+  }
+
   await loadAddresses()
 
   const local = localStorage.getItem('saigon_checkout_summary')
@@ -893,5 +911,90 @@ async function loadFromCart() {
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+
+/* PayOS Payment Modal Styles */
+.pulse-circle {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: rgba(255, 77, 0, 0.04);
+  animation: pulse-ring 2s infinite ease-out;
+  pointer-events: none;
+}
+
+.radar-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #FF4D00, transparent);
+  animation: radar-scan 2.5s infinite linear;
+  top: 0;
+  z-index: 20;
+}
+
+/* Checkmark success animation */
+.checkmark-circle {
+  width: 72px;
+  height: 72px;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: 20px;
+}
+.checkmark-circle .background {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #10b981; /* emerald-500 */
+  position: absolute;
+  animation: scale-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.checkmark-circle .checkmark:after {
+  opacity: 0;
+  height: 34px;
+  width: 17px;
+  transform-origin: left top;
+  border-right: 4px solid #fff;
+  border-top: 4px solid #fff;
+  content: '';
+  left: 20px;
+  top: 36px;
+  position: absolute;
+  transform: scaleX(-1) rotate(135deg);
+  animation: draw-checkmark 0.5s 0.3s ease forwards;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.65); opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { transform: scale(1.1); opacity: 0; }
+}
+
+@keyframes radar-scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+@keyframes scale-up {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+@keyframes draw-checkmark {
+  0% { height: 0; width: 0; opacity: 1; }
+  35% { height: 0; width: 17px; opacity: 1; }
+  100% { height: 34px; width: 17px; opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
 }
 </style>

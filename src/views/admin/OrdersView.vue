@@ -21,6 +21,15 @@
           Tất cả đơn hàng ({{ orders.length }})
         </button>
         <button 
+          @click="activeStatusTab = 'new'" 
+          :class="[
+            'py-4 px-4 transition-all cursor-pointer font-bold focus:outline-none border-b-2',
+            activeStatusTab === 'new' ? 'text-accent border-accent' : 'text-slate-500 hover:text-slate-800 border-transparent'
+          ]"
+        >
+          Đơn mới ({{ orders.filter(o => o.status === 'new').length }})
+        </button>
+        <button 
           @click="activeStatusTab = 'pending'" 
           :class="[
             'py-4 px-4 transition-all cursor-pointer font-bold focus:outline-none border-b-2',
@@ -69,7 +78,7 @@
             v-model="filterDate" 
             class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer text-slate-700 font-semibold"
           >
-          <select v-model="filterPayment" class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer text-slate-700 font-semibold">
+          <select v-model="filterPayment" class="bg-slate-50 border border-slate-200 text-slate-655 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer text-slate-700 font-semibold">
             <option value="all">Mọi thanh toán</option>
             <option value="COD">COD (Thanh toán nhận hàng)</option>
             <option value="Chuyển khoản">Chuyển khoản ngân hàng</option>
@@ -194,6 +203,7 @@
                                 v-model="order.tempStatus" 
                                 class="flex-1 bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer font-semibold"
                               >
+                                <option value="new">Đơn mới</option>
                                 <option value="pending">Chờ xử lý</option>
                                 <option value="shipping">Đang giao</option>
                                 <option value="delivered">Đã giao</option>
@@ -204,6 +214,12 @@
                                 class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-4 rounded-xl border-none transition-colors cursor-pointer shadow-xs font-display"
                               >
                                 Cập nhật
+                              </button>
+                              <button 
+                                @click="deleteOrder(order.id)" 
+                                class="bg-red-50 hover:bg-red-500 hover:text-white text-red-500 text-xs font-bold px-4 rounded-xl border border-red-200 transition-colors cursor-pointer shadow-xs font-display"
+                              >
+                                Xóa
                               </button>
                             </div>
                           </div>
@@ -242,8 +258,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const searchQuery = ref('')
 const activeStatusTab = ref('all')
@@ -251,64 +268,91 @@ const filterDate = ref('')
 const filterPayment = ref('all')
 
 const expandedRows = ref([])
+const orders = ref([])
 
-const orders = ref([
-  {
-    id: 1,
-    code: '#SS-9502',
-    customerName: 'Khổng Đạt',
-    customerEmail: 'khongdat@gmail.com',
-    date: '2026-05-31',
-    displayDate: '31/05/2026 14:24',
-    paymentMethod: 'COD',
-    total: 3350000,
-    status: 'pending',
-    tempStatus: 'pending',
-    receiverName: 'Khổng Đạt',
-    receiverPhone: '0987 654 321',
-    receiverAddress: '28 Đường Số 1, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
-    items: [
-      { name: 'StepUp Air Max One', size: 42, color: 'Cam Trắng', price: 1250000, quantity: 1, image: '/images/p1.png' },
-      { name: 'StepUp Pro Dunker', size: 41, color: 'Đen Đỏ', price: 2100000, quantity: 1, image: '/images/p2.png' }
-    ]
-  },
-  {
-    id: 2,
-    code: '#SS-9501',
-    customerName: 'Minh Thư',
-    customerEmail: 'minhthu@gmail.com',
-    date: '2026-05-31',
-    displayDate: '31/05/2026 13:02',
-    paymentMethod: 'Chuyển khoản',
-    total: 1250000,
-    status: 'shipping',
-    tempStatus: 'shipping',
-    receiverName: 'Minh Thư',
-    receiverPhone: '0912 345 678',
-    receiverAddress: '156 Nguyễn Văn Cừ, Phường 2, Quận 5, TP. Hồ Chí Minh',
-    items: [
-      { name: 'StepUp Air Max One', size: 40, color: 'Cam Trắng', price: 1250000, quantity: 1, image: '/images/p1.png' }
-    ]
-  },
-  {
-    id: 3,
-    code: '#SS-9500',
-    customerName: 'Hải Vy',
-    customerEmail: 'haivy@gmail.com',
-    date: '2026-05-31',
-    displayDate: '31/05/2026 11:15',
-    paymentMethod: 'VNPAY',
-    total: 2100000,
-    status: 'delivered',
-    tempStatus: 'delivered',
-    receiverName: 'Hải Vy',
-    receiverPhone: '0909 999 888',
-    receiverAddress: '45 Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh',
-    items: [
-      { name: 'StepUp Pro Dunker', size: 42, color: 'Đen Đỏ', price: 2100000, quantity: 1, image: '/images/p2.png' }
-    ]
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/placeholder.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
   }
-])
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
+
+async function fetchOrders() {
+  try {
+    const response = await axiosInstance.get('/admin/orders')
+    if (response && response.success) {
+      orders.value = response.data.map(order => {
+        // Map payment method name
+        let pm = 'COD'
+        if (order.payment_method_id === 2) pm = 'Chuyển khoản'
+        if (order.payment_method_id === 3) pm = 'VNPAY'
+
+        // Map items
+        const items = (order.items || []).map(item => {
+          const v = item.variant || {}
+          const p = v.product || {}
+          
+          let img = '/images/placeholder.png'
+          if (v.image) {
+            img = getImageUrl(v.image)
+          } else if (p.images && p.images.length > 0) {
+            const firstImg = p.images[0]
+            const imgPath = typeof firstImg === 'string' ? firstImg : (firstImg?.image || '')
+            img = getImageUrl(imgPath)
+          }
+
+          return {
+            name: p.name || 'Sản phẩm',
+            size: v.size?.name || 'Mặc định',
+            color: v.color?.name || 'Mặc định',
+            price: item.price || 0,
+            quantity: item.quantity || 1,
+            image: img
+          }
+        })
+
+        // Map date
+        const dateStr = order.created_at ? order.created_at.split('T')[0] : ''
+
+        return {
+          id: order.id,
+          code: '#SGS-' + order.id,
+          customerName: order.name || 'Khách hàng',
+          customerEmail: order.email || '',
+          date: dateStr,
+          paymentMethod: pm,
+          total: order.total_amount || 0,
+          status: order.status || 'new',
+          tempStatus: order.status || 'new',
+          receiverName: order.name || 'Chưa rõ',
+          receiverPhone: order.phone || '',
+          receiverAddress: order.address || 'Chưa rõ',
+          items: items
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Error fetching admin orders:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi lấy dữ liệu',
+      text: 'Không thể tải danh sách đơn hàng từ server.',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
+}
+
+onMounted(() => {
+  fetchOrders()
+})
 
 const filteredOrders = computed(() => {
   return orders.value.filter(o => {
@@ -340,7 +384,7 @@ function formatCurrency(value) {
 }
 
 function getInitials(name) {
-  if (!name) return 'AD'
+  if (!name) return 'KH'
   const parts = name.trim().split(' ')
   if (parts.length >= 2) {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
@@ -359,6 +403,7 @@ function toggleRow(id) {
 
 function getStatusText(status) {
   switch (status) {
+    case 'new': return 'Đơn mới'
     case 'pending': return 'Chờ xử lý'
     case 'shipping': return 'Đang giao'
     case 'delivered': return 'Đã giao'
@@ -369,6 +414,7 @@ function getStatusText(status) {
 
 function getStatusBadgeClass(status) {
   switch (status) {
+    case 'new': return 'bg-sky-50 text-sky-700 border border-sky-200'
     case 'pending': return 'bg-amber-50 text-amber-700 border border-amber-200'
     case 'shipping': return 'bg-blue-50 text-blue-700 border border-blue-200'
     case 'delivered': return 'bg-emerald-50 text-emerald-700 border border-emerald-200'
@@ -379,6 +425,7 @@ function getStatusBadgeClass(status) {
 
 function getStatusBulletClass(status) {
   switch (status) {
+    case 'new': return 'bg-sky-500'
     case 'pending': return 'bg-amber-500'
     case 'shipping': return 'bg-blue-500'
     case 'delivered': return 'bg-emerald-500'
@@ -387,14 +434,67 @@ function getStatusBulletClass(status) {
   }
 }
 
-function updateStatus(order) {
-  order.status = order.tempStatus
-  
+async function updateStatus(order) {
+  try {
+    const response = await axiosInstance.post(`/admin/orders/${order.id}/status`, {
+      status: order.tempStatus
+    })
+
+    if (response && response.success) {
+      order.status = order.tempStatus
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Cập nhật trạng thái thành công!',
+        text: `Đơn hàng ${order.code} đã được chuyển sang trạng thái: ${getStatusText(order.status)}`,
+        confirmButtonColor: '#FF4D00'
+      })
+      await fetchOrders()
+    }
+  } catch (error) {
+    console.error('Error updating order status:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Thất bại',
+      text: error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái đơn hàng.',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
+}
+
+async function deleteOrder(id) {
   Swal.fire({
-    icon: 'success',
-    title: 'Cập nhật trạng thái thành công!',
-    text: `Đơn hàng ${order.code} đã được chuyển sang trạng thái: ${getStatusText(order.status)}`,
-    confirmButtonColor: '#FF4D00'
+    title: 'Xác nhận xóa đơn hàng?',
+    text: 'Hành động này sẽ xóa vĩnh viễn đơn hàng và không thể hoàn tác!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#FF4D00',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Xóa đơn hàng!',
+    cancelButtonText: 'Hủy'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await axiosInstance.delete(`/admin/orders/${id}`)
+        if (response && response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa!',
+            text: 'Đơn hàng đã được xóa khỏi hệ thống thành công.',
+            confirmButtonColor: '#FF4D00'
+          })
+          await fetchOrders()
+        }
+      } catch (error) {
+        console.error('Error deleting order:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Thất bại',
+          text: error.response?.data?.message || 'Không thể xóa đơn hàng.',
+          confirmButtonColor: '#FF4D00'
+        })
+      }
+    }
   })
 }
 </script>

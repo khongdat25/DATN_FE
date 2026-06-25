@@ -121,7 +121,7 @@
                       <span class="font-semibold text-text">Mã đơn: <span class="text-accent font-bold">{{ order.orderId }}</span></span>
                       <span :class="['font-semibold flex items-center gap-1.5', getStatusColor(order.status)]">
                         <i :class="getStatusIcon(order.status)"></i>
-                        {{ order.status }}
+                        {{ getStatusText(order.status) }}
                       </span>
                     </div>
                     <!-- Order items -->
@@ -138,7 +138,16 @@
                       </div>
                     </div>
                     <!-- Order footer -->
-                    <div class="flex justify-end items-center gap-5 px-6 py-4 border-t border-border">
+                    <div class="flex justify-between items-center gap-4 px-6 py-4 border-t border-border flex-wrap">
+                      <div>
+                        <button 
+                          v-if="['new', 'pending'].includes(order.status)"
+                          @click="cancelOrder(order.id, order.orderId)"
+                          class="bg-white border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 font-semibold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+                        >
+                          Hủy đơn hàng
+                        </button>
+                      </div>
                       <span class="text-base font-bold text-text">
                         Thành tiền: <span class="text-accent text-lg">{{ formatPrice(order.total) }}</span>
                       </span>
@@ -356,11 +365,12 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 
 const router = useRouter()
+const route = useRoute()
 
 // ─── Tab state ────────────────────────────────────────────────────────────────
 const activeTab = ref('profile')
@@ -427,6 +437,9 @@ const rankLevels = [
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
 onMounted(() => {
+  if (route.query.tab) {
+    activeTab.value = route.query.tab
+  }
   loadUserData()
   loadOrdersData()
   loadAddresses()
@@ -449,46 +462,130 @@ function loadUserData() {
   } catch {}
 }
 
-function loadOrdersData() {
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/placeholder.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
+
+async function loadOrdersData() {
   try {
-    const data = JSON.parse(localStorage.getItem('saigon_orders') || 'null')
-    if (data) { orders.value = data; return }
-  } catch {}
-  // Mock orders nếu chưa có
-  orders.value = [
-    {
-      orderId: 'SGS-281938',
-      date: '15/04/2026',
-      items: [{ name: 'Nike Air Force 1 White', variant: 'Màu Trắng · Size 41', qty: 1, price: 1250000, image: '/images/nike-air-force-1.png' }],
-      total: 1250000,
-      shipping: '123 Đường ABC, Quận 1, TP.HCM',
-      status: 'Đang giao hàng',
-      paymentMethod: 'Thanh toán COD'
-    },
-    {
-      orderId: 'SGS-192847',
-      date: '02/03/2026',
-      items: [{ name: 'Adidas Samba OG Black/White', variant: 'Màu Đen Trắng · Size 42', qty: 1, price: 2100000, image: '/images/adidas-samba-og1.png' }],
-      total: 2100000,
-      shipping: '456 Đường DEF, Quận 3, TP.HCM',
-      status: 'Đã hoàn thành',
-      paymentMethod: 'Chuyển khoản ngân hàng'
+    const response = await axiosInstance.get('/user/orders')
+    if (response && response.success) {
+      orders.value = response.data.map(order => {
+        // Map items
+        const items = (order.items || []).map(item => {
+          const v = item.variant || {}
+          const p = v.product || {}
+          
+          let img = '/images/placeholder.png'
+          if (v.image) {
+            img = getImageUrl(v.image)
+          } else if (p.images && p.images.length > 0) {
+            const firstImg = p.images[0]
+            const imgPath = typeof firstImg === 'string' ? firstImg : (firstImg?.image || '')
+            img = getImageUrl(imgPath)
+          }
+
+          return {
+            name: p.name || 'Sản phẩm',
+            variant: (v.color?.name || v.size?.name)
+              ? `Màu ${v.color?.name || ''} · Size ${v.size?.name || ''}`
+              : 'Mặc định',
+            qty: item.quantity || 1,
+            price: item.price || 0,
+            image: img
+          }
+        })
+
+        return {
+          id: order.id,
+          orderId: 'SGS-' + order.id,
+          date: order.created_at ? new Date(order.created_at).toLocaleDateString('vi-VN') : '',
+          items: items,
+          total: order.total_amount || 0,
+          shipping: order.address || '',
+          status: order.status || 'new',
+          paymentMethod: order.payment_method_id === 1 ? 'COD' : (order.payment_method_id === 2 ? 'Chuyển khoản' : 'VNPAY')
+        }
+      })
     }
-  ]
+  } catch (error) {
+    console.error('Failed to load user orders:', error)
+  }
+}
+
+async function cancelOrder(id, orderCode) {
+  Swal.fire({
+    title: 'Xác nhận hủy đơn hàng?',
+    text: `Bạn có chắc chắn muốn hủy đơn hàng ${orderCode} không?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#FF4D00',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Đồng ý hủy!',
+    cancelButtonText: 'Hủy'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+      try {
+        const response = await axiosInstance.post(`/user/orders/${id}/cancel`)
+        Swal.close()
+        if (response && response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Hủy đơn hàng thành công!',
+            text: `Đơn hàng ${orderCode} đã được hủy bỏ.`,
+            confirmButtonColor: '#FF4D00'
+          })
+          await loadOrdersData()
+        }
+      } catch (error) {
+        Swal.close()
+        console.error('Failed to cancel order:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: error.response?.data?.message || 'Không thể hủy đơn hàng.',
+          confirmButtonColor: '#FF4D00'
+        })
+      }
+    }
+  })
 }
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
+function getStatusText(status) {
+  switch (status) {
+    case 'new': return 'Đang chờ duyệt'
+    case 'pending': return 'Chờ xác nhận'
+    case 'shipping': return 'Đang giao hàng'
+    case 'delivered': return 'Đã hoàn thành'
+    case 'cancelled': return 'Đã hủy'
+    default: return status
+  }
+}
+
 function getStatusColor(status) {
-  if (status === 'Đã hoàn thành') return 'text-green-600'
-  if (status === 'Đang giao hàng') return 'text-blue-500'
-  if (status === 'Chờ xác nhận')  return 'text-yellow-600'
+  if (status === 'delivered') return 'text-green-600'
+  if (status === 'shipping') return 'text-blue-500'
+  if (['new', 'pending'].includes(status)) return 'text-yellow-600'
   return 'text-red-500'
 }
 
 function getStatusIcon(status) {
-  if (status === 'Đã hoàn thành') return 'ti ti-circle-check'
-  if (status === 'Đang giao hàng') return 'ti ti-truck-delivery'
-  if (status === 'Chờ xác nhận')  return 'ti ti-clock'
+  if (status === 'delivered') return 'ti ti-circle-check'
+  if (status === 'shipping') return 'ti ti-truck-delivery'
+  if (['new', 'pending'].includes(status)) return 'ti ti-clock'
   return 'ti ti-x'
 }
 
