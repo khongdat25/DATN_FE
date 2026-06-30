@@ -383,8 +383,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
@@ -393,60 +394,39 @@ const filterType = ref('all')
 const modalOpen = ref(false)
 const isEditMode = ref(false)
 
-const vouchers = ref([
-  {
-    code: 'STEPUPNEW',
-    name: 'Giảm 10% cho khách hàng mới',
-    type: 'Giảm theo %',
-    valueLabel: '10% (Tối đa 50K)',
-    minOrder: 300000,
-    used: 45,
-    total: 100,
-    maxDiscount: 50000,
-    startDate: '2026-05-15',
-    endDate: '2026-06-15',
-    status: 'active'
-  },
-  {
-    code: 'GIAM10K',
-    name: 'Giảm 10k đơn hàng từ 500k',
-    type: 'Giảm số tiền cố định (đ)',
-    valueLabel: '10.000₫',
-    minOrder: 500000,
-    used: 88,
-    total: 200,
-    maxDiscount: 10000,
-    startDate: '2026-05-01',
-    endDate: '2026-05-30',
-    status: 'active'
-  },
-  {
-    code: 'FLASHJUNE',
-    name: 'Chào hè rực rỡ tháng 6',
-    type: 'Giảm theo %',
-    valueLabel: '15% (Tối đa 100K)',
-    minOrder: 600000,
-    used: 0,
-    total: 150,
-    maxDiscount: 100000,
-    startDate: '2026-06-01',
-    endDate: '2026-06-30',
-    status: 'upcoming'
-  },
-  {
-    code: 'FREESHIP',
-    name: 'Miễn phí vận chuyển toàn quốc',
-    type: 'Miễn phí vận chuyển (Free ship)',
-    valueLabel: 'Tối đa 30.000₫',
-    minOrder: 500000,
-    used: 150,
-    total: 150,
-    maxDiscount: 30000,
-    startDate: '2026-04-01',
-    endDate: '2026-04-30',
-    status: 'expired'
+const vouchers = ref([])
+
+onMounted(() => {
+  loadVouchers()
+})
+
+async function loadVouchers() {
+  try {
+    const response = await axiosInstance.get('/admin/vouchers')
+    if (response.success && response.data) {
+      vouchers.value = response.data.map(v => ({
+        id: v.id,
+        code: v.code,
+        name: v.name,
+        type: v.type === 'percent' ? 'Giảm theo %' : (v.type === 'fixed' ? 'Giảm số tiền cố định (đ)' : 'Miễn phí vận chuyển (Free ship)'),
+        valueLabel: v.type === 'percent' 
+          ? `${v.value}% ${v.max_discount ? `(Tối đa ${v.max_discount/1000}K)` : ''}` 
+          : `${v.value.toLocaleString('vi-VN')}₫`,
+        rawType: v.type,
+        rawValue: v.value,
+        minOrder: v.min_order,
+        used: v.used_count,
+        total: v.total_usage,
+        maxDiscount: v.max_discount,
+        startDate: v.start_date,
+        endDate: v.end_date,
+        status: v.status
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load vouchers:', error)
   }
-])
+}
 
 const formVoucher = ref({
   code: '',
@@ -489,18 +469,27 @@ function formatCurrency(value) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)
 }
 
-function toggleVoucherActive(v) {
-  v.status = v.status === 'active' ? 'expired' : 'active'
-  const stateText = v.status === 'active' ? 'Kích hoạt' : 'Hủy bỏ/Khóa'
-  Swal.fire({
-    toast: true,
-    position: 'bottom-end',
-    icon: 'success',
-    title: `Đã ${stateText} mã giảm giá ${v.code}!`,
-    showConfirmButton: false,
-    timer: 2000,
-    timerProgressBar: true
-  })
+async function toggleVoucherActive(v) {
+  const newStatus = v.status === 'active' ? 'expired' : 'active'
+  const stateText = newStatus === 'active' ? 'Kích hoạt' : 'Hủy bỏ/Khóa'
+  
+  try {
+    await axiosInstance.put(`/admin/vouchers/${v.id}`, {
+      status: newStatus
+    })
+    v.status = newStatus
+    Swal.fire({
+      toast: true,
+      position: 'bottom-end',
+      icon: 'success',
+      title: `Đã ${stateText} mã giảm giá ${v.code}!`,
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    })
+  } catch (error) {
+    Swal.fire('Lỗi', 'Không thể cập nhật trạng thái', 'error')
+  }
 }
 
 function openAddModal() {
@@ -531,45 +520,57 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveVoucher() {
+async function saveVoucher() {
+  let rawType = 'percent'
+  if (formVoucher.value.type === 'Giảm theo %') rawType = 'percent'
+  else if (formVoucher.value.type === 'Miễn phí Ship') rawType = 'free_ship'
+  else rawType = 'fixed'
+
+  const payload = {
+    code: formVoucher.value.code.toUpperCase(),
+    name: formVoucher.value.name,
+    type: rawType,
+    value: parseFloat(formVoucher.value.valueLabel) || 0, // In UI valueLabel acts as the actual value input currently
+    min_order: formVoucher.value.minOrder,
+    total_usage: formVoucher.value.total,
+    max_discount: formVoucher.value.maxDiscount || null,
+    start_date: formVoucher.value.startDate,
+    end_date: formVoucher.value.endDate,
+    status: formVoucher.value.status
+  }
+
   if (isEditMode.value) {
-    const idx = vouchers.value.findIndex(v => v.code === formVoucher.value.code)
-    if (idx > -1) {
-      vouchers.value[idx] = { ...formVoucher.value }
-    }
-    Swal.fire({
-      icon: 'success',
-      title: 'Cập nhật thành công!',
-      text: 'Mã giảm giá đã được cập nhật thông tin.',
-      confirmButtonColor: '#FF4D00'
-    })
-  } else {
-    // Check code duplication
-    const exist = vouchers.value.find(v => v.code.toUpperCase() === formVoucher.value.code.toUpperCase())
-    if (exist) {
+    try {
+      await axiosInstance.put(`/admin/vouchers/${formVoucher.value.id}`, payload)
       Swal.fire({
-        icon: 'error',
-        title: 'Mã voucher trùng!',
-        text: 'Mã giảm giá này đã tồn tại trong hệ thống.',
+        icon: 'success',
+        title: 'Cập nhật thành công!',
+        text: 'Mã giảm giá đã được cập nhật thông tin.',
         confirmButtonColor: '#FF4D00'
       })
-      return
+      loadVouchers()
+    } catch (error) {
+      Swal.fire('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra', 'error')
     }
-    vouchers.value.push({
-      ...formVoucher.value,
-      code: formVoucher.value.code.toUpperCase()
-    })
-    Swal.fire({
-      icon: 'success',
-      title: 'Tạo voucher thành công!',
-      text: 'Mã giảm giá mới đã được phát hành.',
-      confirmButtonColor: '#FF4D00'
-    })
+  } else {
+    try {
+      await axiosInstance.post('/admin/vouchers', payload)
+      Swal.fire({
+        icon: 'success',
+        title: 'Tạo voucher thành công!',
+        text: 'Mã giảm giá mới đã được phát hành.',
+        confirmButtonColor: '#FF4D00'
+      })
+      loadVouchers()
+    } catch (error) {
+      Swal.fire('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra khi tạo', 'error')
+    }
   }
   modalOpen.value = false
 }
 
 function deleteVoucher(code) {
+  const v = vouchers.value.find(v => v.code === code)
   Swal.fire({
     title: 'Xác nhận xóa Voucher?',
     text: `Hành động này sẽ gỡ bỏ hoàn toàn mã giảm giá "${code}" khỏi hệ thống!`,
@@ -579,15 +580,20 @@ function deleteVoucher(code) {
     cancelButtonColor: '#94a3b8',
     confirmButtonText: 'Đồng ý xóa!',
     cancelButtonText: 'Hủy'
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      vouchers.value = vouchers.value.filter(v => v.code !== code)
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Mã giảm giá đã bị gỡ bỏ.',
-        confirmButtonColor: '#FF4D00'
-      })
+      try {
+        await axiosInstance.delete(`/admin/vouchers/${v.id}`)
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã xóa!',
+          text: 'Mã giảm giá đã bị gỡ bỏ.',
+          confirmButtonColor: '#FF4D00'
+        })
+        loadVouchers()
+      } catch (error) {
+        Swal.fire('Lỗi', 'Không thể xóa', 'error')
+      }
     }
   })
 }

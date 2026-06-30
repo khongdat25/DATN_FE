@@ -118,7 +118,12 @@
                   <div v-for="order in orders" :key="order.orderId" class="border border-border rounded-2xl overflow-hidden">
                     <!-- Order header -->
                     <div class="flex flex-wrap justify-between items-center px-6 py-4 bg-surface2 text-sm gap-3">
-                      <span class="font-semibold text-text">Mã đơn: <span class="text-accent font-bold">{{ order.orderId }}</span></span>
+                      <div class="flex items-center gap-4">
+                        <span class="font-semibold text-text">Mã đơn: <span class="text-accent font-bold">{{ order.orderId }}</span></span>
+                        <span :class="['text-[11px] font-bold px-2 py-0.5 rounded-full uppercase', getPaymentStatusBadgeClass(order.paymentStatus)]">
+                          {{ getPaymentStatusText(order.paymentStatus) }}
+                        </span>
+                      </div>
                       <span :class="['font-semibold flex items-center gap-1.5', getStatusColor(order.status)]">
                         <i :class="getStatusIcon(order.status)"></i>
                         {{ getStatusText(order.status) }}
@@ -515,6 +520,7 @@ async function loadOrdersData() {
           total: order.total_amount || 0,
           shipping: order.address || '',
           status: order.status || 'new',
+          paymentStatus: order.payment_status || 'unpaid',
           paymentMethod: order.payment_method_id === 1 ? 'COD' : (order.payment_method_id === 2 ? 'Chuyển khoản' : 'VNPAY')
         }
       })
@@ -587,6 +593,18 @@ function getStatusIcon(status) {
   if (status === 'shipping') return 'ti ti-truck-delivery'
   if (['new', 'pending'].includes(status)) return 'ti ti-clock'
   return 'ti ti-x'
+}
+
+function getPaymentStatusText(status) {
+  const s = String(status).toLowerCase()
+  if (s === 'paid' || s === 'completed' || s === '1' || s === 'thành công' || s === 'đã thanh toán') return 'Đã thanh toán'
+  return 'Chưa thanh toán'
+}
+
+function getPaymentStatusBadgeClass(status) {
+  const s = String(status).toLowerCase()
+  if (s === 'paid' || s === 'completed' || s === '1' || s === 'thành công' || s === 'đã thanh toán') return 'bg-[#e6f4ea] text-[#137333] border border-[#ceead6]'
+  return 'bg-surface2 text-text-muted border border-border'
 }
 
 // ─── Address helpers ──────────────────────────────────────────────────────────

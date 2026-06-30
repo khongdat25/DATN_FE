@@ -231,18 +231,18 @@
                       </div>
                       <button
                         type="button"
-                        @click="applyVoucher(voucher)"
+                        @click="applyVoucher(voucher.code)"
                         class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-colors"
                         :class="appliedVoucher?.code === voucher.code
                           ? 'bg-accent text-white border-accent'
                           : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"
                       >{{ appliedVoucher?.code === voucher.code ? 'Đang dùng' : 'Dùng' }}</button>
-                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Price Breakdown -->
+            <!-- Price Breakdown -->
               <div class="flex flex-col gap-3 mb-6">
                 <div class="flex justify-between text-sm text-text-muted font-medium">
                   <span>Tổng đơn hàng</span>
@@ -365,7 +365,6 @@ import { ref, reactive, computed, onMounted, onUnmounted, inject, watch } from '
 import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
-import QRCode from 'qrcode'
 
 const cartCount = inject('cartCount', ref(0))
 
@@ -373,9 +372,7 @@ const cartCount = inject('cartCount', ref(0))
 const SHOP_PAYMENT_CONFIG = {
   bankId: 'MB', // Techcombank (TCB), Vietcombank (VCB), MB Bank (MB), ACB, etc.
   bankAccount: '0936715847',
-  bankAccountName: 'NGUYEN KHONG DAT',
-  momoPhone: '0936715847',
-  momoName: 'NGUYEN KHONG DAT'
+  bankAccountName: 'NGUYEN KHONG DAT'
 }
 
 const router = useRouter()
@@ -442,15 +439,31 @@ const shippingMethods = [
 
 const paymentMethods = [
   { id: 'cod',      name: 'Tiền mặt (COD)',      desc: 'Thanh toán trực tiếp khi nhận hàng',  icon: 'ti ti-cash',           iconColor: '#4CAF50' },
-  { id: 'qr_bank',  name: 'Chuyển khoản ngân hàng', desc: 'Chuyển khoản nhanh qua mã VietQR', icon: 'ti ti-building-bank',  iconColor: '#2196f3' },
-  { id: 'qr_wallet',name: 'Ví điện tử (MoMo)',   desc: 'Quét mã QR liên kết ví MoMo',         icon: 'ti ti-wallet',         iconColor: '#d81b60' }
+  { id: 'qr_bank',  name: 'Chuyển khoản ngân hàng', desc: 'Chuyển khoản nhanh qua mã VietQR', icon: 'ti ti-building-bank',  iconColor: '#2196f3' }
 ]
 
-const availableVouchers = [
-  { code: 'FREESHIP',  title: 'FREE SHIP',   desc: 'Miễn phí vận chuyển toàn quốc',       icon: 'ti-gift',       freeShip: true,  value: 0,    minSubtotal: 0 },
-  { code: 'GIAM10K',   title: 'GIAM10K',     desc: 'Giảm 10.000₫ cho đơn hàng từ 500K',  icon: 'ti-discount-2', value: 10000,    minSubtotal: 500000 },
-  { code: 'STEPUPNEW', title: 'STEPUPNEW',   desc: 'Giảm 10% cho khách hàng mới',          icon: 'ti-brightness', value: 0.1,      minSubtotal: 0, maxDiscount: 200000 }
-]
+const availableVouchers = ref([])
+
+onMounted(async () => {
+  try {
+    const response = await axiosInstance.get('/vouchers/available')
+    if (response.success && response.data) {
+      availableVouchers.value = response.data.map(v => ({
+        id: v.id,
+        code: v.code,
+        title: v.name,
+        desc: v.type === 'percent' ? `Giảm ${v.value}% (Tối đa ${v.max_discount/1000}K)` : (v.type === 'fixed' ? `Giảm ${v.value.toLocaleString('vi-VN')}₫` : 'Miễn phí vận chuyển'),
+        icon: v.type === 'percent' ? 'ti-brightness' : (v.type === 'fixed' ? 'ti-discount-2' : 'ti-gift'),
+        value: v.type === 'percent' ? v.value / 100 : v.value,
+        minSubtotal: v.min_order,
+        maxDiscount: v.max_discount,
+        type: v.type
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load vouchers', error)
+  }
+})
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const selectedAddress = computed(() =>
@@ -458,21 +471,27 @@ const selectedAddress = computed(() =>
 )
 
 const shippingFee = computed(() => {
-  if (appliedVoucher.value?.freeShip) return 0
+  if (appliedVoucher.value?.type === 'free_ship') return 0
   if (form.shippingMethod === 'express') return 50000
   return summary.value.subtotal >= 500000 ? 0 : 30000
 })
 
 const discountAmount = computed(() => {
   if (!appliedVoucher.value) return 0
-  const v = appliedVoucher.value
-  if (v.freeShip) return 0
-  if (summary.value.subtotal < v.minSubtotal) return 0
-  if (v.value < 1) {
-    const calc = summary.value.subtotal * v.value
-    return v.maxDiscount ? Math.min(calc, v.maxDiscount) : calc
+  if (appliedVoucher.value.serverDiscount !== undefined) {
+    return appliedVoucher.value.serverDiscount
   }
-  return v.value
+  if (appliedVoucher.value.type === 'free_ship') {
+    return Math.min(shippingFee.value, appliedVoucher.value.value || 30000)
+  }
+  if (appliedVoucher.value.value < 1) { // percentage
+    let dist = summary.value.subtotal * appliedVoucher.value.value
+    if (appliedVoucher.value.maxDiscount) {
+      dist = Math.min(dist, appliedVoucher.value.maxDiscount)
+    }
+    return dist
+  }
+  return appliedVoucher.value.value
 })
 
 const totalPrice = computed(() =>
@@ -482,61 +501,28 @@ const totalPrice = computed(() =>
 // ─── QR Payment Info ─────────────────────────────────────────────────────────
 const qrMemo = ref('SGS' + Math.floor(100000 + Math.random() * 900000))
 const qrLoaded = ref(false)
-const momoQrBase64 = ref('')
-
-
 
 const qrInfo = computed(() => {
-  if (form.paymentMethod === 'qr_bank') {
-    return {
-      title: 'Chuyển khoản VietQR',
-      account: SHOP_PAYMENT_CONFIG.bankAccountName,
-      number: SHOP_PAYMENT_CONFIG.bankAccount,
-      bank: SHOP_PAYMENT_CONFIG.bankId === 'MB' ? 'MB Bank' : SHOP_PAYMENT_CONFIG.bankId,
-      logo: 'QR',
-      color: '#FF4D00'
-    }
-  }
   return {
-    title: 'Thanh toán Ví MoMo',
-    account: SHOP_PAYMENT_CONFIG.momoName,
-    number: SHOP_PAYMENT_CONFIG.momoPhone,
-    bank: null,
-    logo: 'MoMo',
-    color: '#d81b60'
+    title: 'Chuyển khoản VietQR',
+    account: SHOP_PAYMENT_CONFIG.bankAccountName,
+    number: SHOP_PAYMENT_CONFIG.bankAccount,
+    bank: SHOP_PAYMENT_CONFIG.bankId === 'MB' ? 'MB Bank' : SHOP_PAYMENT_CONFIG.bankId,
+    logo: 'QR',
+    color: '#FF4D00'
   }
 })
 
 const dynamicQrUrl = computed(() => {
   if (form.paymentMethod === 'qr_bank') {
     return `https://img.vietqr.io/image/${SHOP_PAYMENT_CONFIG.bankId}-${SHOP_PAYMENT_CONFIG.bankAccount}-compact2.png?amount=${totalPrice.value}&addInfo=${encodeURIComponent(qrMemo.value)}&accountName=${encodeURIComponent(SHOP_PAYMENT_CONFIG.bankAccountName)}`
-  } else if (form.paymentMethod === 'qr_wallet') {
-    return momoQrBase64.value
   }
   return ''
 })
 
-async function generateMomoQr() {
-  if (!SHOP_PAYMENT_CONFIG.momoPhone) return
-  const momoLink = `https://nhantien.momo.vn/${SHOP_PAYMENT_CONFIG.momoPhone}?amount=${totalPrice.value}&note=${encodeURIComponent(qrMemo.value)}`
-  try {
-    momoQrBase64.value = await QRCode.toDataURL(momoLink, {
-      width: 250,
-      margin: 1,
-      errorCorrectionLevel: 'M'
-    })
-    qrLoaded.value = true // Vì sinh offline ở client nên có thể set true ngay
-  } catch (err) {
-    console.error('Failed to generate MoMo QR:', err)
-  }
-}
-
 // Reset loading state and generate local QR if needed
 watch([() => form.paymentMethod, totalPrice], () => {
   qrLoaded.value = false
-  if (form.paymentMethod === 'qr_wallet') {
-    generateMomoQr()
-  }
 })
 
 // ─── Voucher Suggestion ───────────────────────────────────────────────────────
@@ -583,47 +569,61 @@ function confirmAddress() {
   showAddressModal.value = false
 }
 
-function onShippingChange() {
-  // shipping fee recalculated via computed
-}
+async function applyVoucher(codeToApply) {
+  // Calculate base shipping fee without voucher
+  let baseShipping = 30000
+  if (summary.value.subtotal >= 500000) baseShipping = 0
+  else if (form.shippingMethod === 'express') baseShipping = 50000
 
-function applyVoucher(voucher) {
-  if (summary.value.subtotal < voucher.minSubtotal) {
-    Swal.fire({
-      icon: 'info',
-      title: 'Chưa đủ điều kiện',
-      text: `Mã này chỉ áp dụng cho đơn hàng từ ${formatPrice(voucher.minSubtotal)} trở lên.`,
-      confirmButtonColor: '#FF4D00'
+  // Validate against backend
+  try {
+    const resp = await axiosInstance.post('/vouchers/apply', {
+      code: codeToApply,
+      subtotal: summary.value.subtotal,
+      shipping_fee: baseShipping
     })
-    return
+    if (resp.success && resp.data) {
+      // Backend returned discount
+      const v = resp.data
+      appliedVoucher.value = {
+        id: v.id,
+        code: v.code,
+        title: v.name,
+        desc: v.type === 'percent' ? `Giảm ${v.value}% (Tối đa ${v.max_discount/1000}K)` : (v.type === 'fixed' ? `Giảm ${v.value.toLocaleString('vi-VN')}₫` : 'Miễn phí vận chuyển'),
+        icon: v.type === 'percent' ? 'ti-brightness' : (v.type === 'fixed' ? 'ti-discount-2' : 'ti-gift'),
+        value: v.type === 'percent' ? v.value / 100 : v.value,
+        minSubtotal: v.min_order,
+        maxDiscount: v.max_discount,
+        type: v.type,
+        serverDiscount: resp.discount
+      }
+      promoCode.value = ''
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `Đã áp dụng mã ${appliedVoucher.value.code}!`,
+        showConfirmButton: false,
+        timer: 1500
+      })
+      voucherOpen.value = false
+    }
+  } catch (error) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: error.response?.data?.message || 'Mã giảm giá không hợp lệ',
+      showConfirmButton: false,
+      timer: 1500
+    })
   }
-  appliedVoucher.value = voucher
-  voucherOpen.value = false
-  Swal.fire({
-    icon: 'success',
-    title: 'Áp dụng thành công!',
-    text: `Mã "${voucher.code}" đã được áp dụng vào đơn hàng của bạn.`,
-    timer: 1800,
-    showConfirmButton: false,
-    confirmButtonColor: '#FF4D00'
-  })
 }
 
 function applyPromoCode() {
   const code = promoCode.value.trim().toUpperCase()
   if (!code) return
-  const matched = availableVouchers.find(v => v.code === code)
-  if (matched) {
-    applyVoucher(matched)
-    promoCode.value = ''
-  } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Mã không hợp lệ',
-      text: 'Mã coupon bạn nhập không tồn tại hoặc đã hết hạn.',
-      confirmButtonColor: '#FF4D00'
-    })
-  }
+  applyVoucher(code)
 }
 
 function formatPrice(val) {
@@ -637,6 +637,11 @@ async function handlePlaceOrder() {
     return
   }
 
+  if (!selectedAddress.value || !selectedAddress.value.name || !selectedAddress.value.phone || !selectedAddress.value.address) {
+    Swal.fire({ icon: 'warning', title: 'Thiếu thông tin nhận hàng!', text: 'Vui lòng chọn hoặc thêm địa chỉ nhận hàng đầy đủ.', confirmButtonColor: '#FF4D00' })
+    return
+  }
+
   Swal.fire({ title: 'Đang xử lý đặt hàng...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
 
   try {
@@ -645,7 +650,7 @@ async function handlePlaceOrder() {
     
     let orderNote = form.note
     if (form.paymentMethod !== 'cod') {
-      const paymentType = form.paymentMethod === 'qr_bank' ? 'VietQR' : 'MoMo'
+      const paymentType = 'VietQR'
       const qrMemoText = `[Thanh toán qua ${paymentType} - Mã QR: ${qrMemo.value}]`
       orderNote = orderNote ? `${orderNote}\n${qrMemoText}` : qrMemoText
     }
@@ -654,10 +659,12 @@ async function handlePlaceOrder() {
       name: selectedAddress.value.name,
       email: userObj.email || '',
       phone: selectedAddress.value.phone,
-      address: selectedAddress.value.address,
+      address: selectedAddress.value ? `${selectedAddress.value.address}` : '',
       note: orderNote,
-      payment_method_id: form.paymentMethod === 'cod' ? 1 : (form.paymentMethod === 'qr_bank' ? 2 : 3),
-      voucher_id: appliedVoucher.value?.id || null
+      payment_method_id: form.paymentMethod === 'cod' ? 1 : 2,
+      voucher_id: appliedVoucher.value ? appliedVoucher.value.id : null,
+      shipping_fee: shippingFee.value,
+      discount_amount: discountAmount.value
     }
 
     if (summary.value.isBuyNow && summary.value.items.length === 1) {
@@ -706,7 +713,7 @@ async function handlePlaceOrder() {
         confirmButtonColor: '#FF4D00'
       }).then(() => router.push({ name: 'profile', query: { tab: 'orders' } }))
     } else {
-      // If payment is QR (VietQR/MoMo)
+      // If payment is QR (VietQR)
       const checkoutUrl = response.checkout_url || response.checkoutUrl || response.data?.checkout_url || response.data?.checkoutUrl
       
       if (checkoutUrl) {
@@ -809,11 +816,8 @@ onMounted(async () => {
   }
   // Restore applied voucher from summary
   if (summary.value.voucherCode) {
-    const v = availableVouchers.find(x => x.code === summary.value.voucherCode)
+    const v = availableVouchers.value.find(x => x.code === summary.value.voucherCode)
     if (v) appliedVoucher.value = v
-  }
-  if (form.paymentMethod === 'qr_wallet') {
-    generateMomoQr()
   }
 })
 
