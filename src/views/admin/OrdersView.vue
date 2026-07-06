@@ -134,10 +134,15 @@
                   <td class="py-4 px-6 text-xs text-slate-700 text-left">{{ order.paymentMethod }}</td>
                   <td class="py-4 px-6 text-xs font-bold text-slate-900 text-left">{{ formatCurrency(order.total) }}</td>
                   <td class="py-4 px-6 text-left">
-                    <span :class="['inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full', getStatusBadgeClass(order.status)]">
-                      <span :class="['w-1.5 h-1.5 rounded-full', getStatusBulletClass(order.status)]"></span>
-                      {{ getStatusText(order.status) }}
-                    </span>
+                    <div class="flex flex-col gap-1 items-start">
+                      <span :class="['inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full', getStatusBadgeClass(order.status)]">
+                        <span :class="['w-1.5 h-1.5 rounded-full', getStatusBulletClass(order.status)]"></span>
+                        {{ getStatusText(order.status) }}
+                      </span>
+                      <span :class="['inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full', getPaymentStatusBadgeClass(order.payment_status)]">
+                        {{ getPaymentStatusText(order.payment_status) }}
+                      </span>
+                    </div>
                   </td>
                   <td class="py-4 px-6 text-right" @click.stop>
                     <button 
@@ -176,6 +181,41 @@
                             </div>
                           </div>
                         </div>
+
+                        <!-- Timeline Lịch sử cập nhật -->
+                        <div class="text-[10px] font-bold tracking-[1.5px] text-slate-400 uppercase flex items-center gap-1.5 text-left pt-2">
+                          <i class="ti ti-history"></i> Lịch sử thay đổi đơn hàng
+                        </div>
+                        <div class="bg-white border border-slate-100 rounded-xl p-5 shadow-xs max-h-60 overflow-y-auto">
+                          <div class="relative pl-6 space-y-4 text-xs text-left">
+                            <div v-for="(log, idx) in order.histories" :key="idx" class="relative">
+                              <!-- Line connecting bullets -->
+                              <div v-if="idx < order.histories.length - 1" class="absolute left-[-17px] top-5 bottom-[-20px] w-0.5 bg-slate-100"></div>
+                              
+                              <!-- Bullet indicator -->
+                              <span class="absolute left-[-23px] top-0.5 w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center"
+                                :class="log.new_status === 'cancelled' ? 'bg-red-400!' : (log.new_status === 'delivered' ? 'bg-emerald-400!' : 'bg-slate-350!')"
+                              ></span>
+                              
+                              <div class="font-medium">
+                                <span class="font-bold text-slate-800">{{ log.note }}</span>
+                                <span class="text-[10px] text-slate-400 block mt-0.5">
+                                  ⏱️ {{ log.created_at }}
+                                  <span v-if="log.old_status || log.new_status" class="text-slate-500 font-semibold ml-2">
+                                    [{{ getStatusText(log.old_status) || 'Khởi tạo' }} → {{ getStatusText(log.new_status) }}]
+                                  </span>
+                                  <span v-if="log.old_payment_status || log.new_payment_status" class="text-slate-500 font-semibold ml-2">
+                                    [Thanh toán: {{ getPaymentStatusText(log.old_payment_status) || 'Chờ' }} → {{ getPaymentStatusText(log.new_payment_status) }}]
+                                  </span>
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div v-if="!order.histories || order.histories.length === 0" class="text-slate-400 text-center py-2">
+                              Chưa có lịch sử cập nhật.
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       <!-- Delivery info & Status Updater -->
@@ -196,22 +236,37 @@
                           <div class="h-px bg-slate-100"></div>
                           
                           <!-- Action Control -->
-                          <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">CẬP NHẬT TRẠNG THÁI</label>
-                            <div class="flex gap-2">
+                          <div class="space-y-3">
+                            <div>
+                              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cập nhật trạng thái đơn</label>
                               <select 
                                 v-model="order.tempStatus" 
-                                class="flex-1 bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer font-semibold"
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer font-semibold"
                               >
-                                <option value="new">Đơn mới</option>
-                                <option value="pending">Chờ xử lý</option>
-                                <option value="shipping">Đang giao</option>
-                                <option value="delivered">Đã giao</option>
-                                <option value="cancelled">Đã hủy</option>
+                                <option value="new" :disabled="!isStatusTransitionAllowed(order.status, 'new')">Đơn mới</option>
+                                <option value="pending" :disabled="!isStatusTransitionAllowed(order.status, 'pending')">Chờ xử lý</option>
+                                <option value="shipping" :disabled="!isStatusTransitionAllowed(order.status, 'shipping')">Đang giao</option>
+                                <option value="delivered" :disabled="!isStatusTransitionAllowed(order.status, 'delivered')">Đã giao</option>
+                                <option value="cancelled" :disabled="!isStatusTransitionAllowed(order.status, 'cancelled')">Đã hủy</option>
                               </select>
+                            </div>
+
+                            <div>
+                              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Trạng thái thanh toán</label>
+                              <select 
+                                v-model="order.tempPaymentStatus" 
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer font-semibold"
+                              >
+                                <option value="pending">Chờ thanh toán / Chưa thanh toán</option>
+                                <option value="paid">Đã thanh toán</option>
+                                <option value="refunded">Đã hoàn tiền</option>
+                              </select>
+                            </div>
+
+                            <div class="flex gap-2 pt-1">
                               <button 
                                 @click="updateStatus(order)" 
-                                class="bg-accent hover:bg-accent-hover text-white text-xs font-bold px-4 rounded-xl border-none transition-colors cursor-pointer shadow-xs font-display"
+                                class="flex-1 bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2 rounded-xl border-none transition-colors cursor-pointer shadow-xs font-display"
                               >
                                 Cập nhật
                               </button>
@@ -332,10 +387,20 @@ async function fetchOrders() {
           total: order.total_amount || 0,
           status: order.status || 'new',
           tempStatus: order.status || 'new',
+          payment_status: order.payment_status || 'pending',
+          tempPaymentStatus: order.payment_status || 'pending',
           receiverName: order.name || 'Chưa rõ',
           receiverPhone: order.phone || '',
           receiverAddress: order.address || 'Chưa rõ',
-          items: items
+          items: items,
+          histories: (order.histories || []).map(h => ({
+            note: h.note,
+            old_status: h.old_status,
+            new_status: h.new_status,
+            old_payment_status: h.old_payment_status,
+            new_payment_status: h.new_payment_status,
+            created_at: h.created_at ? new Date(h.created_at).toLocaleString('vi-VN') : ''
+          }))
         }
       })
     }
@@ -434,19 +499,51 @@ function getStatusBulletClass(status) {
   }
 }
 
+function isStatusTransitionAllowed(currentStatus, targetStatus) {
+  if (currentStatus === targetStatus) return true;
+  const allowedTransitions = {
+    'new': ['pending', 'shipping', 'delivered', 'cancelled'],
+    'pending': ['shipping', 'delivered', 'cancelled'],
+    'shipping': ['delivered', 'cancelled'],
+    'delivered': [],
+    'cancelled': []
+  };
+  return (allowedTransitions[currentStatus] || []).includes(targetStatus);
+}
+
+function getPaymentStatusText(status) {
+  switch (status) {
+    case 'pending': return 'Chưa thanh toán'
+    case 'paid': return 'Đã thanh toán'
+    case 'refunded': return 'Đã hoàn tiền'
+    default: return status
+  }
+}
+
+function getPaymentStatusBadgeClass(status) {
+  switch (status) {
+    case 'pending': return 'bg-rose-50 text-rose-700 border border-rose-200'
+    case 'paid': return 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+    case 'refunded': return 'bg-purple-50 text-purple-700 border border-purple-200'
+    default: return 'bg-slate-100 text-slate-700 border border-slate-200'
+  }
+}
+
 async function updateStatus(order) {
   try {
     const response = await axiosInstance.post(`/admin/orders/${order.id}/status`, {
-      status: order.tempStatus
+      status: order.tempStatus,
+      payment_status: order.tempPaymentStatus
     })
 
     if (response && response.success) {
       order.status = order.tempStatus
+      order.payment_status = order.tempPaymentStatus
       
       Swal.fire({
         icon: 'success',
-        title: 'Cập nhật trạng thái thành công!',
-        text: `Đơn hàng ${order.code} đã được chuyển sang trạng thái: ${getStatusText(order.status)}`,
+        title: 'Cập nhật thành công!',
+        text: `Đơn hàng ${order.code} đã được cập nhật thành công.`,
         confirmButtonColor: '#FF4D00'
       })
       await fetchOrders()

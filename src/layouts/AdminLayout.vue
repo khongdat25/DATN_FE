@@ -27,16 +27,60 @@
       <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         <div class="text-[10px] uppercase font-bold tracking-[2px] text-slate-500 px-3 mb-2">QUẢN TRỊ HỆ THỐNG</div>
         
-        <router-link 
-          v-for="item in navItems" 
-          :key="item.path" 
-          :to="item.path"
-          class="flex items-center gap-3 px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-400 hover:bg-slate-800 hover:text-white"
-          active-class="bg-accent! text-white! font-semibold shadow-lg shadow-accent/20"
-        >
-          <i :class="['ti text-lg group-hover:scale-110 transition-transform', item.icon]"></i>
-          <span>{{ item.name }}</span>
-        </router-link>
+        <template v-for="item in navItems" :key="item.name">
+          <!-- Item with children (collapsible dropdown) -->
+          <div v-if="item.children" class="space-y-1">
+            <router-link 
+              to="/admin/products"
+              class="w-full flex items-center justify-between px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer"
+              :class="{ 
+                'bg-accent! text-white! font-semibold shadow-lg shadow-accent/20': route.path === '/admin/products', 
+                'bg-slate-800/40 text-slate-200': ['/admin/sizes', '/admin/colors', '/admin/brands'].includes(route.path) && route.path !== '/admin/products'
+              }"
+            >
+              <div class="flex items-center gap-3">
+                <i :class="['ti text-lg group-hover:scale-110 transition-transform', item.icon]"></i>
+                <span>{{ item.name }}</span>
+              </div>
+              <span @click.stop.prevent="productMenuOpen = !productMenuOpen" class="p-1 hover:bg-slate-700/50 rounded-md transition-colors cursor-pointer flex items-center justify-center">
+                <i 
+                  :class="[
+                    'ti text-xs transition-transform duration-200', 
+                    productMenuOpen ? 'ti-chevron-down rotate-180' : 'ti-chevron-down'
+                  ]"
+                ></i>
+              </span>
+            </router-link>
+            
+            <!-- Children sub-menu -->
+            <div 
+              v-show="productMenuOpen" 
+              class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-200"
+            >
+              <router-link 
+                v-for="sub in item.children" 
+                :key="sub.path" 
+                :to="sub.path"
+                class="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                active-class="text-accent! bg-accent/10!"
+              >
+                <span>•</span>
+                <span>{{ sub.name }}</span>
+              </router-link>
+            </div>
+          </div>
+
+          <!-- Normal Item -->
+          <router-link 
+            v-else
+            :to="item.path"
+            class="flex items-center gap-3 px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-400 hover:bg-slate-800 hover:text-white"
+            active-class="bg-accent! text-white! font-semibold shadow-lg shadow-accent/20"
+          >
+            <i :class="['ti text-lg group-hover:scale-110 transition-transform', item.icon]"></i>
+            <span>{{ item.name }}</span>
+          </router-link>
+        </template>
       </nav>
 
       <!-- User footer info -->
@@ -83,16 +127,6 @@
 
         <!-- Actions -->
         <div class="flex items-center gap-4">
-          <!-- Back to store button -->
-          <router-link 
-            to="/" 
-            class="hidden sm:flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-500 border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all active:scale-95"
-          >
-            <i class="ti ti-arrow-left"></i> Quay lại cửa hàng
-          </router-link>
-
-          <!-- Divider -->
-          <div class="h-6 w-px bg-slate-100 hidden sm:block"></div>
 
           <!-- Account Dropdown -->
           <div class="relative group">
@@ -133,17 +167,33 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axiosInstance from '@/api/axios.js'
 
 const sidebarOpen = ref(false)
 const adminName = ref('Admin')
 const route = useRoute()
+const productMenuOpen = ref(false)
+
+watch(() => route.path, (newPath) => {
+  if (['/admin/products', '/admin/sizes', '/admin/colors', '/admin/brands'].includes(newPath)) {
+    productMenuOpen.value = true
+  }
+}, { immediate: true })
 
 const navItems = [
   { name: 'Tổng quan', path: '/admin', icon: 'ti-layout-dashboard' },
-  { name: 'Sản phẩm', path: '/admin/products', icon: 'ti-shoe' },
+  { 
+    name: 'Sản phẩm', 
+    icon: 'ti-shoe',
+    children: [
+      { name: 'Danh sách sản phẩm', path: '/admin/products' },
+      { name: 'Quản lý Size', path: '/admin/sizes' },
+      { name: 'Quản lý Màu sắc', path: '/admin/colors' },
+      { name: 'Quản lý Thương hiệu', path: '/admin/brands' }
+    ]
+  },
   { name: 'Danh mục', path: '/admin/categories', icon: 'ti-category' },
   { name: 'Banner', path: '/admin/banners', icon: 'ti-photo' },
   { name: 'Đơn hàng', path: '/admin/orders', icon: 'ti-shopping-cart' },
@@ -155,8 +205,14 @@ const navItems = [
 ]
 
 const currentPageName = computed(() => {
-  const currentItem = navItems.find(item => item.path === route.path)
-  return currentItem ? currentItem.name : 'Trang Quản Trị'
+  for (const item of navItems) {
+    if (item.path === route.path) return item.name
+    if (item.children) {
+      const subItem = item.children.find(sub => sub.path === route.path)
+      if (subItem) return subItem.name
+    }
+  }
+  return 'Trang Quản Trị'
 })
 
 const adminInitial = computed(() => adminName.value ? adminName.value.substring(0, 2).toUpperCase() : 'AD')

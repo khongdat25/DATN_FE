@@ -99,6 +99,24 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
+        path: '/admin/sizes',
+        component: () => import('../views/admin/SizesView.vue'),
+        name: 'admin-sizes',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/colors',
+        component: () => import('../views/admin/ColorsView.vue'),
+        name: 'admin-colors',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/brands',
+        component: () => import('../views/admin/BrandsView.vue'),
+        name: 'admin-brands',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
         path: '/admin/categories',
         component: () => import('../views/admin/CategoriesView.vue'),
         name: 'admin-categories',

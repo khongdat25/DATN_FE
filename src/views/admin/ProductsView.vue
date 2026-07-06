@@ -439,20 +439,54 @@ const products = ref([])
 const categoriesList = ref([])
 const brandsList = ref([])
 
-const colorsList = [
-  { id: 1, name: 'Trắng' },
-  { id: 2, name: 'Đen' },
-  { id: 3, name: 'Xám' },
-  { id: 4, name: 'Xanh dương' }
-]
+const colorsList = ref([])
+const sizesList = ref([])
 
-const sizesList = [
-  { id: 39, name: '39' },
-  { id: 40, name: '40' },
-  { id: 41, name: '41' },
-  { id: 42, name: '42' },
-  { id: 43, name: '43' }
-]
+function loadSizesAndColors() {
+  const localSizes = localStorage.getItem('admin_sizes')
+  if (localSizes) {
+    try {
+      sizesList.value = JSON.parse(localSizes).filter(s => s.status === 'active')
+    } catch (e) {
+      sizesList.value = [
+        { id: 39, name: '39' },
+        { id: 40, name: '40' },
+        { id: 41, name: '41' },
+        { id: 42, name: '42' },
+        { id: 43, name: '43' }
+      ]
+    }
+  } else {
+    sizesList.value = [
+      { id: 39, name: '39' },
+      { id: 40, name: '40' },
+      { id: 41, name: '41' },
+      { id: 42, name: '42' },
+      { id: 43, name: '43' }
+    ]
+  }
+
+  const localColors = localStorage.getItem('admin_colors')
+  if (localColors) {
+    try {
+      colorsList.value = JSON.parse(localColors).filter(c => c.status === 'active')
+    } catch (e) {
+      colorsList.value = [
+        { id: 1, name: 'Trắng' },
+        { id: 2, name: 'Đen' },
+        { id: 3, name: 'Xám' },
+        { id: 4, name: 'Xanh dương' }
+      ]
+    }
+  } else {
+    colorsList.value = [
+      { id: 1, name: 'Trắng' },
+      { id: 2, name: 'Đen' },
+      { id: 3, name: 'Xám' },
+      { id: 4, name: 'Xanh dương' }
+    ]
+  }
+}
 
 const formProduct = ref({
   name: '',
@@ -544,6 +578,7 @@ async function loadFilterOptions() {
 onMounted(() => {
   fetchProducts()
   loadFilterOptions()
+  loadSizesAndColors()
 })
 
 const filteredProducts = computed(() => {
@@ -595,12 +630,31 @@ function addVariantRow() {
 }
 
 function removeVariantRow(index) {
-  if (formProduct.value.variants.length > 1) {
-    formProduct.value.variants.splice(index, 1)
-  }
+  if (formProduct.value.variants.length <= 1) return;
+
+  const variant = formProduct.value.variants[index];
+  const isExisting = !!variant.id;
+
+  Swal.fire({
+    title: isExisting ? 'Xác nhận xóa biến thể?' : 'Xóa dòng biến thể?',
+    text: isExisting
+      ? 'Biến thể này đã tồn tại trên hệ thống. Khi lưu sản phẩm, biến thể sẽ bị xóa vĩnh viễn khỏi cơ sở dữ liệu!'
+      : 'Bạn có chắc chắn muốn loại bỏ dòng biến thể này?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#FF4D00',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Đồng ý!',
+    cancelButtonText: 'Hủy'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      formProduct.value.variants.splice(index, 1);
+    }
+  });
 }
 
 function openAddModal() {
+  loadSizesAndColors()
   isEditMode.value = false
   editingProductId.value = null
   formProduct.value = {
@@ -617,6 +671,7 @@ function openAddModal() {
 }
 
 function openEditModal(product) {
+  loadSizesAndColors()
   isEditMode.value = true
   editingProductId.value = product.id
   formProduct.value = JSON.parse(JSON.stringify(product)) // Deep clone
@@ -681,6 +736,28 @@ function removeFormImage(index) {
 }
 
 async function saveProduct() {
+  // Kiểm tra trùng lặp size và color trong danh sách biến thể
+  const seen = new Set();
+  for (const v of formProduct.value.variants) {
+    if (!v.size_id || !v.color_id) continue;
+    const key = `${v.size_id}-${v.color_id}`;
+    if (seen.has(key)) {
+      const sizeObj = sizesList.value.find(s => Number(s.id) === Number(v.size_id));
+      const colorObj = colorsList.value.find(c => Number(c.id) === Number(v.color_id));
+      const sizeName = sizeObj ? sizeObj.name : v.size_id;
+      const colorName = colorObj ? colorObj.name : v.color_id;
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Trùng lặp biến thể!',
+        text: `Biến thể với Size ${sizeName} và Màu ${colorName} đã tồn tại trong danh sách. Vui lòng loại bỏ hoặc điều chỉnh lại!`,
+        confirmButtonColor: '#FF4D00'
+      });
+      return;
+    }
+    seen.add(key);
+  }
+
   try {
     const payload = {
       name: formProduct.value.name,
@@ -724,6 +801,12 @@ async function saveProduct() {
     }
   } catch (error) {
     console.error('Error saving product:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lưu thất bại!',
+      text: error.response?.data?.message || 'Đã xảy ra lỗi khi lưu sản phẩm.',
+      confirmButtonColor: '#FF4D00'
+    })
   }
 }
 
@@ -752,6 +835,12 @@ async function deleteProduct(id) {
         }
       } catch (error) {
         console.error('Error deleting product:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Xóa thất bại!',
+          text: error.response?.data?.message || 'Không thể xóa sản phẩm này.',
+          confirmButtonColor: '#FF4D00'
+        })
       }
     }
   })

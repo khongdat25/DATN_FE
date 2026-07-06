@@ -3,7 +3,7 @@
     <div class="max-w-[1200px] mx-auto px-5">
       <div class="section-wrapper">
         <div class="grid grid-cols-3 items-center mb-6 gap-4 max-md:flex max-md:flex-col max-md:items-start max-md:gap-3">
-          <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold whitespace-nowrap">SAN PHAM NOI BAT</h2>
+          <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold whitespace-nowrap">SẢN PHẨM NỔI BẬT</h2>
 
           <div class="flex gap-2 flex-wrap justify-center max-md:justify-start">
             <button
@@ -21,7 +21,7 @@
 
           <div class="flex justify-end max-md:justify-start">
             <a href="/products" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">
-              Xem tat ca <i class="ti ti-arrow-right"></i>
+              Xem tất cả <i class="ti ti-arrow-right"></i>
             </a>
           </div>
         </div>
@@ -51,7 +51,7 @@
                 <span v-if="featured.oldPrice" class="text-[12px] text-text-dim line-through">{{ featured.oldPrice }}</span>
               </div>
               <div class="flex items-center gap-1 text-[12px] text-gold">
-                {{ featured.rating }} <span class="text-text-muted text-[11px]">({{ featured.reviews }} danh gia)</span>
+                {{ featured.rating }} <span class="text-text-muted text-[11px]">({{ featured.reviews }} đánh giá)</span>
               </div>
             </div>
           </div>
@@ -108,7 +108,7 @@ const router = useRouter()
 
 const activeCollab = ref('all')
 const collabFilters = [
-  { key: 'all', label: 'Tat ca' },
+  { key: 'all', label: 'Tất cả' },
   { key: 'collab', label: 'Collab Anime' },
   { key: 'limited', label: 'Limited' },
 ]

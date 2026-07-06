@@ -84,9 +84,6 @@
             <!-- Social Login -->
             <div class="social-login flex flex-col items-center gap-3 mb-8">
               <div id="googleBtn" class="w-full flex justify-center min-h-[44px]"></div>
-              <button type="button" @click="handleSocialLogin('Facebook')" class="social-btn flex items-center justify-center gap-2 w-full max-w-[300px] py-2.5 border border-border rounded-xl bg-bg text-sm font-semibold text-text cursor-pointer transition-all duration-200 hover:bg-surface2 hover:border-text-dim">
-                <i class="ti ti-brand-facebook text-lg" style="color: #4267B2;"></i> Tiếp tục với Facebook
-              </button>
             </div>
 
             <!-- Register Link -->

@@ -766,19 +766,44 @@ export function findMatchingVariant(variants = [], selectedSize = '', selectedCo
 export function mapBackendProduct(p) {
   if (!p) return null;
 
-  // Find min price from variants
-  let minPrice = 0;
-  if (p.min_price !== undefined && p.min_price !== null) {
-    minPrice = parseFloat(p.min_price);
-  } else if (p.variants && p.variants.length > 0) {
-    const prices = p.variants.map(v => parseFloat(v.price)).filter(pr => !isNaN(pr));
-    if (prices.length > 0) {
-      minPrice = Math.min(...prices);
+  // Find representative variant with minimum active price
+  let representativeVariant = null;
+  let minActivePrice = Infinity;
+
+  if (p.variants && p.variants.length > 0) {
+    for (const v of p.variants) {
+      const priceVal = parseFloat(v.price) || 0;
+      const saleVal = (v.sale !== null && v.sale !== undefined && v.sale !== '') ? parseFloat(v.sale) : null;
+      const currentActivePrice = (saleVal !== null && saleVal > 0) ? saleVal : priceVal;
+      if (currentActivePrice < minActivePrice) {
+        minActivePrice = currentActivePrice;
+        representativeVariant = {
+          price: priceVal,
+          sale: saleVal,
+          activePrice: currentActivePrice
+        };
+      }
     }
   }
 
+  // Fallback if no variants found
+  let finalPrice = minActivePrice === Infinity ? 0 : minActivePrice;
+  let finalOldPrice = null;
+  let discountPercentBadge = null;
+
+  if (representativeVariant) {
+    finalPrice = representativeVariant.activePrice;
+    if (representativeVariant.sale !== null && representativeVariant.sale > 0 && representativeVariant.sale < representativeVariant.price) {
+      finalOldPrice = representativeVariant.price;
+      discountPercentBadge = Math.round((1 - representativeVariant.sale / representativeVariant.price) * 100);
+    }
+  } else if (p.min_price !== undefined && p.min_price !== null) {
+    finalPrice = parseFloat(p.min_price) || 0;
+  }
+
   // Format price string in Vietnam Dong e.g. 1.250.000đ
-  const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(minPrice).replace(/\s/g, '').replace('₫', 'đ');
+  const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(finalPrice).replace(/\s/g, '').replace('₫', 'đ');
+  const formattedOldPrice = finalOldPrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(finalOldPrice).replace(/\s/g, '').replace('₫', 'đ') : null;
 
   // Main image
   let mainImage = '/images/placeholder.png';
@@ -826,20 +851,26 @@ export function mapBackendProduct(p) {
     imagesList = [{ src: mainImage, flip: false }];
   }
 
+  const badges = [];
+  if (discountPercentBadge !== null) {
+    badges.push({ label: `-${discountPercentBadge}%`, color: 'bg-accent' });
+  }
+
   return {
     id: p.id,
     brand: brandName,
     name: p.name,
+    description: p.description || '',
     price: formattedPrice,
-    numericPrice: minPrice,
-    oldPrice: minPrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(minPrice * 1.3).replace(/\s/g, '').replace('₫', 'đ') : null,
+    numericPrice: finalPrice,
+    oldPrice: formattedOldPrice,
     image: mainImage,
     rating: ratingStars,
     reviews: p.rating ? p.rating.length : 12,
     category: categoryName,
     gender: p.gender === 'male' ? 'Nam' : p.gender === 'female' ? 'Nữ' : 'Cả hai',
     sizes: sizes,
-    badges: [],
+    badges: badges,
     soldCount: p.sold || 0,
     total: (p.sold || 0) + 100,
     isPopular: p.sold > 10,

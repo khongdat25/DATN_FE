@@ -50,10 +50,7 @@
             <div class="flex flex-col gap-6">
               
               <!-- Gallery -->
-              <div class="border border-border rounded-2xl bg-surface2 p-8 flex items-center justify-center h-[460px] relative overflow-hidden group shadow-sm">
-                <span v-if="product.isNew" class="absolute top-5 left-5 bg-accent text-white py-1 px-4 text-xs font-bold uppercase rounded-full tracking-wider shadow-sm z-10">
-                  New Release
-                </span>
+              <div class="border border-border rounded-2xl bg-white p-8 flex items-center justify-center h-[460px] relative overflow-hidden group shadow-sm">
                 <img 
                   :src="activeImage" 
                   :class="['max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105', activeImageFlip ? 'scale-x-[-1]' : '']" 
@@ -73,36 +70,7 @@
                 </div>
               </div>
 
-              <!-- Special Offers Box -->
-              <div class="mt-6 border border-border rounded-2xl bg-white shadow-sm">
-                <div class="px-5 py-4 border-b border-border flex items-center justify-between bg-surface2/50 rounded-t-2xl">
-                  <div class="flex items-center gap-2">
-                    <i class="ti ti-ticket text-accent text-lg"></i>
-                    <span class="text-[13px] font-bold uppercase tracking-wider text-text">Ưu đãi dành cho bạn</span>
-                  </div>
-                  <span class="text-[12px] text-accent font-semibold cursor-pointer hover:underline">Xem tất cả</span>
-                </div>
-                <div class="p-4 flex flex-col gap-3">
-                  <div 
-                    v-for="(voucher, idx) in vouchers" 
-                    :key="idx" 
-                    class="flex items-center justify-between p-3 border border-border rounded-xl relative overflow-hidden hover:border-accent/40 transition-colors"
-                  >
-                    <div class="absolute left-0 top-0 bottom-0 w-[4px] bg-accent"></div>
-                    <div class="pl-3">
-                      <div class="text-[13px] font-bold text-text mb-0.5">{{ voucher.title }}</div>
-                      <div class="text-[12px] text-text-muted">{{ voucher.desc }}</div>
-                    </div>
-                    <button 
-                      @click="saveVoucher(voucher)"
-                      :disabled="voucher.saved"
-                      :class="['text-[11px] font-bold border py-1.5 px-4 rounded-lg transition-all shrink-0 cursor-pointer', voucher.saved ? 'bg-[#4CAF50] border-[#4CAF50] text-white' : 'border-accent bg-accent/5 text-accent hover:bg-accent hover:text-white']"
-                    >
-                      {{ voucher.saved ? 'Đã lưu' : 'Lưu mã' }}
-                    </button>
-                  </div>
-                </div>
-              </div>
+
             </div>
 
             <!-- Right: Product Info Box -->
@@ -128,10 +96,10 @@
 
               <!-- Price Box -->
               <div class="flex items-center gap-4 py-6 border-y border-border">
-                <span class="font-display text-3xl font-extrabold text-accent">{{ product.price }}</span>
-                <span v-if="product.oldPrice" class="text-lg text-text-dim line-through">{{ product.oldPrice }}</span>
-                <span v-if="product.discount" class="bg-accent/10 text-accent font-semibold py-1 px-3 rounded-lg text-xs">
-                  -{{ product.discount }}
+                <span class="font-display text-3xl font-extrabold text-accent">{{ displayPrice }}</span>
+                <span v-if="displayOldPrice" class="text-lg text-text-dim line-through">{{ displayOldPrice }}</span>
+                <span v-if="displayDiscount" class="bg-accent/10 text-accent font-semibold py-1 px-3 rounded-lg text-xs">
+                  -{{ displayDiscount }}
                 </span>
               </div>
 
@@ -145,8 +113,12 @@
                     v-for="color in product.colors" 
                     :key="color.name"
                     @click="selectedColor = color.name"
-                    :class="['w-11 h-11 rounded-full border-2 cursor-pointer p-1 transition-all', selectedColor === color.name ? 'border-text scale-105' : 'border-transparent']"
-                    :title="color.name"
+                    :class="[
+                      'w-11 h-11 rounded-full border-2 cursor-pointer p-1 transition-all', 
+                      selectedColor === color.name ? 'border-text scale-105' : 'border-transparent',
+                      !isColorAvailable(color.name) ? 'opacity-30' : ''
+                    ]"
+                    :title="color.name + (!isColorAvailable(color.name) ? ' (Không có sẵn kích cỡ đang chọn)' : '')"
                   >
                     <div class="w-full h-full rounded-full border border-black/10" :style="{ background: color.bg }"></div>
                   </div>
@@ -164,7 +136,11 @@
                     v-for="size in product.sizes" 
                     :key="size"
                     @click="selectedSize = size"
-                    :class="['h-11 font-bold text-sm rounded-xl border flex items-center justify-center transition-all cursor-pointer active:scale-95', selectedSize === size ? 'bg-text text-white border-text' : 'bg-white border-border text-text-muted hover:border-text hover:text-text']"
+                    :class="[
+                      'h-11 font-bold text-sm rounded-xl border flex items-center justify-center transition-all cursor-pointer active:scale-95', 
+                      selectedSize === size ? 'bg-text text-white border-text' : 'bg-white border-border text-text-muted hover:border-text hover:text-text',
+                      !isSizeAvailable(size) ? 'opacity-30 line-through' : ''
+                    ]"
                   >
                     {{ size }}
                   </button>
@@ -210,11 +186,11 @@
               <div class="mt-4 p-5 bg-surface2 rounded-2xl border border-border/60 flex flex-col gap-4">
                 <div class="flex items-center gap-4 text-xs font-semibold text-text">
                   <i class="ti ti-truck-delivery text-accent text-2xl"></i>
-                  <span>Giao hàng miễn phí toàn quốc cho đơn từ 1.000.000₫</span>
+                  <span>Miễn phí giao hàng cho đơn 1.000.000 tại TP.HCM</span>
                 </div>
                 <div class="flex items-center gap-4 text-xs font-semibold text-text">
                   <i class="ti ti-shield-check text-accent text-2xl"></i>
-                  <span>Bảo hành chính hãng 12 tháng tại các chi nhánh</span>
+                  <span>Bảo hành 12 tháng tại cửa hàng</span>
                 </div>
                 <div class="flex items-center gap-4 text-xs font-semibold text-text">
                   <i class="ti ti-refresh text-accent text-2xl"></i>
@@ -240,16 +216,19 @@
           </div>
 
           <!-- Description Content -->
-          <div v-show="activeTab === 'desc'" class="max-w-[800px] mx-auto text-[15px] text-text-muted leading-relaxed space-y-4">
-            <p>Giày thể thao <strong>StepUp Air Max One</strong> là sự kết hợp hoàn hảo giữa phong cách cổ điển và công nghệ hiện đại. Với thiết kế đệm khí đặc trưng lộ ra ở phần gót, đôi giày không chỉ mang lại sự thoải mái tuyệt đối cho đôi chân mà còn là điểm nhấn thời trang cực chất cho mọi outfit của bạn.</p>
-            <h3 class="text-[17px] font-bold text-text pt-4">Đặc điểm nổi bật:</h3>
-            <ul class="list-disc pl-5 space-y-2">
-              <li><strong>Công nghệ đệm Air:</strong> Hấp thụ lực va đập tối đa, mang lại cảm giác êm ái khi di chuyển liên tục.</li>
-              <li><strong>Chất liệu thoáng khí:</strong> Phần thân trên làm từ lưới (mesh) và da lộn nhân tạo cao cấp giúp giữ form giày tốt và đảm bảo đôi chân luôn khô thoáng.</li>
-              <li><strong>Đế ngoài cao su bám đường:</strong> Thiết kế vân đế hình bánh quế (Waffle) đặc trưng tăng độ bám trên mọi bề mặt.</li>
-              <li><strong>Thiết kế đa dụng:</strong> Phù hợp cho việc tập luyện nhẹ nhàng, đi bộ hàng ngày hoặc phối đồ streetwear cá tính.</li>
-            </ul>
-            <p class="pt-4">Màu sắc Cam Trắng (Orange/White) mang đến năng lượng tươi trẻ, nổi bật và dễ dàng thu hút ánh nhìn ở mọi nơi bạn xuất hiện. StepUp Air Max One chắc chắn là một item không thể thiếu trong tủ giày của giới trẻ hiện đại.</p>
+          <div v-show="activeTab === 'desc'" class="max-w-[800px] mx-auto text-[15px] text-text-muted leading-relaxed space-y-4 text-left">
+            <div v-if="product.description" v-html="product.description"></div>
+            <div v-else>
+              <p>Giày thể thao <strong>StepUp Air Max One</strong> là sự kết hợp hoàn hảo giữa phong cách cổ điển và công nghệ hiện đại. Với thiết kế đệm khí đặc trưng lộ ra ở phần gót, đôi giày không chỉ mang lại sự thoải mái tuyệt đối cho đôi chân mà còn là điểm nhấn thời trang cực chất cho mọi outfit của bạn.</p>
+              <h3 class="text-[17px] font-bold text-text pt-4">Đặc điểm nổi bật:</h3>
+              <ul class="list-disc pl-5 space-y-2">
+                <li><strong>Công nghệ đệm Air:</strong> Hấp thụ lực va đập tối đa, mang lại cảm giác êm ái khi di chuyển liên tục.</li>
+                <li><strong>Chất liệu thoáng khí:</strong> Phần thân trên làm từ lưới (mesh) và da lộn nhân tạo cao cấp giúp giữ form giày tốt và đảm bảo đôi chân luôn khô thoáng.</li>
+                <li><strong>Đế ngoài cao su bám đường:</strong> Thiết kế vân đế hình bánh quế (Waffle) đặc trưng tăng độ bám trên mọi bề mặt.</li>
+                <li><strong>Thiết kế đa dụng:</strong> Phù hợp cho việc tập luyện nhẹ nhàng, đi bộ hàng ngày hoặc phối đồ streetwear cá tính.</li>
+              </ul>
+              <p class="pt-4">Màu sắc Cam Trắng (Orange/White) mang đến năng lượng tươi trẻ, nổi bật và dễ dàng thu hút ánh nhìn ở mọi nơi bạn xuất hiện. StepUp Air Max One chắc chắn là một item không thể thiếu trong tủ giày của giới trẻ hiện đại.</p>
+            </div>
           </div>
 
           <!-- Specs Content -->
@@ -338,7 +317,7 @@
 import { ref, computed, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ProductCard from '@/components/common/ProductCard.vue'
-import { mapBackendProduct } from '@/data/products.js'
+import { mapBackendProduct, findMatchingVariant, getVariantSizeName, getVariantColorName } from '@/data/products.js'
 import axiosInstance from '@/api/axios.js'
 import Swal from 'sweetalert2'
 
@@ -371,10 +350,54 @@ const qty = ref(1)
 const wished = ref(false)
 const activeTab = ref('desc')
 
-const vouchers = ref([
-  { title: 'Giảm 50.000₫', desc: 'Đơn tối thiểu 500K', saved: false },
-  { title: 'Giảm 15%', desc: 'Đơn tối thiểu 1.500K', saved: false }
-])
+const currentVariant = computed(() => {
+  const hasColorOptions = product.value.colors && product.value.colors.length > 0
+  return findMatchingVariant(
+    product.value.rawVariants || [],
+    selectedSize.value,
+    selectedColor.value,
+    hasColorOptions
+  )
+})
+
+const displayPrice = computed(() => {
+  const variant = currentVariant.value
+  if (variant && variant.price !== undefined && variant.price !== null) {
+    const priceVal = parseFloat(variant.sale || variant.price)
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(priceVal).replace(/\s/g, '').replace('₫', 'đ')
+  }
+  return product.value.price
+})
+
+const displayOldPrice = computed(() => {
+  const variant = currentVariant.value
+  if (variant) {
+    if (variant.sale && variant.price) {
+      const originalPrice = parseFloat(variant.price)
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ')
+    }
+    return null
+  }
+  return product.value.oldPrice
+})
+
+const displayDiscount = computed(() => {
+  const variant = currentVariant.value
+  if (variant) {
+    if (variant.sale && variant.price) {
+      const sale = parseFloat(variant.sale)
+      const price = parseFloat(variant.price)
+      if (price > 0) {
+        const pct = Math.round((1 - sale / price) * 100)
+        return `${pct}%`
+      }
+    }
+    return null
+  }
+  return product.value.discount
+})
+
+
 
 const tabs = computed(() => [
   { id: 'desc', label: 'Mô tả sản phẩm' },
@@ -485,15 +508,54 @@ watch(
   { immediate: true }
 )
 
+const isColorAvailable = (colorName) => {
+  if (!selectedSize.value) return true
+  return (product.value.rawVariants || []).some(v => {
+    return getVariantSizeName(v) === String(selectedSize.value) && getVariantColorName(v) === colorName
+  })
+}
+
+const isSizeAvailable = (sizeName) => {
+  if (!selectedColor.value) return true
+  return (product.value.rawVariants || []).some(v => {
+    return getVariantSizeName(v) === String(sizeName) && getVariantColorName(v) === selectedColor.value
+  })
+}
+
+// Watch selectedColor to automatically select compatible size
+watch(selectedColor, (newColor) => {
+  if (!newColor || !selectedSize.value) return
+  const isCompatible = (product.value.rawVariants || []).some(v => {
+    return getVariantSizeName(v) === String(selectedSize.value) && getVariantColorName(v) === newColor
+  })
+  if (!isCompatible) {
+    const firstAvail = (product.value.rawVariants || []).find(v => getVariantColorName(v) === newColor)
+    if (firstAvail) {
+      selectedSize.value = getVariantSizeName(firstAvail)
+    }
+  }
+})
+
+// Watch selectedSize to automatically select compatible color
+watch(selectedSize, (newSize) => {
+  if (!newSize || !selectedColor.value) return
+  const isCompatible = (product.value.rawVariants || []).some(v => {
+    return getVariantSizeName(v) === String(newSize) && getVariantColorName(v) === selectedColor.value
+  })
+  if (!isCompatible) {
+    const firstAvail = (product.value.rawVariants || []).find(v => getVariantSizeName(v) === String(newSize))
+    if (firstAvail) {
+      selectedColor.value = getVariantColorName(firstAvail)
+    }
+  }
+})
+
 function setActiveImage(src, flip) {
   activeImage.value = src
   activeImageFlip.value = flip
 }
 
-function saveVoucher(voucher) {
-  voucher.saved = true
-  showToast(`Đã lưu voucher "${voucher.title}" vào ví!`)
-}
+
 
 function increaseQty() {
   if (qty.value < 10) qty.value++
@@ -520,17 +582,13 @@ async function doAddToCart() {
   }
   
   // Find matching variant
-  const matchingVariant = (product.value.rawVariants || []).find(v => {
-    const sizeName = v.size?.name || String(v.size_id)
-    const colorName = v.color?.name || String(v.color_id)
-    
-    const matchesSize = sizeName == String(selectedSize.value)
-    const matchesColor = product.value.colors && product.value.colors.length > 0 
-      ? colorName == String(selectedColor.value)
-      : true
-      
-    return matchesSize && matchesColor
-  })
+  const hasColorOptions = product.value.colors && product.value.colors.length > 0
+  const matchingVariant = findMatchingVariant(
+    product.value.rawVariants || [],
+    selectedSize.value,
+    selectedColor.value,
+    hasColorOptions
+  )
   
   const payload = {
     id: product.value.id,
@@ -560,13 +618,12 @@ async function doBuyNow() {
   }
   
   const hasColorOptions = product.value.colors && product.value.colors.length > 0
-  const matchingVariant = (product.value.rawVariants || []).find(v => {
-    const sizeName = v.size?.name || String(v.size_id)
-    const colorName = v.color?.name || String(v.color_id)
-    const matchesSize = sizeName == String(selectedSize.value)
-    const matchesColor = hasColorOptions ? colorName == String(selectedColor.value) : true
-    return matchesSize && matchesColor
-  })
+  const matchingVariant = findMatchingVariant(
+    product.value.rawVariants || [],
+    selectedSize.value,
+    selectedColor.value,
+    hasColorOptions
+  )
   
   if (!matchingVariant?.id) {
     Swal.fire({
