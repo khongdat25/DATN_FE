@@ -148,12 +148,6 @@
                   >
                     <i class="ti ti-edit text-xs"></i> Chỉnh sửa
                   </button>
-                  <button 
-                    @click="deleteColor(color.id)" 
-                    class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"
-                  >
-                    <i class="ti ti-trash text-sm"></i>
-                  </button>
                 </div>
               </td>
             </tr>
@@ -303,6 +297,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
@@ -323,30 +318,21 @@ const formColor = ref({
   status: 'active'
 })
 
-const defaultColors = [
-  { id: 1, name: 'Trắng', hex: '#FFFFFF', description: 'Màu trắng trơn tinh khiết', status: 'active' },
-  { id: 2, name: 'Đen', hex: '#000000', description: 'Màu đen trơn sang trọng', status: 'active' },
-  { id: 3, name: 'Xám', hex: '#808080', description: 'Màu xám lông chuột tinh tế', status: 'active' },
-  { id: 4, name: 'Xanh dương', hex: '#0000FF', description: 'Màu xanh dương trẻ trung', status: 'active' }
-]
-
-function fetchColors() {
-  const localData = localStorage.getItem('admin_colors')
-  if (localData) {
-    try {
-      colors.value = JSON.parse(localData)
-    } catch (e) {
-      colors.value = defaultColors
-      saveToLocal()
+async function fetchColors() {
+  try {
+    const response = await axiosInstance.get('/color')
+    if (response && response.success && response.data) {
+      colors.value = response.data.map(c => ({
+        id: c.id,
+        name: c.name,
+        hex: c.color_code || '#000000',
+        description: c.description || '',
+        status: c.status == 1 ? 'active' : 'paused'
+      }))
     }
-  } else {
-    colors.value = defaultColors
-    saveToLocal()
+  } catch (error) {
+    console.error('Error fetching colors:', error)
   }
-}
-
-function saveToLocal() {
-  localStorage.setItem('admin_colors', JSON.stringify(colors.value))
 }
 
 onMounted(() => {
@@ -385,11 +371,17 @@ function showToast(msg) {
   }, 3000)
 }
 
-function toggleColorActive(color) {
-  color.status = color.status === 'active' ? 'paused' : 'active'
-  saveToLocal()
-  const stateText = color.status === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
-  showToast(`Đã ${stateText} màu sắc "${color.name}" thành công!`)
+async function toggleColorActive(color) {
+  const oldStatus = color.status
+  const newStatus = oldStatus === 'active' ? 'paused' : 'active'
+  try {
+    await axiosInstance.patch(`/color/toggle-cate/${color.id}`)
+    color.status = newStatus
+    const stateText = newStatus === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
+    showToast(`Đã ${stateText} màu sắc "${color.name}" thành công!`)
+  } catch (e) {
+    console.error('Error toggling color status:', e)
+  }
 }
 
 function openAddModal() {
@@ -414,7 +406,7 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveColor() {
+async function saveColor() {
   // Validate duplicate colors name
   const isDuplicate = colors.value.some(c => c.name.trim().toLowerCase() === formColor.value.name.trim().toLowerCase() && c.id !== formColor.value.id)
   if (isDuplicate) {
@@ -432,57 +424,32 @@ function saveColor() {
     formColor.value.hex = '#' + formColor.value.hex
   }
 
+  const payload = {
+    name: formColor.value.name.trim(),
+    color_code: formColor.value.hex.trim(),
+    description: formColor.value.description ? formColor.value.description.trim() : '',
+    status: formColor.value.status === 'active' ? 1 : 0
+  }
+
   if (isEditMode.value) {
-    const idx = colors.value.findIndex(c => c.id === formColor.value.id)
-    if (idx !== -1) {
-      colors.value[idx] = { ...formColor.value }
-      saveToLocal()
+    try {
+      await axiosInstance.put(`/color/edit/${formColor.value.id}`, payload)
       showToast(`Đã cập nhật màu sắc "${formColor.value.name}"!`)
+      fetchColors()
       modalOpen.value = false
+    } catch (e) {
+      console.error('Error editing color:', e)
     }
   } else {
-    // Generate new unique numeric id
-    const maxId = colors.value.reduce((max, c) => c.id > max ? c.id : max, 0)
-    const newId = maxId + 1
-    const newColor = {
-      id: newId,
-      name: formColor.value.name.trim(),
-      hex: formColor.value.hex.trim(),
-      description: formColor.value.description.trim(),
-      status: formColor.value.status
+    try {
+      await axiosInstance.post('/color/add', payload)
+      showToast(`Đã thêm màu sắc mới "${formColor.value.name}"!`)
+      fetchColors()
+      modalOpen.value = false
+    } catch (e) {
+      console.error('Error adding color:', e)
     }
-    colors.value.push(newColor)
-    saveToLocal()
-    showToast(`Đã thêm màu sắc mới "${newColor.name}"!`)
-    modalOpen.value = false
   }
-}
-
-function deleteColor(id) {
-  const colorObj = colors.value.find(c => c.id === id)
-  if (!colorObj) return
-
-  Swal.fire({
-    title: 'Xác nhận xóa màu sắc?',
-    text: `Hành động này sẽ xóa vĩnh viễn màu sắc "${colorObj.name}" và không thể hoàn tác!`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#FF4D00',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: 'Đồng ý xóa!',
-    cancelButtonText: 'Hủy'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      colors.value = colors.value.filter(c => c.id !== id)
-      saveToLocal()
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Màu sắc đã được xóa bỏ khỏi hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
-    }
-  })
 }
 </script>
 

@@ -72,7 +72,7 @@
         <table class="w-full border-collapse text-left">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-100">
-              <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">ID</th>
+              <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">STT</th>
               <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KÍCH CỠ (SIZE)</th>
               <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">MÔ TẢ CHI TIẾT</th>
               <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">TRẠNG THÁI</th>
@@ -82,15 +82,15 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr 
-              v-for="size in sortedAndFilteredSizes" 
+              v-for="(size, index) in sortedAndFilteredSizes" 
               :key="size.id" 
               :class="[
                 'hover:bg-slate-50/30 transition-all font-medium',
                 size.status === 'paused' ? 'bg-slate-50/50' : ''
               ]"
             >
-              <td class="py-4 px-6 text-xs font-extrabold font-mono text-left text-slate-550">
-                #{{ size.id }}
+              <td class="py-4 px-6 text-xs font-bold text-left text-slate-500">
+                {{ index + 1 }}
               </td>
               <td class="py-4 px-6 text-xs font-bold text-left" :class="size.status === 'paused' ? 'text-slate-400 line-through' : 'text-slate-900'">
                 Size {{ size.name }}
@@ -134,12 +134,6 @@
                     class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
                   >
                     <i class="ti ti-edit text-xs"></i> Chỉnh sửa
-                  </button>
-                  <button 
-                    @click="deleteSize(size.id)" 
-                    class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"
-                  >
-                    <i class="ti ti-trash text-sm"></i>
                   </button>
                 </div>
               </td>
@@ -265,6 +259,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
@@ -284,31 +279,20 @@ const formSize = ref({
   status: 'active'
 })
 
-const defaultSizes = [
-  { id: 39, name: '39', description: 'Chiều dài bàn chân 24.1 - 24.5 cm', status: 'active' },
-  { id: 40, name: '40', description: 'Chiều dài bàn chân 24.6 - 25.0 cm', status: 'active' },
-  { id: 41, name: '41', description: 'Chiều dài bàn chân 25.1 - 25.5 cm', status: 'active' },
-  { id: 42, name: '42', description: 'Chiều dài bàn chân 25.6 - 26.0 cm', status: 'active' },
-  { id: 43, name: '43', description: 'Chiều dài bàn chân 26.1 - 26.5 cm', status: 'active' }
-]
-
-function fetchSizes() {
-  const localData = localStorage.getItem('admin_sizes')
-  if (localData) {
-    try {
-      sizes.value = JSON.parse(localData)
-    } catch (e) {
-      sizes.value = defaultSizes
-      saveToLocal()
+async function fetchSizes() {
+  try {
+    const response = await axiosInstance.get('/size')
+    if (response && response.success && response.data) {
+      sizes.value = response.data.map(s => ({
+        id: s.id,
+        name: s.name,
+        description: s.description || '',
+        status: s.status == 1 ? 'active' : 'paused'
+      }))
     }
-  } else {
-    sizes.value = defaultSizes
-    saveToLocal()
+  } catch (error) {
+    console.error('Error fetching sizes:', error)
   }
-}
-
-function saveToLocal() {
-  localStorage.setItem('admin_sizes', JSON.stringify(sizes.value))
 }
 
 onMounted(() => {
@@ -357,11 +341,17 @@ function showToast(msg) {
   }, 3000)
 }
 
-function toggleSizeActive(size) {
-  size.status = size.status === 'active' ? 'paused' : 'active'
-  saveToLocal()
-  const stateText = size.status === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
-  showToast(`Đã ${stateText} kích cỡ "Size ${size.name}" thành công!`)
+async function toggleSizeActive(size) {
+  const oldStatus = size.status
+  const newStatus = oldStatus === 'active' ? 'paused' : 'active'
+  try {
+    await axiosInstance.patch(`/size/toggle-cate/${size.id}`)
+    size.status = newStatus
+    const stateText = newStatus === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
+    showToast(`Đã ${stateText} kích cỡ "Size ${size.name}" thành công!`)
+  } catch (e) {
+    console.error('Error toggling size status:', e)
+  }
 }
 
 function openAddModal() {
@@ -385,7 +375,7 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveSize() {
+async function saveSize() {
   const isDuplicate = sizes.value.some(s => s.name.trim().toLowerCase() === formSize.value.name.trim().toLowerCase() && s.id !== formSize.value.id)
   
   if (isDuplicate) {
@@ -399,55 +389,32 @@ function saveSize() {
   }
 
   if (isEditMode.value) {
-    const idx = sizes.value.findIndex(s => s.id === formSize.value.id)
-    if (idx !== -1) {
-      sizes.value[idx] = { ...formSize.value }
-      saveToLocal()
+    try {
+      const payload = {
+        name: formSize.value.name.trim(),
+        description: formSize.value.description ? formSize.value.description.trim() : ''
+      }
+      await axiosInstance.put(`/size/edit/${formSize.value.id}`, payload)
       showToast(`Đã cập nhật kích cỡ "Size ${formSize.value.name}"!`)
+      fetchSizes()
       modalOpen.value = false
+    } catch (e) {
+      console.error('Error editing size:', e)
     }
   } else {
-    // Generate new unique numeric id
-    const maxId = sizes.value.reduce((max, s) => s.id > max ? s.id : max, 0)
-    const newId = maxId + 1
-    const newSize = {
-      id: newId,
-      name: formSize.value.name.trim(),
-      description: formSize.value.description.trim(),
-      status: formSize.value.status
+    try {
+      const payload = {
+        name: formSize.value.name.trim(),
+        description: formSize.value.description ? formSize.value.description.trim() : ''
+      }
+      await axiosInstance.post('/size/add', payload)
+      showToast(`Đã thêm kích cỡ mới "Size ${formSize.value.name}"!`)
+      fetchSizes()
+      modalOpen.value = false
+    } catch (e) {
+      console.error('Error adding size:', e)
     }
-    sizes.value.push(newSize)
-    saveToLocal()
-    showToast(`Đã thêm kích cỡ mới "Size ${newSize.name}"!`)
-    modalOpen.value = false
   }
-}
-
-function deleteSize(id) {
-  const sizeObj = sizes.value.find(s => s.id === id)
-  if (!sizeObj) return
-
-  Swal.fire({
-    title: 'Xác nhận xóa kích cỡ?',
-    text: `Hành động này sẽ xóa vĩnh viễn kích cỡ "Size ${sizeObj.name}" và không thể hoàn tác!`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#FF4D00',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: 'Đồng ý xóa!',
-    cancelButtonText: 'Hủy'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      sizes.value = sizes.value.filter(s => s.id !== id)
-      saveToLocal()
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Kích cỡ đã được xóa bỏ khỏi hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
-    }
-  })
 }
 </script>
 

@@ -444,6 +444,16 @@ const paymentMethods = [
 
 const availableVouchers = ref([])
 
+watch(availableVouchers, (newVal) => {
+  if (summary.value.voucherCode && !appliedVoucher.value) {
+    const v = newVal.find(x => x.code === summary.value.voucherCode)
+    if (v) {
+      appliedVoucher.value = v
+      applyVoucher(v.code)
+    }
+  }
+})
+
 onMounted(async () => {
   try {
     const response = await axiosInstance.get('/vouchers/available')
@@ -670,6 +680,8 @@ async function handlePlaceOrder() {
     if (summary.value.isBuyNow && summary.value.items.length === 1) {
       payload.variant_id = summary.value.items[0].variant_id
       payload.quantity = summary.value.items[0].qty
+    } else {
+      payload.cart_item_ids = summary.value.items.map(item => item.id)
     }
 
     // Call real backend API (Extended timeout of 30 seconds for external payment link generation)

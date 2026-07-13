@@ -27,6 +27,13 @@
               <table class="w-full border-collapse hidden md:table">
                 <thead>
                   <tr class="bg-surface2 text-[11px] font-display font-bold uppercase tracking-wider text-text-muted">
+                    <th class="py-5 px-5 text-center w-12">
+                      <input 
+                        type="checkbox" 
+                        v-model="allSelected" 
+                        class="w-4 h-4 accent-accent rounded cursor-pointer block mx-auto"
+                      >
+                    </th>
                     <th class="py-5 px-6 text-left">Sản phẩm</th>
                     <th class="py-5 px-4 text-center">Đơn giá</th>
                     <th class="py-5 px-4 text-center">Số lượng</th>
@@ -39,7 +46,16 @@
                     v-for="item in cartItems"
                     :key="item.id"
                     class="border-b border-border last:border-b-0 group hover:bg-surface2/30 transition-colors"
+                    :class="{ 'bg-accent/2 hover:bg-accent/4': item.selected }"
                   >
+                    <!-- Checkbox -->
+                    <td class="py-6 px-5 text-center">
+                      <input 
+                        type="checkbox" 
+                        v-model="item.selected" 
+                        class="w-4 h-4 accent-accent rounded cursor-pointer block mx-auto"
+                      >
+                    </td>
                     <!-- Product -->
                     <td class="py-6 px-6">
                       <div class="flex items-center gap-4">
@@ -105,11 +121,32 @@
 
               <!-- Mobile Cards -->
               <div class="md:hidden divide-y divide-border">
+                <!-- Mobile Select All -->
+                <div class="p-4 bg-surface2/50 flex items-center gap-3 border-b border-border text-xs font-bold text-text-muted">
+                  <input 
+                    type="checkbox" 
+                    v-model="allSelected" 
+                    id="mobileSelectAll"
+                    class="w-4 h-4 accent-accent rounded cursor-pointer"
+                  >
+                  <label for="mobileSelectAll" class="cursor-pointer select-none uppercase tracking-wider">Chọn tất cả ({{ cartItems.length }} sản phẩm)</label>
+                </div>
+
                 <div
                   v-for="item in cartItems"
                   :key="'m-' + item.id"
-                  class="p-5 flex gap-4 relative"
+                  class="p-5 flex items-start gap-4 relative"
+                  :class="{ 'bg-accent/2': item.selected }"
                 >
+                  <!-- Checkbox -->
+                  <div class="shrink-0 pt-2 flex items-center">
+                    <input 
+                      type="checkbox" 
+                      v-model="item.selected" 
+                      class="w-4 h-4 accent-accent rounded cursor-pointer"
+                    >
+                  </div>
+                  <!-- Image -->
                   <div class="w-[72px] h-[72px] bg-surface2 rounded-xl border border-border flex items-center justify-center p-2 shrink-0">
                     <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain">
                   </div>
@@ -279,7 +316,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, onMounted } from 'vue'
+import { ref, computed, inject, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
@@ -294,55 +331,40 @@ const voucherOpen = ref(false)
 const promoCode = ref('')
 const appliedVoucher = ref(null)
 
-const availableVouchers = [
-  {
-    code: 'FREESHIP',
-    title: 'FREE SHIP',
-    desc: 'Miễn phí vận chuyển toàn quốc',
-    icon: 'ti-gift',
-    value: 0,
-    freeShip: true,
-    minSubtotal: 0
+const allSelected = computed({
+  get() {
+    return cartItems.value.length > 0 && cartItems.value.every(item => item.selected)
   },
-  {
-    code: 'GIAM10K',
-    title: 'GIAM10K',
-    desc: 'Giảm 10.000₫ cho đơn hàng từ 500K',
-    icon: 'ti-discount-2',
-    value: 10000,
-    minSubtotal: 500000
-  },
-  {
-    code: 'STEPUPNEW',
-    title: 'STEPUPNEW',
-    desc: 'Giảm 10% cho khách hàng mới',
-    icon: 'ti-brightness',
-    value: 0.1,
-    minSubtotal: 0,
-    maxDiscount: 200000
-  },
-  {
-    code: 'SAIGON50',
-    title: 'Giảm 50.000₫',
-    desc: 'Đơn tối thiểu 500K',
-    icon: 'ti-ticket',
-    value: 50000,
-    minSubtotal: 500000
-  },
-  {
-    code: 'SAIGON15',
-    title: 'Giảm 15%',
-    desc: 'Đơn tối thiểu 1.500K (Tối đa 300K)',
-    icon: 'ti-ticket',
-    value: 0.15,
-    minSubtotal: 1500000,
-    maxDiscount: 300000
+  set(val) {
+    cartItems.value.forEach(item => {
+      item.selected = val
+    })
   }
-]
+})
+
+const availableVouchers = ref([])
 
 // ─── Lifecycle ───────────────────────────────────────────────────────────────
-onMounted(() => {
+onMounted(async () => {
   loadCart()
+  try {
+    const response = await axiosInstance.get('/vouchers/available')
+    if (response.success && response.data) {
+      availableVouchers.value = response.data.map(v => ({
+        id: v.id,
+        code: v.code,
+        title: v.name,
+        desc: v.type === 'percent' ? `Giảm ${v.value}% (Tối đa ${v.max_discount/1000}K)` : (v.type === 'fixed' ? `Giảm ${v.value.toLocaleString('vi-VN')}₫` : 'Miễn phí vận chuyển'),
+        icon: v.type === 'percent' ? 'ti-brightness' : (v.type === 'fixed' ? 'ti-discount-2' : 'ti-gift'),
+        value: v.type === 'percent' ? v.value / 100 : v.value,
+        minSubtotal: v.min_order,
+        maxDiscount: v.max_discount,
+        type: v.type
+      }))
+    }
+  } catch (error) {
+    console.error('Failed to load vouchers', error)
+  }
 })
 
 // ─── Cart persistence ─────────────────────────────────────────────────────────
@@ -374,7 +396,8 @@ async function loadCart() {
               : 'Mặc định',
             price: v.price || 0,
             qty: item.quantity || 1,
-            image: img
+            image: img,
+            selected: true
           }
         })
         updateHeaderCartCount()
@@ -537,18 +560,25 @@ async function clearCart() {
 
 // ─── Prices ──────────────────────────────────────────────────────────────────
 const subTotal = computed(() =>
-  cartItems.value.reduce((acc, item) => acc + item.price * item.qty, 0)
+  cartItems.value
+    .filter(item => item.selected)
+    .reduce((acc, item) => acc + item.price * item.qty, 0)
 )
 
 const shippingFee = computed(() => {
-  if (appliedVoucher.value?.freeShip) return 0
+  if (appliedVoucher.value?.type === 'free_ship' || appliedVoucher.value?.freeShip) return 0
   return subTotal.value >= 500000 ? 0 : 30000
 })
 
 const discountAmount = computed(() => {
   if (!appliedVoucher.value) return 0
   const v = appliedVoucher.value
-  if (v.freeShip) return 0                        // freeship không tính vào discount
+  if (v.serverDiscount !== undefined) {
+    return v.serverDiscount
+  }
+  if (v.type === 'free_ship') {
+    return Math.min(shippingFee.value, v.value || 30000)
+  }
   if (subTotal.value < v.minSubtotal) return 0
   if (v.value < 1) {
     const calc = subTotal.value * v.value
@@ -561,8 +591,32 @@ const total = computed(() =>
   Math.max(0, subTotal.value + shippingFee.value - discountAmount.value)
 )
 
+watch(subTotal, async (newSubtotal) => {
+  if (appliedVoucher.value) {
+    if (newSubtotal < appliedVoucher.value.minSubtotal) {
+      appliedVoucher.value = null
+      showToast('⚠️ Đã hủy áp dụng voucher do tổng giá trị đơn hàng thay đổi.')
+    } else {
+      // Re-apply to update discount
+      try {
+        let baseShipping = newSubtotal >= 500000 ? 0 : 30000
+        const resp = await axiosInstance.post('/vouchers/apply', {
+          code: appliedVoucher.value.code,
+          subtotal: newSubtotal,
+          shipping_fee: baseShipping
+        })
+        if (resp.success && resp.discount !== undefined) {
+          appliedVoucher.value.serverDiscount = resp.discount
+        }
+      } catch (e) {
+        appliedVoucher.value = null
+      }
+    }
+  }
+})
+
 // ─── Voucher logic ───────────────────────────────────────────────────────────
-function applyVoucher(voucher) {
+async function applyVoucher(voucher) {
   if (subTotal.value < voucher.minSubtotal) {
     Swal.fire({
       icon: 'info',
@@ -572,23 +626,74 @@ function applyVoucher(voucher) {
     })
     return
   }
-  appliedVoucher.value = voucher
-  voucherOpen.value = false
-  showToast(`✅ Đã áp dụng mã giảm giá: ${voucher.code}`)
-}
 
-function applyPromoCode() {
-  const code = promoCode.value.trim().toUpperCase()
-  if (!code) return
-  const matched = availableVouchers.find(v => v.code === code)
-  if (matched) {
-    applyVoucher(matched)
-    promoCode.value = ''
-  } else {
+  try {
+    let baseShipping = subTotal.value >= 500000 ? 0 : 30000
+    const resp = await axiosInstance.post('/vouchers/apply', {
+      code: voucher.code,
+      subtotal: subTotal.value,
+      shipping_fee: baseShipping
+    })
+    if (resp.success && resp.data) {
+      const v = resp.data
+      appliedVoucher.value = {
+        id: v.id,
+        code: v.code,
+        title: v.name,
+        desc: v.type === 'percent' ? `Giảm ${v.value}% (Tối đa ${v.max_discount/1000}K)` : (v.type === 'fixed' ? `Giảm ${v.value.toLocaleString('vi-VN')}₫` : 'Miễn phí vận chuyển'),
+        icon: v.type === 'percent' ? 'ti-brightness' : (v.type === 'fixed' ? 'ti-discount-2' : 'ti-gift'),
+        value: v.type === 'percent' ? v.value / 100 : v.value,
+        minSubtotal: v.min_order,
+        maxDiscount: v.max_discount,
+        type: v.type,
+        serverDiscount: resp.discount
+      }
+      voucherOpen.value = false
+      showToast(`✅ Đã áp dụng mã giảm giá: ${v.code}`)
+    }
+  } catch (error) {
     Swal.fire({
       icon: 'error',
       title: 'Mã không hợp lệ',
-      text: 'Mã coupon bạn nhập không tồn tại hoặc đã hết hạn.',
+      text: error.response?.data?.message || 'Mã giảm giá không hợp lệ',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
+}
+
+async function applyPromoCode() {
+  const code = promoCode.value.trim().toUpperCase()
+  if (!code) return
+  
+  try {
+    let baseShipping = subTotal.value >= 500000 ? 0 : 30000
+    const resp = await axiosInstance.post('/vouchers/apply', {
+      code: code,
+      subtotal: subTotal.value,
+      shipping_fee: baseShipping
+    })
+    if (resp.success && resp.data) {
+      const v = resp.data
+      appliedVoucher.value = {
+        id: v.id,
+        code: v.code,
+        title: v.name,
+        desc: v.type === 'percent' ? `Giảm ${v.value}% (Tối đa ${v.max_discount/1000}K)` : (v.type === 'fixed' ? `Giảm ${v.value.toLocaleString('vi-VN')}₫` : 'Miễn phí vận chuyển'),
+        icon: v.type === 'percent' ? 'ti-brightness' : (v.type === 'fixed' ? 'ti-discount-2' : 'ti-gift'),
+        value: v.type === 'percent' ? v.value / 100 : v.value,
+        minSubtotal: v.min_order,
+        maxDiscount: v.max_discount,
+        type: v.type,
+        serverDiscount: resp.discount
+      }
+      promoCode.value = ''
+      showToast(`✅ Đã áp dụng mã giảm giá: ${v.code}`)
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Mã không hợp lệ',
+      text: error.response?.data?.message || 'Mã coupon bạn nhập không tồn tại hoặc đã hết hạn.',
       confirmButtonColor: '#FF4D00'
     })
   }
@@ -601,8 +706,18 @@ function formatPrice(val) {
 
 // ─── Checkout ─────────────────────────────────────────────────────────────────
 function proceedToCheckout() {
+  const selectedItems = cartItems.value.filter(item => item.selected)
+  if (selectedItems.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Chưa chọn sản phẩm',
+      text: 'Vui lòng tích chọn ít nhất một sản phẩm để thanh toán.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
   const summary = {
-    items: cartItems.value,
+    items: selectedItems,
     subtotal: subTotal.value,
     shippingFee: shippingFee.value,
     discountAmount: discountAmount.value,

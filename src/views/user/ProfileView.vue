@@ -144,13 +144,29 @@
                     </div>
                     <!-- Order footer -->
                     <div class="flex justify-between items-center gap-4 px-6 py-4 border-t border-border flex-wrap">
-                      <div>
+                      <div class="flex gap-2">
+                        <!-- Xem chi tiết -->
+                        <button 
+                          @click="viewOrderDetails(order)"
+                          class="bg-white border border-border text-text hover:bg-surface2 font-semibold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+                        >
+                          Xem chi tiết
+                        </button>
+                        <!-- Hủy đơn hàng -->
                         <button 
                           v-if="['new', 'pending'].includes(order.status)"
                           @click="cancelOrder(order.id, order.orderId)"
                           class="bg-white border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 font-semibold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
                         >
                           Hủy đơn hàng
+                        </button>
+                        <!-- Đặt lại -->
+                        <button 
+                          v-if="['delivered', 'cancelled'].includes(order.status)"
+                          @click="reorder(order)"
+                          class="bg-accent border border-accent text-white hover:bg-accent-hover font-semibold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+                        >
+                          Đặt lại 🛒
                         </button>
                       </div>
                       <span class="text-base font-bold text-text">
@@ -369,13 +385,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, inject } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 
 const router = useRouter()
 const route = useRoute()
+const cartCount = inject('cartCount', ref(0))
 
 // ─── Tab state ────────────────────────────────────────────────────────────────
 const activeTab = ref('profile')
@@ -508,7 +525,8 @@ async function loadOrdersData() {
               : 'Mặc định',
             qty: item.quantity || 1,
             price: item.price || 0,
-            image: img
+            image: img,
+            variantId: v.id
           }
         })
 
@@ -521,13 +539,143 @@ async function loadOrdersData() {
           shipping: order.address || '',
           status: order.status || 'new',
           paymentStatus: order.payment_status || 'unpaid',
-          paymentMethod: order.payment_method_id === 1 ? 'COD' : (order.payment_method_id === 2 ? 'Chuyển khoản' : 'VNPAY')
+          paymentMethod: order.payment_method_id === 1 ? 'COD' : (order.payment_method_id === 2 ? 'Chuyển khoản' : 'VNPAY'),
+          note: order.note || '',
+          phone: order.phone || '',
+          name: order.name || '',
+          paymentMethodId: order.payment_method_id
         }
       })
     }
   } catch (error) {
     console.error('Failed to load user orders:', error)
   }
+}
+
+function viewOrderDetails(order) {
+  const itemsHtml = order.items.map(item => `
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px;">
+      <div style="display: flex; align-items: center; gap: 12px; text-align: left;">
+        <div style="width: 48px; height: 48px; background: #f8fafc; display: flex; align-items: center; justify-content: center; border-radius: 8px; padding: 4px; flex-shrink: 0; border: 1px solid #e2e8f0;">
+          <img src="${item.image}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+        <div>
+          <div style="font-weight: 700; color: #1e293b; line-height: 1.3;">${item.name}</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${item.variant}</div>
+        </div>
+      </div>
+      <div style="text-align: right; flex-shrink: 0; padding-left: 10px;">
+        <div style="font-weight: 800; color: #FF4D00;">${formatPrice(item.price)}</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">x${item.qty}</div>
+      </div>
+    </div>
+  `).join('')
+
+  Swal.fire({
+    title: `<div style="font-family: inherit; font-weight: 800; font-size: 18px; text-align: left; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; color: #0f172a;">Chi tiết đơn hàng ${order.orderId}</div>`,
+    html: `
+      <div style="font-family: inherit; text-align: left; padding: 8px 0; max-height: 70vh; overflow-y: auto;">
+        <!-- Status & Date -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 12px; font-weight: 700; color: #475569; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9;">
+          <span>Ngày đặt: ${order.date}</span>
+          <span style="color: #FF4D00; background: rgba(255,77,0,0.06); padding: 4px 10px; border-radius: 9999px;">${getStatusText(order.status).toUpperCase()}</span>
+        </div>
+
+        <!-- Shipping details -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Thông tin nhận hàng</div>
+          <div style="background: #f8fafc; padding: 14px; border-radius: 14px; border: 1px solid #f1f5f9; font-size: 13px; color: #334155; line-height: 1.5;">
+            <div><strong style="color: #0f172a;">Người nhận:</strong> ${order.name}</div>
+            <div style="margin-top: 4px;"><strong style="color: #0f172a;">Số điện thoại:</strong> ${order.phone}</div>
+            <div style="margin-top: 4px;"><strong style="color: #0f172a;">Địa chỉ:</strong> ${order.shipping}</div>
+            ${order.note ? `<div style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed #e2e8f0;"><strong style="color: #0f172a;">Ghi chú:</strong> ${order.note}</div>` : ''}
+          </div>
+        </div>
+
+        <!-- Payment details -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Hình thức thanh toán</div>
+          <div style="background: #f8fafc; padding: 14px; border-radius: 14px; border: 1px solid #f1f5f9; font-size: 13px; color: #334155; display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 20px; color: #FF4D00;"><i class="ti ${order.paymentMethod === 'COD' ? 'ti-cash' : 'ti-building-bank'}"></i></div>
+            <div>
+              <div style="font-weight: 700; color: #0f172a;">${order.paymentMethod}</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Trạng thái: ${getPaymentStatusText(order.paymentStatus)}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Sản phẩm đã mua</div>
+          <div style="border: 1px solid #f1f5f9; border-radius: 14px; padding: 0 14px; background: #ffffff;">
+            ${itemsHtml}
+          </div>
+        </div>
+
+        <!-- Price summary -->
+        <div style="background: #f8fafc; padding: 14px; border-radius: 14px; border: 1px solid #f1f5f9; font-size: 13px; color: #475569;">
+          <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; color: #0f172a; border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 4px;">
+            <span>Tổng số tiền:</span>
+            <span style="color: #FF4D00; font-size: 16px; font-weight: 800;">${formatPrice(order.total)}</span>
+          </div>
+        </div>
+      </div>
+    `,
+    width: '500px',
+    confirmButtonColor: '#FF4D00',
+    confirmButtonText: 'Đóng',
+    showCloseButton: true,
+  })
+}
+
+async function reorder(order) {
+  Swal.fire({
+    title: 'Đặt lại đơn hàng?',
+    text: 'Tất cả sản phẩm trong đơn hàng này sẽ được thêm lại vào giỏ hàng của bạn.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#FF4D00',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Đồng ý đặt lại!',
+    cancelButtonText: 'Hủy'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+      try {
+        const promises = order.items.map(item => {
+          return axiosInstance.post('/cart', {
+            variant_id: item.variantId,
+            quantity: item.qty
+          })
+        })
+        
+        await Promise.all(promises)
+        
+        // Cập nhật số lượng giỏ hàng trên Header
+        cartCount.value += order.items.reduce((acc, i) => acc + i.qty, 0)
+        
+        Swal.close()
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã thêm vào giỏ hàng! 🛒',
+          text: 'Các sản phẩm đã được thêm lại vào giỏ hàng thành công.',
+          confirmButtonColor: '#FF4D00',
+          confirmButtonText: 'Đi đến Giỏ hàng'
+        }).then(() => {
+          router.push({ name: 'cart' })
+        })
+      } catch (error) {
+        Swal.close()
+        console.error('Failed to reorder items:', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Thất bại',
+          text: error.response?.data?.message || 'Không thể thêm sản phẩm vào giỏ hàng.',
+          confirmButtonColor: '#FF4D00'
+        })
+      }
+    }
+  })
 }
 
 async function cancelOrder(id, orderCode) {

@@ -26,7 +26,6 @@
               </div>
             </div>
           </div>
-          <div class="bg-linear-to-br from-accent to-[#ff7043] text-white text-[12px] tracking-[2px] uppercase py-2 px-5 rounded-full font-bold shadow-sm">🔥 Giảm đến 50%</div>
         </div>
 
         <!-- Products Grid (col-5) -->
@@ -66,21 +65,54 @@ import ProductCard from '../common/ProductCard.vue'
 
 const router = useRouter()
 
-defineEmits(['toggle-wish'])
-
-// Countdown logic
-let h = 2, m = 47, s = 33
-const hours = ref(h), minutes = ref(m), seconds = ref(s)
+defineEmits(['toggle-wish'])// Countdown logic
+const hours = ref(0)
+const minutes = ref(0)
+const seconds = ref(0)
 let timer = null
 
 function pad(n) { return String(n).padStart(2, '0') }
 
-function tick() {
-  s--
-  if (s < 0) { s = 59; m-- }
-  if (m < 0) { m = 59; h-- }
-  if (h < 0) { h = 2; m = 59; s = 59 }
-  hours.value = h; minutes.value = m; seconds.value = s
+function startCountdown(endTimeStr) {
+  if (timer) clearInterval(timer)
+  
+  const targetDate = new Date(endTimeStr.replace(/-/g, '/'))
+  
+  function updateTimer() {
+    const now = new Date()
+    const diff = targetDate.getTime() - now.getTime()
+    
+    if (diff <= 0) {
+      hours.value = 0
+      minutes.value = 0
+      seconds.value = 0
+      if (timer) clearInterval(timer)
+      return
+    }
+    
+    hours.value = Math.floor(diff / (1000 * 60 * 60))
+    minutes.value = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+    seconds.value = Math.floor((diff % (1000 * 60)) / 1000)
+  }
+  
+  updateTimer()
+  timer = setInterval(updateTimer, 1000)
+}
+
+let mockH = 2, mockM = 0, mockS = 0
+function startMockCountdown() {
+  if (timer) clearInterval(timer)
+  hours.value = mockH
+  minutes.value = mockM
+  seconds.value = mockS
+  
+  timer = setInterval(() => {
+    mockS--
+    if (mockS < 0) { mockS = 59; mockM-- }
+    if (mockM < 0) { mockM = 59; mockH-- }
+    if (mockH < 0) { mockH = 2; mockM = 59; mockS = 59 }
+    hours.value = mockH; minutes.value = mockM; seconds.value = mockS
+  }, 1000)
 }
 
 const flashProducts = ref([])
@@ -92,40 +124,52 @@ async function fetchFlashSale() {
     const response = await axiosInstance.get('/flashsales')
     if (response.success && Array.isArray(response.data) && response.data.length > 0) {
       const activeSale = response.data[0]
-      if (activeSale && activeSale.items) {
-        flashProducts.value = activeSale.items.map(item => {
-          if (item.product) {
-            const mapped = mapBackendProduct(item.product)
-            if (item.discount_value) {
-              const originalPrice = parseFloat(mapped.numericPrice) || 0
-              const discountVal = parseFloat(item.discount_value) || 0
-              const flashPrice = originalPrice - discountVal
-              mapped.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
-              mapped.oldPrice = mapped.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ') : null
-              mapped.badges = [{ label: `-${Math.round((discountVal/originalPrice)*100)}%`, color: 'bg-accent' }]
+      if (activeSale) {
+        if (activeSale.end_time) {
+          startCountdown(activeSale.end_time)
+        } else {
+          startMockCountdown()
+        }
+        
+        if (activeSale.items) {
+          flashProducts.value = activeSale.items.map(item => {
+            if (item.product) {
+              const mapped = mapBackendProduct(item.product)
+              if (item.discount_value !== undefined && item.discount_value !== null) {
+                const originalPrice = parseFloat(mapped.numericPrice) || 0
+                const discountPercent = parseFloat(item.discount_value) || 0
+                const flashPrice = originalPrice * (1 - discountPercent / 100)
+                mapped.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
+                mapped.oldPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ')
+                mapped.badges = [{ label: `-${Math.round(discountPercent)}%`, color: 'bg-accent' }]
+              }
+              mapped.soldCount = item.sold || 0
+              mapped.total = item.quantity_limit || 100
+              return mapped
             }
-            mapped.soldCount = item.sold || 0
-            mapped.total = item.quantity_limit || 100
-            return mapped
-          }
-          return null
-        }).filter(Boolean)
+            return null
+          }).filter(Boolean)
+        }
+      } else {
+        startMockCountdown()
       }
+    } else {
+      startMockCountdown()
     }
   } catch (error) {
     console.error('Failed to load flash sale products:', error)
+    startMockCountdown()
   } finally {
     isLoading.value = false
   }
 }
 
 onMounted(async () => {
-  timer = setInterval(tick, 1000)
   await fetchFlashSale()
 })
 
 onUnmounted(() => {
-  clearInterval(timer)
+  if (timer) clearInterval(timer)
 })
 
 function goToDetail(product) {

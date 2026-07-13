@@ -159,6 +159,13 @@
                   <td class="py-4 px-6 text-right" @click.stop>
                     <div class="flex items-center gap-2 justify-end">
                       <button 
+                        v-if="cam.status !== 'expired'"
+                        @click="endCampaign(cam)"
+                        class="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-500 hover:text-white text-red-500 rounded-lg border border-red-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
+                      >
+                        <i class="ti ti-player-stop text-xs"></i> Kết thúc
+                      </button>
+                      <button 
                         @click="openEditModal(cam)"
                         class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
                       >
@@ -184,7 +191,7 @@
                       <div class="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-xs max-w-3xl">
                         <table class="w-full text-left text-xs border-collapse">
                           <thead>
-                            <tr class="bg-slate-100/80 text-slate-500 font-bold border-b border-slate-100">
+                            <tr class="bg-slate-100/80 text-slate-550 font-bold border-b border-slate-100">
                               <th class="p-3">SẢN PHẨM</th>
                               <th class="p-3">KHOẢNG GIÁ GỐC</th>
                               <th class="p-3 text-accent font-bold"><i class="ti ti-flame"></i> KHOẢNG GIÁ SALE ({{ cam.discountPercent }}%)</th>
@@ -193,7 +200,7 @@
                             </tr>
                           </thead>
                           <tbody class="divide-y divide-slate-100 font-medium">
-                            <tr v-for="p in cam.products" :key="p.name" :class="cam.status === 'expired' ? 'text-slate-400' : ''">
+                            <tr v-for="p in cam.products" :key="p.id || p.name" :class="cam.status === 'expired' ? 'text-slate-400' : ''">
                               <td class="p-3 flex items-center gap-3">
                                 <div class="w-8 h-8 bg-slate-50 border border-slate-100 rounded p-1 flex items-center justify-center shrink-0">
                                   <img :src="p.image" alt="Product" class="max-w-full max-h-full object-contain" :class="cam.status === 'expired' ? 'grayscale opacity-60' : ''">
@@ -205,7 +212,7 @@
                                 {{ formatCurrency(p.originalPrice * (1 - cam.discountPercent/100)) }}
                               </td>
                               <td class="p-3 font-semibold text-slate-600" :class="cam.status === 'expired' ? 'text-slate-400' : ''">
-                                {{ cam.status === 'expired' ? 'Đã hoàn tất' : `${p.limitCount} đôi giới hạn` }}
+                                {{ cam.status === 'expired' ? `Đã hoàn tất (Đã bán ${p.sold} đôi)` : `Đã bán ${p.sold} / ${p.limitCount} đôi` }}
                               </td>
                               <td class="p-3 text-left">
                                 <span 
@@ -355,7 +362,7 @@
           <div>
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Chọn sản phẩm tham gia *</label>
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 max-h-40 overflow-y-auto space-y-2">
-              <label v-for="p in availableProducts" :key="p.name" class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
+              <label v-for="p in availableProducts" :key="p.id" class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
                 <input 
                   type="checkbox" 
                   :value="p" 
@@ -404,8 +411,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
@@ -416,50 +424,11 @@ const expandedRows = ref([])
 const modalOpen = ref(false)
 const isEditMode = ref(false)
 
-const availableProducts = [
-  { name: 'StepUp Air Max One', originalPrice: 1250000, image: '/images/p1.png', limitCount: 15 },
-  { name: 'StepUp Pro Dunker', originalPrice: 2100000, image: '/images/p2.png', limitCount: 10 },
-  { name: 'StepUp Sport Flyknit', originalPrice: 1400000, image: '/images/p3.png', limitCount: 20 }
-]
-
-const campaigns = ref([
-  {
-    id: 1,
-    name: 'GIỜ VÀNG MỖI NGÀY 12H-14H',
-    date: '2026-05-31',
-    timeSlot: '12:00 - 14:00',
-    discountPercent: 20,
-    status: 'active',
-    products: [
-      { name: 'StepUp Air Max One', originalPrice: 1250000, image: '/images/p1.png', limitCount: 15 },
-      { name: 'StepUp Pro Dunker', originalPrice: 2100000, image: '/images/p2.png', limitCount: 10 }
-    ]
-  },
-  {
-    id: 2,
-    name: 'TIỆC FLASHSALE TỐI NAY 20H-22H',
-    date: '2026-05-31',
-    timeSlot: '20:00 - 22:00',
-    discountPercent: 15,
-    status: 'upcoming',
-    products: [
-      { name: 'StepUp Sport Flyknit', originalPrice: 1400000, image: '/images/p3.png', limitCount: 20 }
-    ]
-  },
-  {
-    id: 3,
-    name: 'SIÊU FLASHSALE HÈ 12H-14H',
-    date: '2026-05-30',
-    timeSlot: '12:00 - 14:00',
-    discountPercent: 30,
-    status: 'expired',
-    products: [
-      { name: 'StepUp Air Max One', originalPrice: 1250000, image: '/images/p1.png', limitCount: 15 }
-    ]
-  }
-])
+const availableProducts = ref([])
+const campaigns = ref([])
 
 const formCampaign = ref({
+  id: null,
   name: '',
   date: '',
   timeSlot: '12:00 - 14:00',
@@ -467,6 +436,94 @@ const formCampaign = ref({
   limitCount: 15,
   selectedProducts: [],
   status: 'active'
+})
+
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/p1.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
+
+async function fetchAvailableProducts() {
+  try {
+    const response = await axiosInstance.get('/adminproduct')
+    if (response && response.success) {
+      availableProducts.value = response.data.map(p => {
+        let img = '/images/p1.png'
+        if (p.images && p.images.length > 0) {
+          const firstImg = p.images[0]
+          img = getImageUrl(typeof firstImg === 'string' ? firstImg : (firstImg?.image || ''))
+        }
+        
+        const minPrice = p.variants && p.variants.length > 0 ? Math.min(...p.variants.map(v => v.price)) : 0
+        
+        return {
+          id: p.id,
+          name: p.name,
+          originalPrice: minPrice,
+          image: img
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Error fetching available products:', error)
+  }
+}
+
+async function fetchCampaigns() {
+  try {
+    const response = await axiosInstance.get('/flash-sale')
+    if (response && response.success) {
+      campaigns.value = response.data.map(cam => {
+        let statusText = 'upcoming'
+        if (Number(cam.status) === 1) statusText = 'active'
+        else if (Number(cam.status) === 3) statusText = 'expired'
+        
+        return {
+          id: cam.id,
+          name: cam.name,
+          date: cam.date,
+          timeSlot: cam.timeSlot,
+          discountPercent: cam.discountPercent,
+          status: statusText,
+          products: (cam.items || []).map(item => {
+            const prod = item.product || {}
+            const minPrice = prod.variants && prod.variants.length > 0 ? Math.min(...prod.variants.map(v => v.price)) : 0
+            
+            let img = '/images/p1.png'
+            if (prod.image_urls && prod.image_urls.length > 0) {
+              img = prod.image_urls[0]
+            }
+            
+            return {
+              id: prod.id,
+              name: prod.name || 'N/A',
+              originalPrice: minPrice,
+              image: img,
+              limitCount: item.quantity_limit || 0,
+              sold: item.sold || 0
+            }
+          })
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Error fetching campaigns:', error)
+  }
+}
+
+onMounted(async () => {
+  await fetchAvailableProducts()
+  await fetchCampaigns()
 })
 
 const filteredCampaigns = computed(() => {
@@ -516,23 +573,60 @@ function toggleRow(id) {
   }
 }
 
-function toggleCampaignActive(cam) {
-  cam.status = cam.status === 'active' ? 'expired' : 'active'
-  const stateText = cam.status === 'active' ? 'Kích hoạt chạy' : 'Tắt/Kết thúc'
+async function toggleCampaignActive(cam) {
+  try {
+    const response = await axiosInstance.patch(`/flash-sale/toggle-cate/${cam.id}`)
+    if (response) {
+      await fetchCampaigns()
+      Swal.fire({
+        toast: true,
+        position: 'bottom-end',
+        icon: 'success',
+        title: response.message || 'Cập nhật trạng thái thành công!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      })
+    }
+  } catch (error) {
+    console.error('Error toggling campaign status:', error)
+  }
+}
+
+async function endCampaign(cam) {
   Swal.fire({
-    toast: true,
-    position: 'bottom-end',
-    icon: 'success',
-    title: `Đã ${stateText} chiến dịch "${cam.name}"!`,
-    showConfirmButton: false,
-    timer: 2000,
-    timerProgressBar: true
+    title: 'Xác nhận kết thúc?',
+    text: `Bạn có chắc chắn muốn kết thúc sớm chiến dịch "${cam.name}" không?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#FF4D00',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Đồng ý!',
+    cancelButtonText: 'Hủy'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await axiosInstance.patch(`/flash-sale/end-camp/${cam.id}`)
+        if (response) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã kết thúc!',
+            text: 'Chiến dịch Flash Sale đã được kết thúc.',
+            confirmButtonColor: '#FF4D00'
+          })
+          await fetchCampaigns()
+        }
+      } catch (error) {
+        console.error('Error ending campaign:', error)
+      }
+    }
   })
 }
 
 function openAddModal() {
   isEditMode.value = false
   formCampaign.value = {
+    id: null,
     name: '',
     date: new Date().toISOString().substring(0, 10),
     timeSlot: '12:00 - 14:00',
@@ -547,9 +641,21 @@ function openAddModal() {
 function openEditModal(cam) {
   isEditMode.value = true
   formCampaign.value = {
-    ...cam,
+    id: cam.id,
+    name: cam.name,
+    date: cam.date,
+    timeSlot: cam.timeSlot,
+    discountPercent: cam.discountPercent,
     limitCount: cam.products[0]?.limitCount || 15,
-    selectedProducts: [...cam.products]
+    selectedProducts: cam.products.map(p => {
+      return availableProducts.value.find(ap => ap.id === p.id) || {
+        id: p.id,
+        name: p.name,
+        originalPrice: p.originalPrice,
+        image: p.image
+      }
+    }),
+    status: cam.status === 'active' ? 'active' : (cam.status === 'expired' ? 'expired' : 'upcoming')
   }
   modalOpen.value = true
 }
@@ -558,7 +664,7 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveCampaign() {
+async function saveCampaign() {
   if (formCampaign.value.selectedProducts.length === 0) {
     Swal.fire({
       icon: 'error',
@@ -569,52 +675,47 @@ function saveCampaign() {
     return
   }
 
-  const productsWithLimits = formCampaign.value.selectedProducts.map(p => ({
-    ...p,
-    limitCount: formCampaign.value.limitCount
-  }))
+  const payload = {
+    name: formCampaign.value.name,
+    date: formCampaign.value.date,
+    golden_hour: formCampaign.value.timeSlot,
+    discount_value: formCampaign.value.discountPercent,
+    quantity_limit: formCampaign.value.limitCount,
+    product_ids: formCampaign.value.selectedProducts.map(p => p.id)
+  }
 
-  if (isEditMode.value) {
-    const idx = campaigns.value.findIndex(c => c.id === formCampaign.value.id)
-    if (idx > -1) {
-      campaigns.value[idx] = {
-        ...campaigns.value[idx],
-        name: formCampaign.value.name,
-        date: formCampaign.value.date,
-        timeSlot: formCampaign.value.timeSlot,
-        discountPercent: formCampaign.value.discountPercent,
-        status: formCampaign.value.status,
-        products: productsWithLimits
+  try {
+    if (isEditMode.value) {
+      const response = await axiosInstance.put(`/flash-sale/edit/${formCampaign.value.id}`, payload)
+      if (response && response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Cập nhật thành công!',
+          text: 'Chiến dịch Flash Sale đã được cập nhật thông tin.',
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchCampaigns()
+        modalOpen.value = false
+      }
+    } else {
+      const response = await axiosInstance.post('/flash-sale/add', payload)
+      if (response && response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Tạo thành công!',
+          text: 'Chiến dịch Flash Sale mới đã được thiết lập khung giờ.',
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchCampaigns()
+        modalOpen.value = false
       }
     }
-    Swal.fire({
-      icon: 'success',
-      title: 'Cập nhật thành công!',
-      text: 'Chiến dịch Flash Sale đã được cập nhật thông tin.',
-      confirmButtonColor: '#FF4D00'
-    })
-  } else {
-    const newCampaign = {
-      id: campaigns.value.length ? Math.max(...campaigns.value.map(c => c.id)) + 1 : 1,
-      name: formCampaign.value.name,
-      date: formCampaign.value.date,
-      timeSlot: formCampaign.value.timeSlot,
-      discountPercent: formCampaign.value.discountPercent,
-      status: 'upcoming',
-      products: productsWithLimits
-    }
-    campaigns.value.unshift(newCampaign)
-    Swal.fire({
-      icon: 'success',
-      title: 'Tạo thành công!',
-      text: 'Chiến dịch Flash Sale mới đã được thiết lập khung giờ.',
-      confirmButtonColor: '#FF4D00'
-    })
+  } catch (error) {
+    console.error('Error saving campaign:', error)
   }
-  modalOpen.value = false
 }
 
-function deleteCampaign(id) {
+async function deleteCampaign(id) {
   Swal.fire({
     title: 'Xác nhận xóa chiến dịch?',
     text: 'Hành động này sẽ gỡ bỏ chiến dịch Flash Sale vĩnh viễn khỏi hệ thống!',
@@ -624,15 +725,22 @@ function deleteCampaign(id) {
     cancelButtonColor: '#94a3b8',
     confirmButtonText: 'Đồng ý xóa!',
     cancelButtonText: 'Hủy'
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      campaigns.value = campaigns.value.filter(c => c.id !== id)
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Chiến dịch đã bị loại bỏ.',
-        confirmButtonColor: '#FF4D00'
-      })
+      try {
+        const response = await axiosInstance.delete(`/flash-sale/delete/${id}`)
+        if (response && response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa!',
+            text: 'Chiến dịch đã bị loại bỏ.',
+            confirmButtonColor: '#FF4D00'
+          })
+          await fetchCampaigns()
+        }
+      } catch (error) {
+        console.error('Error deleting campaign:', error)
+      }
     }
   })
 }

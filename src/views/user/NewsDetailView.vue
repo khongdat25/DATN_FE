@@ -32,12 +32,15 @@
             </div>
 
             <!-- Main Feature Image -->
-            <div class="border border-border bg-surface3 rounded-3xl h-[280px] sm:h-[400px] flex items-center justify-center text-4xl text-text-dim/20 font-display font-extrabold uppercase overflow-hidden shadow-sm relative shrink-0">
-              {{ article.tag }} Hero Image
+            <div class="border border-border bg-surface3 rounded-3xl h-[280px] sm:h-[400px] flex items-center justify-center overflow-hidden shadow-sm relative shrink-0">
+              <img v-if="article.image" :src="getImageUrl(article.image)" alt="Featured" class="w-full h-full object-cover">
+              <span v-else class="text-4xl text-text-dim/20 font-display font-extrabold uppercase">{{ article.tag }} Hero Image</span>
             </div>
 
             <!-- Article Body Content -->
-            <div class="text-left text-sm sm:text-base text-text-muted leading-relaxed space-y-6">
+            <div v-if="article.content" class="text-left text-sm sm:text-base text-text-muted leading-relaxed space-y-6" v-html="article.content">
+            </div>
+            <div v-else class="text-left text-sm sm:text-base text-text-muted leading-relaxed space-y-6">
               <p>Chào mừng bạn đến với kỷ nguyên mới của Sneaker. Tại sự kiện diễn ra vào tối qua tại TP.HCM, SaigonShoes đã chính thức trình làng bộ sưu tập được mong đợi nhất năm mang tên <strong>"Future Walk"</strong>. Đây không chỉ là một bộ sưu tập giày đơn thuần, mà còn là một tuyên ngôn vững chãi về sự giao thoa hoàn mỹ giữa công nghệ tương lai và nghệ thuật đương đại.</p>
               
               <p>Bộ sưu tập lần này được lấy cảm hứng từ những thành phố tương lai thông minh, nơi sự tối giản trong thiết kế và tính năng vượt trội được đặt lên hàng đầu. Mỗi đôi giày trong bộ sưu tập "Future Walk" đều sử dụng vật liệu tái chế sinh học cao cấp, giúp giảm thiểu tối đa tác động tiêu cực đến môi trường tự nhiên mà vẫn đảm bảo độ bền bỉ cùng sự êm ái tuyệt đối cho bàn chân của bạn.</p>
@@ -178,6 +181,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -190,7 +194,9 @@ const article = ref({
   author: 'Admin',
   comments: 12,
   views: '1.240',
-  tags: ['#Sneaker', '#FutureWalk', '#LimitedEdition']
+  tags: ['#Sneaker', '#FutureWalk', '#LimitedEdition'],
+  image: 'news_featured.png',
+  content: ''
 })
 
 const commentForm = reactive({
@@ -214,8 +220,43 @@ const widgetCategories = [
 
 const popularTags = ['Nike', 'Adidas', 'Jordan', 'Clean', 'Fashion', 'Sandal', 'Crocs']
 
+function getImageUrl(image) {
+  if (!image) return '/images/news_featured.png'
+  if (image.startsWith('http') || image.startsWith('data:')) return image
+  return `/images/${image}`
+}
+
+async function fetchArticleDetail() {
+  try {
+    const id = route.params.id
+    const response = await axiosInstance.get(`/blogs/${id}`)
+    if (response && response.success && response.data) {
+      const blog = response.data
+      article.value = {
+        id: blog.id,
+        tag: blog.featuring ? 'Sự kiện' : 'Xu hướng',
+        title: blog.name,
+        excerpt: blog.comment || '',
+        content: blog.content || '',
+        date: new Date(blog.created_at).toLocaleDateString('vi-VN', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        }),
+        author: 'Admin',
+        comments: 0,
+        views: blog.views || 0,
+        image: blog.avatar || 'news_featured.png',
+        tags: ['#Sneaker', '#SaigonShoes']
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching blog detail:', error)
+  }
+}
+
 onMounted(() => {
-  // Sync details if route id changes, simple mockup content is fine
+  fetchArticleDetail()
 })
 
 function shareArticle(platform) {

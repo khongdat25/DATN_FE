@@ -229,17 +229,14 @@
 
           <!-- Thumbnail field -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Hình ảnh đại diện <span class="text-accent">*</span></label>
-            <select 
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Hình ảnh đại diện (URL hoặc tên ảnh local) <span class="text-accent">*</span></label>
+            <input 
+              type="text" 
               v-model="formPost.image" 
               required 
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-650 text-slate-700 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all font-semibold font-mono"
+              placeholder="Nhập đường dẫn URL ảnh (ví dụ: https://i.postimg.cc/...) hoặc tên ảnh..."
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all font-semibold"
             >
-              <option value="news_featured.png">news_featured.png (Ảnh đại diện Sự kiện)</option>
-              <option value="news_1.png">news_1.png (Ảnh đại diện Vệ sinh giày)</option>
-              <option value="news_2.png">news_2.png (Ảnh phối đồ Sneaker)</option>
-              <option value="cat1.png">cat1.png (Ảnh Khuyến mãi vàng)</option>
-            </select>
           </div>
 
           <!-- Excerpt text -->
@@ -403,15 +400,34 @@ const filteredPosts = computed(() => {
   })
 })
 
-function getImageUrl(imgName) {
-  return `/images/${imgName}`
+function getImageUrl(image) {
+  if (!image) return '/images/news_featured.png'
+  if (image.startsWith('http') || image.startsWith('data:')) return image
+  return `/images/${image}`
 }
 
 async function fetchBlogs() {
   try {
     const response = await axiosInstance.get('/admin/blogs')
-    if (response && response.data && response.data.success && response.data.data) {
-      posts.value = response.data.data
+    if (response && response.success && response.data) {
+      const backendBlogs = response.data.data || []
+      posts.value = backendBlogs.map(blog => ({
+        id: blog.id,
+        title: blog.name,
+        category: blog.featuring ? 'Sự kiện' : 'Xu hướng',
+        excerpt: blog.comment || '',
+        content: blog.content || '',
+        date: new Date(blog.created_at).toLocaleDateString('vi-VN', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        }),
+        author: 'Admin',
+        image: blog.avatar || 'news_featured.png',
+        views: blog.views || 0,
+        status: 'published',
+        featuring: blog.featuring ? true : false
+      }))
     }
   } catch (error) {
     console.error('Error fetching blogs from API, using mockup:', error)
@@ -431,7 +447,8 @@ function openAddModal() {
     status: 'published',
     image: 'news_featured.png',
     excerpt: '',
-    content: ''
+    content: '',
+    featuring: false
   }
   modalOpen.value = true
 }
@@ -447,56 +464,40 @@ function closeModal() {
 }
 
 async function savePost() {
+  const payload = {
+    name: formPost.value.title,
+    avatar: formPost.value.image,
+    comment: formPost.value.excerpt,
+    content: formPost.value.content,
+    featuring: formPost.value.featuring || (formPost.value.category === 'Sự kiện')
+  }
+
   if (isEditMode.value) {
-    const idx = posts.value.findIndex(p => p.id === formPost.value.id)
-    if (idx > -1) {
-      posts.value[idx] = { ...posts.value[idx], ...formPost.value }
-    }
-
     try {
-      await axiosInstance.put(`/admin/blogs/${formPost.value.id}`, formPost.value)
+      await axiosInstance.post(`/admin/blogs/${formPost.value.id}`, payload)
+      Swal.fire({
+        icon: 'success',
+        title: 'Đã cập nhật bài viết!',
+        text: 'Các thông tin chỉnh sửa đã được lưu thành công.',
+        confirmButtonColor: '#FF4D00'
+      })
+      await fetchBlogs()
     } catch (e) {
-      console.warn('Backend API update failed, updated locally.')
+      console.error('Backend API update failed:', e)
     }
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Đã cập nhật bài viết!',
-      text: 'Các thông tin chỉnh sửa đã được lưu vào bản lưu trữ.',
-      confirmButtonColor: '#FF4D00'
-    })
   } else {
-    const currentDate = new Date()
-    const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
-    const formattedDate = `${currentDate.getDate()} ${months[currentDate.getMonth()]}, ${currentDate.getFullYear()}`
-
-    const newPost = {
-      id: posts.value.length ? Math.max(...posts.value.map(p => p.id)) + 1 : 1,
-      title: formPost.value.title,
-      category: formPost.value.category,
-      excerpt: formPost.value.excerpt,
-      content: formPost.value.content,
-      date: formattedDate,
-      author: 'Admin',
-      image: formPost.value.image,
-      views: 0,
-      status: formPost.value.status
-    }
-
-    posts.value.unshift(newPost)
-
     try {
-      await axiosInstance.post('/admin/blogs', newPost)
+      await axiosInstance.post('/admin/blogs', payload)
+      Swal.fire({
+        icon: 'success',
+        title: 'Đã thêm bài viết mới!',
+        text: 'Bài viết mới đã được lưu thành công vào cơ sở dữ liệu.',
+        confirmButtonColor: '#FF4D00'
+      })
+      await fetchBlogs()
     } catch (e) {
-      console.warn('Backend API create failed, created locally.')
+      console.error('Backend API create failed:', e)
     }
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Đã thêm bài viết mới!',
-      text: 'Bài viết mới đã được lưu thành công vào cơ sở dữ liệu.',
-      confirmButtonColor: '#FF4D00'
-    })
   }
   modalOpen.value = false
 }
@@ -513,20 +514,18 @@ function handleDelete(id) {
     cancelButtonText: 'Hủy bỏ'
   }).then(async (result) => {
     if (result.isConfirmed) {
-      posts.value = posts.value.filter(p => p.id !== id)
-
       try {
         await axiosInstance.delete(`/admin/blogs/${id}`)
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã xóa bài viết!',
+          text: 'Bài viết đã bị gỡ bỏ vĩnh viễn khỏi hệ thống.',
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchBlogs()
       } catch (e) {
-        console.warn('Backend API delete failed, deleted locally.')
+        console.error('Backend API delete failed:', e)
       }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa bài viết!',
-        text: 'Bài viết đã bị gỡ bỏ vĩnh viễn khỏi hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
     }
   })
 }

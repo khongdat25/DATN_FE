@@ -163,12 +163,6 @@
                   >
                     <i class="ti ti-edit text-xs"></i> Chỉnh sửa
                   </button>
-                  <button 
-                    @click="deleteBrand(brand.id)" 
-                    class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"
-                  >
-                    <i class="ti ti-trash text-sm"></i>
-                  </button>
                 </div>
               </td>
             </tr>
@@ -317,6 +311,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
@@ -338,16 +333,6 @@ const formBrand = ref({
   status: 'active'
 })
 
-const defaultBrands = [
-  { id: 1, name: 'Nike', code: 'nike', description: 'Thương hiệu thể thao hàng đầu của Mỹ, nổi tiếng với các dòng Air Force 1, Air Max, Jordan.', is_featured: true, status: 'active' },
-  { id: 2, name: 'Adidas', code: 'adidas', description: 'Gã khổng lồ thời trang thể thao Đức với các mẫu giày huyền thoại Samba, Superstar, Gazelle, Ultraboost.', is_featured: true, status: 'active' },
-  { id: 3, name: 'New Balance', code: 'new-balance', description: 'Thương hiệu giày chạy bộ và phong cách sống cao cấp của Mỹ, nổi bật với thiết kế cổ điển pha lẫn hiện đại.', is_featured: true, status: 'active' },
-  { id: 4, name: 'Puma', code: 'puma', description: 'Thương hiệu thể thao năng động của Đức, nổi bật với các mẫu collab sáng tạo.', is_featured: false, status: 'active' },
-  { id: 5, name: 'MLB', code: 'mlb', description: 'Thương hiệu thời trang mang phong cách bóng chày cá tính của Hàn Quốc, rất được ưa chuộng tại Châu Á.', is_featured: false, status: 'active' },
-  { id: 6, name: 'Biti\'s', code: 'bitis', description: 'Thương hiệu giày quốc dân Việt Nam, tự hào với dòng sản phẩm Biti\'s Hunter năng động.', is_featured: false, status: 'active' },
-  { id: 7, name: 'Converse', code: 'converse', description: 'Thương hiệu giày vải classic lâu đời, biểu tượng văn hóa đường phố.', is_featured: false, status: 'active' }
-]
-
 // Auto-fill code field when typing name
 watch(() => formBrand.value.name, (newName) => {
   if (!isEditMode.value && newName) {
@@ -367,23 +352,40 @@ watch(() => formBrand.value.name, (newName) => {
   }
 })
 
-function fetchBrands() {
-  const localData = localStorage.getItem('admin_brands')
-  if (localData) {
-    try {
-      brands.value = JSON.parse(localData)
-    } catch (e) {
-      brands.value = defaultBrands
-      saveToLocal()
-    }
-  } else {
-    brands.value = defaultBrands
-    saveToLocal()
-  }
+// Helper function to generate brand slug/code
+function getBrandSlug(name) {
+  if (!name) return ''
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+    .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+    .replace(/[ìíịỉĩ]/g, 'i')
+    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+    .replace(/[ùúụủũưừứựửữ]/g, 'u')
+    .replace(/[ỳýỵỷỹ]/g, 'y')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+    .replace(/\s+/g, '-') // collapse whitespace and replace by -
+    .replace(/-+/g, '-') // collapse dashes
 }
 
-function saveToLocal() {
-  localStorage.setItem('admin_brands', JSON.stringify(brands.value))
+async function fetchBrands() {
+  try {
+    const response = await axiosInstance.get('/brand')
+    if (response && response.success && response.data) {
+      brands.value = response.data.map(b => ({
+        id: b.id,
+        name: b.name,
+        code: getBrandSlug(b.name),
+        description: b.description || '',
+        is_featured: b.is_featured == 1,
+        status: b.status == 1 ? 'active' : 'paused'
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching brands:', error)
+  }
 }
 
 onMounted(() => {
@@ -424,11 +426,17 @@ function showToast(msg) {
   }, 3000)
 }
 
-function toggleBrandActive(brand) {
-  brand.status = brand.status === 'active' ? 'paused' : 'active'
-  saveToLocal()
-  const stateText = brand.status === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
-  showToast(`Đã ${stateText} thương hiệu "${brand.name}" thành công!`)
+async function toggleBrandActive(brand) {
+  const oldStatus = brand.status
+  const newStatus = oldStatus === 'active' ? 'paused' : 'active'
+  try {
+    await axiosInstance.patch(`/brand/toggle-cate/${brand.id}`)
+    brand.status = newStatus
+    const stateText = newStatus === 'active' ? 'Kích hoạt' : 'Khóa tạm thời'
+    showToast(`Đã ${stateText} thương hiệu "${brand.name}" thành công!`)
+  } catch (e) {
+    console.error('Error toggling brand status:', e)
+  }
 }
 
 function openAddModal() {
@@ -454,7 +462,7 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveBrand() {
+async function saveBrand() {
   // Validate duplicate brand name
   const isDuplicate = brands.value.some(b => b.name.trim().toLowerCase() === formBrand.value.name.trim().toLowerCase() && b.id !== formBrand.value.id)
   if (isDuplicate) {
@@ -467,58 +475,32 @@ function saveBrand() {
     return
   }
 
+  const payload = {
+    name: formBrand.value.name.trim(),
+    description: formBrand.value.description ? formBrand.value.description.trim() : '',
+    status: formBrand.value.status === 'active' ? 1 : 0,
+    is_featured: formBrand.value.is_featured ? 1 : 0
+  }
+
   if (isEditMode.value) {
-    const idx = brands.value.findIndex(b => b.id === formBrand.value.id)
-    if (idx !== -1) {
-      brands.value[idx] = { ...formBrand.value }
-      saveToLocal()
+    try {
+      await axiosInstance.put(`/brand/edit/${formBrand.value.id}`, payload)
       showToast(`Đã cập nhật thương hiệu "${formBrand.value.name}"!`)
+      fetchBrands()
       modalOpen.value = false
+    } catch (e) {
+      console.error('Error editing brand:', e)
     }
   } else {
-    // Generate new unique numeric id
-    const maxId = brands.value.reduce((max, b) => b.id > max ? b.id : max, 0)
-    const newId = maxId + 1
-    const newBrand = {
-      id: newId,
-      name: formBrand.value.name.trim(),
-      code: formBrand.value.code.trim(),
-      description: formBrand.value.description.trim(),
-      is_featured: formBrand.value.is_featured,
-      status: formBrand.value.status
+    try {
+      await axiosInstance.post('/brand/add', payload)
+      showToast(`Đã thêm thương hiệu mới "${formBrand.value.name}"!`)
+      fetchBrands()
+      modalOpen.value = false
+    } catch (e) {
+      console.error('Error adding brand:', e)
     }
-    brands.value.push(newBrand)
-    saveToLocal()
-    showToast(`Đã thêm thương hiệu mới "${newBrand.name}"!`)
-    modalOpen.value = false
   }
-}
-
-function deleteBrand(id) {
-  const brandObj = brands.value.find(b => b.id === id)
-  if (!brandObj) return
-
-  Swal.fire({
-    title: 'Xác nhận xóa thương hiệu?',
-    text: `Hành động này sẽ xóa vĩnh viễn thương hiệu "${brandObj.name}" và không thể hoàn tác!`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#FF4D00',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: 'Đồng ý xóa!',
-    cancelButtonText: 'Hủy'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      brands.value = brands.value.filter(b => b.id !== id)
-      saveToLocal()
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Thương hiệu đã được xóa bỏ khỏi hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
-    }
-  })
 }
 </script>
 

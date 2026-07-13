@@ -46,7 +46,8 @@
           <!-- Left/Top Featured Image -->
           <div class="md:w-[55%] h-[300px] sm:h-[450px] overflow-hidden shrink-0 relative">
             <div class="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors z-10"></div>
-            <div class="w-full h-full bg-surface3 flex items-center justify-center text-4xl text-text-dim/30 font-display font-extrabold uppercase">
+            <img v-if="featuredNews.image" :src="getImageUrl(featuredNews.image)" alt="Featured" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <div v-else class="w-full h-full bg-surface3 flex items-center justify-center text-4xl text-text-dim/30 font-display font-extrabold uppercase">
               {{ featuredNews.tag }} Image
             </div>
           </div>
@@ -84,8 +85,9 @@
             class="bg-white rounded-2xl overflow-hidden border border-border flex flex-col shadow-sm hover:shadow-[0_15px_35px_rgba(0,0,0,0.05)] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group"
           >
             <!-- Thumbnail -->
-            <div class="h-56 bg-surface3 flex items-center justify-center text-2xl text-text-dim/30 font-display font-bold uppercase overflow-hidden shrink-0 relative">
-              {{ item.tag }}
+            <div class="h-56 bg-surface3 flex items-center justify-center overflow-hidden shrink-0 relative">
+              <img v-if="item.image" :src="getImageUrl(item.image)" alt="Thumb" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300">
+              <span v-else class="text-2xl text-text-dim/30 font-display font-bold uppercase">{{ item.tag }}</span>
             </div>
             
             <!-- Info Content -->
@@ -168,9 +170,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const router = useRouter()
 
@@ -179,7 +182,48 @@ const activeCategory = ref('Tất cả')
 
 const newsletterEmail = ref('')
 
-const newsList = ref([
+const newsList = ref([])
+
+function getImageUrl(image) {
+  if (!image) return '/images/news_featured.png'
+  if (image.startsWith('http') || image.startsWith('data:')) return image
+  return `/images/${image}`
+}
+
+async function fetchBlogs() {
+  try {
+    const response = await axiosInstance.get('/blogs')
+    if (response && response.success && response.data) {
+      const backendBlogs = response.data.data || []
+      newsList.value = backendBlogs.map(blog => ({
+        id: blog.id,
+        tag: blog.featuring ? 'Sự kiện' : 'Xu hướng',
+        title: blog.name,
+        excerpt: blog.comment || '',
+        content: blog.content || '',
+        date: new Date(blog.created_at).toLocaleDateString('vi-VN', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        }),
+        author: 'Admin',
+        comments: 0,
+        image: blog.avatar || 'news_featured.png',
+        isFeatured: blog.featuring ? true : false
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching public blogs:', error)
+    // fallback static mockup data
+    newsList.value = mockNews
+  }
+}
+
+onMounted(() => {
+  fetchBlogs()
+})
+
+const mockNews = [
   {
     id: 1,
     tag: 'Sự kiện',
@@ -238,7 +282,7 @@ const newsList = ref([
     date: '28 Tháng 4, 2026',
     isFeatured: false
   }
-])
+]
 
 const featuredNews = computed(() => {
   return newsList.value.find(item => item.isFeatured)
