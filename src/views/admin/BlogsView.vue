@@ -131,13 +131,13 @@
                 <td class="py-4 px-6 text-left">
                   <span 
                     v-if="post.status === 'published'" 
-                    class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600"
+                    class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600 whitespace-nowrap"
                   >
                     <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Đã công khai
                   </span>
                   <span 
                     v-else 
-                    class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-yellow-50 text-yellow-600"
+                    class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-yellow-50 text-yellow-600 whitespace-nowrap"
                   >
                     <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>Bản nháp
                   </span>
@@ -145,8 +145,11 @@
                 <td class="py-4 px-6 text-slate-400 font-medium text-left">{{ post.date }}</td>
                 <td class="py-4 px-6 text-right">
                   <div class="flex items-center gap-1 justify-end">
-                    <button @click="openEditModal(post)" class="p-2 text-slate-400 hover:text-accent hover:bg-accent/5 rounded-lg transition-colors cursor-pointer border-none bg-transparent" title="Chỉnh sửa">
-                      <i class="ti ti-edit text-base"></i>
+                    <button 
+                      @click="openEditModal(post)"
+                      class="whitespace-nowrap px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
+                    >
+                      Chỉnh sửa
                     </button>
                     <button @click="handleDelete(post.id)" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-lg transition-colors cursor-pointer border-none bg-transparent" title="Xóa">
                       <i class="ti ti-trash text-base"></i>

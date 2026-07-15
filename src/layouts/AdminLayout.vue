@@ -202,6 +202,7 @@ const navItems = [
   { name: 'Người dùng', path: '/admin/users', icon: 'ti-users' },
   { name: 'Bài viết (Blog)', path: '/admin/blogs', icon: 'ti-news' },
   { name: 'Đánh giá', path: '/admin/reviews', icon: 'ti-star' },
+  { name: 'Liên hệ', path: '/admin/contacts', icon: 'ti-mail' },
 ]
 
 const currentPageName = computed(() => {

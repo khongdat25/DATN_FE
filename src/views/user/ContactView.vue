@@ -42,7 +42,7 @@
                   <i class="ti ti-mail-opened"></i>
                 </div>
                 <h4 class="font-display font-bold text-sm text-text uppercase tracking-wide mb-1.5">Email liên hệ</h4>
-                <p class="text-sm font-semibold text-text hover:text-accent transition-colors mb-0.5">contact@saigonshoes.com</p>
+                <p class="text-sm font-semibold text-text hover:text-accent transition-colors mb-0.5">saigonshoess@gmail.com</p>
                 <p class="text-xs text-text-muted">Phản hồi thư trong vòng 24 giờ làm việc</p>
               </div>
             </div>
@@ -169,13 +169,6 @@
                 {{ submitting ? 'Đang gửi thông tin...' : 'Gửi liên hệ ngay' }}
               </button>
             </form>
-
-            <!-- Social channels -->
-            <div class="mt-6 pt-6 border-t border-border flex items-center justify-center gap-4">
-              <span class="text-xs text-text-muted font-semibold">Kết nối nhanh:</span>
-              <a href="#" class="w-9 h-9 rounded-full bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center text-lg hover:bg-[#1877F2] hover:text-white transition-all active:scale-90" title="Facebook Messenger"><i class="ti ti-brand-messenger"></i></a>
-              <a href="#" class="w-9 h-9 rounded-full bg-[#0068FF]/10 text-[#0068FF] flex items-center justify-center text-lg hover:bg-[#0068FF] hover:text-white transition-all active:scale-90 font-bold" title="Zalo hỗ trợ"><i class="ti ti-brand-whatsapp"></i></a>
-            </div>
           </div>
         </div>
 
@@ -183,7 +176,7 @@
         <div class="bg-white border border-border rounded-2xl overflow-hidden p-3 shadow-sm">
           <div class="h-[400px] rounded-xl overflow-hidden relative">
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4602289852554!2d106.66524941533418!3d10.776019362148192!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1m3!1d3919.4602289852554!2d106.66524941533418!3d10.776019362148192!2m2!1d106.6652494!2d10.7760194!3m2!1i1024!2i768!4f13.1!5e0!3m2!1svi!2s!4v1685600000000!5m2!1svi!2s" 
+              src="https://maps.google.com/maps?q=QTSC%209%20Building,%20T%C3%B4%20K%C3%BD,%20Trung%20M%E1%BB%B9%20T%C3%A2y,%20H%E1%BB%93%20Ch%C3%AD%20Minh,%20Vi%E1%BB%87t%20Nam&t=&z=16&ie=UTF8&iwloc=&output=embed" 
               width="100%" 
               height="100%" 
               style="border:0;" 
@@ -202,6 +195,7 @@
 <script setup>
 import { ref, reactive, inject } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios.js'
 
 const showToast = inject('showToast', (msg) => {})
 
@@ -209,15 +203,14 @@ const submitting = ref(false)
 const activeFaq = ref(0)
 
 const showrooms = [
-  { name: 'Showroom Quận 1 (Flagship Store)', address: '120 Nguyễn Trãi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh', phone: '028 3939 1234' },
-  { name: 'Showroom Quận 10 (Sneaker Hub)', address: '450 Ba Tháng Hai, Phường 12, Quận 10, TP. Hồ Chí Minh', phone: '028 3868 5678' }
+  { name: 'Showroom chính SaigonShoes', address: 'QTSC 9 Building, Tô Ký, Trung Mỹ Tây, Hồ Chí Minh, Việt Nam', phone: '0294 666 666' }
 ]
 
 const faqs = [
   { question: 'Cửa hàng có hỗ trợ đổi size sản phẩm mua online không?', answer: 'SaigonShoes hỗ trợ đổi size miễn phí trong vòng 30 ngày kể từ ngày nhận hàng đối với tất cả đơn hàng online. Điều kiện sản phẩm phải còn mới, chưa qua sử dụng, còn nguyên hộp, nhãn mác và quà tặng kèm theo (nếu có).' },
-  { question: 'Đặt hàng online thì bao lâu nhận được giày?', answer: 'Đối với khu vực nội thành TP.HCM, bạn sẽ nhận được hàng trong vòng 4 - 24 giờ. Đối với các tỉnh thành khác trên toàn quốc, thời gian giao hàng dao động từ 2 - 4 ngày làm việc tùy thuộc vào địa điểm cụ thể.' },
-  { question: 'Giày tại SaigonShoes có được bảo hành không?', answer: 'Tất cả các sản phẩm giày thể thao, dép Crocs mua tại SaigonShoes đều được bảo hành chính hãng keo chỉ trong vòng 12 tháng tại bất kỳ chi nhánh nào thuộc hệ thống. Bạn chỉ cần mang giày kèm số điện thoại mua hàng để được hỗ trợ bảo hành.' },
-  { question: 'Có những phương thức thanh toán nào khi mua online?', answer: 'Chúng tôi hỗ trợ đa dạng phương thức thanh toán: COD (Thanh toán khi nhận hàng), Chuyển khoản ngân hàng qua mã QR, Ví điện tử Momo/ZaloPay, hoặc quẹt thẻ tín dụng thông qua cổng thanh toán bảo mật.' }
+  { question: 'Đặt hàng online thì bao lâu nhận được giày?', answer: 'Hiện tại SaigonShoes chỉ hỗ trợ đặt hàng online và giao hàng trong khu vực nội thành TP.HCM (nhận hàng trong vòng 4 - 24 giờ). Chúng tôi đang nỗ lực mở rộng dịch vụ và hiện tại chưa áp dụng giao hàng đi các tỉnh thành khác.' },
+  { question: 'Giày tại SaigonShoes có được bảo hành không?', answer: 'Tất cả các sản phẩm giày thể thao mua tại SaigonShoes đều được bảo hành chính hãng keo chỉ trong vòng 12 tháng. Hiện tại, dịch vụ bảo hành này chỉ áp dụng cho khách hàng trong khu vực TP.HCM. Quý khách vui lòng mang sản phẩm kèm số điện thoại mua hàng trực tiếp đến showroom của chúng tôi để được hỗ trợ bảo hành nhanh chóng.' },
+  { question: 'Có những phương thức thanh toán nào khi mua online?', answer: 'Chúng tôi hỗ trợ đa dạng phương thức thanh toán: COD (Thanh toán khi nhận hàng), Chuyển khoản ngân hàng qua mã QR.' }
 ]
 
 const form = reactive({
@@ -228,32 +221,56 @@ const form = reactive({
   message: ''
 })
 
-function handleSubmit() {
+async function handleSubmit() {
   submitting.value = true
-  
-  // Mock sending latency
-  setTimeout(() => {
-    submitting.value = false
-    
-    // Clear form
-    form.name = ''
-    form.phone = ''
-    form.email = ''
-    form.subject = ''
-    form.message = ''
-    
-    // Show SweetAlert response
-    Swal.fire({
-      icon: 'success',
-      title: 'Đã gửi liên hệ!',
-      text: 'Thông tin của bạn đã được tiếp nhận. Đội ngũ SaigonShoes sẽ liên hệ lại với bạn trong vòng tối đa 2 giờ làm việc.',
-      confirmButtonText: 'Đồng ý',
-      confirmButtonColor: '#FF4D00',
-      customClass: {
-        popup: 'rounded-2xl border border-border shadow-2xl font-body'
-      }
+  try {
+    const response = await axiosInstance.post('/contacts', {
+      name: form.name,
+      phone: form.phone,
+      email: form.email,
+      subject: form.subject,
+      message: form.message
     })
-  }, 1500)
+    
+    if (response && response.success) {
+      // Clear form
+      form.name = ''
+      form.phone = ''
+      form.email = ''
+      form.subject = ''
+      form.message = ''
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Đã gửi liên hệ!',
+        text: 'Thông tin của bạn đã được tiếp nhận. Đội ngũ SaigonShoes sẽ liên hệ lại với bạn trong vòng tối đa 2 giờ làm việc.',
+        confirmButtonText: 'Đồng ý',
+        confirmButtonColor: '#FF4D00',
+        customClass: {
+          popup: 'rounded-2xl border border-border shadow-2xl font-body'
+        }
+      })
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: response?.message || 'Không thể gửi thông tin liên hệ. Vui lòng thử lại sau.',
+        confirmButtonText: 'Đồng ý',
+        confirmButtonColor: '#FF4D00'
+      })
+    }
+  } catch (error) {
+    console.error('Error sending contact:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Thất bại',
+      text: error.response?.data?.message || 'Có lỗi xảy ra khi gửi liên hệ.',
+      confirmButtonText: 'Đồng ý',
+      confirmButtonColor: '#FF4D00'
+    })
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 

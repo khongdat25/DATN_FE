@@ -23,7 +23,7 @@
             activeTab === 'all' ? 'text-accent border-accent' : 'text-slate-500 hover:text-slate-800 border-transparent'
           ]"
         >
-          Tất cả khách hàng ({{ users.length }})
+          Tất cả khách hàng ({{ totalUsers }})
         </button>
         <button 
           @click="activeTab = 'active'" 
@@ -32,7 +32,7 @@
             activeTab === 'active' ? 'text-accent border-accent' : 'text-slate-500 hover:text-slate-800 border-transparent'
           ]"
         >
-          Đang hoạt động ({{ users.filter(u => u.status === 'active').length }})
+          Đang hoạt động
         </button>
         <button 
           @click="activeTab = 'blocked'" 
@@ -41,7 +41,7 @@
             activeTab === 'blocked' ? 'text-accent border-accent' : 'text-slate-500 hover:text-slate-800 border-transparent'
           ]"
         >
-          Đã khóa ({{ users.filter(u => u.status === 'blocked').length }})
+          Đã khóa
         </button>
       </div>
 
@@ -60,10 +60,13 @@
 
         <!-- Action filters -->
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+          <select v-model="selectedRole" class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer font-semibold text-slate-700">
+            <option value="all">Tất cả vai trò</option>
+            <option value="Quản trị viên">Quản trị viên</option>
+            <option value="Khách hàng">Khách hàng</option>
+          </select>
           <select v-model="sortBy" class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2 px-3 focus:outline-none cursor-pointer font-semibold text-slate-700">
             <option value="registeredDate">Sắp xếp: Ngày đăng ký</option>
-            <option value="totalSpent">Sắp xếp: Tổng chi tiêu cao</option>
-            <option value="ordersCount">Sắp xếp: Số đơn mua nhiều</option>
           </select>
         </div>
       </div>
@@ -78,8 +81,6 @@
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">THÔNG TIN LIÊN HỆ</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">VAI TRÒ</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">NGÀY ĐĂNG KÝ</th>
-                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">ĐƠN ĐÃ MUA</th>
-                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">TỔNG CHI TIÊU</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">TRẠNG THÁI TÀI KHOẢN</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">QUYỀN HOẠT ĐỘNG</th>
                 <th class="py-4 px-6 w-24"></th>
@@ -127,18 +128,16 @@
                   </span>
                 </td>
                 <td class="py-4 px-6 text-xs text-slate-500 text-left">{{ user.registeredDate }}</td>
-                <td class="py-4 px-6 text-xs text-slate-700 text-left">{{ user.ordersCount }} Đơn hàng</td>
-                <td class="py-4 px-6 text-xs font-bold text-slate-900 text-left">{{ formatCurrency(user.totalSpent) }}</td>
                 <td class="py-4 px-6 text-left">
                   <span 
                     v-if="user.status === 'active'" 
-                    class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                   >
                     <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> <span>Hoạt động</span>
                   </span>
                   <span 
                     v-else 
-                    class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                   >
                     <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span> <span>Đã khóa</span>
                   </span>
@@ -158,15 +157,9 @@
                   <div class="flex items-center gap-2 justify-end">
                     <button 
                       @click="openEditModal(user)"
-                      class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
+                      class="whitespace-nowrap px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
                     >
-                      <i class="ti ti-edit text-xs"></i> Chỉnh sửa
-                    </button>
-                    <button 
-                      @click="deleteUser(user.id)" 
-                      class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"
-                    >
-                      <i class="ti ti-trash text-sm"></i>
+                      Chỉnh sửa
                     </button>
                   </div>
                 </td>
@@ -183,13 +176,23 @@
 
         <!-- Footer Pagination -->
         <div class="p-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span class="text-xs text-slate-400">Hiển thị 1 - {{ sortedAndFilteredUsers.length }} của {{ sortedAndFilteredUsers.length }} khách hàng</span>
+          <span class="text-xs text-slate-400">
+            Hiển thị {{ totalUsers === 0 ? 0 : (currentPage - 1) * perPage + 1 }} - {{ Math.min(currentPage * perPage, totalUsers) }} của {{ totalUsers }} khách hàng
+          </span>
           <div class="flex items-center gap-1.5">
-            <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer" disabled>
+            <button 
+              @click="changePage(currentPage - 1)" 
+              :disabled="currentPage === 1" 
+              class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <i class="ti ti-chevron-left text-sm"></i>
             </button>
-            <button class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center text-xs font-bold border-none cursor-pointer">1</button>
-            <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer" disabled>
+            <span class="text-xs font-bold text-slate-700 px-2">Trang {{ currentPage }} / {{ lastPage }}</span>
+            <button 
+              @click="changePage(currentPage + 1)" 
+              :disabled="currentPage === lastPage || lastPage === 0" 
+              class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <i class="ti ti-chevron-right text-sm"></i>
             </button>
           </div>
@@ -276,7 +279,6 @@
               class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-semibold cursor-pointer"
             >
               <option value="Khách hàng">Khách hàng</option>
-              <option value="Nhân viên">Nhân viên</option>
               <option value="Quản trị viên">Quản trị viên</option>
             </select>
           </div>
@@ -327,7 +329,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 
@@ -342,41 +344,13 @@ const toastShow = ref(false)
 const toastMessage = ref('')
 const toastEmoji = ref('👥')
 
-const users = ref([
-  {
-    id: 'MEM-0248',
-    name: 'Khổng Đạt',
-    email: 'khongdat@gmail.com',
-    phone: '0987 654 321',
-    role: 'Quản trị viên',
-    registeredDate: '15/01/2026',
-    ordersCount: 5,
-    totalSpent: 15200000,
-    status: 'active'
-  },
-  {
-    id: 'MEM-0247',
-    name: 'Minh Thư',
-    email: 'minhthu@gmail.com',
-    phone: '0912 345 678',
-    role: 'Nhân viên',
-    registeredDate: '10/02/2026',
-    ordersCount: 3,
-    totalSpent: 4500000,
-    status: 'active'
-  },
-  {
-    id: 'MEM-0246',
-    name: 'Hải Vy',
-    email: 'haivy@gmail.com',
-    phone: '0909 999 888',
-    role: 'Khách hàng',
-    registeredDate: '25/04/2026',
-    ordersCount: 1,
-    totalSpent: 2100000,
-    status: 'blocked'
-  }
-])
+const users = ref([])
+
+const currentPage = ref(1)
+const lastPage = ref(1)
+const totalUsers = ref(0)
+const perPage = ref(10)
+const selectedRole = ref('all')
 
 const formUser = ref({
   id: '',
@@ -389,38 +363,30 @@ const formUser = ref({
 })
 
 const sortedAndFilteredUsers = computed(() => {
-  let result = users.value.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                          u.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                          (u.phone && u.phone.includes(searchQuery.value))
-    
-    let matchesTab = true
-    if (activeTab.value === 'active') {
-      matchesTab = u.status === 'active'
-    } else if (activeTab.value === 'blocked') {
-      matchesTab = u.status === 'blocked'
-    }
-    return matchesSearch && matchesTab
-  })
-
-  // Sorting logic
-  if (sortBy.value === 'registeredDate') {
-    // Basic string date parsing format DD/MM/YYYY
-    result.sort((a, b) => {
-      const partsA = a.registeredDate.split('/')
-      const partsB = b.registeredDate.split('/')
-      const dateA = new Date(partsA[2], partsA[1] - 1, partsA[0])
-      const dateB = new Date(partsB[2], partsB[1] - 1, partsB[0])
-      return dateB - dateA
-    })
-  } else if (sortBy.value === 'totalSpent') {
-    result.sort((a, b) => b.totalSpent - a.totalSpent)
-  } else if (sortBy.value === 'ordersCount') {
-    result.sort((a, b) => b.ordersCount - a.ordersCount)
-  }
-
-  return result
+  return users.value
 })
+
+// Watch search, role, tab, and reload with 400ms debounce for search query
+let searchTimeout = null
+watch(searchQuery, () => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    currentPage.value = 1
+    fetchUsers()
+  }, 400)
+})
+
+watch([activeTab, selectedRole, sortBy], () => {
+  currentPage.value = 1
+  fetchUsers()
+})
+
+function changePage(page) {
+  if (page >= 1 && page <= lastPage.value) {
+    currentPage.value = page
+    fetchUsers()
+  }
+}
 
 function getInitials(name) {
   if (!name) return 'US'
@@ -433,7 +399,6 @@ function getInitials(name) {
 
 function getAvatarClass(role) {
   if (role === 'Quản trị viên') return 'bg-orange-100 text-accent'
-  if (role === 'Nhân viên') return 'bg-blue-105 bg-blue-100 text-blue-500'
   return 'bg-rose-100 text-rose-500'
 }
 
@@ -450,15 +415,26 @@ function showToast(message, emoji = '👥') {
   }, 3000)
 }
 
-// Fetch users from API (with local fallback)
+// Fetch users from API
 async function fetchUsers() {
   try {
-    const response = await axiosInstance.get('/admin/users')
-    if (response && response.data && response.data.success && response.data.data) {
+    const params = {
+      page: currentPage.value,
+      per_page: perPage.value,
+      search: searchQuery.value,
+      status: activeTab.value,
+      role: selectedRole.value,
+    }
+    const response = await axiosInstance.get('/admin/users', { params })
+    if (response && response.success && response.data) {
       users.value = response.data.data
+      currentPage.value = response.data.current_page
+      lastPage.value = response.data.last_page
+      totalUsers.value = response.data.total
+      perPage.value = response.data.per_page
     }
   } catch (error) {
-    console.error('Error fetching users from API, using mockup data:', error)
+    console.error('Error fetching users from API:', error)
   }
 }
 
@@ -468,23 +444,27 @@ onMounted(() => {
 
 async function toggleUserStatus(user) {
   const previousStatus = user.status
-  user.status = user.status === 'active' ? 'blocked' : 'active'
+  const targetStatus = user.status === 'active' ? 'blocked' : 'active'
+  
+  // Set temporary visual state
+  user.status = targetStatus
   
   try {
     const response = await axiosInstance.put(`/admin/users/${user.id}/status`, {
-      status: user.status
+      status: targetStatus
     })
-    if (response && response.data && response.data.success) {
-      // API call succeeded
+    if (response && response.success) {
+      if (targetStatus === 'active') {
+        showToast(`Đã mở khóa hoạt động tài khoản: ${user.name}! 🟢`, '👥')
+      } else {
+        showToast(`Đã khóa quyền truy cập của: ${user.name}! 🔴`, '🔒')
+      }
+    } else {
+      user.status = previousStatus
     }
   } catch (error) {
-    console.warn('Backend API update failed, local status updated successfully.')
-  }
-
-  if (user.status === 'active') {
-    showToast(`Đã mở khóa hoạt động tài khoản: ${user.name}! 🟢`, '👥')
-  } else {
-    showToast(`Đã khóa quyền truy cập của: ${user.name}! 🔴`, '🔒')
+    user.status = previousStatus
+    console.error('Error toggling user status:', error)
   }
 }
 
@@ -514,76 +494,41 @@ function closeModal() {
 
 async function saveUser() {
   if (isEditMode.value) {
-    // Update local role
-    const idx = users.value.findIndex(u => u.id === formUser.value.id)
-    if (idx > -1) {
-      users.value[idx].role = formUser.value.role
-    }
-
     try {
-      await axiosInstance.put(`/admin/users/${formUser.value.id}`, {
+      const response = await axiosInstance.put(`/admin/users/${formUser.value.id}`, {
         role: formUser.value.role
       })
+      if (response && response.success) {
+        showToast(`Đã thay đổi quyền hạn của ${formUser.value.name} thành ${formUser.value.role}! ✨`, '👥')
+        fetchUsers()
+        modalOpen.value = false
+      }
     } catch (e) {
-      console.warn('Backend API not ready for users editing, updated locally.')
+      console.error('Error updating user role:', e)
     }
-
-    showToast(`Đã thay đổi quyền hạn của ${formUser.value.name} thành ${formUser.value.role}! ✨`, '👥')
   } else {
-    // Check duplication
-    const exist = users.value.find(u => u.email.toLowerCase() === formUser.value.email.toLowerCase())
-    if (exist) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Trùng địa chỉ email!',
-        text: 'Thành viên sử dụng email này đã tồn tại.',
-        confirmButtonColor: '#FF4D00'
-      })
-      return
-    }
-
-    const newId = 'MEM-' + Math.floor(1000 + Math.random() * 9000)
-    const today = new Date()
-    const dd = String(today.getDate()).padStart(2, '0')
-    const mm = String(today.getMonth() + 1).padStart(2, '0')
-    const yyyy = today.getFullYear()
-    const registeredDate = `${dd}/${mm}/${yyyy}`
-
-    const newUser = {
-      id: newId,
-      name: formUser.value.name,
-      email: formUser.value.email,
-      phone: formUser.value.phone,
-      role: formUser.value.role,
-      registeredDate: registeredDate,
-      ordersCount: 0,
-      totalSpent: 0,
-      status: 'active'
-    }
-
-    users.value.unshift(newUser)
-
     try {
-      await axiosInstance.post('/admin/users', {
+      const response = await axiosInstance.post('/admin/users', {
         name: formUser.value.name,
         email: formUser.value.email,
         phone: formUser.value.phone,
         role: formUser.value.role,
         password: formUser.value.password
       })
+      if (response && response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Tạo tài khoản thành công!',
+          text: `Thành viên mới ${formUser.value.name} đã được đăng ký.`,
+          confirmButtonColor: '#FF4D00'
+        })
+        fetchUsers()
+        modalOpen.value = false
+      }
     } catch (e) {
-      console.warn('Backend API not ready for creating users, created locally.')
+      console.error('Error creating user:', e)
     }
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Tạo tài khoản thành công!',
-      text: `Thành viên mới ${formUser.value.name} đã được đăng ký.`,
-      confirmButtonColor: '#FF4D00'
-    })
   }
-
-  modalOpen.value = false
 }
 
 async function deleteUser(id) {
@@ -601,20 +546,20 @@ async function deleteUser(id) {
     cancelButtonText: 'Hủy'
   }).then(async (result) => {
     if (result.isConfirmed) {
-      users.value = users.value.filter(u => u.id !== id)
-
       try {
-        await axiosInstance.delete(`/admin/users/${id}`)
+        const response = await axiosInstance.delete(`/admin/users/${id}`)
+        if (response && response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa!',
+            text: 'Thành viên đã bị gỡ bỏ khỏi hệ thống.',
+            confirmButtonColor: '#FF4D00'
+          })
+          fetchUsers()
+        }
       } catch (e) {
-        console.warn('Backend API not ready for deleting users, deleted locally.')
+        console.error('Error deleting user:', e)
       }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Thành viên đã bị gỡ bỏ khỏi hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
     }
   })
 }

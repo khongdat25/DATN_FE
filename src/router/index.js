@@ -163,6 +163,12 @@ const routes = [
         component: () => import('../views/admin/ReviewsView.vue'),
         name: 'admin-reviews',
         meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/contacts',
+        component: () => import('../views/admin/ContactsView.vue'),
+        name: 'admin-contacts',
+        meta: { requiresAuth: true, requiresAdmin: true }
     }
 ];
 

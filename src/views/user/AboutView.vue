@@ -18,7 +18,7 @@
         </h1>
         
         <p class="text-base sm:text-lg text-text-muted max-w-2xl mx-auto leading-relaxed font-medium">
-          SaigonShoes không chỉ là một cửa hàng giày dép, chúng tôi là người đồng hành cùng bạn trên mọi nẻo đường, mang lại sự tự tin, phong cách và sự êm ái tuyệt đối.
+          SaigonShoes không chỉ là một cửa hàng giày, chúng tôi là người đồng hành cùng bạn trên mọi nẻo đường, mang lại sự tự tin, phong cách và sự êm ái tuyệt đối.
         </p>
       </div>
     </section>
@@ -33,7 +33,7 @@
             <span class="text-xs uppercase font-bold tracking-[2px] text-accent block">Câu chuyện thương hiệu</span>
             <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-text leading-tight">SaigonShoes & Khát Vọng Dẫn Đầu</h2>
             <p class="text-sm sm:text-base text-text-muted leading-relaxed">
-              Được thành lập từ năm 2020 tại trung tâm TP. Hồ Chí Minh nhộn nhịp, SaigonShoes bắt đầu từ niềm đam mê mãnh liệt với văn hóa giày Sneaker và phong cách Streetwear đương đại. Chúng tôi mong muốn tạo nên một điểm đến uy tín, chuyên cung cấp các dòng giày sneaker, dép Crocs và sandal chính hãng với chất lượng dịch vụ chuẩn quốc tế.
+              Được thành lập từ năm 2020 tại trung tâm TP. Hồ Chí Minh nhộn nhịp, SaigonShoes bắt đầu từ niềm đam mê mãnh liệt với văn hóa giày Sneaker và phong cách Streetwear đương đại. Chúng tôi mong muốn tạo nên một điểm đến uy tín, chuyên cung cấp các dòng giày sneaker chính hãng với chất lượng dịch vụ chuẩn quốc tế.
             </p>
             <p class="text-sm sm:text-base text-text-muted leading-relaxed">
               Mỗi sản phẩm tại SaigonShoes đều được tuyển chọn kỹ lưỡng, đảm bảo tính thẩm mỹ, độ bền bỉ và độ êm ái cao nhất cho đôi chân của người Việt. Hành trình của chúng tôi là không ngừng cải tiến và cập nhật xu hướng thế giới, giúp bạn tự tin "bước đi" và khẳng định phong cách cá nhân độc bản.
@@ -134,7 +134,7 @@ const values = [
   {
     icon: 'ti ti-shield-check',
     title: 'Cam kết Chính Hãng',
-    desc: 'Cam kết 100% sản phẩm là hàng chính hãng từ các thương hiệu hàng đầu thế giới như Nike, Adidas, Crocs, Puma...'
+    desc: 'Cam kết 100% sản phẩm là hàng chính hãng từ các thương hiệu giày hàng đầu thế giới như Nike, Adidas, Puma...'
   },
   {
     icon: 'ti ti-truck-delivery',

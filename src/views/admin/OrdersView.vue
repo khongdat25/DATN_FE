@@ -135,11 +135,11 @@
                   <td class="py-4 px-6 text-xs font-bold text-slate-900 text-left">{{ formatCurrency(order.total) }}</td>
                   <td class="py-4 px-6 text-left">
                     <div class="flex flex-col gap-1 items-start">
-                      <span :class="['inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full', getStatusBadgeClass(order.status)]">
+                      <span :class="['inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap', getStatusBadgeClass(order.status)]">
                         <span :class="['w-1.5 h-1.5 rounded-full', getStatusBulletClass(order.status)]"></span>
                         {{ getStatusText(order.status) }}
                       </span>
-                      <span :class="['inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full', getPaymentStatusBadgeClass(order.payment_status)]">
+                      <span :class="['inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap', getPaymentStatusBadgeClass(order.payment_status)]">
                         {{ getPaymentStatusText(order.payment_status) }}
                       </span>
                     </div>

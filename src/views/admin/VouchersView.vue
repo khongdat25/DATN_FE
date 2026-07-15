@@ -135,19 +135,19 @@
                 <td class="py-4 px-6 text-left">
                   <span 
                     v-if="v.status === 'active'"
-                    class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                   >
                     <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Đang hoạt động
                   </span>
                   <span 
                     v-else-if="v.status === 'upcoming'"
-                    class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                   >
                     <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Sắp diễn ra
                   </span>
                   <span 
                     v-else
-                    class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                   >
                     <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span> Đã hết lượt
                   </span>
@@ -168,9 +168,9 @@
                   <div class="flex items-center gap-2 justify-end">
                     <button 
                       @click="openEditModal(v)"
-                      class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
+                      class="whitespace-nowrap px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
                     >
-                      <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                      Chỉnh sửa
                     </button>
                     <button 
                       @click="deleteVoucher(v.code)" 

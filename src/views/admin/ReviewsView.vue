@@ -155,19 +155,19 @@
             <div class="ml-auto">
               <span 
                 v-if="rev.status === 'replied'" 
-                class="inline-flex items-center gap-1 py-1 px-3 rounded-full text-[10px] font-bold bg-green-50 text-green-600 border border-green-100"
+                class="inline-flex items-center gap-1 py-1 px-3 rounded-full text-[10px] font-bold bg-green-50 text-green-600 border border-green-100 whitespace-nowrap"
               >
                 <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Đã phản hồi
               </span>
               <span 
                 v-else-if="rev.status === 'pending'" 
-                class="inline-flex items-center gap-1 py-1 px-3 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100"
+                class="inline-flex items-center gap-1 py-1 px-3 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100 whitespace-nowrap"
               >
                 <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping shrink-0"></span>Chờ phản hồi
               </span>
               <span 
                 v-else 
-                class="inline-flex items-center gap-1 py-1 px-3 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200"
+                class="inline-flex items-center gap-1 py-1 px-3 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 whitespace-nowrap"
               >
                 <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>Đã ẩn bình luận
               </span>

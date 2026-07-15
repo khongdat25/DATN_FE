@@ -223,7 +223,7 @@
                 <td class="py-4 px-6 text-xs text-slate-500 font-medium">{{ order.date }}</td>
                 <td class="py-4 px-6 text-xs font-bold text-slate-900">{{ formatCurrency(order.total) }}</td>
                 <td class="py-4 px-6">
-                  <span :class="['inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full', order.statusClass]">
+                  <span :class="['inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap', order.statusClass]">
                     <span :class="['w-1.5 h-1.5 rounded-full', order.bulletClass]"></span> {{ order.statusText }}
                   </span>
                 </td>

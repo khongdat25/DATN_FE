@@ -102,13 +102,13 @@
                   <td class="py-4 px-6 text-left">
                     <span 
                       v-if="getTotalStock(product) > 0"
-                      class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                     >
                       <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Đang bán
                     </span>
                     <span 
                       v-else
-                      class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                     >
                       <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span> Hết hàng
                     </span>
@@ -117,9 +117,9 @@
                     <div class="flex items-center gap-2 justify-end">
                       <button 
                         @click="openEditModal(product)" 
-                        class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
+                        class="whitespace-nowrap px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
                       >
-                        <i class="ti ti-edit text-xs"></i> Chỉnh sửa
+                        Chỉnh sửa
                       </button>
                       <button 
                         @click="deleteProduct(product.id)" 
