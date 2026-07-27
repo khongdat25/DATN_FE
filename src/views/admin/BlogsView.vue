@@ -4,7 +4,7 @@
       <!-- Page Header Title & Button -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="text-left">
-          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-wide">Quản lý Bài viết (Blog / Tin tức) 📰</h1>
+          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-wide">Quản lý Bài viết (Blog / Tin tức)</h1>
           <p class="text-xs text-slate-400 mt-0.5">Quản lý và xuất bản các tin tức xu hướng, hướng dẫn vệ sinh và các chiến dịch của SaigonShoes.</p>
         </div>
         <button @click="openAddModal" class="inline-flex items-center gap-2 bg-accent text-white px-5 py-3 rounded-xl text-sm font-semibold tracking-wide hover:bg-accent-hover transition-all active:scale-[0.98] shadow-lg shadow-accent/20 cursor-pointer w-fit text-left border-none">
@@ -116,7 +116,7 @@
                 :key="post.id" 
                 class="hover:bg-slate-50/75 transition-colors border-b border-slate-100 text-slate-600 font-medium"
               >
-                <td class="py-4 px-6 font-semibold text-slate-800 max-w-[280px]">
+                <td class="py-4 px-6 font-semibold text-slate-800 max-w-70">
                   <div class="flex items-center gap-3">
                     <div class="h-12 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
                       <img :src="getImageUrl(post.image)" alt="Thumb" class="h-full w-full object-cover">
@@ -179,7 +179,7 @@
       <div @click="closeModal" class="absolute inset-0 bg-black/40 backdrop-blur-xs"></div>
       
       <!-- Modal content -->
-      <div class="bg-white rounded-3xl w-full max-w-[640px] shadow-2xl border border-slate-100 z-10 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-white rounded-3xl w-full max-w-160 shadow-2xl border border-slate-100 z-10 overflow-hidden flex flex-col max-h-[90vh]">
         <header class="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
           <h3 class="font-display text-lg font-bold text-slate-900 tracking-wide">
             {{ isEditMode ? 'Chỉnh sửa bài viết 📝' : 'Viết bài mới 📝' }}

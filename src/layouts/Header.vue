@@ -3,7 +3,7 @@
   <div class="bg-accent text-center py-[9px] px-5 text-xs tracking-[2px] uppercase font-medium text-white [&>span]:mx-4">
     <span>🚀 FREE SHIP đơn từ 500K</span>
     <span>|</span>
-    <span>⚡ FLASH SALE mỗi ngày 12H–14H</span>
+    <span>FLASH SALE mỗi ngày 12H–14H</span>
     <span>|</span>
     <span>🎁 Tặng quà khi mua từ 1 triệu</span>
   </div>
@@ -51,7 +51,7 @@
                 <!-- Xem tất cả card -->
                 <div class="flex flex-col justify-between p-4 bg-linear-to-br from-accent/5 to-accent/10 border border-accent/15 rounded-2xl hover:shadow-md transition-all duration-300 text-left">
                   <div>
-                    <h4 class="text-[12px] font-bold text-accent font-display tracking-widest uppercase mb-1 flex items-center gap-1"><i class="ti ti-sparkles"></i> SaigonShoes</h4>
+                    <h4 class="text-[12px] font-bold text-accent font-display tracking-widest uppercase mb-1 flex items-center gap-1">SaigonShoes</h4>
                     <p class="text-[11px] text-text-muted leading-relaxed">Xem đầy đủ bộ sưu tập hơn 100+ mẫu giày hot trends nhất từ các hãng</p>
                   </div>
                   <router-link to="/products" class="inline-flex items-center gap-1.5 text-[12px] font-bold text-accent hover:underline group/btn mt-3 select-none">
@@ -182,7 +182,10 @@
           <div class="relative group h-full flex items-center ml-1">
             <template v-if="isLoggedIn">
               <button class="flex items-center gap-1.5 py-1.5 px-3 bg-surface2 border border-border rounded-xl text-xs font-semibold text-text-muted transition-all duration-300 hover:text-accent hover:border-accent hover:bg-bg cursor-pointer shadow-sm active:scale-95">
-                <i class="ti ti-user text-sm"></i>
+                <div v-if="userAvatar" class="w-5 h-5 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
+                  <img :src="getImageUrl(userAvatar)" alt="Avatar" class="w-full h-full object-cover">
+                </div>
+                <i v-else class="ti ti-user text-sm"></i>
                 <span class="max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">{{ userName }}</span>
                 <i class="ti ti-chevron-down text-[10px]"></i>
               </button>
@@ -317,7 +320,7 @@ const notifications = ref([
   {
     id: 3, type: 'promo', read: false,
     icon: 'ti-discount-2', iconBg: 'bg-[rgba(255,77,0,0.08)]', iconColor: 'text-accent',
-    title: '⚡ Flash Sale 12H–14H hôm nay!',
+    title: 'Flash Sale 12H–14H hôm nay!',
     body: 'Giảm đến 40% hàng trăm mẫu giày hot. Số lượng có hạn, nhanh tay!',
     time: '30 phút trước'
   },
@@ -377,12 +380,25 @@ function onClickOutside(e) {
   }
 }
 
-onMounted(() => document.addEventListener('click', onClickOutside))
-onUnmounted(() => document.removeEventListener('click', onClickOutside))
-
 const isLoggedIn = ref(false)
 const userName = ref('')
+const userAvatar = ref('')
 const isAdmin = ref(false)
+
+function getImageUrl(imagePath) {
+  if (!imagePath) return ''
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
 
 function checkAuth() {
   const token = localStorage.getItem('access_token')
@@ -394,6 +410,7 @@ function checkAuth() {
       if (userStr) {
         const user = JSON.parse(userStr)
         userName.value = user.name || 'Thành viên'
+        userAvatar.value = user.avatar || ''
         isAdmin.value = user && user.role === 'admin'
       } else {
         userName.value = 'Thành viên'
@@ -405,8 +422,17 @@ function checkAuth() {
 }
 
 onMounted(() => {
+  document.addEventListener('click', onClickOutside)
   checkAuth()
   fetchBrands()
+  window.addEventListener('user-profile-updated', checkAuth)
+  window.addEventListener('storage', checkAuth)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', onClickOutside)
+  window.removeEventListener('user-profile-updated', checkAuth)
+  window.removeEventListener('storage', checkAuth)
 })
 
 async function handleLogout() {

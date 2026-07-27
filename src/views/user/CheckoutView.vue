@@ -2,7 +2,7 @@
   
     <!-- Page Header / Breadcrumb -->
     <div class="bg-white border-b border-border py-8">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         <h1 class="font-display text-3xl font-extrabold text-text tracking-wide">THANH TOÁN</h1>
         <div class="flex items-center gap-2 text-xs text-text-dim mt-2 font-semibold">
           <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
@@ -15,8 +15,8 @@
     </div>
 
     <!-- Main Content -->
-    <main class="py-12 bg-[#f9f9f9] min-h-[600px]">
-      <div class="max-w-[1200px] mx-auto px-5">
+    <main class="py-12 bg-[#f9f9f9] min-h-150">
+      <div class="max-w-300 mx-auto px-5">
         <form @submit.prevent="handlePlaceOrder" class="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
 
           <!-- ── Left Column ── -->
@@ -74,7 +74,7 @@
                     <!-- Qty badge -->
                     <span class="text-sm font-semibold text-text-muted bg-surface2 px-3 py-1 rounded-full">x{{ item.qty }}</span>
                     <!-- Price -->
-                    <span class="font-display font-bold text-base text-text min-w-[90px] text-right">{{ formatPrice(item.price * item.qty) }}</span>
+                    <span class="font-display font-bold text-base text-text min-w-22.5 text-right">{{ formatPrice(item.price * item.qty) }}</span>
                   </div>
                 </div>
               </div>
@@ -169,7 +169,7 @@
 
           <!-- ── Right Column: Order Summary ── -->
           <div>
-            <div class="bg-white border border-border rounded-2xl p-8 shadow-sm sticky top-[100px]">
+            <div class="bg-white border border-border rounded-2xl p-8 shadow-sm sticky top-25">
               <h2 class="font-display text-xl font-bold text-text mb-6">Tóm tắt đơn hàng</h2>
 
               <!-- Voucher section -->
@@ -216,7 +216,7 @@
                     </span>
                     <i class="ti ti-chevron-down text-xs text-text-muted transition-transform duration-300" :class="{ 'rotate-180': voucherOpen }"></i>
                   </div>
-                  <div v-show="voucherOpen" class="bg-white max-h-[250px] overflow-y-auto divide-y divide-border border-t border-border">
+                  <div v-show="voucherOpen" class="bg-white max-h-62.5 overflow-y-auto divide-y divide-border border-t border-border">
                     <div
                       v-for="voucher in availableVouchers"
                       :key="voucher.code"
@@ -296,7 +296,7 @@
           class="fixed inset-0 bg-black/40 backdrop-blur-[6px] flex items-center justify-center z-1000 px-4"
           @click.self="showAddressModal = false"
         >
-          <div class="bg-white rounded-2xl w-full max-w-[550px] shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden">
+          <div class="bg-white rounded-2xl w-full max-w-137.5 shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden">
             <!-- Modal Header -->
             <div class="flex items-center justify-between px-8 py-5 border-b border-border">
               <h3 class="font-display text-xl font-bold text-text">Chọn địa chỉ nhận hàng</h3>
@@ -306,7 +306,7 @@
             </div>
 
             <!-- Saved Address List -->
-            <div class="p-8 max-h-[380px] overflow-y-auto flex flex-col gap-4">
+            <div class="p-8 max-h-95 overflow-y-auto flex flex-col gap-4">
               <div
                 v-for="addr in savedAddresses"
                 :key="addr.id"
@@ -321,7 +321,7 @@
                 <input
                   type="radio"
                   :checked="tempSelectedId === addr.id"
-                  class="w-[18px] h-[18px] mt-1 accent-accent cursor-pointer shrink-0"
+                  class="w-4.5 h-4.5 mt-1 accent-accent cursor-pointer shrink-0"
                 >
                 <div class="flex-1">
                   <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
@@ -772,8 +772,17 @@ async function handlePlaceOrder() {
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
 onMounted(async () => {
   // Handle redirect from PayOS cancel
-  if (route.query.status === 'cancelled' && route.query.order_id) {
-    const orderId = route.query.order_id
+  const isCancelled = route.query.payment_cancel === '1'
+    || route.query.cancel === 'true'
+    || (route.query.status && (
+         route.query.status === 'cancelled' ||
+         route.query.status === 'CANCELLED' ||
+         (Array.isArray(route.query.status) && route.query.status.some(s => String(s).toLowerCase() === 'cancelled'))
+       ))
+  const cancelOrderId = route.query.order_id || route.query.orderCode
+
+  if (isCancelled && cancelOrderId) {
+    const orderId = cancelOrderId
     Swal.fire({
       title: 'Đang hủy giao dịch...',
       text: 'Vui lòng chờ trong giây lát.',
@@ -781,15 +790,20 @@ onMounted(async () => {
       didOpen: () => Swal.showLoading()
     })
     try {
-      // 1. Call Backend to delete the order and restore cart
-      await axiosInstance.delete(`/user/orders/${orderId}`)
+      // 1. Call Backend to update order status to 'cancelled' and restore cart
+      await axiosInstance.post(`/user/orders/${orderId}/cancel`, { restore_cart: true })
 
-      // 2. Remove from local orders in localStorage
+      // 2. Update status to 'cancelled' in local orders in localStorage
       const localOrders = localStorage.getItem('saigon_orders')
       if (localOrders) {
         try {
           let ordersList = JSON.parse(localOrders) || []
-          ordersList = ordersList.filter(o => o.orderId !== 'SGS-' + orderId)
+          ordersList = ordersList.map(o => {
+            if (o.orderId === 'SGS-' + orderId || o.id == orderId) {
+              o.status = 'cancelled'
+            }
+            return o
+          })
           localStorage.setItem('saigon_orders', JSON.stringify(ordersList))
         } catch (e) {
           console.error(e)
@@ -799,8 +813,8 @@ onMounted(async () => {
       Swal.close()
       Swal.fire({
         icon: 'info',
-        title: 'Đã hủy thanh toán',
-        text: 'Đơn hàng đã được hủy bỏ thành công. Các sản phẩm đã được khôi phục về giỏ hàng của bạn.',
+        title: 'Đơn hàng đã hủy',
+        text: 'Đơn hàng đã hủy và hàng đó sẽ về giỏ hàng của bạn.',
         confirmButtonText: 'Quay lại Giỏ hàng 🛒',
         confirmButtonColor: '#FF4D00'
       }).then(() => {

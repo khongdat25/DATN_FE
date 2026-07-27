@@ -4,7 +4,7 @@
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="text-left">
-          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Quản lý Khách hàng 👥</h1>
+          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Quản lý Khách hàng</h1>
           <p class="text-sm text-slate-500 mt-1">Quản lý danh sách người dùng đăng ký tài khoản, giám sát đơn mua hàng và kiểm soát quyền hoạt động.</p>
         </div>
         <div>
@@ -150,7 +150,7 @@
                       @change="toggleUserStatus(user)" 
                       class="sr-only peer"
                     >
-                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
                   </label>
                 </td>
                 <td class="py-4 px-6 text-right">
@@ -499,7 +499,7 @@ async function saveUser() {
         role: formUser.value.role
       })
       if (response && response.success) {
-        showToast(`Đã thay đổi quyền hạn của ${formUser.value.name} thành ${formUser.value.role}! ✨`, '👥')
+        showToast(`Đã thay đổi quyền hạn của ${formUser.value.name} thành ${formUser.value.role}!`, '👥')
         fetchUsers()
         modalOpen.value = false
       }

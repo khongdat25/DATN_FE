@@ -4,7 +4,7 @@
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="text-left">
-          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Danh sách Sản phẩm 👟</h1>
+          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Danh sách Sản phẩm</h1>
           <p class="text-sm text-slate-500 mt-1">Quản lý kho sản phẩm, thiết lập giá bán và kiểm soát biến thể kích cỡ chi tiết.</p>
         </div>
         <div>
@@ -209,7 +209,7 @@
         <!-- Modal Header -->
         <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 class="font-display text-lg font-bold text-slate-950">{{ isEditMode ? 'Chỉnh sửa sản phẩm ✏️' : 'Thêm sản phẩm mới 🆕' }}</h3>
+            <h3 class="font-display text-lg font-bold text-slate-950">{{ isEditMode ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới' }}</h3>
             <p class="text-xs text-slate-400 mt-0.5">Nhập các thông tin cơ bản và thiết lập các biến thể kích cỡ.</p>
           </div>
           <button @click="closeModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">

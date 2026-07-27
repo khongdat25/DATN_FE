@@ -1,7 +1,7 @@
 <template>
   
     <main class="py-12 bg-bg">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         
         <!-- Main Two-Column Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -32,7 +32,7 @@
             </div>
 
             <!-- Main Feature Image -->
-            <div class="border border-border bg-surface3 rounded-3xl h-[280px] sm:h-[400px] flex items-center justify-center overflow-hidden shadow-sm relative shrink-0">
+            <div class="border border-border bg-surface3 rounded-3xl h-70 sm:h-100 flex items-center justify-center overflow-hidden shadow-sm relative shrink-0">
               <img v-if="article.image" :src="getImageUrl(article.image)" alt="Featured" class="w-full h-full object-cover">
               <span v-else class="text-4xl text-text-dim/20 font-display font-extrabold uppercase">{{ article.tag }} Hero Image</span>
             </div>
@@ -52,7 +52,7 @@
               <h2 class="font-display text-xl sm:text-2xl font-bold text-text pt-4">Công nghệ AI trong thiết kế</h2>
               <p>Điểm đặc biệt nhất của bộ sưu tập này chính là việc áp dụng thành công trí tuệ nhân tạo (AI) trong quá trình mô phỏng và thiết kế cấu trúc đế giày. AI đã giúp phân tích hàng triệu dữ liệu cảm biến bước chân thực tế của người dùng để tạo ra hệ thống đệm khí Air tối ưu hoàn hảo nhất từ trước đến nay.</p>
               
-              <div class="border border-border bg-surface3 rounded-2xl h-[200px] sm:h-[300px] flex items-center justify-center text-2xl text-text-dim/20 font-display font-extrabold uppercase overflow-hidden shadow-sm">
+              <div class="border border-border bg-surface3 rounded-2xl h-50 sm:h-75 flex items-center justify-center text-2xl text-text-dim/20 font-display font-extrabold uppercase overflow-hidden shadow-sm">
                 AI Technology Image
               </div>
 

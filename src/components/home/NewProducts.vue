@@ -7,7 +7,7 @@
         <div class="grid grid-cols-3 items-center mb-8 gap-4 max-md:flex max-md:flex-col max-md:items-start max-md:gap-3">
           <!-- Left: Title -->
           <div>
-            <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold leading-tight whitespace-nowrap">SẢN PHẨM MỚI NHẤT ✨</h2>
+            <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold leading-tight whitespace-nowrap">SẢN PHẨM MỚI NHẤT</h2>
           </div>
           <!-- Center: Filters -->
           <div class="flex gap-2 flex-wrap justify-center max-md:justify-start">
@@ -131,7 +131,7 @@ const filteredProducts = computed(() => {
   if (activeFilter.value !== 'all') {
     list = list.filter(p => p.cat === activeFilter.value)
   }
-  return list.slice(0, 5) // Show top 5 newest
+  return list.slice(0, 5) // Hiển thị 5 sản phẩm mới nhất
 })
 </script>
 

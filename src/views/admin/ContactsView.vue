@@ -3,7 +3,7 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="text-left">
-        <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Hộp thư liên hệ 📬</h1>
+        <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Hộp thư liên hệ</h1>
         <p class="text-sm text-slate-500 mt-1">Quản lý các tin nhắn đóng góp ý kiến, phản hồi, thắc mắc từ khách hàng và gửi email trả lời.</p>
       </div>
     </div>

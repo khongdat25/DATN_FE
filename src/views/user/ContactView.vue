@@ -2,7 +2,7 @@
   
     <!-- Breadcrumbs -->
     <div class="bg-surface2 py-4 border-b border-border">
-      <div class="max-w-[1200px] mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
+      <div class="max-w-300 mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
         <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
         <i class="ti ti-chevron-right text-[10px]"></i>
         <span class="text-text font-semibold">Liên hệ</span>
@@ -11,13 +11,13 @@
 
     <!-- Main Content -->
     <main class="py-16 bg-bg">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         
         <!-- Header Title -->
         <div class="text-center mb-16">
           <span class="text-xs uppercase font-bold tracking-[3px] text-accent mb-2 block">Kết nối với chúng tôi</span>
           <h1 class="font-display text-[clamp(28px,4vw,40px)] font-extrabold text-text tracking-wider uppercase">LIÊN HỆ SAIGON<span class="text-accent">SHOES</span></h1>
-          <p class="text-[14px] text-text-muted mt-2 max-w-[600px] mx-auto">Chúng tôi luôn sẵn sàng lắng nghe mọi ý kiến đóng góp, thắc mắc hoặc yêu cầu hỗ trợ từ bạn. Hãy kết nối với chúng tôi ngay hôm nay!</p>
+          <p class="text-[14px] text-text-muted mt-2 max-w-150 mx-auto">Chúng tôi luôn sẵn sàng lắng nghe mọi ý kiến đóng góp, thắc mắc hoặc yêu cầu hỗ trợ từ bạn. Hãy kết nối với chúng tôi ngay hôm nay!</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-16">
@@ -92,7 +92,7 @@
           </div>
 
           <!-- Right: Interactive Contact Form (5 Cols) -->
-          <div class="lg:col-span-5 bg-white border border-border p-8 rounded-2xl shadow-sm sticky top-[95px]">
+          <div class="lg:col-span-5 bg-white border border-border p-8 rounded-2xl shadow-sm sticky top-23.75">
             <h3 class="font-display font-bold text-base text-text uppercase tracking-widest pb-4 border-b border-border mb-6 flex items-center gap-2 text-left">
               <i class="ti ti-message text-accent text-lg"></i> Gửi tin nhắn cho chúng tôi
             </h3>
@@ -174,7 +174,7 @@
 
         <!-- Google Maps Section -->
         <div class="bg-white border border-border rounded-2xl overflow-hidden p-3 shadow-sm">
-          <div class="h-[400px] rounded-xl overflow-hidden relative">
+          <div class="h-100 rounded-xl overflow-hidden relative">
             <iframe 
               src="https://maps.google.com/maps?q=QTSC%209%20Building,%20T%C3%B4%20K%C3%BD,%20Trung%20M%E1%BB%B9%20T%C3%A2y,%20H%E1%BB%93%20Ch%C3%AD%20Minh,%20Vi%E1%BB%87t%20Nam&t=&z=16&ie=UTF8&iwloc=&output=embed" 
               width="100%" 

@@ -4,7 +4,7 @@
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="text-left">
-          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Chiến dịch Flash Sale 🔥</h1>
+          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Chiến dịch Flash Sale</h1>
           <p class="text-sm text-slate-500 mt-1">Lập lịch khung giờ vàng giảm giá kịch sàn đồng bộ trên biến thể sản phẩm.</p>
         </div>
         <div>
@@ -153,7 +153,7 @@
                         @change="toggleCampaignActive(cam)" 
                         class="sr-only peer"
                       >
-                      <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent peer-disabled:opacity-50"></div>
+                      <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent peer-disabled:opacity-50"></div>
                     </label>
                   </td>
                   <td class="py-4 px-6 text-right" @click.stop>
@@ -284,7 +284,7 @@
         <!-- Modal Header -->
         <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div>
-            <h3 class="font-display text-lg font-bold text-slate-950">{{ isEditMode ? 'Chỉnh sửa Chiến dịch ⚡' : 'Tạo Chiến dịch Flash Sale mới ⚡' }}</h3>
+            <h3 class="font-display text-lg font-bold text-slate-950">{{ isEditMode ? 'Chỉnh sửa Chiến dịch' : 'Tạo Chiến dịch Flash Sale mới' }}</h3>
             <p class="text-xs text-slate-400 mt-0.5">Thiết lập khung giờ vàng và chọn các sản phẩm tham gia sale.</p>
           </div>
           <button @click="closeModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">
@@ -500,8 +500,11 @@ async function fetchCampaigns() {
             const minPrice = prod.variants && prod.variants.length > 0 ? Math.min(...prod.variants.map(v => v.price)) : 0
             
             let img = '/images/p1.png'
-            if (prod.image_urls && prod.image_urls.length > 0) {
-              img = prod.image_urls[0]
+            if (prod.images && prod.images.length > 0) {
+              const firstImg = prod.images[0]
+              img = getImageUrl(typeof firstImg === 'string' ? firstImg : (firstImg?.image || ''))
+            } else if (prod.variants && prod.variants.length > 0 && prod.variants[0].image) {
+              img = getImageUrl(prod.variants[0].image)
             }
             
             return {

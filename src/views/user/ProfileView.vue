@@ -21,12 +21,12 @@
           <aside class="bg-white border border-border rounded-2xl p-6 h-fit lg:sticky lg:top-[100px]">
             <!-- User info -->
             <div class="flex items-center gap-4 mb-8 pb-6 border-b border-border">
-              <div class="w-[60px] h-[60px] rounded-full bg-surface2 flex items-center justify-center text-2xl text-text-dim border-2 border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] shrink-0 overflow-hidden">
-                <i class="ti ti-user"></i>
+              <div class="w-[60px] h-[60px] rounded-full bg-surface2 flex items-center justify-center text-2xl text-text-dim border-2 border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] shrink-0 overflow-hidden relative">
+                <img v-if="user.avatar" :src="getImageUrl(user.avatar)" alt="Avatar" class="w-full h-full object-cover">
+                <i v-else class="ti ti-user"></i>
               </div>
               <div>
                 <h3 class="font-display font-bold text-[16px] text-text leading-snug">{{ user.name || 'Khách hàng' }}</h3>
-                <p class="text-[13px] text-text-dim">Thành viên Bạc</p>
               </div>
             </div>
 
@@ -69,6 +69,98 @@
                 </div>
 
                 <form @submit.prevent="handleSaveProfile">
+                  <!-- Avatar Upload Section -->
+                  <div class="mb-8 p-6 bg-surface2/40 border border-border rounded-2xl flex flex-col sm:flex-row items-center gap-6">
+                    <!-- Avatar Preview Circle -->
+                    <div class="relative group shrink-0">
+                      <div class="w-24 h-24 rounded-full border-4 border-white shadow-md bg-white overflow-hidden flex items-center justify-center text-4xl text-text-dim relative">
+                        <img v-if="user.avatar" :src="getImageUrl(user.avatar)" alt="Avatar preview" class="w-full h-full object-cover">
+                        <i v-else class="ti ti-user"></i>
+                        <!-- Loading Overlay -->
+                        <div v-if="isUploadingAvatar" class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white text-xs gap-1 backdrop-blur-xs">
+                          <i class="ti ti-loader animate-spin text-xl"></i>
+                          <span>Đang tải...</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Avatar Controls -->
+                    <div class="flex-1 w-full space-y-3 text-left">
+                      <div class="flex items-center justify-between flex-wrap gap-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-text-muted">Ảnh đại diện</label>
+                        <!-- Mode Toggle Buttons -->
+                        <div class="flex bg-surface border border-border rounded-xl p-1 gap-1">
+                          <button
+                            type="button"
+                            @click="avatarMode = 'upload'"
+                            :class="['px-3 py-1 text-xs font-bold rounded-lg transition-all border-none cursor-pointer', avatarMode === 'upload' ? 'bg-accent text-white shadow-xs' : 'text-text-muted hover:text-text']"
+                          >
+                            <i class="ti ti-upload mr-1"></i> Tải từ máy
+                          </button>
+                          <button
+                            type="button"
+                            @click="avatarMode = 'url'"
+                            :class="['px-3 py-1 text-xs font-bold rounded-lg transition-all border-none cursor-pointer', avatarMode === 'url' ? 'bg-accent text-white shadow-xs' : 'text-text-muted hover:text-text']"
+                          >
+                            <i class="ti ti-link mr-1"></i> Link URL
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Mode 1: File Upload -->
+                      <div v-if="avatarMode === 'upload'" class="flex items-center gap-3 flex-wrap">
+                        <input
+                          type="file"
+                          ref="fileInputRef"
+                          accept="image/*"
+                          class="hidden"
+                          @change="handleAvatarFileUpload"
+                        />
+                        <button
+                          type="button"
+                          @click="$refs.fileInputRef.click()"
+                          :disabled="isUploadingAvatar"
+                          class="flex items-center gap-2 px-4 py-2.5 bg-white border border-border hover:border-accent hover:text-accent font-bold text-xs rounded-xl shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          <i class="ti ti-cloud-upload text-base"></i> Chọn ảnh từ máy tính
+                        </button>
+                        <button
+                          v-if="user.avatar"
+                          type="button"
+                          @click="removeAvatar"
+                          class="px-3 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all cursor-pointer border-none bg-transparent"
+                        >
+                          Xóa ảnh
+                        </button>
+                        <span class="text-[11px] text-text-dim">PNG, JPG, WEBP tối đa 2MB</span>
+                      </div>
+
+                      <!-- Mode 2: Image URL input -->
+                      <div v-else class="flex items-center gap-2">
+                        <input
+                          type="url"
+                          v-model="avatarUrlInput"
+                          placeholder="Dán đường dẫn URL ảnh (https://...)"
+                          class="flex-1 py-2.5 px-3.5 border border-border rounded-xl bg-white text-xs outline-none focus:border-accent transition-all font-medium"
+                        />
+                        <button
+                          type="button"
+                          @click="applyAvatarUrl"
+                          class="px-4 py-2.5 bg-accent text-white font-bold text-xs rounded-xl shadow-2xs hover:bg-accent-hover transition-all cursor-pointer border-none whitespace-nowrap"
+                        >
+                          Áp dụng
+                        </button>
+                        <button
+                          v-if="user.avatar"
+                          type="button"
+                          @click="removeAvatar"
+                          class="px-3 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all cursor-pointer border-none bg-transparent"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                     <div>
                       <label class="block text-[13px] font-semibold text-text-muted mb-2">Họ và tên</label>
@@ -154,11 +246,12 @@
                         </button>
                         <!-- Hủy đơn hàng -->
                         <button 
-                          v-if="['new', 'pending'].includes(order.status)"
-                          @click="cancelOrder(order.id, order.orderId)"
-                          class="bg-white border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 font-semibold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+                          v-if="['new', 'pending', 'processing', 'created'].includes(order.status)"
+                          @click="openCancelModal(order)"
+                          class="bg-white border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 font-semibold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer shadow-2xs flex items-center gap-1.5"
                         >
-                          Hủy đơn hàng
+                          <i class="ti ti-x text-sm"></i>
+                          <span>Hủy đơn hàng</span>
                         </button>
                         <!-- Đặt lại -->
                         <button 
@@ -184,78 +277,6 @@
                     class="inline-flex items-center gap-2 bg-text text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-accent transition-colors active:scale-95">
                     Khám phá cửa hàng <i class="ti ti-arrow-right"></i>
                   </router-link>
-                </div>
-              </div>
-
-              <!-- ③ Thành viên & Ưu đãi -->
-              <div v-else-if="activeTab === 'membership'" key="membership" class="bg-white border border-border rounded-2xl p-10 shadow-sm">
-                <div class="mb-8 pb-5 border-b border-border">
-                  <h2 class="font-display text-2xl font-bold text-text mb-1">Thành viên SaigonShoes</h2>
-                  <p class="text-sm text-text-dim">Tích lũy điểm để nâng hạng và nhận ưu đãi độc quyền</p>
-                </div>
-
-                <!-- Rank Card -->
-                <div class="relative rounded-2xl p-8 text-white overflow-hidden mb-8"
-                  style="background: linear-gradient(135deg,#1a1a1a 0%,#333 100%);">
-                  <!-- Glow blob -->
-                  <div class="absolute -top-1/2 -right-1/5 w-[300px] h-[300px] bg-[rgba(255,77,0,0.1)] blur-[80px] rounded-full pointer-events-none"></div>
-
-                  <div class="flex justify-between items-start relative z-10">
-                    <div>
-                      <span class="text-[12px] uppercase tracking-[2px] text-white/60">Hạng hiện tại</span>
-                      <div class="font-display text-[28px] font-extrabold text-[#FFD700] mt-1">SILVER MEMBER</div>
-                    </div>
-                    <i class="ti ti-award text-[40px] text-[#C0C0C0]"></i>
-                  </div>
-
-                  <div class="flex justify-between items-end mt-10 relative z-10">
-                    <div>
-                      <div class="font-display text-[32px] font-extrabold leading-none">
-                        1,250 <span class="text-sm font-medium text-white/60">điểm</span>
-                      </div>
-                      <div class="text-xs text-white/60 mt-1">Bạn cần thêm 750 điểm để lên hạng Vàng</div>
-                    </div>
-                  </div>
-                  <div class="mt-3 relative z-10">
-                    <div class="h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div class="h-full w-[65%] bg-accent rounded-full transition-all duration-700"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Benefits -->
-                <h3 class="font-display text-lg font-bold text-text mb-5">Đặc quyền của bạn</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
-                  <div v-for="b in benefits" :key="b.title" class="flex flex-col gap-3 p-5 border border-border rounded-2xl">
-                    <div class="w-10 h-10 bg-surface2 rounded-[10px] flex items-center justify-center text-xl text-accent">
-                      <i :class="'ti ' + b.icon"></i>
-                    </div>
-                    <h4 class="text-sm font-bold text-text">{{ b.title }}</h4>
-                    <p class="text-xs text-text-dim">{{ b.desc }}</p>
-                  </div>
-                </div>
-
-                <!-- Rank table -->
-                <h3 class="font-display text-lg font-bold text-text mb-5">Các cấp bậc thành viên</h3>
-                <div class="overflow-x-auto">
-                  <table class="w-full border-collapse">
-                    <thead>
-                      <tr>
-                        <th class="text-left py-3 px-3 border-b-2 border-border text-[13px] text-text-dim font-semibold">Hạng</th>
-                        <th class="text-left py-3 px-3 border-b-2 border-border text-[13px] text-text-dim font-semibold">Điều kiện (Điểm)</th>
-                        <th class="text-left py-3 px-3 border-b-2 border-border text-[13px] text-text-dim font-semibold">Ưu đãi chính</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="rank in rankLevels" :key="rank.name" class="border-b border-border last:border-b-0">
-                        <td class="py-4 px-3">
-                          <span class="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase" :style="rank.style">{{ rank.name }}</span>
-                        </td>
-                        <td class="py-4 px-3 text-sm text-text">{{ rank.points }}</td>
-                        <td class="py-4 px-3 text-sm text-text">{{ rank.benefit }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
                 </div>
               </div>
 
@@ -376,16 +397,266 @@
                 </form>
               </div>
             </transition>
-
           </div>
         </div>
       </div>
     </main>
-  
+
+    <!-- Avatar Cropper Modal (Kiểu Facebook) -->
+    <div v-if="cropperModalOpen" class="fixed inset-0 z-500 flex items-center justify-center p-4 animate-fade-in-quick">
+      <div @click="closeCropperModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"></div>
+
+      <div class="bg-white rounded-3xl border border-border shadow-2xl w-full max-w-md overflow-hidden z-10 text-left flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-border flex items-center justify-between">
+          <div>
+            <h3 class="font-display text-lg font-bold text-text">Căn chỉnh ảnh đại diện</h3>
+            <p class="text-xs text-text-dim mt-0.5">Kéo rê để di chuyển và điều chỉnh kích thước ảnh</p>
+          </div>
+          <button type="button" @click="closeCropperModal" class="text-text-dim hover:text-text p-1.5 rounded-lg hover:bg-surface2 cursor-pointer border-none bg-transparent">
+            <i class="ti ti-x text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Canvas Cropper Area -->
+        <div class="p-6 flex flex-col items-center bg-surface2/30 select-none">
+          <!-- Circle Viewport Container -->
+          <div 
+            class="w-[260px] h-[260px] rounded-full border-4 border-accent shadow-xl overflow-hidden relative cursor-grab active:cursor-grabbing bg-slate-900 touch-none flex items-center justify-center"
+            @mousedown="startDrag"
+            @mousemove="onDrag"
+            @mouseup="stopDrag"
+            @mouseleave="stopDrag"
+            @touchstart.passive="startDragTouch"
+            @touchmove.prevent="onDragTouch"
+            @touchend="stopDrag"
+          >
+            <canvas ref="cropCanvasRef" width="300" height="300" class="pointer-events-none w-full h-full"></canvas>
+          </div>
+
+          <!-- Controls: Zoom & Rotate -->
+          <div class="w-full max-w-xs mt-6 space-y-4">
+            <!-- Zoom Slider -->
+            <div class="flex items-center gap-3">
+              <i class="ti ti-zoom-out text-text-dim text-sm"></i>
+              <input
+                type="range"
+                min="1"
+                max="3"
+                step="0.01"
+                v-model.number="cropZoom"
+                @input="renderCanvas"
+                class="w-full accent-accent cursor-pointer"
+              />
+              <i class="ti ti-zoom-in text-text-dim text-sm"></i>
+            </div>
+
+            <!-- Rotate Button & Reset -->
+            <div class="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                @click="rotateImage"
+                class="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-border hover:border-accent text-xs font-semibold rounded-xl shadow-2xs cursor-pointer"
+              >
+                <i class="ti ti-rotate-clockwise text-sm"></i> Xoay 90°
+              </button>
+              <button
+                type="button"
+                @click="resetCrop"
+                class="flex items-center gap-1.5 px-3.5 py-1.5 bg-white border border-border hover:border-accent text-xs font-semibold rounded-xl shadow-2xs cursor-pointer"
+              >
+                <i class="ti ti-refresh text-sm"></i> Đặt lại
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-white">
+          <button
+            type="button"
+            @click="closeCropperModal"
+            class="px-5 py-2.5 bg-surface2 text-text-muted hover:bg-[#eee] text-xs font-bold rounded-xl transition-all cursor-pointer border-none"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            @click="confirmCropAndUpload"
+            :disabled="isUploadingAvatar"
+            class="flex items-center gap-2 px-6 py-2.5 bg-accent hover:bg-accent-hover text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer border-none disabled:opacity-50"
+          >
+            <i v-if="isUploadingAvatar" class="ti ti-loader animate-spin"></i>
+            <span>{{ isUploadingAvatar ? 'Đang lưu...' : 'Cắt & Áp dụng' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancel Order & Refund Request Modal -->
+    <div 
+      v-if="cancelModalOpen && targetOrderToCancel" 
+      class="fixed inset-0 z-500 flex items-center justify-center p-4 animate-fade-in-quick"
+    >
+      <!-- Modal Backdrop -->
+      <div 
+        @click="closeCancelModal" 
+        class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs transition-opacity duration-300"
+      ></div>
+      
+      <!-- Modal Container -->
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden z-10 transition-all scale-100 text-left">
+        <!-- Modal Header -->
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/60">
+          <div class="flex items-center gap-3">
+            <div :class="['w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-2xs', targetOrderToCancel.paymentStatus === 'paid' ? 'bg-orange-100 text-accent' : 'bg-red-100 text-red-600']">
+              <i :class="targetOrderToCancel.paymentStatus === 'paid' ? 'ti ti-receipt-refund' : 'ti ti-circle-x'"></i>
+            </div>
+            <div>
+              <h3 class="font-display text-lg font-bold text-slate-950">
+                {{ targetOrderToCancel.paymentStatus === 'paid' ? 'Hủy đơn hàng & Yêu cầu Hoàn tiền' : 'Xác nhận Hủy đơn hàng' }}
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Mã đơn hàng: <strong class="text-slate-800 font-mono">{{ targetOrderToCancel.orderId }}</strong> · Tổng tiền: <strong class="text-accent">{{ formatPrice(targetOrderToCancel.total) }}</strong>
+              </p>
+            </div>
+          </div>
+          <button @click="closeCancelModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">
+            <i class="ti ti-x text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Modal Form -->
+        <form @submit.prevent="submitCancelOrder" class="flex-1 overflow-y-auto p-6 space-y-5">
+          <!-- Notification Badge for Paid Status -->
+          <div 
+            v-if="targetOrderToCancel.paymentStatus === 'paid'" 
+            class="bg-amber-50/70 border border-amber-200/80 p-3.5 rounded-2xl flex items-start gap-3 text-amber-900 text-xs"
+          >
+            <i class="ti ti-info-circle text-amber-600 text-base shrink-0 mt-0.5"></i>
+            <div>
+              <span class="font-bold block text-amber-950">Đơn hàng này đã được thanh toán online!</span>
+              <span class="text-[11px] text-amber-800 mt-0.5 block leading-relaxed">
+                Vui lòng cung cấp chính xác thông tin Tài Khoản Ngân Hàng. Bộ phận CSKH sẽ kiểm tra và thực hiện chuyển khoản hoàn tiền lại cho bạn trong 24h - 48h.
+              </span>
+            </div>
+          </div>
+
+          <!-- Section 1: Lý do hủy đơn -->
+          <div class="space-y-3">
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">LÝ DO HỦY ĐƠN HÀNG *</label>
+            <select 
+              v-model="cancelForm.reasonPreset" 
+              required 
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all cursor-pointer font-semibold text-slate-800"
+            >
+              <option v-for="r in cancelReasonPresets" :key="r" :value="r">{{ r }}</option>
+            </select>
+
+            <div>
+              <textarea 
+                v-model="cancelForm.reasonDetail" 
+                rows="2" 
+                placeholder="Nhập thêm chi tiết lý do hủy (không bắt buộc)..." 
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all placeholder:text-slate-400 font-medium text-slate-800 resize-none"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Section 2: Thông tin tài khoản ngân hàng (Chỉ hiện khi ĐÃ THANH TOÁN) -->
+          <div v-if="targetOrderToCancel.paymentStatus === 'paid'" class="space-y-4 pt-2 border-t border-slate-100">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <i class="ti ti-building-bank text-accent text-base"></i>
+              <span>THÔNG TIN NGÂN HÀNG NHẬN TIỀN HOÀN *</span>
+            </div>
+
+            <!-- Tên ngân hàng -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">TÊN NGÂN HÀNG *</label>
+              <select 
+                v-model="cancelForm.bankName" 
+                required 
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all cursor-pointer font-semibold text-slate-800"
+              >
+                <option v-for="b in vietnameseBanks" :key="b" :value="b">{{ b }}</option>
+              </select>
+            </div>
+
+            <!-- Nếu chọn Ngân hàng khác -->
+            <div v-if="cancelForm.bankName === 'Ngân hàng khác (Tự nhập tên)'">
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">NHẬP TÊN NGÂN HÀNG CỦA BẠN *</label>
+              <input 
+                type="text" 
+                v-model="cancelForm.customBankName" 
+                placeholder="Ví dụ: Shinhan Bank, Nam A Bank..." 
+                required 
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all font-semibold text-slate-800"
+              >
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Số tài khoản -->
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">SỐ TÀI KHOẢN *</label>
+                <input 
+                  type="text" 
+                  v-model="cancelForm.bankAccount" 
+                  placeholder="Ví dụ: 1903456789012" 
+                  required 
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all font-mono font-bold text-slate-900 tracking-wider"
+                >
+              </div>
+
+              <!-- Tên chủ tài khoản -->
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">TÊN CHỦ TÀI KHOẢN *</label>
+                <input 
+                  type="text" 
+                  v-model="cancelForm.bankHolder" 
+                  @input="onBankHolderInput"
+                  placeholder="Ví dụ: NGUYEN VAN A" 
+                  required 
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all uppercase font-bold text-slate-900 tracking-wider"
+                >
+              </div>
+            </div>
+
+            <!-- Ghi chú thêm -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">GHI CHÚ THÊM (NẾU CÓ)</label>
+              <input 
+                type="text" 
+                v-model="cancelForm.notes" 
+                placeholder="Ví dụ: Hoàn tiền kèm chi nhánh ngân hàng..." 
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all font-medium text-slate-800"
+              >
+            </div>
+          </div>
+
+          <!-- Footer buttons -->
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0">
+            <button 
+              type="button" 
+              @click="closeCancelModal" 
+              class="bg-white border border-slate-200 hover:border-slate-300 text-slate-600 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all cursor-pointer"
+            >
+              Hủy bỏ
+            </button>
+            <button 
+              type="submit" 
+              class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-6 rounded-xl shadow-md transition-all border-none cursor-pointer font-display flex items-center gap-2"
+            >
+              <i :class="targetOrderToCancel.paymentStatus === 'paid' ? 'ti ti-send' : 'ti ti-check'"></i>
+              <span>{{ targetOrderToCancel.paymentStatus === 'paid' ? 'Xác nhận Hủy & Gửi Yêu Cầu Hoàn Tiền' : 'Xác nhận Hủy đơn hàng' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, inject } from 'vue'
+import { ref, reactive, onMounted, inject, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
@@ -394,25 +665,30 @@ const router = useRouter()
 const route = useRoute()
 const cartCount = inject('cartCount', ref(0))
 
-// ─── Tab state ────────────────────────────────────────────────────────────────
+// ─── Trạng thái Tab ─────────────────────────────────────────────────────────────
 const activeTab = ref('profile')
 
 const tabs = [
   { id: 'profile',    label: 'Hồ sơ của tôi',       icon: 'ti ti-user-circle' },
   { id: 'orders',     label: 'Đơn mua',               icon: 'ti ti-package' },
-  { id: 'membership', label: 'Thành viên & Ưu đãi',   icon: 'ti ti-crown' },
   { id: 'address',    label: 'Địa chỉ',               icon: 'ti ti-map-pin' },
   { id: 'password',   label: 'Đổi mật khẩu',          icon: 'ti ti-lock' }
 ]
 
-// ─── User data ────────────────────────────────────────────────────────────────
+// ─── Dữ liệu người dùng ─────────────────────────────────────────────────────────
 const user = reactive({
   name: 'Nguyễn Minh Anh',
   email: 'minhanh.nguyen@gmail.com',
   phone: '0987 654 321',
   gender: 'Nam',
-  dob: '1998-05-12'
+  dob: '1998-05-12',
+  avatar: ''
 })
+
+const avatarMode = ref('upload')
+const avatarUrlInput = ref('')
+const isUploadingAvatar = ref(false)
+const fileInputRef = ref(null)
 
 // ─── Password form ────────────────────────────────────────────────────────────
 const passwordForm = reactive({ current: '', new: '', confirm: '' })
@@ -458,30 +734,62 @@ const rankLevels = [
 ]
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
-onMounted(() => {
+onMounted(async () => {
   if (route.query.tab) {
     activeTab.value = route.query.tab
   }
+  const isSuccess = route.query.payment_success === '1' || route.query.status === 'success' || route.query.status === 'PAID'
+  const successOrderId = route.query.order_id || route.query.orderCode
+  if (isSuccess && successOrderId) {
+    try {
+      await axiosInstance.post(`/user/orders/${successOrderId}/confirm-payment`)
+    } catch (e) {
+      console.error('Confirm payment error:', e)
+    }
+  }
   loadUserData()
-  loadOrdersData()
+  await loadOrdersData()
   loadAddresses()
 })
 
-function loadUserData() {
+async function loadUserData() {
   try {
     const data = JSON.parse(localStorage.getItem('user') || '{}')
-    if (data.name)  user.name  = data.name
-    if (data.email) user.email = data.email
-    if (data.phone) user.phone = data.phone
-    
-    // Ánh xạ ngày sinh: hỗ trợ cả dob hoặc birthday
+    if (data.name)   user.name   = data.name
+    if (data.email)  user.email  = data.email
+    if (data.phone)  user.phone  = data.phone
+    if (data.avatar) {
+      user.avatar = data.avatar
+      avatarUrlInput.value = data.avatar
+    }
     const dobValue = data.birthday || data.dob
     if (dobValue) {
       user.dob = dobValue.split(' ')[0]
     }
-    
     if (data.gender) user.gender = data.gender
-  } catch {}
+
+    // Gọi API /user từ server để đồng bộ thông tin mới nhất (kể cả khi vừa load lại trang hoặc chuyển route)
+    const res = await axiosInstance.get('/user')
+    const apiUser = res?.user || res?.data || res
+    if (apiUser && apiUser.email) {
+      if (apiUser.name)   user.name   = apiUser.name
+      if (apiUser.email)  user.email  = apiUser.email
+      if (apiUser.phone)  user.phone  = apiUser.phone
+      if (apiUser.avatar !== undefined) {
+        user.avatar = apiUser.avatar || ''
+        avatarUrlInput.value = apiUser.avatar || ''
+      }
+      const apiDob = apiUser.birthday || apiUser.dob
+      if (apiDob) user.dob = apiDob.split(' ')[0]
+      if (apiUser.gender) user.gender = apiUser.gender
+
+      const merged = { ...data, ...apiUser }
+      localStorage.setItem('user', JSON.stringify(merged))
+      window.dispatchEvent(new Event('user-profile-updated'))
+    }
+  } catch (e) {
+    console.error('Error fetching user profile from server:', e)
+  }
 }
 
 function getImageUrl(imagePath) {
@@ -678,43 +986,163 @@ async function reorder(order) {
   })
 }
 
-async function cancelOrder(id, orderCode) {
-  Swal.fire({
-    title: 'Xác nhận hủy đơn hàng?',
-    text: `Bạn có chắc chắn muốn hủy đơn hàng ${orderCode} không?`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#FF4D00',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: 'Đồng ý hủy!',
-    cancelButtonText: 'Hủy'
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
-      try {
-        const response = await axiosInstance.post(`/user/orders/${id}/cancel`)
-        Swal.close()
-        if (response && response.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Hủy đơn hàng thành công!',
-            text: `Đơn hàng ${orderCode} đã được hủy bỏ.`,
-            confirmButtonColor: '#FF4D00'
-          })
-          await loadOrdersData()
-        }
-      } catch (error) {
-        Swal.close()
-        console.error('Failed to cancel order:', error)
-        Swal.fire({
-          icon: 'error',
-          title: 'Lỗi',
-          text: error.response?.data?.message || 'Không thể hủy đơn hàng.',
-          confirmButtonColor: '#FF4D00'
-        })
-      }
+// ─── Cancel Order & Refund Request State ─────────────────────────────────────
+const cancelModalOpen = ref(false)
+const targetOrderToCancel = ref(null)
+
+const cancelForm = ref({
+  reasonPreset: 'Thay đổi ý định mua hàng',
+  reasonDetail: '',
+  bankName: 'Vietcombank - Ngân hàng TMCP Ngoại Thương Việt Nam',
+  customBankName: '',
+  bankAccount: '',
+  bankHolder: '',
+  notes: ''
+})
+
+const vietnameseBanks = [
+  'Vietcombank - Ngân hàng TMCP Ngoại Thương Việt Nam',
+  'MB Bank - Ngân hàng TMCP Quân Đội',
+  'Techcombank - Ngân hàng TMCP Kỹ Thương',
+  'BIDV - Ngân hàng TMCP Đầu tư và Phát triển Việt Nam',
+  'VietinBank - Ngân hàng TMCP Công Thương',
+  'Agribank - Ngân hàng Nông nghiệp và Phát triển Nông thôn',
+  'VPBank - Ngân hàng TMCP Việt Nam Thịnh Vượng',
+  'ACB - Ngân hàng TMCP Á Châu',
+  'TPBank - Ngân hàng TMCP Tiên Phong',
+  'Sacombank - Ngân hàng TMCP Sài Gòn Thương Tín',
+  'MSB - Ngân hàng TMCP Hàng Hải Việt Nam',
+  'VIB - Ngân hàng TMCP Quốc Tế Việt Nam',
+  'SHB - Ngân hàng TMCP Sài Gòn - Hà Nội',
+  'HD Bank - Ngân hàng TMCP Phát triển TP.HCM',
+  'LienVietPostBank (LPBank) - Ngân hàng Lộc Phát Việt Nam',
+  'OCB - Ngân hàng TMCP Phương Đông',
+  'SeABank - Ngân hàng TMCP Đông Nam Á',
+  'Ngân hàng khác (Tự nhập tên)'
+]
+
+const cancelReasonPresets = [
+  'Thay đổi ý định mua hàng',
+  'Muốn đổi sang sản phẩm khác (màu/size/mẫu)',
+  'Thời gian giao hàng quá lâu',
+  'Tìm thấy nơi bán giá tốt hơn',
+  'Lỡ đặt nhầm / trùng đơn hàng',
+  'Muốn thay đổi thông tin giao hàng / người nhận',
+  'Lý do khác (Nhập chi tiết bên dưới)'
+]
+
+function openCancelModal(order) {
+  targetOrderToCancel.value = order
+  cancelForm.value = {
+    reasonPreset: 'Thay đổi ý định mua hàng',
+    reasonDetail: '',
+    bankName: 'Vietcombank - Ngân hàng TMCP Ngoại Thương Việt Nam',
+    customBankName: '',
+    bankAccount: '',
+    bankHolder: '',
+    notes: ''
+  }
+  cancelModalOpen.value = true
+}
+
+function closeCancelModal() {
+  cancelModalOpen.value = false
+  targetOrderToCancel.value = null
+}
+
+function removeAccents(str) {
+  if (!str) return ''
+  return str.normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
+            .replace(/Đ/g, 'D')
+}
+
+function onBankHolderInput() {
+  if (cancelForm.value.bankHolder) {
+    cancelForm.value.bankHolder = removeAccents(cancelForm.value.bankHolder).toUpperCase()
+  }
+}
+
+async function submitCancelOrder() {
+  if (!targetOrderToCancel.value) return
+
+  const isPaid = targetOrderToCancel.value.paymentStatus === 'paid'
+
+  let finalBankName = cancelForm.value.bankName
+  if (finalBankName === 'Ngân hàng khác (Tự nhập tên)') {
+    finalBankName = cancelForm.value.customBankName.trim()
+  }
+
+  if (isPaid) {
+    if (!finalBankName) {
+      Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng chọn hoặc nhập Tên ngân hàng nhận hoàn tiền!', confirmButtonColor: '#FF4D00' })
+      return
     }
-  })
+    if (!cancelForm.value.bankAccount.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập Số tài khoản ngân hàng!', confirmButtonColor: '#FF4D00' })
+      return
+    }
+    if (!cancelForm.value.bankHolder.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập Tên chủ tài khoản ngân hàng!', confirmButtonColor: '#FF4D00' })
+      return
+    }
+  }
+
+  let fullReason = cancelForm.value.reasonPreset
+  if (cancelForm.value.reasonDetail.trim()) {
+    fullReason += `: ${cancelForm.value.reasonDetail.trim()}`
+  }
+
+  const payload = {
+    reason: fullReason,
+    // Chỉ khôi phục giỏ hàng khi đơn chưa thanh toán
+    // Đơn đã thanh toán thì không restore vì khách đang chờ hoàn tiền
+    restore_cart: !isPaid
+  }
+
+  if (isPaid) {
+    payload.bank_name = finalBankName
+    payload.bank_account_number = cancelForm.value.bankAccount.trim()
+    payload.bank_account_name = cancelForm.value.bankHolder.trim().toUpperCase()
+    if (cancelForm.value.notes.trim()) {
+      payload.refund_notes = cancelForm.value.notes.trim()
+    }
+  }
+
+  Swal.fire({ title: 'Đang xử lý hủy đơn...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+
+  try {
+    const response = await axiosInstance.post(`/user/orders/${targetOrderToCancel.value.id}/cancel`, payload)
+    Swal.close()
+    cancelModalOpen.value = false
+
+    if (response && response.success) {
+      const msg = isPaid
+        ? `Đơn hàng ${targetOrderToCancel.value.orderId} đã hủy và gửi yêu cầu hoàn tiền thành công!\nHệ thống sẽ kiểm tra và hoàn tiền về tài khoản ngân hàng của bạn.`
+        : `Đơn hàng ${targetOrderToCancel.value.orderId} đã được hủy thành công.`
+
+      Swal.fire({
+        icon: 'success',
+        title: isPaid ? 'Đã gửi yêu cầu hoàn tiền! 💸' : 'Hủy đơn thành công!',
+        text: msg,
+        confirmButtonText: 'Quay lại Giỏ hàng 🛒',
+        confirmButtonColor: '#FF4D00'
+      }).then(() => {
+        router.push({ name: 'cart' })
+      })
+      await loadOrdersData()
+    }
+  } catch (error) {
+    Swal.close()
+    console.error('Failed to cancel order:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Hủy đơn thất bại',
+      text: error.response?.data?.message || 'Không thể xử lý yêu cầu hủy đơn.',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
 }
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
@@ -886,6 +1314,211 @@ function removeAddress(idx) {
   })
 }
 
+// ─── Avatar & Cropper handlers ───────────────────────────────────────────────
+const cropperModalOpen = ref(false)
+const cropCanvasRef = ref(null)
+const cropImageObj = ref(null)
+const cropZoom = ref(1)
+const cropRotation = ref(0)
+const cropPan = reactive({ x: 0, y: 0 })
+const isDragging = ref(false)
+const dragStart = reactive({ x: 0, y: 0 })
+
+function openCropperWithFile(file) {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const img = new Image()
+    img.onload = () => {
+      cropImageObj.value = img
+      cropZoom.value = 1
+      cropRotation.value = 0
+      cropPan.x = 0
+      cropPan.y = 0
+      cropperModalOpen.value = true
+      nextTick(() => {
+        renderCanvas()
+      })
+    }
+    img.src = e.target.result
+  }
+  reader.readAsDataURL(file)
+}
+
+function renderCanvas() {
+  const canvas = cropCanvasRef.value
+  if (!canvas || !cropImageObj.value) return
+  const ctx = canvas.getContext('2d')
+  const width = canvas.width
+  const height = canvas.height
+
+  ctx.clearRect(0, 0, width, height)
+  ctx.save()
+
+  ctx.translate(width / 2 + cropPan.x, height / 2 + cropPan.y)
+  ctx.rotate((cropRotation.value * Math.PI) / 180)
+  ctx.scale(cropZoom.value, cropZoom.value)
+
+  const img = cropImageObj.value
+  const scale = Math.max(width / img.width, height / img.height)
+  const drawW = img.width * scale
+  const drawH = img.height * scale
+
+  ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH)
+  ctx.restore()
+}
+
+function rotateImage() {
+  cropRotation.value = (cropRotation.value + 90) % 360
+  renderCanvas()
+}
+
+function resetCrop() {
+  cropZoom.value = 1
+  cropRotation.value = 0
+  cropPan.x = 0
+  cropPan.y = 0
+  renderCanvas()
+}
+
+function startDrag(e) {
+  isDragging.value = true
+  dragStart.x = e.clientX - cropPan.x
+  dragStart.y = e.clientY - cropPan.y
+}
+
+function onDrag(e) {
+  if (!isDragging.value) return
+  cropPan.x = e.clientX - dragStart.x
+  cropPan.y = e.clientY - dragStart.y
+  renderCanvas()
+}
+
+function startDragTouch(e) {
+  if (e.touches.length === 1) {
+    isDragging.value = true
+    dragStart.x = e.touches[0].clientX - cropPan.x
+    dragStart.y = e.touches[0].clientY - cropPan.y
+  }
+}
+
+function onDragTouch(e) {
+  if (!isDragging.value || e.touches.length !== 1) return
+  cropPan.x = e.touches[0].clientX - dragStart.x
+  cropPan.y = e.touches[0].clientY - dragStart.y
+  renderCanvas()
+}
+
+function stopDrag() {
+  isDragging.value = false
+}
+
+function closeCropperModal() {
+  cropperModalOpen.value = false
+  cropImageObj.value = null
+}
+
+async function confirmCropAndUpload() {
+  const canvas = cropCanvasRef.value
+  if (!canvas) return
+
+  isUploadingAvatar.value = true
+
+  canvas.toBlob(async (blob) => {
+    if (!blob) {
+      isUploadingAvatar.value = false
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('image', blob, 'avatar_cropped.jpg')
+
+    try {
+      const res = await axiosInstance.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      const newAvatar = res?.filename || res?.url
+      if (newAvatar) {
+        user.avatar = newAvatar
+        avatarUrlInput.value = newAvatar
+        closeCropperModal()
+        await saveAvatarToBackend(newAvatar)
+        Swal.fire({
+          toast: true,
+          position: 'bottom-end',
+          icon: 'success',
+          title: 'Căn chỉnh & lưu ảnh đại diện thành công!',
+          showConfirmButton: false,
+          timer: 2000
+        })
+      }
+    } catch (err) {
+      console.error('Avatar upload failed:', err)
+      Swal.fire({ icon: 'error', title: 'Tải ảnh thất bại', text: err.response?.data?.message || 'Không thể tải ảnh lên.', confirmButtonColor: '#FF4D00' })
+    } finally {
+      isUploadingAvatar.value = false
+    }
+  }, 'image/jpeg', 0.92)
+}
+
+async function saveAvatarToBackend(newAvatar) {
+  try {
+    const response = await axiosInstance.put('/user/profile', {
+      name: user.name,
+      phone: user.phone,
+      birthday: user.dob,
+      gender: user.gender,
+      avatar: newAvatar
+    })
+    const updatedUser = response?.data?.user || response?.user || response
+    if (updatedUser) {
+      const cached = JSON.parse(localStorage.getItem('user') || '{}')
+      const merged = { ...cached, ...updatedUser, avatar: newAvatar }
+      localStorage.setItem('user', JSON.stringify(merged))
+      window.dispatchEvent(new Event('user-profile-updated'))
+    }
+  } catch (err) {
+    console.error('Lỗi khi tự động lưu avatar lên server:', err)
+  }
+}
+
+function handleAvatarFileUpload(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    Swal.fire({ icon: 'error', title: 'Lỗi định dạng', text: 'Vui lòng chọn file hình ảnh (PNG, JPG, WEBP,...).', confirmButtonColor: '#FF4D00' })
+    return
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    Swal.fire({ icon: 'error', title: 'File quá lớn', text: 'Kích thước ảnh không được vượt quá 5MB.', confirmButtonColor: '#FF4D00' })
+    return
+  }
+
+  openCropperWithFile(file)
+  if (e.target) e.target.value = ''
+}
+
+async function applyAvatarUrl() {
+  if (avatarUrlInput.value.trim()) {
+    user.avatar = avatarUrlInput.value.trim()
+    await saveAvatarToBackend(user.avatar)
+    Swal.fire({
+      toast: true,
+      position: 'bottom-end',
+      icon: 'success',
+      title: 'Đã áp dụng & lưu URL ảnh đại diện!',
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
+}
+
+async function removeAvatar() {
+  user.avatar = ''
+  avatarUrlInput.value = ''
+  await saveAvatarToBackend('')
+}
+
 // ─── Form handlers ────────────────────────────────────────────────────────────
 async function handleSaveProfile() {
   try {
@@ -893,16 +1526,20 @@ async function handleSaveProfile() {
       name: user.name,
       phone: user.phone,
       birthday: user.dob,
-      gender: user.gender
+      gender: user.gender,
+      avatar: user.avatar
     })
 
-    if (response.success) {
-      // Cập nhật lại thông tin user mới vào localStorage
-      localStorage.setItem('user', JSON.stringify(response.data.user))
+    const updatedUser = response?.data?.user || response?.user || response
+    if (updatedUser) {
+      const cached = JSON.parse(localStorage.getItem('user') || '{}')
+      const merged = { ...cached, ...updatedUser }
+      localStorage.setItem('user', JSON.stringify(merged))
+      window.dispatchEvent(new Event('user-profile-updated'))
       
       Swal.fire({ 
         icon: 'success', 
-        title: 'Cập nhật thành công! 💾', 
+        title: 'Cập nhật thành công!', 
         text: 'Thông tin cá nhân của bạn đã được lưu trên hệ thống.', 
         confirmButtonColor: '#FF4D00' 
       })
@@ -922,7 +1559,7 @@ function handleChangePassword() {
   if (passwordForm.new !== passwordForm.confirm) {
     Swal.fire({ icon: 'error', title: 'Mật khẩu không khớp', text: 'Xác nhận mật khẩu mới không trùng khớp.', confirmButtonColor: '#FF4D00' }); return
   }
-  Swal.fire({ icon: 'success', title: 'Đổi mật khẩu thành công! 🔑', text: 'Mật khẩu của bạn đã được thay đổi an toàn.', confirmButtonColor: '#FF4D00' })
+  Swal.fire({ icon: 'success', title: 'Đổi mật khẩu thành công!', text: 'Mật khẩu của bạn đã được thay đổi an toàn.', confirmButtonColor: '#FF4D00' })
     .then(() => { passwordForm.current = ''; passwordForm.new = ''; passwordForm.confirm = '' })
 }
 

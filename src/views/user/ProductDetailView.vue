@@ -1,7 +1,7 @@
 <template>
   
     <div class="bg-bg py-4 border-b border-border">
-      <div class="max-w-[1200px] mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
+      <div class="max-w-300 mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
         <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
         <i class="ti ti-chevron-right text-[10px]"></i>
         <router-link to="/products" class="hover:text-accent transition-colors">Sản phẩm</router-link>
@@ -11,13 +11,13 @@
     </div>
 
     <main class="py-12 bg-bg">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
 
-        <!-- Skeleton Loading -->
+        <!-- Trạng thái đang tải (Skeleton Loading) -->
         <div v-if="isLoading" class="animate-pulse">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 pb-16">
             <div class="flex flex-col gap-6">
-              <div class="bg-surface2 rounded-2xl h-[460px] w-full"></div>
+              <div class="bg-surface2 rounded-2xl h-115 w-full"></div>
               <div class="grid grid-cols-4 gap-4">
                 <div v-for="i in 4" :key="i" class="bg-surface2 rounded-2xl h-24"></div>
               </div>
@@ -42,15 +42,15 @@
           </div>
         </div>
 
-        <!-- Product Detail Section -->
+        <!-- Phần chi tiết sản phẩm -->
         <section v-else class="pb-16">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             
-            <!-- Left: Gallery & Offers -->
+            <!-- Bên trái: Thư viện ảnh sản phẩm -->
             <div class="flex flex-col gap-6">
               
-              <!-- Gallery -->
-              <div class="border border-border rounded-2xl bg-white p-8 flex items-center justify-center h-[460px] relative overflow-hidden group shadow-sm">
+              <!-- Ảnh lớn chính -->
+              <div class="border border-border rounded-2xl bg-white p-8 flex items-center justify-center h-115 relative overflow-hidden group shadow-sm">
                 <img 
                   :src="activeImage" 
                   :class="['max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105', activeImageFlip ? 'scale-x-[-1]' : '']" 
@@ -58,7 +58,7 @@
                 >
               </div>
 
-              <!-- Thumbs List -->
+              <!-- Danh sách ảnh nhỏ -->
               <div class="grid grid-cols-4 gap-4">
                 <div 
                   v-for="(img, idx) in product.images" 
@@ -73,13 +73,13 @@
 
             </div>
 
-            <!-- Right: Product Info Box -->
+            <!-- Bên phải: Thông tin sản phẩm -->
             <div class="flex flex-col gap-6">
               <div>
                 <span class="text-xs uppercase font-bold tracking-[2px] text-accent mb-2 block">{{ product.brand }}</span>
                 <h1 class="font-display text-[clamp(28px,4vw,38px)] font-extrabold leading-tight text-text mb-3">{{ product.name }}</h1>
                 
-                <!-- Rating -->
+                <!-- Đánh giá sao -->
                 <div class="flex items-center gap-3 text-sm text-text-muted">
                   <div class="flex gap-0.5 text-gold text-base">
                     <i class="ti ti-star-filled"></i>
@@ -94,7 +94,7 @@
                 </div>
               </div>
 
-              <!-- Price Box -->
+              <!-- Khung hiển thị giá -->
               <div class="flex items-center gap-4 py-6 border-y border-border">
                 <span class="font-display text-3xl font-extrabold text-accent">{{ displayPrice }}</span>
                 <span v-if="displayOldPrice" class="text-lg text-text-dim line-through">{{ displayOldPrice }}</span>
@@ -103,7 +103,7 @@
                 </span>
               </div>
 
-              <!-- Colors Selection -->
+              <!-- Chọn màu sắc -->
               <div>
                 <p class="text-[13px] font-bold text-text mb-3">
                   Màu sắc: <span class="text-text-muted font-normal">{{ selectedColor }}</span>
@@ -125,7 +125,7 @@
                 </div>
               </div>
 
-              <!-- Sizes Selection -->
+              <!-- Chọn kích thước (size) -->
               <div>
                 <div class="flex items-center justify-between mb-3 text-[13px] font-bold text-text">
                   <p>Kích thước: <span class="text-text-muted font-normal">{{ selectedSize ? 'Size ' + selectedSize : 'Chưa chọn' }}</span></p>
@@ -147,7 +147,7 @@
                 </div>
               </div>
 
-              <!-- Quantity & Actions -->
+              <!-- Số lượng & Các nút thao tác -->
               <div class="flex gap-4 items-center pt-4">
                 <div class="flex items-center border border-border rounded-xl bg-white h-14 shrink-0 shadow-sm">
                   <button @click="decreaseQty" class="w-12 h-full flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer">
@@ -182,7 +182,7 @@
                 </button>
               </div>
 
-              <!-- Features Box -->
+              <!-- Khung cam kết & ưu đãi -->
               <div class="mt-4 p-5 bg-surface2 rounded-2xl border border-border/60 flex flex-col gap-4">
                 <div class="flex items-center gap-4 text-xs font-semibold text-text">
                   <i class="ti ti-truck-delivery text-accent text-2xl"></i>
@@ -202,7 +202,7 @@
           </div>
         </section>
 
-        <!-- Tabs Section (only when loaded) -->
+        <!-- Phần Tabs thông tin (Mô tả, Thông số, Đánh giá) -->
         <section v-if="!isLoading" class="py-12 border-t border-border">
           <div class="flex justify-center border-b border-border mb-10 gap-10">
             <button 
@@ -215,8 +215,8 @@
             </button>
           </div>
 
-          <!-- Description Content -->
-          <div v-show="activeTab === 'desc'" class="max-w-[800px] mx-auto text-[15px] text-text-muted leading-relaxed space-y-4 text-left">
+          <!-- Nội dung mô tả sản phẩm -->
+          <div v-show="activeTab === 'desc'" class="max-w-200 mx-auto text-[15px] text-text-muted leading-relaxed space-y-4 text-left">
             <div v-if="product.description" v-html="product.description"></div>
             <div v-else>
               <p>Giày thể thao <strong>StepUp Air Max One</strong> là sự kết hợp hoàn hảo giữa phong cách cổ điển và công nghệ hiện đại. Với thiết kế đệm khí đặc trưng lộ ra ở phần gót, đôi giày không chỉ mang lại sự thoải mái tuyệt đối cho đôi chân mà còn là điểm nhấn thời trang cực chất cho mọi outfit của bạn.</p>
@@ -231,8 +231,8 @@
             </div>
           </div>
 
-          <!-- Specs Content -->
-          <div v-show="activeTab === 'specs'" class="max-w-[800px] mx-auto">
+          <!-- Nội dung thông số kỹ thuật -->
+          <div v-show="activeTab === 'specs'" class="max-w-200 mx-auto">
             <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
               <table class="w-full text-sm text-left text-text-muted">
                 <tbody>
@@ -245,8 +245,8 @@
             </div>
           </div>
 
-          <!-- Reviews Content -->
-          <div v-show="activeTab === 'reviews'" class="max-w-[800px] mx-auto space-y-8">
+          <!-- Nội dung đánh giá của khách hàng -->
+          <div v-show="activeTab === 'reviews'" class="max-w-200 mx-auto space-y-8">
             <div class="flex items-center gap-10 p-6 bg-surface2 rounded-2xl border border-border/60">
               <div class="text-center">
                 <div class="font-display text-4xl font-extrabold text-text">{{ avgRating }}<span class="text-base text-text-dim font-normal">/5</span></div>
@@ -264,7 +264,7 @@
               </div>
             </div>
 
-            <!-- Reviews List -->
+            <!-- Danh sách bài đánh giá -->
             <div class="space-y-6">
               <div v-for="(review, idx) in reviewsList" :key="idx" class="pb-6 border-b border-border last:border-b-0">
                 <div class="flex justify-between items-start mb-3">
@@ -293,7 +293,7 @@
           </div>
         </section>
 
-        <!-- Related Products Section (only when loaded) -->
+        <!-- Phần sản phẩm liên quan -->
         <section v-if="!isLoading" class="py-12 border-t border-border mt-12 bg-surface2/30 rounded-3xl p-8 border">
           <h2 class="font-display text-2xl font-bold tracking-wider text-center mb-8 uppercase text-text">Sản phẩm liên quan</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -397,8 +397,6 @@ const displayDiscount = computed(() => {
   return product.value.discount
 })
 
-
-
 const tabs = computed(() => [
   { id: 'desc', label: 'Mô tả sản phẩm' },
   { id: 'specs', label: 'Thông tin sản phẩm' },
@@ -414,14 +412,14 @@ const isLoading = ref(true)
 async function loadProduct(slug) {
   isLoading.value = true
   try {
-    // Backend route: GET /product/{slug} => returns { success, data: { product, related } }
+    // Đường dẫn API Backend: GET /product/{slug} => trả về { success, data: { product, related } }
     const response = await axiosInstance.get(`/product/${slug}`)
     if (response?.success && response?.data) {
       const rawProduct = response.data.product
       const data = mapBackendProduct(rawProduct)
       product.value = data
 
-      // Set default gallery image
+      // Đặt ảnh mặc định cho thư viện ảnh
       if (data.images && data.images.length > 0) {
         activeImage.value = data.images[0].src
         activeImageFlip.value = data.images[0].flip
@@ -430,14 +428,14 @@ async function loadProduct(slug) {
         activeImageFlip.value = false
       }
 
-      // Set default color
+      // Đặt màu sắc mặc định
       if (data.colors && data.colors.length > 0) {
         selectedColor.value = data.colors[0].name
       } else {
         selectedColor.value = ''
       }
 
-      // Set default size
+      // Đặt kích thước (size) mặc định
       if (data.sizes && data.sizes.length > 0) {
         selectedSize.value = data.sizes[0]
       } else {
@@ -447,7 +445,7 @@ async function loadProduct(slug) {
       qty.value = 1
       wished.value = false
 
-      // Populate specs
+      // Đổ dữ liệu thông số kỹ thuật
       if (data.specs && data.specs.length > 0) {
         specs.value = data.specs
       } else {
@@ -458,7 +456,7 @@ async function loadProduct(slug) {
         ]
       }
 
-      // Map real reviews from API rating array
+      // Ánh xạ danh sách đánh giá thực tế từ mảng rating của API
       const rawRatings = rawProduct.rating || []
       if (rawRatings.length > 0) {
         const total = rawRatings.reduce((sum, r) => sum + (r.rating || 5), 0)
@@ -476,7 +474,40 @@ async function loadProduct(slug) {
         reviewsList.value = []
       }
 
-      // Use related products returned directly from the Detail API
+      // Kiểm tra xem sản phẩm có đang thuộc chiến dịch Flash Sale đang diễn ra không
+      try {
+        const fsRes = await axiosInstance.get('/flashsales')
+        if (fsRes.success && Array.isArray(fsRes.data) && fsRes.data.length > 0) {
+          const activeSale = fsRes.data[0]
+          if (activeSale && activeSale.items) {
+            const fsItem = activeSale.items.find(item => item.product_id === rawProduct.id || item.product?.id === rawProduct.id)
+            if (fsItem && fsItem.discount_value !== undefined && fsItem.discount_value !== null) {
+              const originalPrice = parseFloat(data.numericPrice) || 0
+              const discountPercent = parseFloat(fsItem.discount_value) || 0
+              const flashPrice = originalPrice * (1 - discountPercent / 100)
+              
+              data.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
+              data.oldPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ')
+              data.numericPrice = flashPrice
+              data.discount = `${Math.round(discountPercent)}%`
+              data.badges = [{ label: `-${Math.round(discountPercent)}%`, color: 'bg-accent' }]
+              
+              // Cập nhật lại rawVariants để các thuộc tính tính toán (computed) của currentVariant hoạt động đúng
+              if (data.rawVariants && data.rawVariants.length > 0) {
+                data.rawVariants = data.rawVariants.map(v => {
+                  const vPrice = parseFloat(v.price) || 0
+                  const vSale = vPrice * (1 - discountPercent / 100)
+                  return { ...v, sale: vSale }
+                })
+              }
+            }
+          }
+        }
+      } catch (fsErr) {
+        console.error('Không thể kiểm tra flash sale cho sản phẩm chi tiết:', fsErr)
+      }
+
+      // Sử dụng danh sách sản phẩm liên quan được trả về trực tiếp từ API Chi tiết
       const rawRelated = response.data.related || []
       relatedProducts.value = rawRelated
         .map(mapBackendProduct)
@@ -484,23 +515,23 @@ async function loadProduct(slug) {
         .slice(0, 4)
     }
   } catch (error) {
-    console.error('Failed to load product detail:', error)
+    console.error('Không thể tải chi tiết sản phẩm:', error)
   } finally {
     isLoading.value = false
   }
 }
 
-// Related products (populated directly from Detail API response)
+// Danh sách sản phẩm liên quan
 const relatedProducts = ref([])
 
-// Watch Route slug for instant reactiveness upon navigation/clicks
+// Theo dõi slug trên đường dẫn để tự động nạp lại khi chuyển trang
 watch(
   () => route.params.id,
   (newSlug) => {
     if (newSlug) {
       loadProduct(newSlug)
     }
-    // If no slug (e.g. /product-detail mock), just show loading=false
+    // Nếu không có slug, tắt trạng thái đang tải
     else {
       isLoading.value = false
     }
@@ -522,7 +553,7 @@ const isSizeAvailable = (sizeName) => {
   })
 }
 
-// Watch selectedColor to automatically select compatible size
+// Theo dõi khi đổi màu để tự động chọn size khả dụng
 watch(selectedColor, (newColor) => {
   if (!newColor || !selectedSize.value) return
   const isCompatible = (product.value.rawVariants || []).some(v => {
@@ -536,7 +567,7 @@ watch(selectedColor, (newColor) => {
   }
 })
 
-// Watch selectedSize to automatically select compatible color
+// Theo dõi khi đổi size để tự động chọn màu khả dụng
 watch(selectedSize, (newSize) => {
   if (!newSize || !selectedColor.value) return
   const isCompatible = (product.value.rawVariants || []).some(v => {
@@ -554,8 +585,6 @@ function setActiveImage(src, flip) {
   activeImage.value = src
   activeImageFlip.value = flip
 }
-
-
 
 function increaseQty() {
   if (qty.value < 10) qty.value++
@@ -581,7 +610,7 @@ async function doAddToCart() {
     return false
   }
   
-  // Find matching variant
+  // Tìm biến thể sản phẩm phù hợp
   const hasColorOptions = product.value.colors && product.value.colors.length > 0
   const matchingVariant = findMatchingVariant(
     product.value.rawVariants || [],
@@ -654,13 +683,13 @@ async function doBuyNow() {
     return
   }
 
-  // Construct a temporary checkout summary for ONLY this item
+  // Tạo thông tin tóm tắt thanh toán tạm thời cho duy nhất sản phẩm này
   const price = product.value.numericPrice || 0
   const subtotal = price * qty.value
   const shippingFee = subtotal >= 500000 ? 0 : 30000
   
   const buyNowItem = {
-    id: null, // no cart ID
+    id: null,
     variant_id: matchingVariant.id,
     productId: product.value.id,
     name: product.value.name,
@@ -695,7 +724,7 @@ function handleWish(payload) {
 }
 
 function goToDetail(item) {
-  // Navigate using slug (backend Detail route uses slug, not numeric id)
+  // Chuyển hướng bằng slug (đường dẫn chi tiết phía backend sử dụng slug thay vì ID dạng số)
   router.push({ name: 'product-detail', params: { id: item.slug || item.id } })
 }
 
@@ -730,13 +759,13 @@ function showWriteReview() {
 </script>
 
 <style scoped>
-/* Chrome, Safari, Edge, Opera number arrows remove */
+/* Ẩn mũi tên tăng giảm số trên Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-/* Firefox number input scrollbar remove */
+/* Ẩn thanh cuộn nhập số trên Firefox */
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;

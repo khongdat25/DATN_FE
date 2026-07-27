@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between mb-6 flex-wrap gap-4 max-md:flex-col max-md:items-start">
           <div class="flex items-center gap-5 flex-wrap">
             <div class="font-display text-[32px] tracking-[2px] flex items-center gap-[10px] uppercase font-bold">
-              <i class="ti ti-bolt text-accent text-[28px] animate-pulse"></i> FLASH SALE
+              FLASH SALE
             </div>
             <!-- Countdown -->
             <div class="flex items-center gap-[6px]">

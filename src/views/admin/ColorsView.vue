@@ -3,7 +3,7 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div class="text-left">
-        <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Quản lý Màu sắc (Color) 🎨</h1>
+        <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Quản lý Màu sắc (Color)</h1>
         <p class="text-sm text-slate-500 mt-1">Quản lý danh sách màu sắc, thiết lập mã màu HEX trực quan để áp dụng cho các biến thể sản phẩm.</p>
       </div>
       <div>
@@ -137,7 +137,7 @@
                     @change="toggleColorActive(color)" 
                     class="sr-only peer"
                   >
-                  <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                  <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
                 </label>
               </td>
               <td class="py-4 px-6 text-right">
@@ -192,7 +192,7 @@
         <!-- Modal Header -->
         <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 class="font-display text-lg font-bold text-slate-950">{{ isEditMode ? 'Chỉnh sửa Màu sắc 🎨' : 'Thêm Màu sắc mới 🎨' }}</h3>
+            <h3 class="font-display text-lg font-bold text-slate-950">{{ isEditMode ? 'Chỉnh sửa Màu sắc' : 'Thêm Màu sắc mới' }}</h3>
             <p class="text-xs text-slate-400 mt-0.5">{{ isEditMode ? 'Cập nhật thông tin mã màu HEX và chi tiết màu.' : 'Tạo mới màu sắc biến thể cho sản phẩm.' }}</p>
           </div>
           <button @click="closeModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer border-none bg-transparent">

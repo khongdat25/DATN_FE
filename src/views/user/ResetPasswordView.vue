@@ -194,7 +194,7 @@ onUnmounted(() => {
   }
 })
 
-// Calculate password strength
+// Tính toán độ mạnh mật khẩu
 const score = computed(() => {
   const v = newPass.value
   if (!v) return 0
@@ -220,7 +220,7 @@ const strengthInfo = computed(() => {
   return levels[s]
 })
 
-// Password matching state
+// Trạng thái trùng khớp mật khẩu
 const isMatch = computed(() => {
   return confirmPass.value === newPass.value
 })

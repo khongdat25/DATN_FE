@@ -30,31 +30,30 @@
         <template v-for="item in navItems" :key="item.name">
           <!-- Item with children (collapsible dropdown) -->
           <div v-if="item.children" class="space-y-1">
-            <router-link 
-              to="/admin/products"
-              class="w-full flex items-center justify-between px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer"
+            <div 
+              class="w-full flex items-center justify-between px-3.5 py-3 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer select-none"
               :class="{ 
-                'bg-accent! text-white! font-semibold shadow-lg shadow-accent/20': route.path === '/admin/products', 
-                'bg-slate-800/40 text-slate-200': ['/admin/sizes', '/admin/colors', '/admin/brands'].includes(route.path) && route.path !== '/admin/products'
+                'bg-slate-800/80 text-white font-semibold shadow-xs': isGroupChildActive(item)
               }"
+              @click="toggleMenu(item.name)"
             >
               <div class="flex items-center gap-3">
-                <i :class="['ti text-lg group-hover:scale-110 transition-transform', item.icon]"></i>
+                <i :class="['ti text-lg group-hover:scale-110 transition-transform', item.icon, isGroupChildActive(item) ? 'text-accent' : '']"></i>
                 <span>{{ item.name }}</span>
               </div>
-              <span @click.stop.prevent="productMenuOpen = !productMenuOpen" class="p-1 hover:bg-slate-700/50 rounded-md transition-colors cursor-pointer flex items-center justify-center">
+              <span class="p-1 hover:bg-slate-700/50 rounded-md transition-colors flex items-center justify-center">
                 <i 
                   :class="[
                     'ti text-xs transition-transform duration-200', 
-                    productMenuOpen ? 'ti-chevron-down rotate-180' : 'ti-chevron-down'
+                    openMenus[item.name] ? 'ti-chevron-down rotate-180' : 'ti-chevron-down'
                   ]"
                 ></i>
               </span>
-            </router-link>
+            </div>
             
             <!-- Children sub-menu -->
             <div 
-              v-show="productMenuOpen" 
+              v-show="openMenus[item.name]" 
               class="pl-9 pr-2 space-y-1 overflow-hidden transition-all duration-200"
             >
               <router-link 
@@ -62,7 +61,7 @@
                 :key="sub.path" 
                 :to="sub.path"
                 class="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                active-class="text-accent! bg-accent/10!"
+                :class="{ 'text-accent! bg-accent/10! font-bold': isSubItemActive(sub.path) }"
               >
                 <span>•</span>
                 <span>{{ sub.name }}</span>
@@ -135,7 +134,7 @@
                 {{ adminInitial }}
               </div>
               <div class="hidden sm:block text-left leading-none">
-                <span class="text-xs font-semibold text-slate-800 block truncate max-w-[100px]">{{ adminName }}</span>
+                <span class="text-xs font-semibold text-slate-800 block truncate max-w-25">{{ adminName }}</span>
                 <span class="text-[9px] uppercase tracking-wider font-bold text-accent block mt-0.5">Quản trị viên</span>
               </div>
               <i class="ti ti-chevron-down text-xs text-slate-400"></i>
@@ -151,7 +150,7 @@
 
       <!-- Main Slot -->
       <main class="flex-1 p-6 md:p-8 bg-slate-50/50">
-        <div class="max-w-[1400px] mx-auto animate-fade-in text-left">
+        <div class="max-w-350 mx-auto animate-fade-in text-left">
           <slot />
         </div>
       </main>
@@ -174,11 +173,34 @@ import axiosInstance from '@/api/axios.js'
 const sidebarOpen = ref(false)
 const adminName = ref('Admin')
 const route = useRoute()
-const productMenuOpen = ref(false)
 
-watch(() => route.path, (newPath) => {
-  if (['/admin/products', '/admin/sizes', '/admin/colors', '/admin/brands'].includes(newPath)) {
-    productMenuOpen.value = true
+const openMenus = ref({
+  'Sản phẩm': true,
+  'Mã giảm giá': true
+})
+
+function toggleMenu(name) {
+  openMenus.value[name] = !openMenus.value[name]
+}
+
+function isSubItemActive(subPath) {
+  const currentFullPath = route.fullPath
+  if (subPath === '/admin/vouchers?type=order') {
+    return currentFullPath === '/admin/vouchers' || currentFullPath === '/admin/vouchers?type=order'
+  }
+  return currentFullPath === subPath
+}
+
+function isGroupChildActive(item) {
+  return item.children && item.children.some(sub => isSubItemActive(sub.path))
+}
+
+watch(() => route.fullPath, (newPath) => {
+  if (['/admin/products', '/admin/sizes', '/admin/colors', '/admin/brands'].some(p => newPath.includes(p))) {
+    openMenus.value['Sản phẩm'] = true
+  }
+  if (newPath.includes('/admin/vouchers')) {
+    openMenus.value['Mã giảm giá'] = true
   }
 }, { immediate: true })
 
@@ -197,7 +219,14 @@ const navItems = [
   { name: 'Danh mục', path: '/admin/categories', icon: 'ti-category' },
   { name: 'Banner', path: '/admin/banners', icon: 'ti-photo' },
   { name: 'Đơn hàng', path: '/admin/orders', icon: 'ti-shopping-cart' },
-  { name: 'Mã giảm giá', path: '/admin/vouchers', icon: 'ti-ticket' },
+  { 
+    name: 'Mã giảm giá', 
+    icon: 'ti-ticket',
+    children: [
+      { name: 'Mã giảm giá đơn hàng', path: '/admin/vouchers?type=order' },
+      { name: 'Mã miễn phí vận chuyển', path: '/admin/vouchers?type=shipping' }
+    ]
+  },
   { name: 'Flash Sale', path: '/admin/flashsales', icon: 'ti-flame' },
   { name: 'Người dùng', path: '/admin/users', icon: 'ti-users' },
   { name: 'Bài viết (Blog)', path: '/admin/blogs', icon: 'ti-news' },

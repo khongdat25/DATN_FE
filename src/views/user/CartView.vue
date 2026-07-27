@@ -2,7 +2,7 @@
   
     <!-- Page Header / Breadcrumb -->
     <div class="bg-white border-b border-border py-8">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         <h1 class="font-display text-3xl font-extrabold text-text tracking-wide">GIỎ HÀNG CỦA BẠN</h1>
         <div class="flex items-center gap-2 text-xs text-text-dim mt-2 font-semibold">
           <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
@@ -13,8 +13,8 @@
     </div>
 
     <!-- Main Content -->
-    <main class="py-12 bg-[#f9f9f9] min-h-[500px]">
-      <div class="max-w-[1200px] mx-auto px-5">
+    <main class="py-12 bg-[#f9f9f9] min-h-125">
+      <div class="max-w-300 mx-auto px-5">
 
         <!-- ── Has Items ── -->
         <div v-if="cartItems.length > 0" class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-10">
@@ -59,7 +59,7 @@
                     <!-- Product -->
                     <td class="py-6 px-6">
                       <div class="flex items-center gap-4">
-                        <div class="w-[80px] h-[80px] bg-surface2 rounded-xl border border-border/80 flex items-center justify-center p-2 shrink-0">
+                        <div class="w-20 h-20 bg-surface2 rounded-xl border border-border/80 flex items-center justify-center p-2 shrink-0">
                           <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain">
                         </div>
                         <div>
@@ -147,7 +147,7 @@
                     >
                   </div>
                   <!-- Image -->
-                  <div class="w-[72px] h-[72px] bg-surface2 rounded-xl border border-border flex items-center justify-center p-2 shrink-0">
+                  <div class="w-18 h-18 bg-surface2 rounded-xl border border-border flex items-center justify-center p-2 shrink-0">
                     <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain">
                   </div>
                   <div class="flex-1 min-w-0">
@@ -193,7 +193,7 @@
 
           <!-- ── Right: Summary ── -->
           <div>
-            <div class="border border-border rounded-2xl bg-white p-7 shadow-sm sticky top-[100px]">
+            <div class="border border-border rounded-2xl bg-white p-7 shadow-sm sticky top-25">
               <h2 class="font-display text-xl font-bold text-text mb-6">Tổng đơn hàng</h2>
 
               <!-- Price rows -->
@@ -250,7 +250,7 @@
                     ></i>
                   </div>
 
-                  <div v-show="voucherOpen" class="bg-white max-h-[300px] overflow-y-auto divide-y divide-border border-t border-border">
+                  <div v-show="voucherOpen" class="bg-white max-h-75 overflow-y-auto divide-y divide-border border-t border-border">
                     <div
                       v-for="voucher in availableVouchers"
                       :key="voucher.code"
@@ -265,7 +265,7 @@
                       </div>
                       <button
                         @click="applyVoucher(voucher)"
-                        class="py-[6px] px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-colors"
+                        class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-colors"
                         :class="appliedVoucher?.code === voucher.code
                           ? 'bg-accent text-white border-accent'
                           : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"

@@ -1,13 +1,13 @@
 <template>
   <section class="py-8" id="blog">
-    <div class="max-w-[1200px] mx-auto px-5">
+    <div class="max-w-300 mx-auto px-5">
       <div class="section-wrapper">
         <div class="flex justify-between items-end mb-9 text-left">
           <div>
             <h2 class="font-display text-[clamp(28px,4vw,40px)] tracking-[2px] font-bold">TIN TỨC & PHONG CÁCH</h2>
             <p class="text-[13px] text-text-muted mt-1 tracking-[0.5px]">Xu hướng, tips mix đồ và tin tức sneaker mới nhất</p>
           </div>
-          <router-link to="/news" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">Tất cả bài viết <i class="ti ti-arrow-right"></i></router-link>
+          <router-link to="/news" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-1.5 transition-all whitespace-nowrap font-medium hover:gap-2.5">Tất cả bài viết <i class="ti ti-arrow-right"></i></router-link>
         </div>
 
         <div class="grid grid-cols-3 max-md:grid-cols-1 gap-5">
@@ -16,13 +16,13 @@
             :key="post.id"
             class="bg-bg border border-border rounded-md overflow-hidden transition-all hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.06)]"
           >
-            <div class="h-[180px] bg-surface2 flex items-center justify-center relative overflow-hidden">
+            <div class="h-45 bg-surface2 flex items-center justify-center relative overflow-hidden">
               <img v-if="post.image" :src="getImageUrl(post.image)" alt="Thumb" class="w-full h-full object-cover">
               <span v-else class="text-[60px]">{{ post.icon || '👟' }}</span>
               <div class="absolute inset-0 bg-linear-to-b from-transparent/30 to-white/70"></div>
               <span :class="['absolute top-3 left-3 text-[9px] tracking-[1.5px] uppercase py-1 px-2.5 rounded-sm z-2 font-bold', post.tagClass || 'bg-accent text-white']">{{ post.tag }}</span>
             </div>
-            <div class="p-[18px] text-left">
+            <div class="p-4.5 text-left">
               <div class="text-[11px] text-text-dim mb-2 tracking-[0.5px]">{{ post.date }}</div>
               <router-link :to="{ name: 'news-detail', params: { id: post.id } }">
                 <h4 class="text-[15px] font-bold leading-[1.4] mb-2.5 text-text line-clamp-2 hover:text-accent transition-colors">{{ post.title }}</h4>
@@ -33,7 +33,7 @@
                   <div class="w-7 h-7 rounded-full bg-surface2 flex items-center justify-center text-[12px] text-text-muted">👤</div>
                   <span class="text-[12px] text-text-muted font-medium">{{ post.author }}</span>
                 </div>
-                <button class="flex items-center gap-[5px] bg-transparent border-none text-[12px] cursor-pointer transition-colors" :style="{ color: post.liked ? 'var(--color-accent, #FF4D00)' : '' }" @click="likePost(post)">
+                <button class="flex items-center gap-1.25 bg-transparent border-none text-[12px] cursor-pointer transition-colors" :style="{ color: post.liked ? 'var(--color-accent, #FF4D00)' : '' }" @click="likePost(post)">
                   <i class="ti ti-heart"></i> <span>{{ post.likes }}</span>
                 </button>
               </div>

@@ -76,7 +76,7 @@ const aiReplies = [
   'Crocs đang có rất nhiều mẫu hot như Mega Crush, Echo, Classic. Bạn thích phong cách nào?',
   'Mình kiểm tra ngay cho bạn! Đơn hàng hiện đang ở trạng thái "Đang giao" 🚚',
   'SaigonShoes có chính sách đổi trả 30 ngày, miễn phí nếu lỗi từ nhà sản xuất nhé!',
-  'Hiện tại đang có Flash Sale giảm đến 50% cho nhiều mẫu sneaker hot! ⚡'
+  'Hiện tại đang có Flash Sale giảm đến 50% cho nhiều mẫu sneaker hot!'
 ]
 
 const messages = ref([

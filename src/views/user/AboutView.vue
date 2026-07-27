@@ -3,10 +3,10 @@
     <!-- About Hero Section -->
     <section class="relative bg-surface2 py-20 overflow-hidden">
       <!-- Background Blobs -->
-      <div class="absolute w-[400px] h-[400px] rounded-full bg-accent/5 blur-[80px] -top-20 -right-20 pointer-events-none"></div>
-      <div class="absolute w-[300px] h-[300px] rounded-full bg-accent2/5 blur-[60px] -bottom-10 -left-10 pointer-events-none"></div>
+      <div class="absolute w-100 h-100 rounded-full bg-accent/5 blur-[80px] -top-20 -right-20 pointer-events-none"></div>
+      <div class="absolute w-75 h-75 rounded-full bg-accent2/5 blur-[60px] -bottom-10 -left-10 pointer-events-none"></div>
 
-      <div class="max-w-[800px] mx-auto px-5 text-center relative z-10">
+      <div class="max-w-200 mx-auto px-5 text-center relative z-10">
         <div class="flex justify-center gap-2 text-xs text-text-dim mb-6 font-semibold uppercase tracking-wider">
           <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
           <span>/</span>
@@ -25,7 +25,7 @@
 
     <!-- Brand Story Section -->
     <section class="py-20 bg-bg">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           
           <!-- Story Content Left -->
@@ -63,7 +63,7 @@
 
     <!-- Core Values Section -->
     <section class="py-20 bg-surface2">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         
         <div class="text-center mb-12 max-w-xl mx-auto space-y-4">
           <h2 class="font-display text-3xl font-extrabold text-text tracking-wide uppercase">Giá Trị Cốt Lõi</h2>
@@ -89,7 +89,7 @@
 
     <!-- Stat Counter Section -->
     <section class="py-16 bg-[#111111] text-white">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-white/10 text-center">
           <div v-for="(stat, idx) in stats" :key="idx" class="pt-6 md:pt-0 first:pt-0">
             <h2 class="font-display text-4xl sm:text-5xl text-accent mb-2 tracking-wide font-black">{{ stat.number }}</h2>
@@ -101,7 +101,7 @@
 
     <!-- Team Members Section -->
     <section class="py-20 bg-bg">
-      <div class="max-w-[1200px] mx-auto px-5">
+      <div class="max-w-300 mx-auto px-5">
         
         <div class="text-center mb-12 max-w-xl mx-auto space-y-4">
           <h2 class="font-display text-3xl font-extrabold text-text tracking-wide uppercase">Đội Ngũ Sáng Lập</h2>

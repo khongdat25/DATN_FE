@@ -3,7 +3,7 @@
     @click="emit('click')"
     class="group prod-card bg-bg border border-border rounded-md overflow-hidden transition-all relative hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] cursor-pointer"
   >
-    <div class="h-[200px] bg-white flex items-center justify-center relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+    <div class="h-50 bg-white flex items-center justify-center relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
       <img
         v-if="product.image"
         :src="product.image"
@@ -12,27 +12,27 @@
       />
       <span v-else class="text-[80px]">{{ product.icon }}</span>
 
-      <div class="absolute top-[10px] left-[10px] flex flex-col gap-[5px] z-2">
+      <div class="absolute top-2.5 left-2.5 flex flex-col gap-1.25 z-2">
         <span
           v-for="badge in product.badges"
           :key="badge.label"
-          :class="['inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-[3px] px-2 rounded-sm text-white', badge.color]"
+          :class="['inline-block text-[9px] font-medium tracking-[1.5px] uppercase py-0.75 px-2 rounded-sm text-white', badge.color]"
         >
           {{ badge.label }}
         </span>
       </div>
 
       <button
-        :class="['prod-wish absolute top-[10px] right-[10px] w-8 h-8 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all duration-300 cursor-pointer hover:bg-accent hover:border-accent hover:text-white active:scale-90', { active: wished }]"
+        :class="['prod-wish absolute top-2.5 right-2.5 w-8 h-8 bg-bg border border-border rounded-full flex items-center justify-center text-base text-text-muted z-3 transition-all duration-300 cursor-pointer hover:bg-accent hover:border-accent hover:text-white active:scale-90', { active: wished }]"
         @click.stop="toggleWish"
       >
         <i class="ti ti-heart"></i>
       </button>
     </div>
 
-    <div class="p-[14px]">
-      <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px]">{{ product.brand }}</div>
-      <div class="text-[14px] font-medium mb-[6px] whitespace-nowrap overflow-hidden text-ellipsis text-text">{{ product.name }}</div>
+    <div class="p-3.5">
+      <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-0.75">{{ product.brand }}</div>
+      <div class="text-[14px] font-medium mb-1.5 whitespace-nowrap overflow-hidden text-ellipsis text-text">{{ product.name }}</div>
       <div class="flex items-baseline gap-2 mb-2">
         <span class="font-display text-[20px] text-accent tracking-[0.5px]">{{ product.price }}</span>
         <span v-if="product.oldPrice" class="text-[12px] text-text-dim line-through">{{ product.oldPrice }}</span>

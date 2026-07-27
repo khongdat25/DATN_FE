@@ -1,6 +1,6 @@
 <template>
   
-    <!-- Breadcrumbs -->
+    <!-- Đường dẫn trang (Breadcrumbs) -->
     <div class="bg-surface2 py-4 border-b border-border">
       <div class="max-w-[1200px] mx-auto px-5 flex items-center gap-2 text-[12px] text-text-muted">
         <router-link to="/" class="hover:text-accent transition-colors">Trang chủ</router-link>
@@ -11,11 +11,11 @@
       </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Nội dung chính -->
     <main class="py-12 bg-bg">
       <div class="max-w-[1200px] mx-auto px-5 flex flex-col lg:flex-row gap-8">
         
-        <!-- Sidebar Filters -->
+        <!-- Thanh bộ lọc bên cạnh -->
         <aside class="w-full lg:w-[260px] shrink-0 flex flex-col gap-6">
           <div class="flex items-center justify-between">
             <h3 class="text-[15px] font-display font-bold flex items-center gap-2 uppercase tracking-widest text-text">
@@ -26,7 +26,7 @@
             </button>
           </div>
 
-          <!-- Brand Filter -->
+          <!-- Bộ lọc thương hiệu -->
           <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
             <div @click="toggleSection('brand')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
               <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Thương Hiệu</p>
@@ -45,7 +45,7 @@
             </div>
           </div>
 
-          <!-- Collection Filter -->
+          <!-- Bộ lọc bộ sưu tập -->
           <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
             <div @click="toggleSection('category')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
               <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Bộ Sưu Tập</p>
@@ -66,7 +66,7 @@
 
 
 
-          <!-- Price Range Filter -->
+          <!-- Bộ lọc khoảng giá -->
           <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
             <div @click="toggleSection('price')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
               <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Khoảng Giá (đ)</p>
@@ -84,7 +84,7 @@
             </div>
           </div>
 
-          <!-- Sizes Filter -->
+          <!-- Bộ lọc kích thước -->
           <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
             <div @click="toggleSection('size')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
               <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Kích Thước</p>
@@ -105,10 +105,10 @@
           </div>
         </aside>
 
-        <!-- Product List & Sorting -->
+        <!-- Danh sách sản phẩm & Sắp xếp -->
         <div class="flex-1 min-w-0">
 
-          <!-- Search Bar -->
+          <!-- Thanh tìm kiếm -->
           <div class="relative mb-4">
             <i class="ti ti-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
             <input
@@ -127,7 +127,7 @@
             </button>
           </div>
 
-          <!-- Sorting Toolbar -->
+          <!-- Thanh công cụ sắp xếp -->
           <div class="bg-white px-5 py-3.5 border border-border rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 mb-6 shadow-sm">
             <div class="flex items-center gap-2 flex-wrap">
               <span class="text-[13px] text-text-muted font-medium mr-1">Sắp xếp:</span>
@@ -150,7 +150,7 @@
             </div>
           </div>
 
-          <!-- Product Grid & Loading States -->
+          <!-- Lưới sản phẩm & Trạng thái tải -->
           <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <div v-for="i in 8" :key="i" class="border border-border rounded-2xl bg-white p-5 flex flex-col gap-4 animate-pulse shadow-sm">
               <div class="bg-surface2 rounded-xl h-48 w-full"></div>
@@ -173,7 +173,7 @@
             />
           </div>
           
-          <!-- Empty State -->
+          <!-- Trạng thái trống -->
           <div v-else class="text-center py-20 bg-white border border-border rounded-2xl shadow-sm">
             <i class="ti ti-mood-empty text-[60px] text-text-dim block mb-4"></i>
             <h4 class="text-lg font-bold text-text mb-2">Không tìm thấy sản phẩm nào</h4>
@@ -183,7 +183,7 @@
             </button>
           </div>
 
-          <!-- Pagination -->
+          <!-- Phân trang -->
           <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-10">
             <button 
               @click="currentPage = Math.max(1, currentPage - 1)" 
@@ -228,7 +228,7 @@ const router = useRouter()
 const route = useRoute()
 const showToast = inject('showToast', (msg) => {})
 
-// Layout sections toggling
+// Đóng/mở các mục bộ lọc
 const activeSections = reactive({
   category: true,
   brand: true,
@@ -237,7 +237,7 @@ const activeSections = reactive({
 })
 function toggleSection(section) { activeSections[section] = !activeSections[section] }
 
-// Categories loaded from API, brands/sizes stay static
+// Danh mục được tải từ API, thương hiệu và kích thước tĩnh
 const availableCategories = ref([])
 const availableBrands = ref([])
 const availableSizes = ['38', '39', '40', '41', '42', '43', '44']
@@ -248,11 +248,11 @@ const sortOptions = [
   { label: 'Bán Chạy', value: 'best-seller' }
 ]
 
-// Search
+// Tìm kiếm
 const searchQuery = ref('')
 let debounceTimer = null
 
-// Filters state
+// Trạng thái lưu bộ lọc
 const filters = reactive({
   categories: [],
   brands: [],
@@ -270,7 +270,7 @@ const itemsPerPage = 8
 const products = ref([])
 const isLoading = ref(true)
 
-// --- API functions ---
+// --- Các hàm gọi API ---
 async function fetchCategories() {
   try {
     const res = await axiosInstance.get('/getcategories')
@@ -278,7 +278,7 @@ async function fetchCategories() {
       availableCategories.value = res.data
     }
   } catch (e) {
-    console.error('Failed to fetch categories:', e)
+    console.error('Không thể lấy danh mục:', e)
   }
 }
 
@@ -289,7 +289,7 @@ async function fetchBrands() {
       availableBrands.value = res.data
     }
   } catch (e) {
-    console.error('Failed to fetch brands:', e)
+    console.error('Không thể lấy thương hiệu:', e)
   }
 }
 
@@ -298,38 +298,38 @@ async function fetchProducts() {
   try {
     const params = {}
 
-    // Text search (server-side)
+    // Tìm kiếm từ khóa (phía máy chủ)
     if (searchQuery.value.trim()) params.q = searchQuery.value.trim()
 
-    // Category filter: lookup ID from loaded categories
+    // Lọc danh mục: Tra cứu ID từ danh mục đã tải
     if (filters.categories.length > 0) {
       const cat = availableCategories.value.find(c => filters.categories.includes(c.name))
       if (cat?.id) params.category_id = cat.id
     }
 
-    // Price filter (server-side)
+    // Lọc giá (phía máy chủ)
     if (filters.appliedPriceFrom !== null) params.min_price = filters.appliedPriceFrom
     if (filters.appliedPriceTo !== null) params.max_price = filters.appliedPriceTo
 
-    // Sort (server-side)
+    // Sắp xếp (phía máy chủ)
     if (filters.priceSort === 'low-to-high') params.sort = 'price_asc'
     else if (filters.priceSort === 'high-to-low') params.sort = 'price_desc'
     else if (filters.sortBy === 'best-seller') params.sort = 'sold_desc'
     else if (filters.sortBy === 'newest') params.sort = 'newest'
-    else params.sort = 'sold_desc' // popular default
+    else params.sort = 'sold_desc' // mặc định phổ biến
 
     const res = await axiosInstance.get('/search', { params })
     if (res?.success && Array.isArray(res?.data)) {
       products.value = res.data.map(mapBackendProduct)
     }
   } catch (error) {
-    console.error('Failed to fetch products:', error)
+    console.error('Không thể lấy danh sách sản phẩm:', error)
   } finally {
     isLoading.value = false
   }
 }
 
-// Debounced search handler
+// Hàm xử lý tìm kiếm có thời gian chờ (debounce)
 function onSearchInput() {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
@@ -344,7 +344,7 @@ function clearSearch() {
   fetchProducts()
 }
 
-// --- Computed: only brand + size are client-side (price/sort/category/q are server-side) ---
+// --- Thuộc tính tính toán: Chỉ thương hiệu + size là lọc ở client (giá/sắp xếp/danh mục/từ khóa là ở server) ---
 const filteredProducts = computed(() => {
   let result = [...products.value]
   if (filters.brands.length > 0) {
@@ -364,7 +364,7 @@ const paginatedProducts = computed(() => {
   return filteredProducts.value.slice(start, start + itemsPerPage)
 })
 
-// --- Filter actions ---
+// --- Thao tác bộ lọc ---
 function toggleSizeFilter(size) {
   const idx = filters.sizes.indexOf(size)
   if (idx >= 0) filters.sizes.splice(idx, 1)
@@ -401,8 +401,9 @@ function resetFilters() {
 function handleWish(payload) {
   showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
 }
+
 function goToDetail(product) {
-  // Navigate using slug (backend Detail route uses slug, not numeric id)
+  // Chuyển hướng bằng slug (backend dùng slug thay vì id số)
   router.push({ name: 'product-detail', params: { id: product.slug || product.id } })
 }
 
@@ -430,7 +431,7 @@ function applyQueryFilters() {
 
 let isMounted = false
 
-// Watch server-side filter changes → refetch
+// Theo dõi thay đổi bộ lọc phía máy chủ → tải lại dữ liệu
 watch(
   [() => filters.sortBy, () => filters.priceSort, () => filters.categories,
    () => filters.appliedPriceFrom, () => filters.appliedPriceTo],
@@ -452,13 +453,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Chrome, Safari, Edge, Opera number arrows remove */
+/* Ẩn mũi tên nhập số trên Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-/* Firefox number input scrollbar remove */
+/* Ẩn thanh cuộn nhập số trên Firefox */
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;

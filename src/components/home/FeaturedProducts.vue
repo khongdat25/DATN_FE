@@ -1,6 +1,6 @@
 <template>
   <section class="py-8" id="products">
-    <div class="max-w-[1200px] mx-auto px-5">
+    <div class="max-w-300 mx-auto px-5">
       <div class="section-wrapper">
         <div class="grid grid-cols-3 items-center mb-6 gap-4 max-md:flex max-md:flex-col max-md:items-start max-md:gap-3">
           <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold whitespace-nowrap">SẢN PHẨM NỔI BẬT</h2>
@@ -20,7 +20,7 @@
           </div>
 
           <div class="flex justify-end max-md:justify-start">
-            <a href="/products" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]">
+            <a href="/products" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-1.5 transition-all whitespace-nowrap font-medium hover:gap-2.5">
               Xem tất cả <i class="ti ti-arrow-right"></i>
             </a>
           </div>
@@ -28,7 +28,7 @@
 
         <div class="grid grid-cols-2 max-lg:grid-cols-1 gap-5">
           <div v-if="isLoading" class="bg-white border border-border rounded-xl overflow-hidden p-6 animate-pulse flex flex-col gap-4 shadow-sm">
-            <div class="bg-surface2 rounded-xl h-[280px] max-lg:h-[220px] w-full"></div>
+            <div class="bg-surface2 rounded-xl h-70 max-lg:h-55 w-full"></div>
             <div class="h-3 bg-surface2 rounded w-1/4"></div>
             <div class="h-6 bg-surface2 rounded w-3/4"></div>
             <div class="h-5 bg-surface2 rounded w-1/2"></div>
@@ -39,7 +39,7 @@
             class="bg-bg rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(0,0,0,.05)]"
             @click="goToDetail(featured)"
           >
-            <div class="h-[280px] max-lg:h-[220px] relative overflow-hidden">
+            <div class="h-70 max-lg:h-55 relative overflow-hidden">
               <img :src="featured.image" class="w-full h-full object-contain p-3 bg-white" :alt="featured.name">
               <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,77,0,0.1),transparent_60%)]"></div>
             </div>
@@ -57,8 +57,8 @@
           </div>
 
           <div v-if="isLoading" class="flex flex-col gap-4">
-            <div v-for="i in 3" :key="i" class="bg-white border border-border rounded-xl p-4 flex gap-4 animate-pulse shadow-sm h-[135px]">
-              <div class="bg-surface2 rounded-lg w-[110px] h-full shrink-0"></div>
+            <div v-for="i in 3" :key="i" class="bg-white border border-border rounded-xl p-4 flex gap-4 animate-pulse shadow-sm h-33.75">
+              <div class="bg-surface2 rounded-lg w-27.5 h-full shrink-0"></div>
               <div class="flex-1 flex flex-col justify-between py-1">
                 <div>
                   <div class="h-3 bg-surface2 rounded w-1/4 mb-2"></div>
@@ -76,12 +76,12 @@
               class="featured-small group bg-bg rounded-md border border-border flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)]"
               @click="goToDetail(item)"
             >
-              <div class="w-[110px] min-w-[110px] overflow-hidden">
+              <div class="w-27.5 min-w-27.5 overflow-hidden">
                 <img :src="item.image" class="w-full h-full object-contain p-3 bg-white transition-transform duration-500 group-hover:scale-105" :alt="item.name">
               </div>
-              <div class="feat-small-info p-[14px] flex-1 text-left">
-                <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-[3px] font-bold">{{ item.brand }}</div>
-                <div class="text-[13px] font-medium mb-[5px] text-text leading-tight">{{ item.name }}</div>
+              <div class="feat-small-info p-3.5 flex-1 text-left">
+                <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-0.75 font-bold">{{ item.brand }}</div>
+                <div class="text-[13px] font-medium mb-1.25 text-text leading-tight">{{ item.name }}</div>
                 <div class="flex items-baseline gap-2 mb-2">
                   <span class="font-display text-[17px] text-accent tracking-[0.5px] font-bold">{{ item.price }}</span>
                   <span v-if="item.oldPrice" class="text-[12px] text-text-dim line-through">{{ item.oldPrice }}</span>

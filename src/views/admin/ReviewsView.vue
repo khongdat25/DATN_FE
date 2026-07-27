@@ -3,7 +3,7 @@
     <div class="space-y-6 text-left">
       <!-- Page Title Header -->
       <div>
-        <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Phản hồi & Đánh giá sản phẩm ⭐</h1>
+        <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Phản hồi & Đánh giá sản phẩm</h1>
         <p class="text-sm text-slate-500 mt-1">Giám sát điểm đánh giá giày dép từ khách hàng, phản hồi tư vấn đổi trả và kiểm duyệt hiển thị nhận xét rác.</p>
       </div>
 

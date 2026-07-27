@@ -4,7 +4,7 @@
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="text-left">
-          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Quản lý Đơn hàng 📦</h1>
+          <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Quản lý Đơn hàng</h1>
           <p class="text-sm text-slate-500 mt-1">Duyệt đơn hàng, cập nhật tiến trình giao hàng và kiểm soát thông tin vận chuyển chi tiết.</p>
         </div>
       </div>
@@ -18,7 +18,7 @@
             activeStatusTab === 'all' ? 'text-accent border-accent' : 'text-slate-500 hover:text-slate-800 border-transparent'
           ]"
         >
-          Tất cả đơn hàng ({{ orders.length }})
+          Tất cả ({{ orders.length }})
         </button>
         <button 
           @click="activeStatusTab = 'new'" 
@@ -55,6 +55,26 @@
           ]"
         >
           Đã giao ({{ orders.filter(o => o.status === 'delivered').length }})
+        </button>
+        <button 
+          @click="activeStatusTab = 'refund_requested'" 
+          :class="[
+            'py-4 px-4 transition-all cursor-pointer font-bold focus:outline-none border-b-2 flex items-center gap-1.5',
+            activeStatusTab === 'refund_requested' ? 'text-amber-600 border-amber-500' : 'text-slate-500 hover:text-slate-800 border-transparent'
+          ]"
+        >
+          <span v-if="refundRequestedCount > 0" class="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block"></span>
+          <span>Yêu cầu hoàn tiền</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-extrabold">{{ refundRequestedCount }}</span>
+        </button>
+        <button 
+          @click="activeStatusTab = 'cancelled'" 
+          :class="[
+            'py-4 px-4 transition-all cursor-pointer font-bold focus:outline-none border-b-2',
+            activeStatusTab === 'cancelled' ? 'text-accent border-accent' : 'text-slate-500 hover:text-slate-800 border-transparent'
+          ]"
+        >
+          Đã hủy ({{ orders.filter(o => o.status === 'cancelled').length }})
         </button>
       </div>
 
@@ -139,7 +159,15 @@
                         <span :class="['w-1.5 h-1.5 rounded-full', getStatusBulletClass(order.status)]"></span>
                         {{ getStatusText(order.status) }}
                       </span>
-                      <span :class="['inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap', getPaymentStatusBadgeClass(order.payment_status)]">
+
+                      <!-- Refund Status Badges -->
+                      <span v-if="isRefundOrder(order)" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-full whitespace-nowrap bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
+                        💸 Chờ hoàn tiền
+                      </span>
+                      <span v-else-if="order.payment_status === 'refunded'" class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap bg-purple-50 text-purple-700 border border-purple-200">
+                        ✅ Đã hoàn tiền
+                      </span>
+                      <span v-else :class="['inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap', getPaymentStatusBadgeClass(order.payment_status)]">
                         {{ getPaymentStatusText(order.payment_status) }}
                       </span>
                     </div>
@@ -190,10 +218,10 @@
                           <div class="relative pl-6 space-y-4 text-xs text-left">
                             <div v-for="(log, idx) in order.histories" :key="idx" class="relative">
                               <!-- Line connecting bullets -->
-                              <div v-if="idx < order.histories.length - 1" class="absolute left-[-17px] top-5 bottom-[-20px] w-0.5 bg-slate-100"></div>
+                              <div v-if="idx < order.histories.length - 1" class="absolute -left-4.25 top-5 -bottom-5 w-0.5 bg-slate-100"></div>
                               
                               <!-- Bullet indicator -->
-                              <span class="absolute left-[-23px] top-0.5 w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center"
+                              <span class="absolute -left-5.75 top-0.5 w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center"
                                 :class="log.new_status === 'cancelled' ? 'bg-red-400!' : (log.new_status === 'delivered' ? 'bg-emerald-400!' : 'bg-slate-350!')"
                               ></span>
                               
@@ -231,6 +259,63 @@
                           <div>
                             <span class="text-slate-400 block text-[10px] font-bold uppercase tracking-wider">Địa chỉ giao hàng</span>
                             <span class="text-slate-700 block mt-0.5 leading-relaxed font-semibold">{{ order.receiverAddress }}</span>
+                          </div>
+
+                          <!-- Refund Bank Info Card (If present) -->
+                          <div v-if="order.cancel_reason || order.bank_account_number || order.bank_name" class="p-4 bg-amber-50/90 border border-amber-200/90 rounded-2xl space-y-3 text-left shadow-2xs">
+                            <div class="flex items-center justify-between">
+                              <div class="font-extrabold text-amber-950 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                                <i class="ti ti-receipt-refund text-amber-600 text-base"></i> Thông tin Yêu cầu Hoàn tiền
+                              </div>
+                              <span v-if="order.payment_status === 'refunded'" class="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-800 border border-purple-200">
+                                ĐÃ HOÀN TIỀN
+                              </span>
+                              <span v-else-if="order.bank_account_number" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-200 text-amber-900">
+                                CHỜ HOÀN TIỀN
+                              </span>
+                            </div>
+
+                            <div v-if="order.cancel_reason" class="text-amber-950 text-xs bg-white/70 p-2.5 rounded-xl border border-amber-100">
+                              <strong class="text-amber-900 font-bold">Lý do hủy:</strong> {{ order.cancel_reason }}
+                            </div>
+
+                            <div v-if="order.bank_account_number" class="space-y-2 text-amber-950 text-xs pt-1 border-t border-amber-200/80">
+                              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div><strong class="text-amber-900 font-semibold">Ngân hàng:</strong> <span class="font-bold">{{ order.bank_name }}</span></div>
+                                <div><strong class="text-amber-900 font-semibold">Chủ tài khoản:</strong> <span class="font-bold uppercase text-slate-900">{{ order.bank_account_name }}</span></div>
+                              </div>
+
+                              <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-amber-200">
+                                <div>
+                                  <span class="text-[10px] uppercase font-bold text-slate-400 block">SỐ TÀI KHOẢN NHẬN TIỀN</span>
+                                  <span class="font-mono font-extrabold text-sm text-slate-900 select-all">{{ order.bank_account_number }}</span>
+                                </div>
+                                <button 
+                                  @click="copyBankAccount(order.bank_account_number)" 
+                                  type="button"
+                                  class="bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 transition-all cursor-pointer flex items-center gap-1.5"
+                                >
+                                  <i class="ti ti-copy text-sm"></i>
+                                  <span>Sao chép STK</span>
+                                </button>
+                              </div>
+
+                              <div v-if="order.refund_notes" class="text-[11px] text-amber-800 italic">
+                                * Ghi chú hoàn tiền từ khách: "{{ order.refund_notes }}"
+                              </div>
+
+                              <!-- Quick Action 1-Click Refund -->
+                              <div v-if="order.payment_status !== 'refunded'" class="pt-2">
+                                <button 
+                                  @click="quickConfirmRefund(order)" 
+                                  type="button"
+                                  class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all border-none cursor-pointer flex items-center justify-center gap-2 font-display"
+                                >
+                                  <i class="ti ti-check text-base"></i>
+                                  <span>Xác nhận Đã hoàn tiền cho đơn hàng này</span>
+                                </button>
+                              </div>
+                            </div>
                           </div>
 
                           <div class="h-px bg-slate-100"></div>
@@ -345,12 +430,12 @@ async function fetchOrders() {
     const response = await axiosInstance.get('/admin/orders')
     if (response && response.success) {
       orders.value = response.data.map(order => {
-        // Map payment method name
+        // Ánh xạ tên phương thức thanh toán
         let pm = 'COD'
         if (order.payment_method_id === 2) pm = 'Chuyển khoản'
         if (order.payment_method_id === 3) pm = 'VNPAY'
 
-        // Map items
+        // Ánh xạ danh sách sản phẩm
         const items = (order.items || []).map(item => {
           const v = item.variant || {}
           const p = v.product || {}
@@ -392,6 +477,11 @@ async function fetchOrders() {
           receiverName: order.name || 'Chưa rõ',
           receiverPhone: order.phone || '',
           receiverAddress: order.address || 'Chưa rõ',
+          cancel_reason: order.cancel_reason || order.reason || '',
+          bank_name: order.bank_name || '',
+          bank_account_number: order.bank_account_number || '',
+          bank_account_name: order.bank_account_name || '',
+          refund_notes: order.refund_notes || '',
           items: items,
           histories: (order.histories || []).map(h => ({
             note: h.note,
@@ -419,6 +509,19 @@ onMounted(() => {
   fetchOrders()
 })
 
+function isRefundOrder(o) {
+  if (!o) return false
+  // Đã hoàn tiền rồi thì bỏ qua
+  if (o.payment_status === 'refunded') return false
+  // Chỉ cần hoàn tiền khi đơn đã bị hủy VÀ đã thanh toán thực sự (payment_status === 'paid')
+  if (o.status === 'cancelled' && o.payment_status === 'paid') return true
+  return false
+}
+
+const refundRequestedCount = computed(() => {
+  return orders.value.filter(o => isRefundOrder(o)).length
+})
+
 const filteredOrders = computed(() => {
   return orders.value.filter(o => {
     const matchesSearch = o.code.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
@@ -426,7 +529,9 @@ const filteredOrders = computed(() => {
                           o.receiverName.toLowerCase().includes(searchQuery.value.toLowerCase())
     
     let matchesTab = true
-    if (activeStatusTab.value !== 'all') {
+    if (activeStatusTab.value === 'refund_requested') {
+      matchesTab = isRefundOrder(o)
+    } else if (activeStatusTab.value !== 'all') {
       matchesTab = o.status === activeStatusTab.value
     }
 
@@ -443,6 +548,57 @@ const filteredOrders = computed(() => {
     return matchesSearch && matchesTab && matchesDate && matchesPayment
   })
 })
+
+function copyBankAccount(accountNum) {
+  if (!accountNum) return
+  navigator.clipboard.writeText(accountNum)
+  Swal.fire({
+    toast: true,
+    position: 'bottom-end',
+    icon: 'success',
+    title: 'Đã sao chép số tài khoản!',
+    text: accountNum,
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true
+  })
+}
+
+async function quickConfirmRefund(order) {
+  Swal.fire({
+    title: 'Xác nhận Đã hoàn tiền?',
+    text: `Bạn có chắc chắn đã hoàn tiền cho đơn hàng ${order.code}?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Xác nhận Đã hoàn tiền!',
+    cancelButtonText: 'Hủy'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await axiosInstance.post(`/admin/orders/${order.id}/status`, {
+          status: 'cancelled',
+          payment_status: 'refunded'
+        })
+        if (response && response.success) {
+          order.payment_status = 'refunded'
+          order.tempPaymentStatus = 'refunded'
+          Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: `Đơn hàng ${order.code} đã cập nhật trạng thái Đã hoàn tiền.`,
+            confirmButtonColor: '#10b981'
+          })
+          await fetchOrders()
+        }
+      } catch (error) {
+        console.error('Error confirming refund:', error)
+        Swal.fire('Lỗi', error.response?.data?.message || 'Không thể cập nhật trạng thái', 'error')
+      }
+    }
+  })
+}
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)
