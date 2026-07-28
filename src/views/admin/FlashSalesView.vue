@@ -358,19 +358,44 @@
             </div>
           </div>
 
-          <!-- Product Picker (multi check) -->
+          <!-- Product & Variant Picker -->
           <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Chọn sản phẩm tham gia *</label>
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 max-h-40 overflow-y-auto space-y-2">
-              <label v-for="p in availableProducts" :key="p.id" class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700">
-                <input 
-                  type="checkbox" 
-                  :value="p" 
-                  v-model="formCampaign.selectedProducts" 
-                  class="rounded text-accent focus:ring-accent border-slate-300"
-                >
-                <span>{{ p.name }} - Giá gốc: {{ formatCurrency(p.originalPrice) }}</span>
-              </label>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Chọn sản phẩm & Biến thể (Size / Màu) tham gia Flash Sale *</label>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 max-h-64 overflow-y-auto space-y-3">
+              <div v-for="p in availableProducts" :key="p.id" class="border border-slate-200 rounded-xl p-3 bg-white shadow-2xs">
+                <label class="flex items-center justify-between cursor-pointer text-xs font-bold text-slate-800">
+                  <div class="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      :checked="isProductSelected(p.id)"
+                      @change="toggleProductSelection(p)"
+                      class="rounded text-accent focus:ring-accent border-slate-300 w-4 h-4 cursor-pointer"
+                    >
+                    <span>{{ p.name }}</span>
+                  </div>
+                  <span class="text-slate-400 font-normal">Từ {{ formatCurrency(p.originalPrice) }}</span>
+                </label>
+
+                <!-- Variant list for this product -->
+                <div v-if="p.variants && p.variants.length > 0" class="mt-2.5 pl-6 border-l-2 border-slate-100 space-y-1.5">
+                  <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tích chọn biến thể được sale:</div>
+                  <label v-for="v in p.variants" :key="v.id" class="flex items-center justify-between cursor-pointer text-[11px] text-slate-600 hover:text-slate-900 py-0.5">
+                    <div class="flex items-center gap-2">
+                      <input 
+                        type="checkbox" 
+                        :checked="isVariantSelected(p.id, v.id)"
+                        @change="toggleVariantSelection(p.id, v.id)"
+                        class="rounded text-accent focus:ring-accent border-slate-300 w-3.5 h-3.5 cursor-pointer"
+                      >
+                      <span class="font-medium">{{ v.label }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[10px]">
+                      <span class="text-slate-500">Tồn kho: <strong class="text-slate-700">{{ v.stock }}</strong></span>
+                      <span class="text-accent font-semibold">{{ formatCurrency(v.price) }}</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -435,8 +460,56 @@ const formCampaign = ref({
   discountPercent: 20,
   limitCount: 15,
   selectedProducts: [],
+  selectedVariantIds: {},
   status: 'active'
 })
+
+function isProductSelected(productId) {
+  return formCampaign.value.selectedProducts.some(p => p.id === productId)
+}
+
+function isVariantSelected(productId, variantId) {
+  const vList = formCampaign.value.selectedVariantIds[productId] || []
+  return vList.includes(variantId)
+}
+
+function toggleProductSelection(product) {
+  const index = formCampaign.value.selectedProducts.findIndex(p => p.id === product.id)
+  if (index > -1) {
+    formCampaign.value.selectedProducts.splice(index, 1)
+    delete formCampaign.value.selectedVariantIds[product.id]
+  } else {
+    formCampaign.value.selectedProducts.push(product)
+    if (product.variants && product.variants.length > 0) {
+      formCampaign.value.selectedVariantIds[product.id] = product.variants.map(v => v.id)
+    }
+  }
+}
+
+function toggleVariantSelection(productId, variantId) {
+  if (!formCampaign.value.selectedVariantIds[productId]) {
+    formCampaign.value.selectedVariantIds[productId] = []
+  }
+  const vList = formCampaign.value.selectedVariantIds[productId]
+  const index = vList.indexOf(variantId)
+  if (index > -1) {
+    vList.splice(index, 1)
+  } else {
+    vList.push(variantId)
+  }
+  
+  const product = availableProducts.value.find(p => p.id === productId)
+  if (product) {
+    const hasAny = vList.length > 0
+    const isSel = isProductSelected(productId)
+    if (hasAny && !isSel) {
+      formCampaign.value.selectedProducts.push(product)
+    } else if (!hasAny && isSel) {
+      const pIndex = formCampaign.value.selectedProducts.findIndex(p => p.id === productId)
+      if (pIndex > -1) formCampaign.value.selectedProducts.splice(pIndex, 1)
+    }
+  }
+}
 
 function getImageUrl(imagePath) {
   if (!imagePath) return '/images/p1.png'
@@ -463,14 +536,30 @@ async function fetchAvailableProducts() {
           const firstImg = p.images[0]
           img = getImageUrl(typeof firstImg === 'string' ? firstImg : (firstImg?.image || ''))
         }
+
+        const variants = (p.variants || []).map(v => {
+          const sizeName = v.size ? v.size.name : (v.size_name || '')
+          const colorName = v.color ? v.color.name : (v.color_name || '')
+          const label = [sizeName, colorName].filter(Boolean).join(' - ') || `Biến thể #${v.id}`
+          return {
+            id: v.id,
+            product_id: p.id,
+            size_name: sizeName,
+            color_name: colorName,
+            label: label,
+            price: v.price,
+            stock: v.stock || 0
+          }
+        })
         
-        const minPrice = p.variants && p.variants.length > 0 ? Math.min(...p.variants.map(v => v.price)) : 0
+        const minPrice = variants.length > 0 ? Math.min(...variants.map(v => v.price)) : 0
         
         return {
           id: p.id,
           name: p.name,
           originalPrice: minPrice,
-          image: img
+          image: img,
+          variants: variants
         }
       })
     }
@@ -484,20 +573,57 @@ async function fetchCampaigns() {
     const response = await axiosInstance.get('/flash-sale')
     if (response && response.success) {
       campaigns.value = response.data.map(cam => {
+        const now = new Date()
+        const startTime = cam.start_time ? new Date(cam.start_time.replace(/-/g, '/')) : null
+        const endTime = cam.end_time ? new Date(cam.end_time.replace(/-/g, '/')) : null
+
         let statusText = 'upcoming'
-        if (Number(cam.status) === 1) statusText = 'active'
-        else if (Number(cam.status) === 3) statusText = 'expired'
-        
+        if (Number(cam.status) === 3 || (endTime && now > endTime)) {
+          statusText = 'expired'
+        } else if (Number(cam.status) === 2) {
+          statusText = 'paused'
+        } else if (startTime && now < startTime) {
+          statusText = 'upcoming'
+        } else if (startTime && endTime && now >= startTime && now <= endTime) {
+          statusText = 'active'
+        } else if (Number(cam.status) === 1) {
+          statusText = 'active'
+        }
+
+        let dateVal = cam.date || ''
+        let timeSlotVal = cam.timeSlot || ''
+
+        if (startTime && endTime) {
+          const yyyy = startTime.getFullYear()
+          const mm = String(startTime.getMonth() + 1).padStart(2, '0')
+          const dd = String(startTime.getDate()).padStart(2, '0')
+          dateVal = `${yyyy}-${mm}-${dd}`
+
+          const startH = String(startTime.getHours()).padStart(2, '0')
+          const startM = String(startTime.getMinutes()).padStart(2, '0')
+          const endH = String(endTime.getHours()).padStart(2, '0')
+          const endM = String(endTime.getMinutes()).padStart(2, '0')
+          timeSlotVal = `${startH}:${startM} - ${endH}:${endM}`
+        }
+
+        const firstItem = (cam.items && cam.items.length > 0) ? cam.items[0] : null
+        const discountVal = firstItem ? parseFloat(firstItem.discount_value) || 20 : 20
+
         return {
           id: cam.id,
           name: cam.name,
-          date: cam.date,
-          timeSlot: cam.timeSlot,
-          discountPercent: cam.discountPercent,
+          date: dateVal,
+          timeSlot: timeSlotVal,
+          discountPercent: discountVal,
           status: statusText,
           products: (cam.items || []).map(item => {
             const prod = item.product || {}
-            const minPrice = prod.variants && prod.variants.length > 0 ? Math.min(...prod.variants.map(v => v.price)) : 0
+            const variant = item.variant || {}
+            const sizeName = variant.size ? variant.size.name : ''
+            const colorName = variant.color ? variant.color.name : ''
+            const variantLabel = [sizeName, colorName].filter(Boolean).join(' - ')
+
+            const minPrice = variant.price || (prod.variants && prod.variants.length > 0 ? Math.min(...prod.variants.map(v => v.price)) : 0)
             
             let img = '/images/p1.png'
             if (prod.images && prod.images.length > 0) {
@@ -509,7 +635,9 @@ async function fetchCampaigns() {
             
             return {
               id: prod.id,
-              name: prod.name || 'N/A',
+              variant_id: item.variant_id,
+              variantLabel: variantLabel,
+              name: variantLabel ? `${prod.name || 'N/A'} (${variantLabel})` : (prod.name || 'N/A'),
               originalPrice: minPrice,
               image: img,
               limitCount: item.quantity_limit || 0,
@@ -636,6 +764,7 @@ function openAddModal() {
     discountPercent: 20,
     limitCount: 15,
     selectedProducts: [],
+    selectedVariantIds: {},
     status: 'active'
   }
   modalOpen.value = true
@@ -643,6 +772,24 @@ function openAddModal() {
 
 function openEditModal(cam) {
   isEditMode.value = true
+  const selProds = []
+  const selVariantsMap = {}
+
+  cam.products.forEach(p => {
+    const ap = availableProducts.value.find(item => item.id === p.id)
+    if (ap && !selProds.some(sp => sp.id === ap.id)) {
+      selProds.push(ap)
+    }
+    if (!selVariantsMap[p.id]) {
+      selVariantsMap[p.id] = []
+    }
+    if (p.variant_id) {
+      selVariantsMap[p.id].push(p.variant_id)
+    } else if (ap && ap.variants) {
+      selVariantsMap[p.id] = ap.variants.map(v => v.id)
+    }
+  })
+
   formCampaign.value = {
     id: cam.id,
     name: cam.name,
@@ -650,14 +797,8 @@ function openEditModal(cam) {
     timeSlot: cam.timeSlot,
     discountPercent: cam.discountPercent,
     limitCount: cam.products[0]?.limitCount || 15,
-    selectedProducts: cam.products.map(p => {
-      return availableProducts.value.find(ap => ap.id === p.id) || {
-        id: p.id,
-        name: p.name,
-        originalPrice: p.originalPrice,
-        image: p.image
-      }
-    }),
+    selectedProducts: selProds,
+    selectedVariantIds: selVariantsMap,
     status: cam.status === 'active' ? 'active' : (cam.status === 'expired' ? 'expired' : 'upcoming')
   }
   modalOpen.value = true
@@ -678,12 +819,25 @@ async function saveCampaign() {
     return
   }
 
+  const items = []
+  formCampaign.value.selectedProducts.forEach(p => {
+    const vIds = formCampaign.value.selectedVariantIds[p.id] || []
+    if (vIds.length > 0) {
+      vIds.forEach(vId => {
+        items.push({ product_id: p.id, variant_id: vId })
+      })
+    } else {
+      items.push({ product_id: p.id, variant_id: null })
+    }
+  })
+
   const payload = {
     name: formCampaign.value.name,
     date: formCampaign.value.date,
     golden_hour: formCampaign.value.timeSlot,
     discount_value: formCampaign.value.discountPercent,
     quantity_limit: formCampaign.value.limitCount,
+    items: items,
     product_ids: formCampaign.value.selectedProducts.map(p => p.id)
   }
 

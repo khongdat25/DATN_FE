@@ -477,29 +477,38 @@ async function loadProduct(slug) {
       // Kiểm tra xem sản phẩm có đang thuộc chiến dịch Flash Sale đang diễn ra không
       try {
         const fsRes = await axiosInstance.get('/flashsales')
-        if (fsRes.success && Array.isArray(fsRes.data) && fsRes.data.length > 0) {
+        if (fsRes?.success && Array.isArray(fsRes.data) && fsRes.data.length > 0) {
           const activeSale = fsRes.data[0]
           if (activeSale && activeSale.items) {
-            const fsItem = activeSale.items.find(item => item.product_id === rawProduct.id || item.product?.id === rawProduct.id)
-            if (fsItem && fsItem.discount_value !== undefined && fsItem.discount_value !== null) {
-              const originalPrice = parseFloat(data.numericPrice) || 0
-              const discountPercent = parseFloat(fsItem.discount_value) || 0
-              const flashPrice = originalPrice * (1 - discountPercent / 100)
+            // Lấy tất cả mục flash sale ứng với sản phẩm này
+            const fsItems = activeSale.items.filter(item => item.product_id === rawProduct.id || item.product?.id === rawProduct.id)
+            
+            if (fsItems.length > 0 && data.rawVariants && data.rawVariants.length > 0) {
+              const saledVariantIds = fsItems.map(i => i.variant_id).filter(Boolean)
               
-              data.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
-              data.oldPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ')
-              data.numericPrice = flashPrice
-              data.discount = `${Math.round(discountPercent)}%`
-              data.badges = [{ label: `-${Math.round(discountPercent)}%`, color: 'bg-accent' }]
-              
-              // Cập nhật lại rawVariants để các thuộc tính tính toán (computed) của currentVariant hoạt động đúng
-              if (data.rawVariants && data.rawVariants.length > 0) {
-                data.rawVariants = data.rawVariants.map(v => {
-                  const vPrice = parseFloat(v.price) || 0
-                  const vSale = vPrice * (1 - discountPercent / 100)
-                  return { ...v, sale: vSale }
-                })
-              }
+              data.rawVariants = data.rawVariants.map(v => {
+                // Nếu chiến dịch chọn biến thể cụ thể (saledVariantIds có giá trị)
+                // hoặc không chọn biến thể cụ thể nào (null -> tất cả biến thể)
+                const matchedFsItem = fsItems.find(i => !i.variant_id || i.variant_id === v.id)
+                
+                if (matchedFsItem && matchedFsItem.discount_value !== undefined && matchedFsItem.discount_value !== null) {
+                  const originalPrice = parseFloat(v.price) || 0
+                  const discountPercent = parseFloat(matchedFsItem.discount_value) || 0
+                  const flashPrice = originalPrice * (1 - discountPercent / 100)
+                  return {
+                    ...v,
+                    isFlashSale: true,
+                    discountPercent: Math.round(discountPercent),
+                    sale: flashPrice
+                  }
+                }
+                
+                return {
+                  ...v,
+                  isFlashSale: false,
+                  sale: null
+                }
+              })
             }
           }
         }
@@ -611,13 +620,8 @@ async function doAddToCart() {
   }
   
   // Tìm biến thể sản phẩm phù hợp
-  const hasColorOptions = product.value.colors && product.value.colors.length > 0
-  const matchingVariant = findMatchingVariant(
-    product.value.rawVariants || [],
-    selectedSize.value,
-    selectedColor.value,
-    hasColorOptions
-  )
+  const matchingVariant = currentVariant.value
+  const activePrice = matchingVariant ? (matchingVariant.sale || matchingVariant.price) : (product.value.numericPrice || 0)
   
   const payload = {
     id: product.value.id,
@@ -627,7 +631,7 @@ async function doAddToCart() {
     variant_name: product.value.colors && product.value.colors.length > 0 
       ? `Màu ${selectedColor.value} · Size ${selectedSize.value}`
       : `Size ${selectedSize.value}`,
-    price: product.value.numericPrice || 0,
+    price: activePrice,
     image: activeImage.value,
     qty: qty.value
   }
@@ -646,13 +650,7 @@ async function doBuyNow() {
     return
   }
   
-  const hasColorOptions = product.value.colors && product.value.colors.length > 0
-  const matchingVariant = findMatchingVariant(
-    product.value.rawVariants || [],
-    selectedSize.value,
-    selectedColor.value,
-    hasColorOptions
-  )
+  const matchingVariant = currentVariant.value
   
   if (!matchingVariant?.id) {
     Swal.fire({
@@ -683,9 +681,8 @@ async function doBuyNow() {
     return
   }
 
-  // Tạo thông tin tóm tắt thanh toán tạm thời cho duy nhất sản phẩm này
-  const price = product.value.numericPrice || 0
-  const subtotal = price * qty.value
+  const activePrice = matchingVariant.sale || matchingVariant.price || product.value.numericPrice || 0
+  const subtotal = activePrice * qty.value
   const shippingFee = subtotal >= 500000 ? 0 : 30000
   
   const buyNowItem = {
@@ -696,7 +693,7 @@ async function doBuyNow() {
     variant: product.value.colors && product.value.colors.length > 0 
       ? `Màu ${selectedColor.value} · Size ${selectedSize.value}`
       : `Size ${selectedSize.value}`,
-    price: price,
+    price: activePrice,
     qty: qty.value,
     image: activeImage.value
   }

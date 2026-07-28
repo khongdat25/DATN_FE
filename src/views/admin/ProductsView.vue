@@ -328,73 +328,68 @@
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider"><i class="ti ti-list-numbers"></i> Cấu hình các biến thể (Variants) *</label>
               <button 
                 type="button" 
-                @click="addVariantRow" 
-                class="text-accent hover:text-accent-hover text-xs font-bold flex items-center gap-1 border-none bg-transparent cursor-pointer"
+                @click="openAddVariantModal" 
+                class="bg-orange-50 hover:bg-accent hover:text-white text-accent text-xs font-bold py-1.5 px-3 rounded-xl border border-orange-100 shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                + Thêm dòng
+                <i class="ti ti-plus text-xs font-bold"></i> Thêm biến thể mới
               </button>
             </div>
             
-            <div class="space-y-3">
-              <!-- Variant Form Row -->
-              <div 
-                v-for="(v, index) in formProduct.variants" 
-                :key="index" 
-                class="grid grid-cols-12 gap-3 items-end bg-slate-50/50 p-3 rounded-xl border border-slate-100"
-              >
-                <div class="col-span-3">
-                  <span class="block text-[10px] text-slate-400 font-bold mb-1">SIZE *</span>
-                  <select 
-                    v-model="v.size_id" 
-                    required 
-                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold cursor-pointer"
-                  >
-                    <option value="">Chọn Size</option>
-                    <option v-for="sz in sizesList" :key="sz.id" :value="sz.id">Size {{ sz.name }}</option>
-                  </select>
-                </div>
-                <div class="col-span-3">
-                  <span class="block text-[10px] text-slate-400 font-bold mb-1">MÀU SẮC *</span>
-                  <select 
-                    v-model="v.color_id" 
-                    required 
-                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold cursor-pointer"
-                  >
-                    <option value="">Chọn Màu</option>
-                    <option v-for="cl in colorsList" :key="cl.id" :value="cl.id">{{ cl.name }}</option>
-                  </select>
-                </div>
-                <div class="col-span-3">
-                  <span class="block text-[10px] text-slate-400 font-bold mb-1">TỒN KHO *</span>
-                  <input 
-                    type="number" 
-                    v-model="v.stock" 
-                    placeholder="10" 
-                    required 
-                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold"
-                  >
-                </div>
-                <div class="col-span-2">
-                  <span class="block text-[10px] text-slate-400 font-bold mb-1">GIÁ GỐC *</span>
-                  <input 
-                    type="number" 
-                    v-model="v.price" 
-                    placeholder="1.2M" 
-                    required 
-                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-accent transition-all text-slate-800 font-semibold"
-                  >
-                </div>
-                <div class="col-span-1 text-center">
-                  <button 
-                    type="button" 
-                    @click="removeVariantRow(index)" 
-                    :disabled="formProduct.variants.length <= 1"
-                    class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors cursor-pointer border-none disabled:opacity-50"
-                  >
-                    <i class="ti ti-trash"></i>
-                  </button>
-                </div>
-              </div>
+            <!-- Variants Table / List -->
+            <div class="border border-slate-100 rounded-2xl overflow-hidden shadow-2xs bg-white">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/70 text-slate-500 font-bold border-b border-slate-100 text-[10px] uppercase tracking-wider">
+                    <th class="p-3">SIZE</th>
+                    <th class="p-3">MÀU SẮC</th>
+                    <th class="p-3">TỒN KHO</th>
+                    <th class="p-3">GIÁ BÁN</th>
+                    <th class="p-3 text-right">THAO TÁC</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium">
+                  <tr v-for="(v, index) in formProduct.variants" :key="index" class="hover:bg-slate-50/50">
+                    <td class="p-3 font-bold text-slate-800">
+                      Size {{ getVariantSizeNameById(v.size_id) }}
+                    </td>
+                    <td class="p-3 text-slate-600">
+                      {{ getVariantColorNameById(v.color_id) }}
+                    </td>
+                    <td class="p-3 font-semibold">
+                      <span :class="v.stock > 0 ? 'text-slate-800' : 'text-red-500 font-bold'">{{ v.stock }} đôi</span>
+                    </td>
+                    <td class="p-3 font-bold text-slate-900">
+                      {{ formatCurrency(v.price) }}
+                    </td>
+                    <td class="p-3 text-right">
+                      <div class="flex items-center justify-end gap-1.5">
+                        <button 
+                          type="button" 
+                          @click="openEditVariantModal(index)"
+                          class="w-7 h-7 bg-orange-50 text-accent hover:bg-accent hover:text-white rounded-lg flex items-center justify-center border border-orange-100 transition-colors cursor-pointer shadow-2xs"
+                          title="Chỉnh sửa biến thể"
+                        >
+                          <i class="ti ti-pencil text-xs"></i>
+                        </button>
+                        <button 
+                          type="button" 
+                          @click="removeVariantRow(index)" 
+                          :disabled="formProduct.variants.length <= 1"
+                          class="w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors cursor-pointer border-none disabled:opacity-40"
+                          title="Xóa biến thể"
+                        >
+                          <i class="ti ti-trash text-xs"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr v-if="!formProduct.variants || formProduct.variants.length === 0">
+                    <td colspan="5" class="p-4 text-center text-slate-400">
+                      Chưa có biến thể nào. Bấm "+ Thêm biến thể mới" để tạo.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -417,7 +412,111 @@
         </form>
       </div>
     </div>
-  
+
+    <!-- Add/Edit Variant Sub-Modal (Popup) -->
+    <div 
+      v-if="variantModalOpen" 
+      class="fixed inset-0 z-[600] flex items-center justify-center p-4 animate-fade-in-quick"
+    >
+      <!-- Sub-modal Backdrop -->
+      <div 
+        @click="closeVariantModal" 
+        class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300"
+      ></div>
+      
+      <!-- Sub-modal Container -->
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-sm p-6 z-10 text-left space-y-4 relative animate-fade-in-quick">
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-orange-50 text-accent flex items-center justify-center font-bold">
+              <i class="ti ti-adjustments-horizontal text-base"></i>
+            </div>
+            <div>
+              <h3 class="font-display text-sm font-bold text-slate-900">
+                {{ isVariantEditMode ? 'Chỉnh sửa biến thể' : 'Thêm biến thể mới' }}
+              </h3>
+              <p class="text-[10px] text-slate-400">Điền kích cỡ, màu sắc và số lượng kho.</p>
+            </div>
+          </div>
+          <button @click="closeVariantModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 border-none bg-transparent cursor-pointer">
+            <i class="ti ti-x text-base"></i>
+          </button>
+        </div>
+
+        <!-- Body Form -->
+        <form @submit.prevent="saveVariantFromModal" class="space-y-4">
+          <!-- Size selection -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">KÍCH CỠ (SIZE) *</label>
+            <select 
+              v-model="formVariant.size_id" 
+              required 
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-800 font-semibold cursor-pointer"
+            >
+              <option value="">Chọn Size</option>
+              <option v-for="sz in sizesList" :key="sz.id" :value="sz.id">Size {{ sz.name }}</option>
+            </select>
+          </div>
+
+          <!-- Color selection -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">MÀU SẮC *</label>
+            <select 
+              v-model="formVariant.color_id" 
+              required 
+              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-800 font-semibold cursor-pointer"
+            >
+              <option value="">Chọn Màu</option>
+              <option v-for="cl in colorsList" :key="cl.id" :value="cl.id">{{ cl.name }}</option>
+            </select>
+          </div>
+
+          <!-- Stock & Price -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">TỒN KHO *</label>
+              <input 
+                type="number" 
+                v-model="formVariant.stock" 
+                placeholder="10" 
+                min="0"
+                required 
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-800 font-semibold"
+              >
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">GIÁ BÁN (VND) *</label>
+              <input 
+                type="number" 
+                v-model="formVariant.price" 
+                placeholder="1000000" 
+                min="0"
+                required 
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-800 font-semibold"
+              >
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+            <button 
+              type="button" 
+              @click="closeVariantModal" 
+              class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl transition-all border-none cursor-pointer"
+            >
+              Hủy
+            </button>
+            <button 
+              type="submit" 
+              class="px-5 py-2 bg-accent hover:bg-accent-hover text-white text-xs font-bold rounded-xl shadow-md transition-all border-none cursor-pointer"
+            >
+              {{ isVariantEditMode ? 'Lưu cập nhật' : 'Xác nhận thêm' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 </template>
 
 <script setup>
@@ -442,35 +541,94 @@ const brandsList = ref([])
 const colorsList = ref([])
 const sizesList = ref([])
 
-function loadSizesAndColors() {
-  const localSizes = localStorage.getItem('admin_sizes')
-  if (localSizes) {
-    try {
-      sizesList.value = JSON.parse(localSizes).filter(s => s.status === 'active')
-    } catch (e) {
-      sizesList.value = [
+function sortSizes(list) {
+  if (!Array.isArray(list)) return []
+  return [...list].sort((a, b) => {
+    const na = parseFloat(a.name)
+    const nb = parseFloat(b.name)
+    if (!isNaN(na) && !isNaN(nb)) return na - nb
+    return String(a.name).localeCompare(String(b.name), undefined, { numeric: true })
+  })
+}
+
+function sortVariants(variants) {
+  if (!Array.isArray(variants)) return []
+  return [...variants].sort((a, b) => {
+    const sizeA = String(a.size?.name || a.size || a.size_id || '')
+    const sizeB = String(b.size?.name || b.size || b.size_id || '')
+
+    const na = parseFloat(sizeA.replace(/[^0-9.]/g, ''))
+    const nb = parseFloat(sizeB.replace(/[^0-9.]/g, ''))
+
+    if (!isNaN(na) && !isNaN(nb) && na !== nb) {
+      return na - nb
+    }
+    const sizeCompare = sizeA.localeCompare(sizeB, undefined, { numeric: true })
+    if (sizeCompare !== 0) return sizeCompare
+
+    const colorA = String(a.color?.name || a.color || a.color_id || '')
+    const colorB = String(b.color?.name || b.color || b.color_id || '')
+    return colorA.localeCompare(colorB, undefined, { numeric: true })
+  })
+}
+
+async function loadSizesAndColors() {
+  try {
+    const [sizeRes, colorRes] = await Promise.all([
+      axiosInstance.get('/size'),
+      axiosInstance.get('/color')
+    ])
+
+    if (sizeRes && sizeRes.success && Array.isArray(sizeRes.data)) {
+      const activeSizes = sizeRes.data
+        .filter(s => String(s.status) === '1' || s.status === 'active' || s.status === true)
+        .map(s => ({ id: s.id, name: String(s.name) }))
+
+      if (activeSizes.length > 0) {
+        sizesList.value = sortSizes(activeSizes)
+      }
+    }
+
+    if (colorRes && colorRes.success && Array.isArray(colorRes.data)) {
+      const activeColors = colorRes.data
+        .filter(c => String(c.status) === '1' || c.status === 'active' || c.status === true)
+        .map(c => ({ id: c.id, name: String(c.name) }))
+
+      if (activeColors.length > 0) {
+        colorsList.value = activeColors
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching sizes and colors from API:', error)
+  }
+
+  // Fallback if API returned empty or failed
+  if (!sizesList.value || sizesList.value.length === 0) {
+    const localSizes = localStorage.getItem('admin_sizes')
+    if (localSizes) {
+      try {
+        sizesList.value = sortSizes(JSON.parse(localSizes).filter(s => s.status === 'active'))
+      } catch (e) {}
+    }
+    if (!sizesList.value || sizesList.value.length === 0) {
+      sizesList.value = sortSizes([
         { id: 39, name: '39' },
         { id: 40, name: '40' },
         { id: 41, name: '41' },
         { id: 42, name: '42' },
         { id: 43, name: '43' }
-      ]
+      ])
     }
-  } else {
-    sizesList.value = [
-      { id: 39, name: '39' },
-      { id: 40, name: '40' },
-      { id: 41, name: '41' },
-      { id: 42, name: '42' },
-      { id: 43, name: '43' }
-    ]
   }
 
-  const localColors = localStorage.getItem('admin_colors')
-  if (localColors) {
-    try {
-      colorsList.value = JSON.parse(localColors).filter(c => c.status === 'active')
-    } catch (e) {
+  if (!colorsList.value || colorsList.value.length === 0) {
+    const localColors = localStorage.getItem('admin_colors')
+    if (localColors) {
+      try {
+        colorsList.value = JSON.parse(localColors).filter(c => c.status === 'active')
+      } catch (e) {}
+    }
+    if (!colorsList.value || colorsList.value.length === 0) {
       colorsList.value = [
         { id: 1, name: 'Trắng' },
         { id: 2, name: 'Đen' },
@@ -478,13 +636,6 @@ function loadSizesAndColors() {
         { id: 4, name: 'Xanh dương' }
       ]
     }
-  } else {
-    colorsList.value = [
-      { id: 1, name: 'Trắng' },
-      { id: 2, name: 'Đen' },
-      { id: 3, name: 'Xám' },
-      { id: 4, name: 'Xanh dương' }
-    ]
   }
 }
 
@@ -529,6 +680,17 @@ async function fetchProducts() {
           img = getImageUrl(p.variants[0].image)
         }
         
+        const mappedVariants = (p.variants || []).map(v => ({
+          id: v.id,
+          size: v.size ? v.size.name : v.size_id,
+          size_id: v.size_id,
+          color: v.color ? v.color.name : v.color_id,
+          color_id: v.color_id,
+          stock: v.stock || 0,
+          price: v.price || 0,
+          sku: v.sku || ''
+        }))
+
         return {
           id: p.id,
           name: p.name,
@@ -540,16 +702,7 @@ async function fetchProducts() {
           description: p.description || '',
           image: img,
           images: p.images || [],
-          variants: (p.variants || []).map(v => ({
-            id: v.id,
-            size: v.size ? v.size.name : v.size_id,
-            size_id: v.size_id,
-            color: v.color ? v.color.name : v.color_id,
-            color_id: v.color_id,
-            stock: v.stock || 0,
-            price: v.price || 0,
-            sku: v.sku || ''
-          }))
+          variants: sortVariants(mappedVariants)
         }
       })
     }
@@ -625,8 +778,110 @@ function getPriceRange(product) {
   return `${formatCurrency(min)} - ${formatCurrency(max)}`
 }
 
-function addVariantRow() {
-  formProduct.value.variants.push({ size_id: 40, color_id: 1, stock: 10, price: 1000000 })
+// Variant Sub-Modal States & Methods
+const variantModalOpen = ref(false)
+const isVariantEditMode = ref(false)
+const editingVariantIndex = ref(null)
+
+const formVariant = ref({
+  id: null,
+  size_id: '',
+  color_id: '',
+  stock: 10,
+  price: 1000000
+})
+
+function getVariantSizeNameById(sizeId) {
+  const sz = sizesList.value.find(s => Number(s.id) === Number(sizeId))
+  return sz ? sz.name : sizeId
+}
+
+function getVariantColorNameById(colorId) {
+  const cl = colorsList.value.find(c => Number(c.id) === Number(colorId))
+  return cl ? cl.name : colorId
+}
+
+function openAddVariantModal() {
+  isVariantEditMode.value = false
+  editingVariantIndex.value = null
+  const defaultSizeId = sizesList.value[0]?.id || ''
+  const defaultColorId = colorsList.value[0]?.id || ''
+  const defaultPrice = formProduct.value.variants[0]?.price || 1000000
+
+  formVariant.value = {
+    id: null,
+    size_id: defaultSizeId,
+    color_id: defaultColorId,
+    stock: 10,
+    price: defaultPrice
+  }
+  variantModalOpen.value = true
+}
+
+function openEditVariantModal(index) {
+  isVariantEditMode.value = true
+  editingVariantIndex.value = index
+  const target = formProduct.value.variants[index]
+  formVariant.value = {
+    id: target.id || null,
+    size_id: target.size_id,
+    color_id: target.color_id,
+    stock: target.stock,
+    price: target.price
+  }
+  variantModalOpen.value = true
+}
+
+function closeVariantModal() {
+  variantModalOpen.value = false
+}
+
+function saveVariantFromModal() {
+  if (!formVariant.value.size_id || !formVariant.value.color_id) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Thiếu thông tin',
+      text: 'Vui lòng chọn đầy đủ Kích cỡ và Màu sắc!',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
+  const isDuplicate = formProduct.value.variants.some((v, idx) => {
+    if (isVariantEditMode.value && idx === editingVariantIndex.value) return false
+    return Number(v.size_id) === Number(formVariant.value.size_id) && Number(v.color_id) === Number(formVariant.value.color_id)
+  })
+
+  if (isDuplicate) {
+    const sizeName = getVariantSizeNameById(formVariant.value.size_id)
+    const colorName = getVariantColorNameById(formVariant.value.color_id)
+    Swal.fire({
+      icon: 'error',
+      title: 'Biến thể đã tồn tại',
+      text: `Biến thể với Size ${sizeName} và Màu ${colorName} đã có trong danh sách!`,
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
+  const variantObj = {
+    id: formVariant.value.id || null,
+    size_id: Number(formVariant.value.size_id),
+    size: getVariantSizeNameById(formVariant.value.size_id),
+    color_id: Number(formVariant.value.color_id),
+    color: getVariantColorNameById(formVariant.value.color_id),
+    stock: Number(formVariant.value.stock),
+    price: Number(formVariant.value.price)
+  }
+
+  if (isVariantEditMode.value && editingVariantIndex.value !== null) {
+    formProduct.value.variants[editingVariantIndex.value] = variantObj
+  } else {
+    formProduct.value.variants.push(variantObj)
+  }
+
+  formProduct.value.variants = sortVariants(formProduct.value.variants)
+  variantModalOpen.value = false
 }
 
 function removeVariantRow(index) {
@@ -653,10 +908,13 @@ function removeVariantRow(index) {
   });
 }
 
-function openAddModal() {
-  loadSizesAndColors()
+async function openAddModal() {
+  await loadSizesAndColors()
   isEditMode.value = false
   editingProductId.value = null
+  const defaultSizeId = sizesList.value[0]?.id || 39
+  const defaultColorId = colorsList.value[0]?.id || 1
+
   formProduct.value = {
     name: '',
     category_id: '',
@@ -664,19 +922,22 @@ function openAddModal() {
     description: '',
     images: [],
     variants: [
-      { size_id: 40, color_id: 1, stock: 10, price: 1000000 }
+      { size_id: defaultSizeId, color_id: defaultColorId, stock: 10, price: 1000000 }
     ]
   }
   modalOpen.value = true
 }
 
-function openEditModal(product) {
-  loadSizesAndColors()
+async function openEditModal(product) {
+  await loadSizesAndColors()
   isEditMode.value = true
   editingProductId.value = product.id
   formProduct.value = JSON.parse(JSON.stringify(product)) // Deep clone
   if (!formProduct.value.images) {
     formProduct.value.images = []
+  }
+  if (formProduct.value.variants) {
+    formProduct.value.variants = sortVariants(formProduct.value.variants)
   }
   modalOpen.value = true
 }

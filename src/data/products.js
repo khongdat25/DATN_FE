@@ -828,6 +828,13 @@ export function mapBackendProduct(p) {
   }
   if (sizes.length === 0) {
     sizes = ['38', '39', '40', '41', '42', '43', '44'];
+  } else {
+    sizes.sort((a, b) => {
+      const na = parseFloat(a.replace(/[^0-9.]/g, ''));
+      const nb = parseFloat(b.replace(/[^0-9.]/g, ''));
+      if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+      return a.localeCompare(b, undefined, { numeric: true });
+    });
   }
 
   // Extract unique colors from variants
