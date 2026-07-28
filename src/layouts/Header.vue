@@ -30,32 +30,92 @@
             </router-link>
             <div class="dropdown-mega absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 translate-y-1 group-hover:translate-y-0">
               <div class="bg-white border border-border rounded-2xl shadow-xl p-6 grid grid-cols-4 gap-x-8 gap-y-6 min-w-[840px]">
-                <!-- Cột Thương hiệu động -->
-                <div v-for="brand in brands" :key="brand.id" class="text-left">
+                <!-- Cột 1: DANH MỤC / ĐỐI TƯỢNG -->
+                <div class="text-left">
                   <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
-                    <router-link :to="`/products?brand=${brand.name}`" class="block transition-all duration-300 hover:scale-105 origin-left">
-                      <img v-if="getBrandLogo(brand.name)" :src="getBrandLogo(brand.name)" :alt="brand.name" class="h-6 object-contain">
-                      <span v-else class="text-sm font-bold text-text uppercase tracking-wider">{{ brand.name }}</span>
-                    </router-link>
+                    <span class="text-xs font-bold text-text uppercase tracking-wider">Danh Mục</span>
                   </div>
-                  <ul class="space-y-1.5 pl-2">
-                    <li v-for="series in getBrandSeries(brand.name)" :key="series">
-                      <router-link :to="`/products?brand=${brand.name}`" class="block text-[13px] text-text-muted hover:text-accent transition-colors">{{ series }}</router-link>
+                  <ul class="space-y-2.5 pl-1">
+                    <li>
+                      <router-link to="/products?category=Nam" class="block text-[13px] text-text-muted hover:text-accent font-semibold transition-colors">
+                        Giày Nam
+                      </router-link>
                     </li>
-                    <li v-if="getBrandSeries(brand.name).length === 0">
-                      <router-link :to="`/products?brand=${brand.name}`" class="block text-[13px] text-text-muted hover:text-accent transition-colors">Xem tất cả</router-link>
+                    <li>
+                      <router-link to="/products?category=N%E1%BB%AF" class="block text-[13px] text-text-muted hover:text-accent font-semibold transition-colors">
+                        Giày Nữ
+                      </router-link>
+                    </li>
+                    <li>
+                      <router-link to="/products?category=Tr%E1%BA%BB+em" class="block text-[13px] text-text-muted hover:text-accent font-semibold transition-colors">
+                        Giày Trẻ Em
+                      </router-link>
+                    </li>
+                    <li class="pt-2 border-t border-slate-100">
+                      <router-link to="/products" class="text-xs font-bold text-accent hover:underline block">
+                        Tất cả sản phẩm →
+                      </router-link>
                     </li>
                   </ul>
                 </div>
 
-                <!-- Xem tất cả card -->
+                <!-- Cột 2: THƯƠNG HIỆU -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <span class="text-xs font-bold text-text uppercase tracking-wider">Thương Hiệu</span>
+                  </div>
+                  <ul class="space-y-2 pl-1">
+                    <li v-for="brand in (brands.length > 0 ? brands.slice(0, 6) : defaultBrands)" :key="brand.id || brand.name">
+                      <router-link :to="`/products?brand=${brand.name}`" class="block text-[13px] text-text-muted hover:text-accent font-medium transition-colors">
+                        {{ brand.name }}
+                      </router-link>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Cột 3: KHOẢNG GIÁ & BỘ SƯU TẬP -->
+                <div class="text-left">
+                  <div class="h-8 mb-3 pb-1 border-b border-border flex items-center">
+                    <span class="text-xs font-bold text-text uppercase tracking-wider">Khoảng Giá & Hot</span>
+                  </div>
+                  <ul class="space-y-2 pl-1">
+                    <li>
+                      <router-link to="/products?sort=newest" class="block text-[13px] text-text-muted hover:text-accent font-medium transition-colors">
+                        Mới về (New Arrivals)
+                      </router-link>
+                    </li>
+                    <li>
+                      <router-link to="/products?sort=sold_desc" class="block text-[13px] text-text-muted hover:text-accent font-medium transition-colors">
+                        Bán chạy nhất
+                      </router-link>
+                    </li>
+                    <li>
+                      <router-link to="/products?max_price=1000000" class="block text-[13px] text-text-muted hover:text-accent transition-colors">
+                        Dưới 1.000.000đ
+                      </router-link>
+                    </li>
+                    <li>
+                      <router-link to="/products?min_price=1000000&max_price=2000000" class="block text-[13px] text-text-muted hover:text-accent transition-colors">
+                        1.000.000đ - 2.000.000đ
+                      </router-link>
+                    </li>
+                    <li>
+                      <router-link to="/products?min_price=2000000" class="block text-[13px] text-text-muted hover:text-accent transition-colors">
+                        Trên 2.000.000đ
+                      </router-link>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Cột 4: CARD QUẢNG CÁO / KÍCH CẦU -->
                 <div class="flex flex-col justify-between p-4 bg-linear-to-br from-accent/5 to-accent/10 border border-accent/15 rounded-2xl hover:shadow-md transition-all duration-300 text-left">
                   <div>
-                    <h4 class="text-[12px] font-bold text-accent font-display tracking-widest uppercase mb-1 flex items-center gap-1">SaigonShoes</h4>
-                    <p class="text-[11px] text-text-muted leading-relaxed">Xem đầy đủ bộ sưu tập hơn 100+ mẫu giày hot trends nhất từ các hãng</p>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-accent bg-accent/10 px-2.5 py-0.5 rounded-full inline-block mb-2">Ưu đãi hôm nay</span>
+                    <h4 class="text-sm font-bold text-slate-900 font-display leading-tight mb-1">Miễn Phí Vận Chuyển</h4>
+                    <p class="text-[11px] text-text-muted leading-relaxed">Cho tất cả đơn hàng từ 500.000đ. Đổi trả miễn phí trong 7 ngày.</p>
                   </div>
-                  <router-link to="/products" class="inline-flex items-center gap-1.5 text-[12px] font-bold text-accent hover:underline group/btn mt-3 select-none">
-                    Tất cả sản phẩm <i class="ti ti-arrow-narrow-right transition-transform group-hover/btn:translate-x-1"></i>
+                  <router-link to="/products" class="inline-flex items-center gap-1.5 text-[12px] font-bold text-white bg-accent hover:bg-accent-hover px-3.5 py-2 rounded-xl transition-all shadow-xs mt-3 select-none w-fit">
+                    Khám phá ngay →
                   </router-link>
                 </div>
               </div>
@@ -246,6 +306,15 @@ const menuOpen = ref(false)
 
 // ── Brand loading state ──────────────────────────────────────────────────────
 const brands = ref([])
+
+const defaultBrands = [
+  { name: 'Nike' },
+  { name: 'Adidas' },
+  { name: 'Puma' },
+  { name: 'New Balance' },
+  { name: 'MLB' },
+  { name: 'Converse' }
+]
 
 const BRAND_LOGOS = {
   'nike': '/images/Logo_NIKE.svg',

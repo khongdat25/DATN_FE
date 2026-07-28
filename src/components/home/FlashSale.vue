@@ -134,6 +134,10 @@ function startCountdown(endTimeStr) {
       seconds.value = 0
       flashProducts.value = []
       if (timer) clearInterval(timer)
+      // Tự động kiểm tra và nạp chiến dịch tiếp theo ngay khi vừa hết giờ
+      setTimeout(() => {
+        fetchFlashSale()
+      }, 1000)
       return
     }
     
@@ -159,8 +163,10 @@ async function fetchFlashSale() {
         startCountdown(activeSale.end_time)
         
         if (activeSale.items) {
-          flashProducts.value = activeSale.items.map(item => {
-            if (item.product) {
+          const uniqueProductsMap = new Map()
+
+          activeSale.items.forEach(item => {
+            if (item.product && !uniqueProductsMap.has(item.product.id)) {
               const mapped = mapBackendProduct(item.product)
               if (item.discount_value !== undefined && item.discount_value !== null) {
                 const originalPrice = parseFloat(mapped.numericPrice) || 0
@@ -172,10 +178,11 @@ async function fetchFlashSale() {
               }
               mapped.soldCount = item.sold || 0
               mapped.total = item.quantity_limit || 100
-              return mapped
+              uniqueProductsMap.set(item.product.id, mapped)
             }
-            return null
-          }).filter(Boolean)
+          })
+
+          flashProducts.value = Array.from(uniqueProductsMap.values())
         }
       } else {
         flashProducts.value = []

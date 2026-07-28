@@ -303,8 +303,26 @@ async function fetchProducts() {
 
     // Lọc danh mục: Tra cứu ID từ danh mục đã tải
     if (filters.categories.length > 0) {
-      const cat = availableCategories.value.find(c => filters.categories.includes(c.name))
-      if (cat?.id) params.category_id = cat.id
+      const cat = availableCategories.value.find(c => 
+        filters.categories.includes(c.name) || 
+        filters.categories.some(sel => c.name.toLowerCase().includes(sel.toLowerCase()) || sel.toLowerCase().includes(c.name.toLowerCase()))
+      )
+      if (cat?.id) {
+        params.category_id = cat.id
+      } else if (!params.q) {
+        params.q = filters.categories[0]
+      }
+    }
+
+    // Lọc thương hiệu: Tra cứu ID từ thương hiệu đã tải
+    if (filters.brands.length > 0) {
+      const brand = availableBrands.value.find(b => 
+        filters.brands.includes(b.name) ||
+        filters.brands.some(sel => b.name.toLowerCase() === sel.toLowerCase())
+      )
+      if (brand?.id) {
+        params.brand_id = brand.id
+      }
     }
 
     // Lọc giá (phía máy chủ)
@@ -408,25 +426,78 @@ function goToDetail(product) {
 }
 
 function applyQueryFilters() {
+  // 1. Category
   const queryCategory = route.query.category
   if (queryCategory) {
-    filters.categories = [queryCategory]
+    const foundCat = availableCategories.value.find(c => 
+      c.name.toLowerCase().trim() === queryCategory.toLowerCase().trim() ||
+      c.name.toLowerCase().includes(queryCategory.toLowerCase().trim()) ||
+      queryCategory.toLowerCase().includes(c.name.toLowerCase().trim())
+    )
+    if (foundCat) {
+      filters.categories = [foundCat.name]
+    } else {
+      filters.categories = [queryCategory]
+    }
   } else {
     filters.categories = []
   }
+
+  // 2. Brand
   const queryBrand = route.query.brand
   if (queryBrand) {
-    const foundBrand = availableBrands.value.find(b => b.name.toLowerCase() === queryBrand.toLowerCase())
+    const foundBrand = availableBrands.value.find(b => b.name.toLowerCase().trim() === queryBrand.toLowerCase().trim())
     if (foundBrand) {
       filters.brands = [foundBrand.name]
     } else {
-      filters.brands = []
+      filters.brands = [queryBrand]
     }
   } else {
     filters.brands = []
   }
+
+  // 3. Min/Max Price
+  if (route.query.min_price !== undefined) {
+    filters.priceFrom = Number(route.query.min_price)
+    filters.appliedPriceFrom = Number(route.query.min_price)
+  } else {
+    filters.priceFrom = null
+    filters.appliedPriceFrom = null
+  }
+
+  if (route.query.max_price !== undefined) {
+    filters.priceTo = Number(route.query.max_price)
+    filters.appliedPriceTo = Number(route.query.max_price)
+  } else {
+    filters.priceTo = null
+    filters.appliedPriceTo = null
+  }
+
+  // 4. Sort
+  if (route.query.sort) {
+    if (route.query.sort === 'newest') {
+      filters.sortBy = 'newest'
+      filters.priceSort = 'default'
+    } else if (route.query.sort === 'sold_desc') {
+      filters.sortBy = 'best-seller'
+      filters.priceSort = 'default'
+    } else if (route.query.sort === 'price_asc') {
+      filters.priceSort = 'low-to-high'
+    } else if (route.query.sort === 'price_desc') {
+      filters.priceSort = 'high-to-low'
+    }
+  } else {
+    filters.sortBy = 'popular'
+    filters.priceSort = 'default'
+  }
+
+  // 5. Search Query
   const querySearch = route.query.q
-  if (querySearch) searchQuery.value = querySearch
+  if (querySearch) {
+    searchQuery.value = querySearch
+  } else {
+    searchQuery.value = ''
+  }
 }
 
 let isMounted = false
@@ -442,7 +513,10 @@ watch(
   }
 )
 
-watch(() => route.query, () => { applyQueryFilters() })
+watch(() => route.query, () => { 
+  applyQueryFilters() 
+  fetchProducts()
+}, { deep: true })
 
 onMounted(async () => {
   await Promise.all([fetchCategories(), fetchBrands()])

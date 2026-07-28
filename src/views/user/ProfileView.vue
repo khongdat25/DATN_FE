@@ -223,14 +223,39 @@
                     </div>
                     <!-- Order items -->
                     <div class="px-6 py-5 flex flex-col gap-4">
-                      <div v-for="(item, idx) in order.items" :key="idx" class="flex items-center gap-4">
-                        <div class="w-[70px] h-[70px] bg-surface2 rounded-[10px] p-2.5 shrink-0 flex items-center justify-center">
-                          <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="flex items-center justify-between gap-4 py-2 border-b border-slate-50 last:border-none">
+                        <div class="flex items-center gap-4">
+                          <div class="w-[70px] h-[70px] bg-surface2 rounded-[10px] p-2.5 shrink-0 flex items-center justify-center">
+                            <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain">
+                          </div>
+                          <div>
+                            <h4 class="text-[15px] font-semibold text-text mb-1">{{ item.name }}</h4>
+                            <p class="text-xs text-text-dim">{{ item.variant || 'Mặc định' }}</p>
+                            <p class="text-xs text-text-dim">x{{ item.qty }}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 class="text-[15px] font-semibold text-text mb-1">{{ item.name }}</h4>
-                          <p class="text-xs text-text-dim">{{ item.variant || 'Mặc định' }}</p>
-                          <p class="text-xs text-text-dim">x{{ item.qty }}</p>
+
+                        <!-- Rating Action for Delivered & Paid orders -->
+                        <div v-if="order.status === 'delivered' && order.paymentStatus === 'paid'" class="shrink-0">
+                          <div v-if="item.rating" class="flex flex-col items-end gap-1">
+                            <span class="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold flex items-center gap-1">
+                              <span>★ {{ item.rating.rating }}/5</span>
+                              <span class="font-normal text-amber-600">· Đã đánh giá</span>
+                            </span>
+                            <button 
+                              @click="viewRatingDetail(item)"
+                              class="text-[11px] text-slate-500 hover:text-accent underline cursor-pointer bg-transparent border-none"
+                            >
+                              Xem nhận xét
+                            </button>
+                          </div>
+                          <button 
+                            v-else
+                            @click="openRatingModal(order, item)"
+                            class="px-4 py-2 bg-accent text-white hover:bg-accent-hover font-semibold text-xs rounded-xl shadow-2xs transition-all cursor-pointer border-none font-display"
+                          >
+                            Đánh giá sản phẩm
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -653,6 +678,90 @@
         </form>
       </div>
     </div>
+
+    <!-- Product Rating Modal -->
+    <div 
+      v-if="ratingModalOpen && ratingItem" 
+      class="fixed inset-0 z-500 flex items-center justify-center p-4 animate-fade-in-quick"
+    >
+      <div @click="closeRatingModal" class="fixed inset-0 bg-slate-950/45 backdrop-blur-xs transition-opacity"></div>
+      
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-md overflow-hidden z-10 text-left flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <div>
+            <h3 class="font-display text-lg font-bold text-slate-950">Đánh giá sản phẩm</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Chia sẻ trải nghiệm sử dụng của bạn</p>
+          </div>
+          <button @click="closeRatingModal" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer border-none bg-transparent">
+            <i class="ti ti-x text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <form @submit.prevent="submitRating" class="p-6 space-y-5">
+          <!-- Item info -->
+          <div class="flex items-center gap-3.5 p-3.5 bg-slate-50 border border-slate-100 rounded-2xl">
+            <div class="w-14 h-14 bg-white rounded-xl p-1.5 border border-slate-100 shrink-0 flex items-center justify-center">
+              <img :src="ratingItem.image" :alt="ratingItem.name" class="max-w-full max-h-full object-contain">
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-xs text-slate-800 truncate">{{ ratingItem.name }}</h4>
+              <p class="text-[11px] text-slate-500 mt-0.5">{{ ratingItem.variant }}</p>
+            </div>
+          </div>
+
+          <!-- Star selector -->
+          <div class="space-y-2 text-center">
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">CHẤT LƯỢNG SẢN PHẨM</label>
+            <div class="flex items-center justify-center gap-2 py-2">
+              <button 
+                v-for="star in 5" 
+                :key="star"
+                type="button"
+                @click="selectedStars = star"
+                class="text-2xl transition-all cursor-pointer border-none bg-transparent p-1 focus:outline-none hover:scale-125"
+                :class="star <= selectedStars ? 'text-amber-400' : 'text-slate-200'"
+              >
+                ★
+              </button>
+            </div>
+            <p class="text-xs font-bold text-accent">
+              {{ starLabels[selectedStars] || '' }}
+            </p>
+          </div>
+
+          <!-- Comment input -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">NHẬN XÉT CỦA BẠN</label>
+            <textarea 
+              v-model="ratingComment"
+              rows="4"
+              placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm này (chất liệu, kích cỡ, độ hoàn thiện...)"
+              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs outline-none focus:bg-white focus:border-accent transition-all placeholder:text-slate-400 font-medium text-slate-800 resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Footer buttons -->
+          <div class="pt-3 flex items-center justify-end gap-3">
+            <button 
+              type="button" 
+              @click="closeRatingModal"
+              class="bg-white border border-slate-200 text-slate-600 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all cursor-pointer"
+            >
+              Hủy bỏ
+            </button>
+            <button 
+              type="submit"
+              :disabled="isSubmittingRating"
+              class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-6 rounded-xl shadow-md transition-all border-none cursor-pointer font-display disabled:opacity-50"
+            >
+              {{ isSubmittingRating ? 'Đang gửi...' : 'Gửi đánh giá' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 </template>
 
 <script setup>
@@ -674,6 +783,87 @@ const tabs = [
   { id: 'address',    label: 'Địa chỉ',               icon: 'ti ti-map-pin' },
   { id: 'password',   label: 'Đổi mật khẩu',          icon: 'ti ti-lock' }
 ]
+
+// ─── Rating Modal ─────────────────────────────────────────────────────────────
+const ratingModalOpen = ref(false)
+const ratingOrder = ref(null)
+const ratingItem = ref(null)
+const selectedStars = ref(5)
+const ratingComment = ref('')
+const isSubmittingRating = ref(false)
+
+const starLabels = {
+  1: 'Tệ',
+  2: 'Chưa tốt',
+  3: 'Bình thường',
+  4: 'Hài lòng',
+  5: 'Tuyệt vời'
+}
+
+function openRatingModal(order, item) {
+  ratingOrder.value = order
+  ratingItem.value = item
+  selectedStars.value = 5
+  ratingComment.value = ''
+  ratingModalOpen.value = true
+}
+
+function closeRatingModal() {
+  ratingModalOpen.value = false
+}
+
+function viewRatingDetail(item) {
+  if (!item.rating) return
+  Swal.fire({
+    title: 'Đánh giá của bạn',
+    html: `
+      <div style="text-align: left; font-size: 13px; color: #334155; line-height: 1.6;">
+        <div style="font-weight: 700; color: #f59e0b; font-size: 16px; margin-bottom: 8px;">★ ${item.rating.rating}/5 sao</div>
+        <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9;">
+          ${item.rating.comment ? item.rating.comment : '<em>Không có nhận xét văn bản.</em>'}
+        </div>
+      </div>
+    `,
+    confirmButtonColor: '#FF4D00',
+    confirmButtonText: 'Đóng'
+  })
+}
+
+async function submitRating() {
+  if (!ratingItem.value) return
+  isSubmittingRating.value = true
+  try {
+    const payload = {
+      order_item_id: ratingItem.value.orderItemId,
+      rating: selectedStars.value,
+      comment: ratingComment.value
+    }
+    const response = await axiosInstance.post('/ratings', payload)
+    if (response && response.success) {
+      ratingItem.value.rating = {
+        rating: selectedStars.value,
+        comment: ratingComment.value
+      }
+      Swal.fire({
+        icon: 'success',
+        title: 'Gửi đánh giá thành công!',
+        text: 'Cảm ơn bạn đã chia sẻ ý kiến về sản phẩm.',
+        confirmButtonColor: '#FF4D00'
+      })
+      closeRatingModal()
+    }
+  } catch (error) {
+    const msg = error.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.'
+    Swal.fire({
+      icon: 'error',
+      title: 'Không thể gửi đánh giá',
+      text: msg,
+      confirmButtonColor: '#FF4D00'
+    })
+  } finally {
+    isSubmittingRating.value = false
+  }
+}
 
 // ─── Dữ liệu người dùng ─────────────────────────────────────────────────────────
 const user = reactive({
@@ -827,6 +1017,7 @@ async function loadOrdersData() {
           }
 
           return {
+            orderItemId: item.id,
             name: p.name || 'Sản phẩm',
             variant: (v.color?.name || v.size?.name)
               ? `Màu ${v.color?.name || ''} · Size ${v.size?.name || ''}`
@@ -834,7 +1025,9 @@ async function loadOrdersData() {
             qty: item.quantity || 1,
             price: item.price || 0,
             image: img,
-            variantId: v.id
+            variantId: v.id,
+            productId: p.id,
+            rating: item.rating || null
           }
         })
 

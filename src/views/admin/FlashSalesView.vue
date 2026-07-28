@@ -307,29 +307,25 @@
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <!-- Date -->
+            <!-- Start datetime -->
             <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Ngày diễn ra *</label>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Thời gian Bắt đầu *</label>
               <input 
-                type="date" 
-                v-model="formCampaign.date" 
+                type="datetime-local" 
+                v-model="formCampaign.start_time" 
                 required 
                 class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-semibold cursor-pointer"
               >
             </div>
-            <!-- Time slot -->
+            <!-- End datetime -->
             <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Khung giờ vàng *</label>
-              <select 
-                v-model="formCampaign.timeSlot" 
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Thời gian Kết thúc *</label>
+              <input 
+                type="datetime-local" 
+                v-model="formCampaign.end_time" 
                 required 
                 class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all text-slate-700 font-semibold cursor-pointer"
               >
-                <option value="09:00 - 11:00">09:00 - 11:00</option>
-                <option value="12:00 - 14:00">12:00 - 14:00</option>
-                <option value="15:00 - 17:00">15:00 - 17:00</option>
-                <option value="20:00 - 22:00">20:00 - 22:00</option>
-              </select>
             </div>
           </div>
 
@@ -612,6 +608,8 @@ async function fetchCampaigns() {
         return {
           id: cam.id,
           name: cam.name,
+          raw_start_time: cam.start_time,
+          raw_end_time: cam.end_time,
           date: dateVal,
           timeSlot: timeSlotVal,
           discountPercent: discountVal,
@@ -754,13 +752,27 @@ async function endCampaign(cam) {
   })
 }
 
+function formatToDatetimeLocal(dateObj) {
+  if (!dateObj || isNaN(dateObj.getTime())) return ''
+  const pad = (n) => String(n).padStart(2, '0')
+  const yyyy = dateObj.getFullYear()
+  const mm = pad(dateObj.getMonth() + 1)
+  const dd = pad(dateObj.getDate())
+  const hh = pad(dateObj.getHours())
+  const min = pad(dateObj.getMinutes())
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+}
+
 function openAddModal() {
   isEditMode.value = false
+  const now = new Date()
+  const later = new Date(now.getTime() + 2 * 60 * 60 * 1000)
+
   formCampaign.value = {
     id: null,
     name: '',
-    date: new Date().toISOString().substring(0, 10),
-    timeSlot: '12:00 - 14:00',
+    start_time: formatToDatetimeLocal(now),
+    end_time: formatToDatetimeLocal(later),
     discountPercent: 20,
     limitCount: 15,
     selectedProducts: [],
@@ -790,11 +802,14 @@ function openEditModal(cam) {
     }
   })
 
+  let sTimeStr = cam.raw_start_time ? formatToDatetimeLocal(new Date(cam.raw_start_time.replace(/-/g, '/'))) : formatToDatetimeLocal(new Date())
+  let eTimeStr = cam.raw_end_time ? formatToDatetimeLocal(new Date(cam.raw_end_time.replace(/-/g, '/'))) : formatToDatetimeLocal(new Date())
+
   formCampaign.value = {
     id: cam.id,
     name: cam.name,
-    date: cam.date,
-    timeSlot: cam.timeSlot,
+    start_time: sTimeStr,
+    end_time: eTimeStr,
     discountPercent: cam.discountPercent,
     limitCount: cam.products[0]?.limitCount || 15,
     selectedProducts: selProds,
@@ -819,6 +834,19 @@ async function saveCampaign() {
     return
   }
 
+  const sDate = new Date(formCampaign.value.start_time)
+  const eDate = new Date(formCampaign.value.end_time)
+
+  if (isNaN(sDate.getTime()) || isNaN(eDate.getTime()) || eDate <= sDate) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi thời gian!',
+      text: 'Thời gian kết thúc phải diễn ra sau thời gian bắt đầu.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
   const items = []
   formCampaign.value.selectedProducts.forEach(p => {
     const vIds = formCampaign.value.selectedVariantIds[p.id] || []
@@ -833,8 +861,8 @@ async function saveCampaign() {
 
   const payload = {
     name: formCampaign.value.name,
-    date: formCampaign.value.date,
-    golden_hour: formCampaign.value.timeSlot,
+    start_time: formCampaign.value.start_time.replace('T', ' ') + ':00',
+    end_time: formCampaign.value.end_time.replace('T', ' ') + ':00',
     discount_value: formCampaign.value.discountPercent,
     quantity_limit: formCampaign.value.limitCount,
     items: items,
