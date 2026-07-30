@@ -113,8 +113,9 @@
           <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-slate-50 pb-4">
             <!-- Customer Column -->
             <div class="flex items-center gap-3.5">
-              <div :class="['h-11 w-11 rounded-2xl font-display font-extrabold text-sm flex items-center justify-center shrink-0 shadow-2xs', getInitialsClass(rev.customer.name)]">
-                {{ rev.customer.avatar || getInitials(rev.customer.name) }}
+              <div :class="['h-11 w-11 rounded-2xl font-display font-extrabold text-sm flex items-center justify-center shrink-0 shadow-2xs overflow-hidden', getInitialsClass(rev.customer.name)]">
+                <img v-if="isImageAvatar(rev.customer.avatar)" :src="getImageUrl(rev.customer.avatar)" class="w-full h-full object-cover" :alt="rev.customer.name">
+                <span v-else>{{ getInitials(rev.customer.name) }}</span>
               </div>
               <div>
                 <h3 class="text-xs font-extrabold text-slate-900">{{ rev.customer.name }}</h3>
@@ -350,17 +351,50 @@ function getInitials(name) {
 }
 
 function getInitialsClass(name) {
+  if (!name) return 'bg-orange-100 text-accent'
   if (name.includes('Thư')) return 'bg-pink-100 text-pink-600'
   if (name.includes('Vy')) return 'bg-teal-100 text-teal-600'
   if (name.includes('Anh')) return 'bg-blue-100 text-blue-600'
   return 'bg-orange-100 text-accent'
 }
 
+function isImageAvatar(avatar) {
+  if (!avatar || typeof avatar !== 'string') return false
+  return avatar.includes('.') || avatar.startsWith('http') || avatar.startsWith('data:') || avatar.startsWith('images/')
+}
+
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/p1.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
+
 async function fetchReviews() {
   try {
     const response = await axiosInstance.get('/admin/reviews')
-    if (response && response.data && response.data.success && response.data.data) {
-      reviews.value = response.data.data
+    if (response && response.success && Array.isArray(response.data)) {
+      reviews.value = response.data.map(r => {
+        let img = '/images/p1.png'
+        if (r.product && r.product.image) {
+          img = getImageUrl(r.product.image)
+        }
+        return {
+          ...r,
+          product: {
+            ...r.product,
+            image: img
+          }
+        }
+      })
     }
   } catch (error) {
     console.error('Error fetching reviews from API, using mockup:', error)
@@ -393,65 +427,62 @@ function handleReplyPrompt(rev) {
     }
   }).then(async (result) => {
     if (result.isConfirmed) {
-      const originalReply = rev.reply
-      const originalStatus = rev.status
-      
-      rev.reply = result.value.trim()
-      rev.status = 'replied'
+      const replyText = result.value.trim()
 
       try {
-        await axiosInstance.post(`/admin/reviews/${rev.id}/reply`, {
-          reply: rev.reply
+        const res = await axiosInstance.post(`/admin/reviews/${rev.id}/reply`, {
+          reply: replyText
         })
+        if (res && res.success) {
+          rev.reply = replyText
+          rev.status = 'replied'
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã phản hồi thành công!',
+            text: 'Ý kiến chăm sóc khách hàng đã được lưu và hiển thị công khai trên Website.',
+            confirmButtonColor: '#FF4D00'
+          })
+          fetchReviews()
+        }
       } catch (e) {
-        console.warn('Backend API reply not implemented, updated locally.')
+        console.error('Lỗi gửi phản hồi đánh giá:', e)
+        Swal.fire({
+          icon: 'error',
+          title: 'Gửi phản hồi thất bại!',
+          text: e.response?.data?.message || 'Có lỗi xảy ra khi kết nối tới máy chủ.',
+          confirmButtonColor: '#FF4D00'
+        })
       }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã phản hồi thành công!',
-        text: 'Ý kiến chăm sóc khách hàng đã hiển thị công khai trên Website.',
-        confirmButtonColor: '#FF4D00'
-      })
     }
   })
 }
 
 async function toggleHide(rev) {
-  const originalStatus = rev.status
-  
-  if (rev.status === 'hidden') {
-    rev.status = rev.reply ? 'replied' : 'pending'
-    
-    try {
-      await axiosInstance.put(`/admin/reviews/${rev.id}/status`, {
-        status: rev.status
-      })
-    } catch (e) {
-      console.warn('Backend API update failed, updated locally.')
-    }
+  const isCurrentlyHidden = rev.status === 'hidden'
+  const newStatus = isCurrentlyHidden ? (rev.reply ? 'replied' : 'pending') : 'hidden'
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Đã khôi phục hiển thị!',
-      text: 'Bình luận của ' + rev.customer.name + ' đã hiển thị lại bình thường.',
-      confirmButtonColor: '#FF4D00'
+  try {
+    const res = await axiosInstance.put(`/admin/reviews/${rev.id}/status`, {
+      status: newStatus
     })
-  } else {
-    rev.status = 'hidden'
-
-    try {
-      await axiosInstance.put(`/admin/reviews/${rev.id}/status`, {
-        status: 'hidden'
+    if (res && res.success) {
+      rev.status = newStatus
+      Swal.fire({
+        icon: isCurrentlyHidden ? 'success' : 'warning',
+        title: isCurrentlyHidden ? 'Đã khôi phục hiển thị!' : 'Đã ẩn bình luận!',
+        text: isCurrentlyHidden 
+          ? 'Bình luận của ' + rev.customer.name + ' đã hiển thị lại bình thường trên trang sản phẩm.'
+          : 'Bình luận này đã bị chặn/ẩn khỏi trang chi tiết sản phẩm của người dùng!',
+        confirmButtonColor: '#FF4D00'
       })
-    } catch (e) {
-      console.warn('Backend API update failed, updated locally.')
+      fetchReviews()
     }
-
+  } catch (e) {
+    console.error('Lỗi chuyển đổi trạng thái ẩn/hiện:', e)
     Swal.fire({
-      icon: 'warning',
-      title: 'Đã ẩn bình luận!',
-      text: 'Bình luận này đã tạm thời ẩn khỏi trang hiển thị sản phẩm của người dùng.',
+      icon: 'error',
+      title: 'Lỗi cập nhật',
+      text: 'Không thể cập nhật trạng thái hiển thị của đánh giá.',
       confirmButtonColor: '#FF4D00'
     })
   }
@@ -469,20 +500,26 @@ function handleDeleteReview(id) {
     cancelButtonText: 'Hủy bỏ'
   }).then(async (result) => {
     if (result.isConfirmed) {
-      reviews.value = reviews.value.filter(r => r.id !== id)
-
       try {
-        await axiosInstance.delete(`/admin/reviews/${id}`)
+        const res = await axiosInstance.delete(`/admin/reviews/${id}`)
+        if (res && res.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa thành công!',
+            text: 'Dữ liệu phản hồi đã bị loại bỏ khỏi hệ thống.',
+            confirmButtonColor: '#FF4D00'
+          })
+          fetchReviews()
+        }
       } catch (e) {
-        console.warn('Backend API delete failed, deleted locally.')
+        console.error('Lỗi xóa đánh giá:', e)
+        Swal.fire({
+          icon: 'error',
+          title: 'Xóa thất bại!',
+          text: e.response?.data?.message || 'Không thể xóa đánh giá này.',
+          confirmButtonColor: '#FF4D00'
+        })
       }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa thành công!',
-        text: 'Dữ liệu phản hồi đã biến mất hoàn toàn khỏi hệ thống.',
-        confirmButtonColor: '#FF4D00'
-      })
     }
   })
 }

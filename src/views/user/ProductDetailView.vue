@@ -247,26 +247,23 @@
 
           <!-- Nội dung đánh giá của khách hàng -->
           <div v-show="activeTab === 'reviews'" class="max-w-200 mx-auto space-y-8">
-            <div class="flex items-center gap-10 p-6 bg-surface2 rounded-2xl border border-border/60">
-              <div class="text-center">
+            <div class="flex items-center justify-between p-6 bg-surface2 rounded-2xl border border-border/60">
+              <div class="flex items-center gap-6">
                 <div class="font-display text-4xl font-extrabold text-text">{{ avgRating }}<span class="text-base text-text-dim font-normal">/5</span></div>
-                <div class="flex text-gold justify-center my-2 text-sm gap-0.5">
-                  <template v-for="n in 5" :key="n">
-                    <i :class="['ti', n <= Math.round(Number(avgRating)) ? 'ti-star-filled' : 'ti-star']"></i>
-                  </template>
+                <div class="text-left">
+                  <div class="flex text-gold text-sm gap-0.5 mb-1">
+                    <template v-for="n in 5" :key="n">
+                      <i :class="['ti', n <= Math.round(Number(avgRating)) ? 'ti-star-filled' : 'ti-star']"></i>
+                    </template>
+                  </div>
+                  <div class="text-xs text-text-muted">Dựa trên {{ reviewsList.length }} nhận xét thực tế từ người mua hàng</div>
                 </div>
-                <div class="text-xs text-text-muted">Dựa trên {{ reviewsList.length }} đánh giá</div>
-              </div>
-              <div class="flex-1 flex justify-end">
-                <button @click="showWriteReview" class="bg-text text-white px-5 py-3 rounded-xl text-xs font-semibold hover:bg-accent hover:text-white transition-colors active:scale-95 cursor-pointer">
-                  Viết đánh giá
-                </button>
               </div>
             </div>
 
             <!-- Danh sách bài đánh giá -->
             <div class="space-y-6">
-              <div v-for="(review, idx) in reviewsList" :key="idx" class="pb-6 border-b border-border last:border-b-0">
+              <div v-for="(review, idx) in reviewsList" :key="idx" class="pb-6 border-b border-border last:border-b-0 text-left">
                 <div class="flex justify-between items-start mb-3">
                   <div class="flex gap-3 items-center">
                     <div class="w-10 h-10 bg-border/80 text-text rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
@@ -287,7 +284,21 @@
                   <span class="text-xs text-text-dim">{{ review.date }}</span>
                 </div>
                 <p class="text-sm text-text leading-relaxed pl-13">{{ review.comment }}</p>
-                <div class="text-xs text-text-dim pl-13 mt-2">Phân loại: {{ review.variant }}, Size {{ review.size }}</div>
+                <div v-if="review.variant && review.variant !== 'Chính hãng'" class="text-xs text-text-dim pl-13 mt-1">Phân loại: {{ review.variant }}</div>
+
+                <!-- Admin Reply Box -->
+                <div v-if="review.reply" class="ml-13 mt-3 bg-surface2/80 border border-border/80 rounded-2xl p-4 flex gap-3 text-left">
+                  <div class="h-7 w-7 rounded-lg bg-accent text-white flex items-center justify-center text-[10px] font-extrabold shrink-0 shadow-2xs">
+                    AD
+                  </div>
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-text">SaigonShoes Admin</span>
+                      <span class="text-[9px] uppercase tracking-wider font-extrabold text-accent bg-accent/15 px-1.5 py-0.5 rounded-sm">Ban Quản Trị</span>
+                    </div>
+                    <p class="text-xs text-text-muted font-medium leading-relaxed">{{ review.reply }}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -466,6 +477,7 @@ async function loadProduct(slug) {
           stars: r.rating || 5,
           date: new Date(r.created_at).toLocaleDateString('vi-VN'),
           comment: r.comment || 'Sản phẩm tốt!',
+          reply: r.reply || null,
           variant: 'Chính hãng',
           size: ''
         }))
@@ -725,33 +737,184 @@ function goToDetail(item) {
   router.push({ name: 'product-detail', params: { id: item.slug || item.id } })
 }
 
-function showWriteReview() {
-  Swal.fire({
-    title: 'Viết đánh giá sản phẩm',
-    html: `
-      <div class="text-left">
-        <label class="block text-xs font-semibold mb-2">Số sao đánh giá (1-5)</label>
-        <input type="number" id="swal-stars" class="swal2-input m-0 mb-4 w-full" min="1" max="5" value="5">
-        <label class="block text-xs font-semibold mb-2">Nội dung đánh giá</label>
-        <textarea id="swal-comment" class="swal2-textarea m-0 w-full" placeholder="Nhập cảm nhận của bạn..."></textarea>
-      </div>
-    `,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: 'Gửi đánh giá',
-    cancelButtonText: 'Hủy',
-    confirmButtonColor: '#FF4D00',
-    preConfirm: () => {
-      return {
-        stars: document.getElementById('swal-stars').value,
-        comment: document.getElementById('swal-comment').value
+async function showWriteReview() {
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    Swal.fire({
+      title: 'Yêu cầu đăng nhập & Mua hàng',
+      text: 'Chỉ những khách hàng đã mua và nhận hàng thành công mới được viết đánh giá cho sản phẩm này.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đăng nhập ngay',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#FF4D00',
+      cancelButtonColor: '#94a3b8'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push({ name: 'login' })
       }
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      showToast('Cảm ơn bạn đã gửi đánh giá! Chờ duyệt bài viết.')
+    })
+    return
+  }
+
+  Swal.fire({
+    title: 'Đang kiểm tra đơn hàng...',
+    text: 'Vui lòng chờ trong giây lát',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading()
     }
   })
+
+  try {
+    const res = await axiosInstance.get('/user/orders')
+    Swal.close()
+
+    if (!res || !res.success || !Array.isArray(res.data)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Không thể kiểm tra lịch sử đơn hàng của bạn.',
+        confirmButtonColor: '#FF4D00'
+      })
+      return
+    }
+
+    const currentProdId = product.value.id
+    // Tìm các orderItem thỏa mãn: đơn hàng 'delivered' và thuộc sản phẩm này
+    let eligibleItems = []
+    res.data.forEach(order => {
+      if (order.status === 'delivered' && Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          const itemProdId = item.variant?.product_id || item.product_id
+          if (Number(itemProdId) === Number(currentProdId)) {
+            eligibleItems.push({
+              orderItemId: item.id,
+              orderCode: order.code || order.id,
+              rating: item.rating || null
+            })
+          }
+        })
+      }
+    })
+
+    if (eligibleItems.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Chưa thể đánh giá sản phẩm',
+        text: 'Bạn chưa mua sản phẩm này hoặc đơn hàng chưa được giao thành công. Chỉ khách hàng đã mua và nhận hàng thành công mới có thể gửi đánh giá!',
+        confirmButtonColor: '#FF4D00'
+      })
+      return
+    }
+
+    // Lọc item chưa đánh giá
+    const unratedItem = eligibleItems.find(i => !i.rating)
+
+    if (!unratedItem) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Đã hoàn thành đánh giá',
+        text: 'Bạn đã gửi đánh giá cho sản phẩm này ở các đơn hàng đã mua rồi. Cảm ơn bạn!',
+        confirmButtonColor: '#FF4D00'
+      })
+      return
+    }
+
+    // Cho phép đánh giá item chưa được đánh giá
+    let selectedStars = 5
+
+    Swal.fire({
+      title: 'Viết đánh giá sản phẩm',
+      html: `
+        <div class="text-left space-y-4">
+          <p class="text-xs text-slate-500 font-semibold">Sản phẩm: <strong class="text-slate-800">${product.value.name}</strong></p>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">SỐ SAO ĐÁNH GIÁ *</label>
+            <div id="swal-stars-container" class="flex gap-2 text-2xl text-amber-400 cursor-pointer">
+              <span data-star="1">★</span>
+              <span data-star="2">★</span>
+              <span data-star="3">★</span>
+              <span data-star="4">★</span>
+              <span data-star="5">★</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">NỘI DUNG NHẬN XÉT</label>
+            <textarea id="swal-comment" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-accent text-slate-800 resize-none" rows="4" placeholder="Nhập cảm nhận thực tế của bạn về kiểu dáng, độ êm, form dáng..."></textarea>
+          </div>
+        </div>
+      `,
+      didOpen: () => {
+        const container = document.getElementById('swal-stars-container')
+        if (container) {
+          const stars = container.querySelectorAll('span')
+          const updateStars = (val) => {
+            selectedStars = val
+            stars.forEach((s, idx) => {
+              s.style.color = idx < val ? '#f59e0b' : '#cbd5e1'
+            })
+          }
+          stars.forEach((s, idx) => {
+            s.addEventListener('click', () => updateStars(idx + 1))
+          })
+          updateStars(5)
+        }
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Gửi đánh giá ngay',
+      cancelButtonText: 'Hủy bỏ',
+      confirmButtonColor: '#FF4D00',
+      cancelButtonColor: '#94a3b8',
+      preConfirm: () => {
+        const comment = document.getElementById('swal-comment').value.trim()
+        return {
+          rating: selectedStars,
+          comment: comment
+        }
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const payload = {
+            order_item_id: unratedItem.orderItemId,
+            rating: result.value.rating,
+            comment: result.value.comment
+          }
+          const ratingRes = await axiosInstance.post('/ratings', payload)
+          if (ratingRes && ratingRes.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Gửi đánh giá thành công!',
+              text: 'Cảm ơn bạn đã chia sẻ ý kiến trải nghiệm sản phẩm.',
+              confirmButtonColor: '#FF4D00'
+            })
+            // Reload product details to update review list
+            if (route.params.id) {
+              loadProduct(route.params.id)
+            }
+          }
+        } catch (err) {
+          console.error('Lỗi gửi đánh giá:', err)
+          Swal.fire({
+            icon: 'error',
+            title: 'Không thể gửi đánh giá',
+            text: err.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.',
+            confirmButtonColor: '#FF4D00'
+          })
+        }
+      }
+    })
+
+  } catch (error) {
+    console.error('Error checking user order eligibility:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi',
+      text: 'Không thể kiểm tra thông tin đơn hàng.',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
 }
 </script>
 

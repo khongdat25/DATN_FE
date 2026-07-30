@@ -21,8 +21,25 @@
               @click="activeFilter = f.key"
             >{{ f.label }}</button>
           </div>
-          <!-- Right: View all -->
-          <div class="flex justify-end max-md:justify-start">
+          <!-- Right: Navigation buttons & View all -->
+          <div class="flex items-center justify-end gap-3 max-md:justify-start w-full">
+            <div v-if="filteredProducts.length > 5" class="flex items-center gap-1.5">
+              <button 
+                @click="scrollLeft" 
+                class="w-8 h-8 rounded-full border border-border bg-white text-text hover:bg-accent hover:text-white hover:border-accent flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Lướt sang trái"
+              >
+                <i class="ti ti-chevron-left text-sm font-bold"></i>
+              </button>
+              <button 
+                @click="scrollRight" 
+                class="w-8 h-8 rounded-full border border-border bg-white text-text hover:bg-accent hover:text-white hover:border-accent flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Lướt sang phải"
+              >
+                <i class="ti ti-chevron-right text-sm font-bold"></i>
+              </button>
+            </div>
+
             <a
               href="/products"
               class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]"
@@ -30,7 +47,7 @@
           </div>
         </div>
 
-        <!-- New Products Grid using ProductCard -->
+        <!-- Skeleton loader -->
         <div
           v-if="isLoading"
           class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5"
@@ -46,15 +63,17 @@
           </div>
         </div>
 
+        <!-- Horizontal scrollable products slider -->
         <div
           v-else
-          class="grid grid-cols-5 max-xl:grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-[480px]:grid-cols-1 gap-5"
+          ref="scrollContainer"
+          class="flex gap-5 overflow-x-auto pb-4 pt-1 scroll-smooth custom-scrollbar snap-x"
           id="newProductGrid"
         >
           <div
             v-for="product in filteredProducts"
             :key="product.id"
-            class="relative animate-fade-in"
+            class="w-[224px] min-w-[224px] max-w-[224px] shrink-0 snap-start animate-fade-in"
           >
             <ProductCard
               :product="product"
@@ -62,6 +81,10 @@
               @toggle-wish="toggleWish(product)"
               @click="goToDetail(product)"
             />
+          </div>
+
+          <div v-if="filteredProducts.length === 0" class="w-full text-center py-10 text-text-muted text-sm">
+            Không tìm thấy sản phẩm mới nào.
           </div>
         </div>
 
@@ -78,6 +101,7 @@ import axiosInstance from '../../api/axios.js'
 import ProductCard from '../common/ProductCard.vue'
 
 const router = useRouter()
+const scrollContainer = ref(null)
 
 const showToast = inject('showToast', (msg) => {})
 
@@ -89,6 +113,18 @@ const filters = [
   { key: 'sneaker', label: 'Sneaker' },
   { key: 'crocs', label: 'Crocs' },
 ]
+
+function scrollLeft() {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollBy({ left: -244, behavior: 'smooth' })
+  }
+}
+
+function scrollRight() {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollBy({ left: 244, behavior: 'smooth' })
+  }
+}
 
 function toggleWish(product) {
   wishes.value[product.id] = !wishes.value[product.id]
@@ -131,7 +167,7 @@ const filteredProducts = computed(() => {
   if (activeFilter.value !== 'all') {
     list = list.filter(p => p.cat === activeFilter.value)
   }
-  return list.slice(0, 5) // Hiển thị 5 sản phẩm mới nhất
+  return list.slice(0, 7) // Tối đa 7 sản phẩm mới nhất
 })
 </script>
 
@@ -149,5 +185,20 @@ const filteredProducts = computed(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ff4d00;
 }
 </style>

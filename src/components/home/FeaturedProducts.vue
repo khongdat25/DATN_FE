@@ -2,24 +2,10 @@
   <section class="py-8" id="products">
     <div class="max-w-300 mx-auto px-5">
       <div class="section-wrapper">
-        <div class="grid grid-cols-3 items-center mb-6 gap-4 max-md:flex max-md:flex-col max-md:items-start max-md:gap-3">
+        <div class="flex items-center justify-between mb-6 gap-4">
           <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold whitespace-nowrap">SẢN PHẨM NỔI BẬT</h2>
 
-          <div class="flex gap-2 flex-wrap justify-center max-md:justify-start">
-            <button
-              v-for="f in collabFilters"
-              :key="f.key"
-              :class="['py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all border font-medium',
-                activeCollab === f.key
-                  ? 'bg-accent border-accent text-white shadow-sm'
-                  : 'bg-surface2 text-text-muted border-border hover:bg-accent hover:border-accent hover:text-white']"
-              @click="activeCollab = f.key"
-            >
-              {{ f.label }}
-            </button>
-          </div>
-
-          <div class="flex justify-end max-md:justify-start">
+          <div class="flex justify-end">
             <a href="/products" class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-1.5 transition-all whitespace-nowrap font-medium hover:gap-2.5">
               Xem tất cả <i class="ti ti-arrow-right"></i>
             </a>
@@ -36,7 +22,7 @@
 
           <div
             v-else
-            class="bg-bg rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(0,0,0,.05)]"
+            class="bg-bg rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(0,0,0,.05)] flex flex-col justify-between"
             @click="goToDetail(featured)"
           >
             <div class="h-70 max-lg:h-55 relative overflow-hidden">
@@ -69,11 +55,11 @@
             </div>
           </div>
 
-          <div v-else class="flex flex-col gap-4">
+          <div v-else class="flex flex-col gap-4 max-h-[460px] overflow-y-auto pr-2 custom-scrollbar">
             <div
               v-for="item in smallProducts"
               :key="item.id"
-              class="featured-small group bg-bg rounded-md border border-border flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)]"
+              class="featured-small group bg-bg rounded-md border border-border flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)] shrink-0"
               @click="goToDetail(item)"
             >
               <div class="w-27.5 min-w-27.5 overflow-hidden">
@@ -106,13 +92,6 @@ import axiosInstance from '../../api/axios.js'
 
 const router = useRouter()
 
-const activeCollab = ref('all')
-const collabFilters = [
-  { key: 'all', label: 'Tất cả' },
-  { key: 'collab', label: 'Collab Anime' },
-  { key: 'limited', label: 'Limited' },
-]
-
 const featured = ref({
   id: 0,
   brand: 'SaigonShoes',
@@ -136,7 +115,7 @@ async function fetchHotProducts() {
     if (response.success && Array.isArray(response.data) && response.data.length > 0) {
       const mapped = response.data.map(mapBackendProduct)
       featured.value = mapped[0]
-      smallProducts.value = mapped.slice(1, 4)
+      smallProducts.value = mapped.slice(1)
     }
   } catch (error) {
     console.error('Failed to load hot products:', error)
@@ -147,3 +126,20 @@ async function fetchHotProducts() {
 
 onMounted(fetchHotProducts)
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ff4d00;
+}
+</style>

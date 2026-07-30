@@ -102,7 +102,7 @@
                 ]"
               >
                 <td class="py-4 px-6">
-                  <img :src="b.image" alt="Banner" class="w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50" :class="b.status === 'expired' ? 'grayscale' : ''">
+                  <img :src="getImageUrl(b.image)" alt="Banner" class="w-24 h-12 rounded-lg object-cover ring-2 ring-slate-100/50" :class="b.status === 'expired' ? 'grayscale' : ''">
                 </td>
                 <td class="py-4 px-6">
                   <div class="text-xs font-bold text-slate-900 text-left" :class="b.status === 'expired' ? 'line-through' : ''">{{ b.title }}</div>
@@ -231,16 +231,30 @@
             >
           </div>
 
-          <!-- Image URL -->
+          <!-- Image URL / Upload -->
           <div>
             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Đường dẫn ảnh Banner *</label>
-            <input 
-              type="text" 
-              v-model="formBanner.image" 
-              required 
-              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all font-mono text-slate-700"
-            >
-            <span class="text-[10px] text-slate-400 mt-1 block">Khuyên dùng tỷ lệ banner rộng (hình chữ nhật).</span>
+            <div class="space-y-2">
+              <input 
+                type="text" 
+                v-model="formBanner.image" 
+                placeholder="Nhập URL ảnh hoặc chọn file từ máy..."
+                required 
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent transition-all font-mono text-slate-700"
+              >
+              <div class="flex items-center gap-2">
+                <input type="file" ref="bannerFileInput" @change="onBannerFileSelected" accept="image/*" class="hidden">
+                <button 
+                  type="button" 
+                  @click="triggerBannerFileInput" 
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg transition-all border-none cursor-pointer flex items-center gap-1.5"
+                >
+                  <i class="ti ti-upload text-sm"></i> Tải ảnh từ máy
+                </button>
+                <span v-if="selectedBannerFileName" class="text-[11px] text-emerald-600 font-bold truncate max-w-[200px]">{{ selectedBannerFileName }}</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 block">Khuyên dùng tỷ lệ banner rộng (1200x500px).</span>
           </div>
 
           <!-- Display Position -->
@@ -328,8 +342,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
+import axiosInstance from '@/api/axios'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
@@ -337,53 +352,16 @@ const sortBy = ref('newest')
 
 const modalOpen = ref(false)
 const isEditMode = ref(false)
+const bannerFileInput = ref(null)
+const selectedBannerFile = ref(null)
+const selectedBannerFileName = ref('')
 
-const banners = ref([
-  {
-    id: 1,
-    title: 'Bộ Sưu Tập Sneaker Hè 2026',
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=300',
-    link: '/products',
-    position: 'Trang chủ - Slider chính (Hero)',
-    startDate: '2026-06-01',
-    endDate: '2026-08-31',
-    status: 'active'
-  },
-  {
-    id: 2,
-    title: 'Siêu Sale Giày Chạy Bộ - Giảm 30%',
-    image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&q=80&w=300',
-    link: '/flashsales',
-    position: 'Trang chủ - Giữa trang',
-    startDate: '2026-05-15',
-    endDate: '2026-06-15',
-    status: 'active'
-  },
-  {
-    id: 3,
-    title: 'Ưu đãi Phụ kiện Vệ sinh Giày',
-    image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&q=80&w=300',
-    link: '/categories',
-    position: 'Trang chủ - Chân trang',
-    startDate: '2026-07-01',
-    endDate: '2026-07-31',
-    status: 'scheduled'
-  },
-  {
-    id: 4,
-    title: 'Bộ Sưu Tập Giày Da Đông 2025',
-    image: 'https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&q=80&w=300',
-    link: '/products',
-    position: 'Trang chủ - Slider chính (Hero)',
-    startDate: '2025-11-01',
-    endDate: '2026-02-28',
-    status: 'expired'
-  }
-])
+const banners = ref([])
 
 const formBanner = ref({
+  id: null,
   title: '',
-  image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=400',
+  image: '/images/banner_sneaker.png',
   position: 'Trang chủ - Slider chính (Hero)',
   link: '/products',
   startDate: '',
@@ -391,11 +369,47 @@ const formBanner = ref({
   status: 'active'
 })
 
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/banner_sneaker.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
+
+async function fetchBanners() {
+  try {
+    const response = await axiosInstance.get('/admin/banners')
+    if (response && response.success && Array.isArray(response.data)) {
+      banners.value = response.data.map(b => ({
+        ...b,
+        title: b.title || b.name || 'Banner quảng cáo',
+        startDate: b.start_date || '',
+        endDate: b.end_date || ''
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching admin banners:', error)
+  }
+}
+
+onMounted(() => {
+  fetchBanners()
+})
+
 const sortedAndFilteredBanners = computed(() => {
   let result = banners.value.filter(b => {
-    const matchesSearch = b.title.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
-                          b.position.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                          b.link.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const titleStr = b.title || b.name || ''
+    const matchesSearch = titleStr.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+                          (b.position && b.position.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+                          (b.link && b.link.toLowerCase().includes(searchQuery.value.toLowerCase()))
     
     let matchesTab = true
     if (activeTab.value === 'active') {
@@ -409,43 +423,68 @@ const sortedAndFilteredBanners = computed(() => {
     return matchesSearch && matchesTab
   })
 
-  // Sort
   if (sortBy.value === 'newest') {
     result.sort((a, b) => b.id - a.id)
   } else if (sortBy.value === 'position') {
-    result.sort((a, b) => a.position.localeCompare(b.position))
+    result.sort((a, b) => (a.position || '').localeCompare(b.position || ''))
   } else if (sortBy.value === 'endDate') {
-    result.sort((a, b) => a.endDate.localeCompare(b.endDate))
+    result.sort((a, b) => (a.endDate || '').localeCompare(b.endDate || ''))
   }
 
   return result
 })
 
 function formatDate(dateStr) {
-  if (!dateStr) return ''
-  const [yyyy, mm, dd] = dateStr.split('-')
-  return `${dd}/${mm}/${yyyy}`
+  if (!dateStr) return '-'
+  if (dateStr.includes('-')) {
+    const [yyyy, mm, dd] = dateStr.split('-')
+    return `${dd}/${mm}/${yyyy}`
+  }
+  return dateStr
 }
 
-function toggleBannerActive(b) {
-  b.status = b.status === 'active' ? 'expired' : 'active'
-  const stateText = b.status === 'active' ? 'Đã hiển thị' : 'Đã hết hạn/Ẩn'
-  Swal.fire({
-    toast: true,
-    position: 'bottom-end',
-    icon: 'success',
-    title: `Đã cập nhật trạng thái banner thành: ${stateText}`,
-    showConfirmButton: false,
-    timer: 2000,
-    timerProgressBar: true
-  })
+function triggerBannerFileInput() {
+  if (bannerFileInput.value) {
+    bannerFileInput.value.click()
+  }
+}
+
+function onBannerFileSelected(event) {
+  const file = event.target.files?.[0]
+  if (file) {
+    selectedBannerFile.value = file
+    selectedBannerFileName.value = file.name
+    formBanner.value.image = URL.createObjectURL(file)
+  }
+}
+
+async function toggleBannerActive(b) {
+  try {
+    const response = await axiosInstance.patch(`/admin/banners/${b.id}/toggle`)
+    if (response && response.success) {
+      b.status = response.status
+      Swal.fire({
+        toast: true,
+        position: 'bottom-end',
+        icon: 'success',
+        title: `Đã cập nhật trạng thái: ${b.status === 'active' ? 'Đang hiển thị' : 'Đã ẩn/Hết hạn'}`,
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
+  } catch (e) {
+    console.error('Error toggling banner status:', e)
+  }
 }
 
 function openAddModal() {
   isEditMode.value = false
+  selectedBannerFile.value = null
+  selectedBannerFileName.value = ''
   formBanner.value = {
+    id: null,
     title: '',
-    image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=400',
+    image: '/images/banner_sneaker.png',
     position: 'Trang chủ - Slider chính (Hero)',
     link: '/products',
     startDate: new Date().toISOString().substring(0, 10),
@@ -457,6 +496,8 @@ function openAddModal() {
 
 function openEditModal(b) {
   isEditMode.value = true
+  selectedBannerFile.value = null
+  selectedBannerFileName.value = ''
   formBanner.value = { ...b }
   modalOpen.value = true
 }
@@ -465,32 +506,65 @@ function closeModal() {
   modalOpen.value = false
 }
 
-function saveBanner() {
-  if (isEditMode.value) {
-    const idx = banners.value.findIndex(b => b.id === formBanner.value.id)
-    if (idx > -1) {
-      banners.value[idx] = { ...formBanner.value }
+async function saveBanner() {
+  try {
+    let finalImageUrl = formBanner.value.image
+
+    if (selectedBannerFile.value) {
+      const formData = new FormData()
+      formData.append('image', selectedBannerFile.value)
+      const uploadRes = await axiosInstance.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      if (uploadRes && uploadRes.data && uploadRes.data.path) {
+        finalImageUrl = uploadRes.data.path
+      }
     }
-    Swal.fire({
-      icon: 'success',
-      title: 'Cập nhật thành công!',
-      text: 'Banner quảng cáo đã được cập nhật thông tin.',
-      confirmButtonColor: '#FF4D00'
-    })
-  } else {
-    const newBanner = {
-      ...formBanner.value,
-      id: banners.value.length ? Math.max(...banners.value.map(b => b.id)) + 1 : 1
+
+    const payload = {
+      title: formBanner.value.title,
+      image: finalImageUrl,
+      position: formBanner.value.position,
+      link: formBanner.value.link,
+      start_date: formBanner.value.startDate,
+      end_date: formBanner.value.endDate,
+      status: formBanner.value.status
     }
-    banners.value.unshift(newBanner)
+
+    if (isEditMode.value) {
+      const res = await axiosInstance.put(`/admin/banners/${formBanner.value.id}`, payload)
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Cập nhật thành công!',
+          text: 'Thông tin Banner đã được cập nhật.',
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchBanners()
+        closeModal()
+      }
+    } else {
+      const res = await axiosInstance.post('/admin/banners', payload)
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Tạo banner thành công!',
+          text: 'Banner quảng cáo mới đã được đưa lên hệ thống.',
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchBanners()
+        closeModal()
+      }
+    }
+  } catch (error) {
+    console.error('Error saving banner:', error)
     Swal.fire({
-      icon: 'success',
-      title: 'Tạo banner thành công!',
-      text: 'Chiến dịch banner quảng cáo mới đã được đưa lên hệ thống.',
+      icon: 'error',
+      title: 'Lưu thất bại!',
+      text: error.response?.data?.message || 'Có lỗi xảy ra khi lưu banner.',
       confirmButtonColor: '#FF4D00'
     })
   }
-  modalOpen.value = false
 }
 
 function deleteBanner(id) {
@@ -503,15 +577,28 @@ function deleteBanner(id) {
     cancelButtonColor: '#94a3b8',
     confirmButtonText: 'Đồng ý xóa!',
     cancelButtonText: 'Hủy'
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      banners.value = banners.value.filter(b => b.id !== id)
-      Swal.fire({
-        icon: 'success',
-        title: 'Đã xóa!',
-        text: 'Banner quảng cáo đã bị gỡ bỏ.',
-        confirmButtonColor: '#FF4D00'
-      })
+      try {
+        const res = await axiosInstance.delete(`/admin/banners/${id}`)
+        if (res && res.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xóa!',
+            text: 'Banner quảng cáo đã bị gỡ bỏ.',
+            confirmButtonColor: '#FF4D00'
+          })
+          await fetchBanners()
+        }
+      } catch (e) {
+        console.error('Error deleting banner:', e)
+        Swal.fire({
+          icon: 'error',
+          title: 'Xóa thất bại!',
+          text: e.response?.data?.message || 'Không thể xóa banner này.',
+          confirmButtonColor: '#FF4D00'
+        })
+      }
     }
   })
 }

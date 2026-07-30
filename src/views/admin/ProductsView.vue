@@ -7,7 +7,25 @@
           <h1 class="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Danh sách Sản phẩm</h1>
           <p class="text-sm text-slate-500 mt-1">Quản lý kho sản phẩm, thiết lập giá bán và kiểm soát biến thể kích cỡ chi tiết.</p>
         </div>
-        <div>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <input type="file" ref="excelFileInput" @change="onExcelFileSelected" class="hidden" accept=".xlsx, .xls, .csv">
+          
+          <button 
+            @click="downloadExcelTemplate" 
+            class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-3 px-4 rounded-xl transition-all flex items-center gap-2 border-none cursor-pointer"
+            title="Tải file Excel mẫu chuẩn"
+          >
+            <i class="ti ti-download text-base text-slate-500"></i> Tải file mẫu Excel
+          </button>
+
+          <button 
+            @click="triggerExcelFileInput" 
+            class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 px-4 rounded-xl shadow-md transition-all flex items-center gap-2 border-none cursor-pointer"
+            title="Nhập danh sách sản phẩm hàng loạt từ file Excel"
+          >
+            <i class="ti ti-file-spreadsheet text-base"></i> Import từ Excel
+          </button>
+
           <button @click="openAddModal" class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 border-none cursor-pointer">
             <i class="ti ti-plus text-base"></i> Thêm sản phẩm mới
           </button>
@@ -59,6 +77,7 @@
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">DANH MỤC</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KHO BIẾN THỂ</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KHOẢNG GIÁ VÉ</th>
+                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">NỔI BẬT</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">TRẠNG THÁI</th>
                 <th class="py-4 px-6 w-24"></th>
               </tr>
@@ -99,6 +118,21 @@
                   <td class="py-4 px-6 text-xs font-bold text-slate-900 text-left">
                     {{ getPriceRange(product) }}
                   </td>
+                  <td class="py-4 px-6 text-left" @click.stop>
+                    <button 
+                      @click="toggleFeatured(product)"
+                      :class="[
+                        'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-all border-none shadow-2xs',
+                        product.is_featured 
+                          ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/60' 
+                          : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                      ]"
+                      :title="product.is_featured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'"
+                    >
+                      <i :class="['ti text-xs', product.is_featured ? 'ti-star-filled text-amber-500 animate-bounce-short' : 'ti-star']"></i>
+                      {{ product.is_featured ? 'Nổi bật' : 'Thường' }}
+                    </button>
+                  </td>
                   <td class="py-4 px-6 text-left">
                     <span 
                       v-if="getTotalStock(product) > 0"
@@ -133,7 +167,7 @@
 
                 <!-- Expanded Variants Row -->
                 <tr v-if="expandedRows.includes(product.id)" class="bg-slate-50/60 transition-all">
-                  <td colspan="8" class="p-6 border-b border-slate-100">
+                  <td colspan="9" class="p-6 border-b border-slate-100">
                     <div class="pl-10 space-y-3">
                       <div class="text-[10px] font-bold tracking-[1.5px] text-slate-400 uppercase flex items-center gap-1.5 text-left">
                         <i class="ti ti-list-details"></i> Chi tiết các biến thể kích thước (Variants details)
@@ -169,7 +203,7 @@
               </template>
 
               <tr v-if="filteredProducts.length === 0">
-                <td colspan="8" class="text-center py-12 text-slate-400 text-sm">
+                <td colspan="9" class="text-center py-12 text-slate-400 text-sm">
                   Không tìm thấy sản phẩm nào phù hợp bộ lọc.
                 </td>
               </tr>
@@ -318,6 +352,19 @@
                 <option v-for="br in brandsList" :key="br.id" :value="br.id">{{ br.name }}</option>
               </select>
             </div>
+          </div>
+
+          <!-- Featured Checkbox -->
+          <div class="flex items-center gap-2 p-3 bg-amber-50/60 border border-amber-200/70 rounded-xl">
+            <input 
+              type="checkbox" 
+              id="is_featured_checkbox"
+              v-model="formProduct.is_featured" 
+              class="w-4 h-4 text-accent border-slate-300 rounded focus:ring-accent cursor-pointer"
+            >
+            <label for="is_featured_checkbox" class="text-xs font-bold text-slate-800 cursor-pointer flex items-center gap-1.5 select-none">
+              <i class="ti ti-star-filled text-amber-500"></i> Đặt làm sản phẩm nổi bật (Hiển thị ở trang chủ FE)
+            </label>
           </div>
 
           <div class="h-px bg-slate-100"></div>
@@ -517,6 +564,198 @@
         </form>
       </div>
     </div>
+
+    <!-- Excel Import Preview Modal -->
+    <div 
+      v-if="excelModalOpen" 
+      class="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 animate-fade-in-quick"
+    >
+      <div 
+        @click="closeExcelModal" 
+        class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300"
+      ></div>
+      
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden z-10 text-left">
+        <!-- Header -->
+        <div class="px-7 py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 via-white to-emerald-50/30">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/25 shrink-0">
+              <i class="ti ti-file-spreadsheet"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2.5">
+                <h3 class="font-display text-lg font-extrabold text-slate-900 tracking-tight">Xem trước danh sách sản phẩm</h3>
+                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">File Excel / CSV</span>
+              </div>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">Kiểm tra thông tin chi tiết từng dòng dữ liệu trước khi thêm hàng loạt vào hệ thống.</p>
+            </div>
+          </div>
+          <button @click="closeExcelModal" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-all border-none bg-transparent cursor-pointer">
+            <i class="ti ti-x text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-7 space-y-6 bg-slate-50/40">
+          <!-- Summary KPI Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Card 1 -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-base shrink-0">
+                <i class="ti ti-file-text"></i>
+              </div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">TỔNG SỐ DÒNG DỮ LIỆU</div>
+                <div class="text-xl font-extrabold text-slate-900 font-display mt-0.5">{{ parsedExcelProducts.length }} <span class="text-xs font-semibold text-slate-500">sản phẩm</span></div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-emerald-50/80 p-4 rounded-2xl border border-emerald-200/60 shadow-2xs flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-sm">
+                <i class="ti ti-circle-check"></i>
+              </div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">HỢP LỆ ĐỂ NHẬP KHO</div>
+                <div class="text-xl font-extrabold text-emerald-800 font-display mt-0.5">{{ validExcelCount }} <span class="text-xs font-semibold text-emerald-600">sản phẩm</span></div>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div :class="['p-4 rounded-2xl border shadow-2xs flex items-center gap-3.5', invalidExcelCount > 0 ? 'bg-rose-50/80 border-rose-200/60' : 'bg-slate-50/80 border-slate-200/60']">
+              <div :class="['w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base shrink-0 shadow-sm', invalidExcelCount > 0 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-500']">
+                <i :class="['ti', invalidExcelCount > 0 ? 'ti-alert-triangle' : 'ti-circle-check']"></i>
+              </div>
+              <div>
+                <div :class="['text-[11px] font-bold uppercase tracking-wider', invalidExcelCount > 0 ? 'text-rose-700' : 'text-slate-500']">CẢNH BÁO / LỖI DÒNG</div>
+                <div :class="['text-xl font-extrabold font-display mt-0.5', invalidExcelCount > 0 ? 'text-rose-800' : 'text-slate-700']">{{ invalidExcelCount }} <span class="text-xs font-semibold">dòng</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Table -->
+          <div class="border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs bg-white">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/90 text-slate-500 font-extrabold border-b border-slate-200/80 text-[10px] uppercase tracking-wider">
+                    <th class="p-3.5 w-12 text-center">STT</th>
+                    <th class="p-3.5 min-w-[200px]">TÊN SẢN PHẨM & MÔ TẢ</th>
+                    <th class="p-3.5">DANH MỤC</th>
+                    <th class="p-3.5">THƯƠNG HIỆU</th>
+                    <th class="p-3.5 min-w-[280px]">CẤU HÌNH BIẾN THỂ (SIZE • MÀU • KHO • GIÁ)</th>
+                    <th class="p-3.5 text-center">NỔI BẬT</th>
+                    <th class="p-3.5 text-center">TRẠNG THÁI</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium">
+                  <tr 
+                    v-for="(p, index) in parsedExcelProducts" 
+                    :key="index"
+                    :class="[p.isValid ? 'hover:bg-slate-50/80 transition-colors' : 'bg-rose-50/40 hover:bg-rose-50/70 transition-colors']"
+                  >
+                    <!-- STT -->
+                    <td class="p-3.5 text-center">
+                      <div class="w-7 h-7 rounded-xl bg-slate-100 text-slate-600 font-extrabold text-xs flex items-center justify-center mx-auto">
+                        {{ index + 1 }}
+                      </div>
+                    </td>
+
+                    <!-- Tên SP -->
+                    <td class="p-3.5">
+                      <div class="font-bold text-slate-900 text-xs">{{ p.name }}</div>
+                      <p v-if="p.description" class="text-[11px] text-slate-400 font-normal truncate max-w-xs mt-0.5">{{ p.description }}</p>
+                    </td>
+
+                    <!-- Danh mục -->
+                    <td class="p-3.5">
+                      <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 border border-slate-200/80 px-2.5 py-1 rounded-lg font-bold text-[11px]">
+                        <i class="ti ti-category text-slate-400"></i> {{ p.category_name }}
+                      </span>
+                    </td>
+
+                    <!-- Thương hiệu -->
+                    <td class="p-3.5">
+                      <span class="inline-flex items-center gap-1 bg-indigo-50/80 text-indigo-700 border border-indigo-100 px-2.5 py-1 rounded-lg font-extrabold text-[11px]">
+                        <i class="ti ti-tag text-indigo-400"></i> {{ p.brand_name }}
+                      </span>
+                    </td>
+
+                    <!-- Biến thể Cards -->
+                    <td class="p-3.5">
+                      <div class="space-y-1.5">
+                        <div 
+                          v-for="(v, vIdx) in p.variants" 
+                          :key="vIdx" 
+                          class="p-2 bg-slate-50/90 border border-slate-200/60 rounded-xl flex items-center justify-between text-[11px] gap-2 hover:bg-white transition-all shadow-3xs"
+                        >
+                          <div class="flex items-center gap-1.5">
+                            <span class="bg-slate-900 text-white px-2 py-0.5 rounded-md text-[10px] font-extrabold">Size {{ v.size_name }}</span>
+                            <span class="bg-slate-200/70 text-slate-700 font-semibold px-2 py-0.5 rounded-md text-[10px]">{{ v.color_name }}</span>
+                          </div>
+                          <div class="flex items-center gap-3">
+                            <span class="text-slate-500 font-semibold text-[10px]"><strong class="text-slate-800 font-extrabold">{{ v.stock }}</strong> đôi</span>
+                            <span class="font-extrabold text-accent text-xs">{{ formatCurrency(v.price) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Nổi bật -->
+                    <td class="p-3.5 text-center">
+                      <span v-if="p.is_featured" class="inline-flex items-center gap-1 bg-amber-50 text-amber-600 border border-amber-200/80 px-2 py-1 rounded-lg font-extrabold text-[10px]">
+                        <i class="ti ti-star-filled text-amber-500 text-xs"></i> Có
+                      </span>
+                      <span v-else class="text-slate-300 text-xs font-semibold">-</span>
+                    </td>
+
+                    <!-- Trạng thái -->
+                    <td class="p-3.5 text-center">
+                      <span v-if="p.isValid" class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[10px] font-extrabold px-3 py-1.2 rounded-full whitespace-nowrap shadow-3xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Hợp lệ
+                      </span>
+                      <span v-else class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200/80 text-[10px] font-extrabold px-3 py-1.2 rounded-full whitespace-nowrap shadow-3xs" :title="p.errorMsg">
+                        <i class="ti ti-alert-triangle text-xs"></i> {{ p.errorMsg || 'Lỗi dữ liệu' }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="px-7 py-4 border-t border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-white">
+          <button 
+            type="button" 
+            @click="triggerExcelFileInput" 
+            class="text-xs text-slate-600 hover:text-accent font-bold flex items-center gap-2 cursor-pointer bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl transition-all border-none"
+          >
+            <i class="ti ti-file-upload text-sm"></i> Chọn file Excel khác
+          </button>
+          <div class="flex items-center gap-3">
+            <button 
+              type="button" 
+              @click="closeExcelModal" 
+              class="px-5 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-3xs"
+            >
+              Hủy bỏ
+            </button>
+            <button 
+              type="button" 
+              @click="submitExcelImport"
+              :disabled="validExcelCount === 0 || isImportingExcel"
+              class="px-7 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold rounded-xl shadow-lg shadow-emerald-600/25 transition-all border-none cursor-pointer disabled:opacity-40 flex items-center gap-2"
+            >
+              <i v-if="isImportingExcel" class="ti ti-loader animate-spin text-base"></i>
+              <i v-else class="ti ti-check text-base"></i>
+              {{ isImportingExcel ? 'Đang nhập kho...' : `Xác nhận nhập ${validExcelCount} sản phẩm` }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup>
@@ -645,6 +884,7 @@ const formProduct = ref({
   brand_id: '',
   description: '',
   images: [],
+  is_featured: false,
   variants: [
     { size_id: 40, color_id: 1, stock: 10, price: 1000000 }
   ]
@@ -700,6 +940,7 @@ async function fetchProducts() {
           category: p.category ? p.category.name : 'N/A',
           category_id: p.category_id,
           description: p.description || '',
+          is_featured: !!p.is_featured,
           image: img,
           images: p.images || [],
           variants: sortVariants(mappedVariants)
@@ -921,6 +1162,7 @@ async function openAddModal() {
     brand_id: '',
     description: '',
     images: [],
+    is_featured: false,
     variants: [
       { size_id: defaultSizeId, color_id: defaultColorId, stock: 10, price: 1000000 }
     ]
@@ -933,6 +1175,7 @@ async function openEditModal(product) {
   isEditMode.value = true
   editingProductId.value = product.id
   formProduct.value = JSON.parse(JSON.stringify(product)) // Deep clone
+  formProduct.value.is_featured = !!product.is_featured
   if (!formProduct.value.images) {
     formProduct.value.images = []
   }
@@ -1026,6 +1269,7 @@ async function saveProduct() {
       brand_id: formProduct.value.brand_id,
       description: formProduct.value.description || '',
       images: formProduct.value.images || [],
+      is_featured: formProduct.value.is_featured ? 1 : 0,
       variants: formProduct.value.variants.map(v => ({
         id: v.id || null,
         size_id: v.size_id,
@@ -1071,6 +1315,35 @@ async function saveProduct() {
   }
 }
 
+async function toggleFeatured(product) {
+  const oldStatus = product.is_featured
+  product.is_featured = !oldStatus
+  try {
+    const response = await axiosInstance.patch(`/product/toggle-featured/${product.id}`)
+    if (response && response.success) {
+      Swal.fire({
+        icon: 'success',
+        title: response.is_featured ? 'Đã đánh dấu sản phẩm Nổi bật!' : 'Đã bỏ trạng thái Nổi bật!',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000
+      })
+    } else {
+      product.is_featured = oldStatus
+    }
+  } catch (error) {
+    product.is_featured = oldStatus
+    console.error('Error toggling featured product:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi cập nhật',
+      text: 'Không thể cập nhật trạng thái nổi bật của sản phẩm!',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
+}
+
 async function deleteProduct(id) {
   Swal.fire({
     title: 'Xác nhận xóa sản phẩm?',
@@ -1105,6 +1378,315 @@ async function deleteProduct(id) {
       }
     }
   })
+}
+
+// ─── Excel Import & Template Methods ─────────────────────────────────────────────
+const excelFileInput = ref(null)
+const excelModalOpen = ref(false)
+const parsedExcelProducts = ref([])
+const isImportingExcel = ref(false)
+
+const validExcelCount = computed(() => parsedExcelProducts.value.filter(p => p.isValid).length)
+const invalidExcelCount = computed(() => parsedExcelProducts.value.filter(p => !p.isValid).length)
+
+function downloadExcelTemplate() {
+  const headers = [
+    'Tên sản phẩm *',
+    'Danh mục *',
+    'Thương hiệu *',
+    'Mô tả',
+    'Kích cỡ (Size) *',
+    'Màu sắc *',
+    'Tồn kho *',
+    'Giá bán (VND) *',
+    'Sản phẩm nổi bật (1/0)'
+  ]
+
+  const sampleRows = [
+    [
+      'StepUp Air Jordan 1 Low Panda',
+      categoriesList.value[0]?.name || 'Giày Sneaker',
+      brandsList.value[0]?.name || 'Nike',
+      'Đôi giày phong cách đường phố phối màu trắng đen cổ điển',
+      '40, 41, 42',
+      'Trắng',
+      '15',
+      '2500000',
+      '1'
+    ],
+    [
+      'StepUp Superstar Core Black',
+      categoriesList.value[0]?.name || 'Giày Sneaker',
+      brandsList.value[1]?.name || 'Adidas',
+      'Giày mũi sò adidas kinh điển êm ái',
+      '39, 40',
+      'Đen',
+      '20',
+      '1800000',
+      '0'
+    ],
+    [
+      'StepUp Classic Crocs Clog',
+      categoriesList.value[1]?.name || 'Dép Crocs',
+      brandsList.value[2]?.name || 'Puma',
+      'Dép nhựa dẻo nhẹ thoáng mát đi mưa thoải mái',
+      '39, 40, 41',
+      'Xám',
+      '30',
+      '850000',
+      '0'
+    ]
+  ]
+
+  const csvContent = '\uFEFF' + [
+    headers.join(','),
+    ...sampleRows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+  ].join('\n')
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.setAttribute('href', url)
+  link.setAttribute('download', 'mau_nhap_san_pham_saigonshoes.csv')
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function triggerExcelFileInput() {
+  if (excelFileInput.value) {
+    excelFileInput.value.click()
+  }
+}
+
+function closeExcelModal() {
+  excelModalOpen.value = false
+  parsedExcelProducts.value = []
+}
+
+async function loadXLSXLibrary() {
+  if (window.XLSX) return window.XLSX
+  return new Promise((resolve) => {
+    const script = document.createElement('script')
+    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+    script.onload = () => resolve(window.XLSX)
+    script.onerror = () => resolve(null)
+    document.body.appendChild(script)
+  })
+}
+
+async function onExcelFileSelected(event) {
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  try {
+    let rows = []
+    
+    let XLSXModule = window.XLSX
+    if (!XLSXModule && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+      XLSXModule = await loadXLSXLibrary()
+    }
+
+    if (XLSXModule && (file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
+      const buffer = await file.arrayBuffer()
+      const workbook = XLSXModule.read(buffer, { type: 'array' })
+      const firstSheetName = workbook.SheetNames[0]
+      const worksheet = workbook.Sheets[firstSheetName]
+      rows = XLSXModule.utils.sheet_to_json(worksheet, { header: 1 })
+    } else {
+      const text = await file.text()
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '')
+      rows = lines.map(line => {
+        const result = []
+        let current = ''
+        let inQuotes = false
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i]
+          if (char === '"') {
+            inQuotes = !inQuotes
+          } else if (char === ',' && !inQuotes) {
+            result.push(current.trim().replace(/^"|"$/g, ''))
+            current = ''
+          } else {
+            current += char
+          }
+        }
+        result.push(current.trim().replace(/^"|"$/g, ''))
+        return result
+      })
+    }
+
+    if (rows.length < 2) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'File rỗng',
+        text: 'File Excel / CSV không có dữ liệu sản phẩm!',
+        confirmButtonColor: '#FF4D00'
+      })
+      return
+    }
+
+    parseExcelRowsToProducts(rows)
+    excelModalOpen.value = true
+
+  } catch (err) {
+    console.error('Error reading Excel file:', err)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi đọc file',
+      text: 'Không thể đọc nội dung file Excel. Vui lòng kiểm tra định dạng tập tin!',
+      confirmButtonColor: '#FF4D00'
+    })
+  } finally {
+    event.target.value = ''
+  }
+}
+
+function parseExcelRowsToProducts(rows) {
+  const products = []
+
+  // Skip header row
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i]
+    if (!row || row.length === 0 || !row[0]) continue
+
+    const name = String(row[0] || '').trim()
+    const catInput = String(row[1] || '').trim()
+    const brandInput = String(row[2] || '').trim()
+    const description = String(row[3] || '').trim()
+    const sizeInput = String(row[4] || '').trim()
+    const colorInput = String(row[5] || '').trim()
+    const stockInput = Number(row[6] || 10)
+    const priceInput = Number(row[7] || 1000000)
+    const featuredInput = String(row[8] || '0').trim()
+
+    let isValid = true
+    let errorMsg = ''
+
+    // Match Category
+    let category = categoriesList.value.find(c => String(c.id) === catInput || c.name.toLowerCase() === catInput.toLowerCase())
+    if (!category && categoriesList.value.length > 0) {
+      category = categoriesList.value[0]
+    }
+    if (!category) {
+      isValid = false
+      errorMsg = 'Không tìm thấy danh mục'
+    }
+
+    // Match Brand
+    let brand = brandsList.value.find(b => String(b.id) === brandInput || b.name.toLowerCase() === brandInput.toLowerCase())
+    if (!brand && brandsList.value.length > 0) {
+      brand = brandsList.value[0]
+    }
+    if (!brand) {
+      isValid = false
+      errorMsg = 'Không tìm thấy thương hiệu'
+    }
+
+    // Parse Sizes
+    const sizes = sizeInput ? sizeInput.split(/[,;|]/).map(s => s.trim()).filter(Boolean) : ['40']
+    // Parse Colors
+    const colors = colorInput ? colorInput.split(/[,;|]/).map(c => c.trim()).filter(Boolean) : ['Trắng']
+
+    const variants = []
+    for (const sName of sizes) {
+      let sz = sizesList.value.find(s => String(s.name) === String(sName) || String(s.id) === String(sName))
+      const sizeId = sz ? sz.id : (sizesList.value[0]?.id || 39)
+      const sizeDisplayName = sz ? sz.name : sName
+
+      for (const cName of colors) {
+        let cl = colorsList.value.find(c => c.name.toLowerCase() === cName.toLowerCase() || String(c.id) === String(cName))
+        const colorId = cl ? cl.id : (colorsList.value[0]?.id || 1)
+        const colorDisplayName = cl ? cl.name : cName
+
+        variants.push({
+          size_id: sizeId,
+          size_name: sizeDisplayName,
+          color_id: colorId,
+          color_name: colorDisplayName,
+          stock: stockInput,
+          price: priceInput
+        })
+      }
+    }
+
+    if (!name) {
+      isValid = false
+      errorMsg = 'Tên sản phẩm trống'
+    }
+
+    products.push({
+      name,
+      category_id: category ? category.id : 1,
+      category_name: category ? category.name : catInput,
+      brand_id: brand ? brand.id : 1,
+      brand_name: brand ? brand.name : brandInput,
+      description,
+      is_featured: featuredInput === '1' || featuredInput.toLowerCase() === 'true',
+      variants,
+      isValid,
+      errorMsg
+    })
+  }
+
+  parsedExcelProducts.value = products
+}
+
+async function submitExcelImport() {
+  const validProducts = parsedExcelProducts.value.filter(p => p.isValid)
+  if (validProducts.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Không có dữ liệu',
+      text: 'Không có sản phẩm hợp lệ nào để nhập kho!',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
+  isImportingExcel.value = true
+
+  try {
+    const payload = {
+      products: validProducts.map(p => ({
+        name: p.name,
+        category_id: p.category_id,
+        brand_id: p.brand_id,
+        description: p.description,
+        is_featured: p.is_featured ? 1 : 0,
+        images: [],
+        variants: p.variants.map(v => ({
+          size_id: v.size_id,
+          color_id: v.color_id,
+          stock: v.stock,
+          price: v.price
+        }))
+      }))
+    }
+
+    const response = await axiosInstance.post('/product_import_excel', payload)
+
+    if (response && response.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Nhập file Excel thành công!',
+        text: response.message || `Đã thêm ${validProducts.length} sản phẩm mới vào hệ thống.`,
+        confirmButtonColor: '#FF4D00'
+      })
+      await fetchProducts()
+      closeExcelModal()
+    }
+  } catch (error) {
+    console.error('Error submitting Excel import:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Nhập file thất bại!',
+      text: error.response?.data?.message || 'Có lỗi xảy ra khi lưu sản phẩm vào cơ sở dữ liệu.',
+      confirmButtonColor: '#FF4D00'
+    })
+  } finally {
+    isImportingExcel.value = false
+  }
 }
 </script>
 

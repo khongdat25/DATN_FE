@@ -1,172 +1,170 @@
 <template>
-  
-    <div class="space-y-6">
-      <!-- Page Header Title & Button -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="text-left">
-          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-wide">Quản lý Bài viết (Blog / Tin tức)</h1>
-          <p class="text-xs text-slate-400 mt-0.5">Quản lý và xuất bản các tin tức xu hướng, hướng dẫn vệ sinh và các chiến dịch của SaigonShoes.</p>
+  <div class="space-y-6">
+    <!-- Page Header Title & Button -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="text-left">
+        <h1 class="font-display text-2xl font-bold text-slate-900 tracking-wide">Quản lý Bài viết (Blog / Tin tức)</h1>
+        <p class="text-xs text-slate-400 mt-0.5">Quản lý và xuất bản các tin tức xu hướng, hướng dẫn vệ sinh và các chiến dịch của SaigonShoes.</p>
+      </div>
+      <button @click="openAddModal" class="inline-flex items-center gap-2 bg-accent text-white px-5 py-3 rounded-xl text-sm font-semibold tracking-wide hover:bg-accent-hover transition-all active:scale-[0.98] shadow-lg shadow-accent/20 cursor-pointer w-fit text-left border-none">
+        <i class="ti ti-plus text-lg"></i> Viết bài mới
+      </button>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <!-- Total Posts -->
+      <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+        <div class="absolute right-4 top-4 text-slate-100 group-hover:text-accent/10 transition-colors duration-300">
+          <i class="ti ti-news text-5xl"></i>
         </div>
-        <button @click="openAddModal" class="inline-flex items-center gap-2 bg-accent text-white px-5 py-3 rounded-xl text-sm font-semibold tracking-wide hover:bg-accent-hover transition-all active:scale-[0.98] shadow-lg shadow-accent/20 cursor-pointer w-fit text-left border-none">
-          <i class="ti ti-plus text-lg"></i> Viết bài mới
-        </button>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng số bài viết</p>
+        <p class="text-2xl font-bold text-slate-800 mt-2">{{ statTotal }}</p>
+        <p class="text-[10px] text-green-500 mt-1 flex items-center gap-1">
+          <i class="ti ti-trending-up"></i> +2 bài viết tuần này
+        </p>
       </div>
 
-      <!-- Statistics Grid -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <!-- Total Posts -->
-        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
-          <div class="absolute right-4 top-4 text-slate-100 group-hover:text-accent/10 transition-colors duration-300">
-            <i class="ti ti-news text-5xl"></i>
-          </div>
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng số bài viết</p>
-          <p class="text-2xl font-bold text-slate-800 mt-2">{{ statTotal }}</p>
-          <p class="text-[10px] text-green-500 mt-1 flex items-center gap-1">
-            <i class="ti ti-trending-up"></i> +2 bài viết tuần này
-          </p>
+      <!-- Published Posts -->
+      <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+        <div class="absolute right-4 top-4 text-slate-100 group-hover:text-green-500/10 transition-colors duration-300">
+          <i class="ti ti-circle-check text-5xl"></i>
         </div>
-
-        <!-- Published Posts -->
-        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
-          <div class="absolute right-4 top-4 text-slate-100 group-hover:text-green-500/10 transition-colors duration-300">
-            <i class="ti ti-circle-check text-5xl"></i>
-          </div>
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Đã xuất bản</p>
-          <p class="text-2xl font-bold mt-2 text-green-600">{{ statPublished }}</p>
-          <p class="text-[10px] text-slate-400 mt-1">Đang hiển thị trên Website</p>
-        </div>
-
-        <!-- Draft Posts -->
-        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
-          <div class="absolute right-4 top-4 text-slate-100 group-hover:text-yellow-500/10 transition-colors duration-300">
-            <i class="ti ti-file-pencil text-5xl"></i>
-          </div>
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Bài viết nháp</p>
-          <p class="text-2xl font-bold mt-2 text-yellow-600">{{ statDraft }}</p>
-          <p class="text-[10px] text-slate-400 mt-1">Chờ biên tập viên phê duyệt</p>
-        </div>
-
-        <!-- Total Views -->
-        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
-          <div class="absolute right-4 top-4 text-slate-100 group-hover:text-blue-500/10 transition-colors duration-300">
-            <i class="ti ti-eye text-5xl"></i>
-          </div>
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng lượt xem</p>
-          <p class="text-2xl font-bold mt-2 text-blue-600">{{ statViews.toLocaleString() }}</p>
-          <p class="text-[10px] text-green-500 mt-1 flex items-center gap-1">
-            <i class="ti ti-trending-up"></i> +15% so với tháng trước
-          </p>
-        </div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Đã xuất bản</p>
+        <p class="text-2xl font-bold mt-2 text-green-600">{{ statPublished }}</p>
+        <p class="text-[10px] text-slate-400 mt-1">Đang hiển thị trên Website</p>
       </div>
 
-      <!-- Toolbar & Filter Area -->
-      <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <!-- Search -->
-        <div class="relative w-full md:w-80">
-          <i class="ti ti-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="Tìm kiếm bài viết..." 
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all font-semibold"
-          >
+      <!-- Draft Posts -->
+      <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+        <div class="absolute right-4 top-4 text-slate-100 group-hover:text-yellow-500/10 transition-colors duration-300">
+          <i class="ti ti-file-pencil text-5xl"></i>
         </div>
-
-        <!-- Category & Status Filters -->
-        <div class="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
-          <select 
-            v-model="selectedCat" 
-            class="bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs text-slate-650 text-slate-700 outline-none cursor-pointer focus:border-accent transition-colors font-semibold"
-          >
-            <option value="all">Tất cả chuyên mục</option>
-            <option value="Xu hướng">Xu hướng</option>
-            <option value="Hướng dẫn">Hướng dẫn</option>
-            <option value="Sự kiện">Sự kiện</option>
-            <option value="Khuyến mãi">Khuyến mãi</option>
-          </select>
-
-          <select 
-            v-model="selectedStatus" 
-            class="bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs text-slate-650 text-slate-700 outline-none cursor-pointer focus:border-accent transition-colors font-semibold"
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="published">Đã xuất bản</option>
-            <option value="draft">Bản nháp</option>
-          </select>
-        </div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Bài viết nháp</p>
+        <p class="text-2xl font-bold mt-2 text-yellow-600">{{ statDraft }}</p>
+        <p class="text-[10px] text-slate-400 mt-1">Chờ biên tập viên phê duyệt</p>
       </div>
 
-      <!-- Main Listing Table Card -->
-      <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50/75 border-b border-slate-100 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                <th class="py-4 px-6">Bài viết</th>
-                <th class="py-4 px-6">Chuyên mục</th>
-                <th class="py-4 px-6">Lượt xem</th>
-                <th class="py-4 px-6">Trạng thái</th>
-                <th class="py-4 px-6">Ngày tạo</th>
-                <th class="py-4 px-6 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 text-xs">
-              <tr 
-                v-for="post in filteredPosts" 
-                :key="post.id" 
-                class="hover:bg-slate-50/75 transition-colors border-b border-slate-100 text-slate-600 font-medium"
-              >
-                <td class="py-4 px-6 font-semibold text-slate-800 max-w-70">
-                  <div class="flex items-center gap-3">
-                    <div class="h-12 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
-                      <img :src="getImageUrl(post.image)" alt="Thumb" class="h-full w-full object-cover">
-                    </div>
-                    <span class="truncate block hover:text-accent cursor-pointer transition-colors text-left" :title="post.title">{{ post.title }}</span>
+      <!-- Total Views -->
+      <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm text-left relative overflow-hidden group">
+        <div class="absolute right-4 top-4 text-slate-100 group-hover:text-blue-500/10 transition-colors duration-300">
+          <i class="ti ti-eye text-5xl"></i>
+        </div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng lượt xem</p>
+        <p class="text-2xl font-bold mt-2 text-blue-600">{{ statViews.toLocaleString() }}</p>
+        <p class="text-[10px] text-green-500 mt-1 flex items-center gap-1">
+          <i class="ti ti-trending-up"></i> +15% so với tháng trước
+        </p>
+      </div>
+    </div>
+
+    <!-- Toolbar & Filter Area -->
+    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- Search -->
+      <div class="relative w-full md:w-80">
+        <i class="ti ti-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="Tìm kiếm bài viết..." 
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all font-semibold"
+        >
+      </div>
+
+      <!-- Category & Status Filters -->
+      <div class="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
+        <select 
+          v-model="selectedCat" 
+          class="bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs text-slate-700 outline-none cursor-pointer focus:border-accent transition-colors font-semibold"
+        >
+          <option value="all">Tất cả chuyên mục</option>
+          <option value="Xu hướng">Xu hướng</option>
+          <option value="Hướng dẫn">Hướng dẫn</option>
+          <option value="Sự kiện">Sự kiện</option>
+          <option value="Khuyến mãi">Khuyến mãi</option>
+        </select>
+
+        <select 
+          v-model="selectedStatus" 
+          class="bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-xs text-slate-700 outline-none cursor-pointer focus:border-accent transition-colors font-semibold"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="published">Đã xuất bản</option>
+          <option value="draft">Bản nháp</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Main Listing Table Card -->
+    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/75 border-b border-slate-100 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+              <th class="py-4 px-6">Bài viết</th>
+              <th class="py-4 px-6">Chuyên mục</th>
+              <th class="py-4 px-6">Lượt xem</th>
+              <th class="py-4 px-6">Trạng thái</th>
+              <th class="py-4 px-6">Ngày tạo</th>
+              <th class="py-4 px-6 text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            <tr 
+              v-for="post in filteredPosts" 
+              :key="post.id" 
+              class="hover:bg-slate-50/75 transition-colors border-b border-slate-100 text-slate-600 font-medium"
+            >
+              <td class="py-4 px-6 font-semibold text-slate-800 max-w-70">
+                <div class="flex items-center gap-3">
+                  <div class="h-12 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200">
+                    <img :src="getImageUrl(post.image)" alt="Thumb" class="h-full w-full object-cover">
                   </div>
-                </td>
-                <td class="py-4 px-6 text-left">
-                  <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-semibold uppercase tracking-wider">{{ post.category }}</span>
-                </td>
-                <td class="py-4 px-6 font-semibold text-left">{{ post.views.toLocaleString() }}</td>
-                <td class="py-4 px-6 text-left">
-                  <span 
-                    v-if="post.status === 'published'" 
-                    class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600 whitespace-nowrap"
+                  <span class="truncate block hover:text-accent cursor-pointer transition-colors text-left" :title="post.title">{{ post.title }}</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 text-left">
+                <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-semibold uppercase tracking-wider">{{ post.category }}</span>
+              </td>
+              <td class="py-4 px-6 font-semibold text-left">{{ post.views.toLocaleString() }}</td>
+              <td class="py-4 px-6 text-left">
+                <span 
+                  v-if="post.status === 'published'" 
+                  class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600 whitespace-nowrap"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Đã công khai
+                </span>
+                <span 
+                  v-else 
+                  class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-yellow-50 text-yellow-600 whitespace-nowrap"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>Bản nháp
+                </span>
+              </td>
+              <td class="py-4 px-6 text-slate-400 font-medium text-left">{{ post.date }}</td>
+              <td class="py-4 px-6 text-right">
+                <div class="flex items-center gap-1 justify-end">
+                  <button 
+                    @click="openEditModal(post)"
+                    class="whitespace-nowrap px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
                   >
-                    <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Đã công khai
-                  </span>
-                  <span 
-                    v-else 
-                    class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[10px] font-bold bg-yellow-50 text-yellow-600 whitespace-nowrap"
-                  >
-                    <span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>Bản nháp
-                  </span>
-                </td>
-                <td class="py-4 px-6 text-slate-400 font-medium text-left">{{ post.date }}</td>
-                <td class="py-4 px-6 text-right">
-                  <div class="flex items-center gap-1 justify-end">
-                    <button 
-                      @click="openEditModal(post)"
-                      class="whitespace-nowrap px-3 py-1.5 bg-orange-50 hover:bg-accent hover:text-white text-accent rounded-lg border border-orange-100 transition-all text-[11px] font-bold cursor-pointer shadow-2xs"
-                    >
-                      Chỉnh sửa
-                    </button>
-                    <button @click="handleDelete(post.id)" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-lg transition-colors cursor-pointer border-none bg-transparent" title="Xóa">
-                      <i class="ti ti-trash text-base"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                    Chỉnh sửa
+                  </button>
+                  <button @click="handleDelete(post.id)" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-lg transition-colors cursor-pointer border-none bg-transparent" title="Xóa">
+                    <i class="ti ti-trash text-base"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <!-- Empty State -->
-        <div v-if="filteredPosts.length === 0" class="text-center py-16">
-          <i class="ti ti-news text-5xl text-slate-200 block mb-3 animate-pulse"></i>
-          <p class="text-sm font-semibold text-slate-800">Không tìm thấy bài viết nào</p>
-          <p class="text-xs text-slate-400 mt-1">Vui lòng điều chỉnh điều kiện lọc hoặc từ khóa tìm kiếm.</p>
-        </div>
+      <!-- Empty State -->
+      <div v-if="filteredPosts.length === 0" class="text-center py-16">
+        <i class="ti ti-news text-5xl text-slate-200 block mb-3 animate-pulse"></i>
+        <p class="text-sm font-semibold text-slate-800">Không tìm thấy bài viết nào</p>
+        <p class="text-xs text-slate-400 mt-1">Vui lòng điều chỉnh điều kiện lọc hoặc từ khóa tìm kiếm.</p>
       </div>
     </div>
 
@@ -209,7 +207,7 @@
               <select 
                 v-model="formPost.category" 
                 required 
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-650 text-slate-700 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all font-semibold"
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-700 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all font-semibold"
               >
                 <option value="Xu hướng">Xu hướng</option>
                 <option value="Hướng dẫn">Hướng dẫn</option>
@@ -222,7 +220,7 @@
               <select 
                 v-model="formPost.status" 
                 required 
-                class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-650 text-slate-700 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all font-semibold"
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-700 outline-none cursor-pointer focus:border-accent focus:bg-white transition-all font-semibold"
               >
                 <option value="published">Đã xuất bản (Công khai)</option>
                 <option value="draft">Bản nháp (Nội bộ)</option>
@@ -230,16 +228,29 @@
             </div>
           </div>
 
-          <!-- Thumbnail field -->
+          <!-- Thumbnail field with File Upload -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Hình ảnh đại diện (URL hoặc tên ảnh local) <span class="text-accent">*</span></label>
-            <input 
-              type="text" 
-              v-model="formPost.image" 
-              required 
-              placeholder="Nhập đường dẫn URL ảnh (ví dụ: https://i.postimg.cc/...) hoặc tên ảnh..."
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all font-semibold"
-            >
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Hình ảnh đại diện (URL hoặc tải từ máy) <span class="text-accent">*</span></label>
+            <div class="space-y-2">
+              <input 
+                type="text" 
+                v-model="formPost.image" 
+                required 
+                placeholder="Nhập đường dẫn URL ảnh hoặc chọn file từ máy..."
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all font-semibold"
+              >
+              <div class="flex items-center gap-2">
+                <input type="file" ref="blogFileInput" @change="onBlogFileSelected" accept="image/*" class="hidden">
+                <button 
+                  type="button" 
+                  @click="triggerBlogFileInput" 
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg transition-all border-none cursor-pointer flex items-center gap-1.5 shrink-0"
+                >
+                  <i class="ti ti-upload text-sm"></i> Tải ảnh từ máy
+                </button>
+                <span v-if="selectedBlogFileName" class="text-[11px] text-emerald-600 font-bold truncate max-w-[200px]">{{ selectedBlogFileName }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- Excerpt text -->
@@ -271,7 +282,7 @@
             <button 
               type="button" 
               @click="closeModal" 
-              class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-655 text-slate-600 transition-colors cursor-pointer"
+              class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-600 transition-colors cursor-pointer"
             >
               Hủy bỏ
             </button>
@@ -285,7 +296,7 @@
         </form>
       </div>
     </div>
-  
+  </div>
 </template>
 
 <script setup>
@@ -299,6 +310,24 @@ const selectedStatus = ref('all')
 
 const modalOpen = ref(false)
 const isEditMode = ref(false)
+const blogFileInput = ref(null)
+const selectedBlogFile = ref(null)
+const selectedBlogFileName = ref('')
+
+function triggerBlogFileInput() {
+  if (blogFileInput.value) {
+    blogFileInput.value.click()
+  }
+}
+
+function onBlogFileSelected(event) {
+  const file = event.target.files?.[0]
+  if (file) {
+    selectedBlogFile.value = file
+    selectedBlogFileName.value = file.name
+    formPost.value.image = URL.createObjectURL(file)
+  }
+}
 
 const posts = ref([
   {
@@ -348,30 +377,6 @@ const posts = ref([
     image: 'cat1.png',
     views: 2420,
     status: 'published'
-  },
-  {
-    id: 5,
-    title: 'Bản thảo: Top 5 xu hướng giày thể thao dự kiến lên ngôi cuối năm 2026',
-    category: 'Xu hướng',
-    excerpt: 'Khám phá sớm các công nghệ đột phá, chất liệu đế đệm siêu đàn hồi sẽ thống trị tủ đồ của các Sneakerheads.',
-    content: 'Khám phá sớm các công nghệ đột phá, chất liệu đế đệm siêu đàn hồi sẽ thống trị tủ đồ của các Sneakerheads trong tương lai gần.',
-    date: '30 Tháng 5, 2026',
-    author: 'Editor',
-    image: 'news_2.png',
-    views: 0,
-    status: 'draft'
-  },
-  {
-    id: 6,
-    title: 'Bản thảo: Hướng dẫn chi tiết cách đo size chân chuẩn để đặt giày từ xa',
-    category: 'Hướng dẫn',
-    excerpt: 'Tránh hoàn toàn tình trạng đặt sai size, chật gót hoặc kích mũi giày với cách đo bàn chân bằng thước chuẩn xác.',
-    content: 'Tránh hoàn toàn tình trạng đặt sai size, chật gót hoặc kích mũi giày với cách đo bàn chân bằng thước chuẩn xác.',
-    date: '28 Tháng 5, 2026',
-    author: 'Admin',
-    image: 'news_1.png',
-    views: 0,
-    status: 'draft'
   }
 ])
 
@@ -385,7 +390,6 @@ const formPost = ref({
   content: ''
 })
 
-// Statistics computed dynamically
 const statTotal = computed(() => posts.value.length)
 const statPublished = computed(() => posts.value.filter(p => p.status === 'published').length)
 const statDraft = computed(() => posts.value.filter(p => p.status === 'draft').length)
@@ -403,10 +407,23 @@ const filteredPosts = computed(() => {
   })
 })
 
-function getImageUrl(image) {
-  if (!image) return '/images/news_featured.png'
-  if (image.startsWith('http') || image.startsWith('data:')) return image
-  return `/images/${image}`
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/news_featured.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('images/')) {
+    return `/${imagePath}`
+  }
+  if (imagePath.startsWith('/uploads/') || imagePath.startsWith('uploads/')) {
+    const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+    const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`
+    return `${serverUrl}${cleanPath}`
+  }
+  return `/images/${imagePath}`
 }
 
 async function fetchBlogs() {
@@ -433,7 +450,7 @@ async function fetchBlogs() {
       }))
     }
   } catch (error) {
-    console.error('Error fetching blogs from API, using mockup:', error)
+    console.error('Error fetching blogs from API:', error)
   }
 }
 
@@ -443,6 +460,8 @@ onMounted(() => {
 
 function openAddModal() {
   isEditMode.value = false
+  selectedBlogFile.value = null
+  selectedBlogFileName.value = ''
   formPost.value = {
     id: '',
     title: '',
@@ -458,6 +477,8 @@ function openAddModal() {
 
 function openEditModal(post) {
   isEditMode.value = true
+  selectedBlogFile.value = null
+  selectedBlogFileName.value = ''
   formPost.value = { ...post }
   modalOpen.value = true
 }
@@ -467,9 +488,26 @@ function closeModal() {
 }
 
 async function savePost() {
+  let finalAvatar = formPost.value.image
+
+  if (selectedBlogFile.value) {
+    try {
+      const formData = new FormData()
+      formData.append('image', selectedBlogFile.value)
+      const uploadRes = await axiosInstance.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      if (uploadRes && uploadRes.data && uploadRes.data.path) {
+        finalAvatar = uploadRes.data.path
+      }
+    } catch (e) {
+      console.error('Error uploading blog image file:', e)
+    }
+  }
+
   const payload = {
     name: formPost.value.title,
-    avatar: formPost.value.image,
+    avatar: finalAvatar,
     comment: formPost.value.excerpt,
     content: formPost.value.content,
     featuring: formPost.value.featuring || (formPost.value.category === 'Sự kiện')
