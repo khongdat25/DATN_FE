@@ -11,9 +11,61 @@
           </router-link>
         </div>
 
-        <!-- Cards Grid -->
-        <div class="grid grid-cols-2 max-md:grid-cols-1 gap-5">
+        <!-- Dynamic Collections Grid -->
+        <div v-if="collections.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div 
+            v-for="(item, index) in collections" 
+            :key="item.id"
+            @click="navigateToCollection(item)"
+            class="group rounded-2xl overflow-hidden cursor-pointer flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-slate-100"
+          >
+            <!-- Banner / Product Preview Container -->
+            <div class="bg-white overflow-hidden relative flex items-center justify-center" style="height:260px;">
+              <img
+                :src="getBannerUrl(item.banner || item.products?.[0]?.images?.[0])"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                :alt="item.name"
+              >
+              <!-- Featured Badge -->
+              <div v-if="item.is_featured" class="absolute top-4 left-4 bg-amber-500 text-white text-[10px] uppercase font-extrabold tracking-wider px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                <i class="ti ti-star-filled text-xs"></i> Nổi bật
+              </div>
+            </div>
 
+            <!-- Card Information Footer -->
+            <div 
+              :class="[
+                'px-6 py-5 flex items-center justify-between gap-4',
+                index % 2 === 0 ? 'bg-[#1a1a2e]' : 'bg-[#111111]'
+              ]"
+            >
+              <div class="min-w-0 flex-1">
+                <div class="text-[10px] text-white/50 tracking-[2px] uppercase font-medium mb-1 truncate">
+                  SaigonShoes Lookbook {{ item.products ? `• ${item.products.length} sản phẩm` : '' }}
+                </div>
+                <h3 class="font-display text-white text-[20px] sm:text-[22px] tracking-[1px] font-bold leading-tight truncate">
+                  {{ item.name }}
+                </h3>
+                <p class="text-white/60 text-[12px] mt-1 leading-normal truncate">
+                  {{ item.excerpt || 'Khám phá ngay bộ sưu tập đẳng cấp mới nhất.' }}
+                </p>
+              </div>
+              <span 
+                :class="[
+                  'shrink-0 flex items-center gap-2 text-[11px] font-bold tracking-[1px] uppercase px-4 py-2.5 rounded-full transition-all duration-300',
+                  index % 2 === 0 
+                    ? 'bg-accent text-white group-hover:bg-white group-hover:text-[#1a1a2e]' 
+                    : 'bg-white text-[#111111] group-hover:bg-accent group-hover:text-white'
+                ]"
+              >
+                Khám phá <i class="ti ti-arrow-right"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fallback Static Cards Grid if no collections exist yet -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <!-- Card 1: Crocs -->
           <router-link to="/products?category=Dép Crocs"
             class="group rounded-2xl overflow-hidden cursor-pointer flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
@@ -59,12 +111,53 @@
               </span>
             </div>
           </router-link>
-
         </div>
+
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import axiosInstance from '@/api/axios.js'
+
+const router = useRouter()
+const collections = ref([])
+
+function getBannerUrl(bannerPath) {
+  if (!bannerPath) return '/images/news_featured.png'
+  if (bannerPath.startsWith('http://') || bannerPath.startsWith('https://') || bannerPath.startsWith('data:')) {
+    return bannerPath
+  }
+  if (bannerPath.startsWith('/images/')) return bannerPath
+  if (bannerPath.startsWith('images/')) return `/${bannerPath}`
+  if (bannerPath.startsWith('/uploads/') || bannerPath.startsWith('uploads/')) {
+    const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+    const cleanPath = bannerPath.startsWith('/') ? bannerPath : `/${bannerPath}`
+    return `${serverUrl}${cleanPath}`
+  }
+  return `/images/${bannerPath}`
+}
+
+function navigateToCollection(item) {
+  router.push(`/products?collection=${item.id}`)
+}
+
+async function fetchHomeCollections() {
+  try {
+    const res = await axiosInstance.get('/collections')
+    if (res) {
+      const list = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
+      collections.value = list
+    }
+  } catch (err) {
+    console.error('Fetch public collections error:', err)
+  }
+}
+
+onMounted(() => {
+  fetchHomeCollections()
+})
 </script>

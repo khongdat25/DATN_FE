@@ -45,10 +45,10 @@
             </div>
           </div>
 
-          <!-- Bộ lọc bộ sưu tập -->
+          <!-- Bộ lọc danh mục -->
           <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
             <div @click="toggleSection('category')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
-              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Bộ Sưu Tập</p>
+              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Danh Mục</p>
               <i :class="['ti text-[12px] text-text-muted transition-transform duration-200', activeSections.category ? 'ti-chevron-up' : 'ti-chevron-down']"></i>
             </div>
             <div v-show="activeSections.category" class="px-4 pb-4">
@@ -58,6 +58,25 @@
                   <input type="checkbox" v-model="filters.categories" :value="cat.name" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
                   <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.categories.includes(cat.name) ? 'text-accent font-semibold' : 'text-text-muted']">
                     {{ cat.name }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bộ lọc bộ sưu tập -->
+          <div class="border border-border rounded-2xl bg-white overflow-hidden shadow-sm">
+            <div @click="toggleSection('collection')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-surface2 select-none">
+              <p class="text-[12px] font-display font-bold uppercase tracking-wider text-text">Bộ Sưu Tập</p>
+              <i :class="['ti text-[12px] text-text-muted transition-transform duration-200', activeSections.collection ? 'ti-chevron-up' : 'ti-chevron-down']"></i>
+            </div>
+            <div v-show="activeSections.collection" class="px-4 pb-4">
+              <div class="flex flex-col gap-3">
+                <div v-if="availableCollections.length === 0" class="text-xs text-text-dim italic">Chưa có BST nào</div>
+                <label v-for="col in availableCollections" :key="col.id" class="flex items-center gap-3 cursor-pointer group select-none">
+                  <input type="checkbox" v-model="filters.collections" :value="col.id" class="w-4 h-4 rounded border-border-light text-accent accent-accent cursor-pointer">
+                  <span :class="['text-[13px] transition-colors group-hover:text-accent', filters.collections.includes(col.id) ? 'text-accent font-semibold' : 'text-text-muted']">
+                    {{ col.name }}
                   </span>
                 </label>
               </div>
@@ -231,14 +250,16 @@ const showToast = inject('showToast', (msg) => {})
 // Đóng/mở các mục bộ lọc
 const activeSections = reactive({
   category: true,
+  collection: true,
   brand: true,
   price: true,
   size: true
 })
 function toggleSection(section) { activeSections[section] = !activeSections[section] }
 
-// Danh mục được tải từ API, thương hiệu và kích thước tĩnh
+// Danh mục, bộ sưu tập được tải từ API, thương hiệu và kích thước tĩnh
 const availableCategories = ref([])
+const availableCollections = ref([])
 const availableBrands = ref([])
 const availableSizes = ['38', '39', '40', '41', '42', '43', '44']
 
@@ -255,6 +276,7 @@ let debounceTimer = null
 // Trạng thái lưu bộ lọc
 const filters = reactive({
   categories: [],
+  collections: [],
   brands: [],
   priceFrom: null,
   priceTo: null,
@@ -282,6 +304,18 @@ async function fetchCategories() {
   }
 }
 
+async function fetchCollections() {
+  try {
+    const res = await axiosInstance.get('/collections')
+    if (res) {
+      const list = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
+      availableCollections.value = list
+    }
+  } catch (e) {
+    console.error('Không thể lấy bộ sưu tập:', e)
+  }
+}
+
 async function fetchBrands() {
   try {
     const res = await axiosInstance.get('/getbrands')
@@ -296,6 +330,28 @@ async function fetchBrands() {
 async function fetchProducts() {
   isLoading.value = true
   try {
+    // 0. Nếu có Bộ sưu tập được chọn trong filters
+    if (filters.collections.length > 0) {
+      try {
+        const colPromises = filters.collections.map(id => axiosInstance.get(`/collections/${id}`))
+        const colResponses = await Promise.all(colPromises)
+        let colProducts = []
+        for (const res of colResponses) {
+          const rawCol = res?.data || res
+          const colData = rawCol?.data || rawCol
+          if (colData && Array.isArray(colData.products)) {
+            colProducts.push(...colData.products)
+          }
+        }
+        const uniqueProducts = Array.from(new Map(colProducts.map(p => [p.id, p])).values())
+        products.value = uniqueProducts.map(mapBackendProduct)
+        isLoading.value = false
+        return
+      } catch (e) {
+        console.error('Không thể tải bộ sưu tập:', e)
+      }
+    }
+
     const params = {}
 
     // Tìm kiếm từ khóa (phía máy chủ)
@@ -403,6 +459,7 @@ function applyPriceFilter() {
 
 function resetFilters() {
   filters.categories = []
+  filters.collections = []
   filters.brands = []
   filters.priceFrom = null
   filters.priceTo = null
@@ -443,7 +500,21 @@ function applyQueryFilters() {
     filters.categories = []
   }
 
-  // 2. Brand
+  // 2. Collection
+  const queryCollection = route.query.collection
+  if (queryCollection) {
+    const colId = Number(queryCollection) || queryCollection
+    const foundCol = availableCollections.value.find(c => String(c.id) === String(colId) || c.slug === colId)
+    if (foundCol) {
+      filters.collections = [foundCol.id]
+    } else {
+      filters.collections = [colId]
+    }
+  } else {
+    filters.collections = []
+  }
+
+  // 3. Brand
   const queryBrand = route.query.brand
   if (queryBrand) {
     const foundBrand = availableBrands.value.find(b => b.name.toLowerCase().trim() === queryBrand.toLowerCase().trim())
@@ -456,7 +527,7 @@ function applyQueryFilters() {
     filters.brands = []
   }
 
-  // 3. Min/Max Price
+  // 4. Min/Max Price
   if (route.query.min_price !== undefined) {
     filters.priceFrom = Number(route.query.min_price)
     filters.appliedPriceFrom = Number(route.query.min_price)
@@ -473,7 +544,7 @@ function applyQueryFilters() {
     filters.appliedPriceTo = null
   }
 
-  // 4. Sort
+  // 5. Sort
   if (route.query.sort) {
     if (route.query.sort === 'newest') {
       filters.sortBy = 'newest'
@@ -491,7 +562,7 @@ function applyQueryFilters() {
     filters.priceSort = 'default'
   }
 
-  // 5. Search Query
+  // 6. Search Query
   const querySearch = route.query.q
   if (querySearch) {
     searchQuery.value = querySearch
@@ -504,7 +575,7 @@ let isMounted = false
 
 // Theo dõi thay đổi bộ lọc phía máy chủ → tải lại dữ liệu
 watch(
-  [() => filters.sortBy, () => filters.priceSort, () => filters.categories,
+  [() => filters.sortBy, () => filters.priceSort, () => filters.categories, () => filters.collections,
    () => filters.appliedPriceFrom, () => filters.appliedPriceTo],
   () => {
     if (!isMounted) return
@@ -519,7 +590,7 @@ watch(() => route.query, () => {
 }, { deep: true })
 
 onMounted(async () => {
-  await Promise.all([fetchCategories(), fetchBrands()])
+  await Promise.all([fetchCategories(), fetchBrands(), fetchCollections()])
   applyQueryFilters()
   await fetchProducts()
   isMounted = true

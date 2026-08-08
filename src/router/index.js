@@ -169,6 +169,18 @@ const routes = [
         component: () => import('../views/admin/ContactsView.vue'),
         name: 'admin-contacts',
         meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/collections',
+        component: () => import('../views/admin/CollectionsView.vue'),
+        name: 'admin-collections',
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/ai-management',
+        component: () => import('../views/admin/AiManagementView.vue'),
+        name: 'admin-ai-management',
+        meta: { requiresAuth: true, requiresAdmin: true }
     }
 ];
 

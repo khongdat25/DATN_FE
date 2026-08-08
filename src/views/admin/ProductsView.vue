@@ -239,7 +239,7 @@
       ></div>
       
       <!-- Modal Content Container -->
-      <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden z-10 transition-all scale-100 text-left">
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-4xl max-h-[88vh] flex flex-col overflow-hidden z-10 transition-all scale-100 text-left">
         <!-- Modal Header -->
         <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
           <div>
@@ -276,15 +276,14 @@
             >
           </div>
 
-          <!-- Description -->
+          <!-- SEO Rich Text Editor Description -->
           <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mô tả sản phẩm</label>
-            <textarea 
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mô tả sản phẩm & Tối ưu SEO</label>
+            <SeoRichEditor 
               v-model="formProduct.description" 
-              placeholder="Nhập mô tả chi tiết sản phẩm..." 
-              rows="3"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all placeholder:text-slate-400 text-slate-800 font-semibold resize-none"
-            ></textarea>
+              :title="formProduct.name"
+              contentType="product"
+            />
           </div>
 
           <!-- Product Images Upload -->
@@ -762,6 +761,7 @@
 import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
+import SeoRichEditor from '@/components/common/SeoRichEditor.vue'
 
 const searchQuery = ref('')
 const filterCategory = ref('all')

@@ -177,7 +177,7 @@
       <div @click="closeModal" class="absolute inset-0 bg-black/40 backdrop-blur-xs"></div>
       
       <!-- Modal content -->
-      <div class="bg-white rounded-3xl w-full max-w-160 shadow-2xl border border-slate-100 z-10 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-white rounded-3xl w-full max-w-4xl shadow-2xl border border-slate-100 z-10 overflow-hidden flex flex-col max-h-[90vh]">
         <header class="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
           <h3 class="font-display text-lg font-bold text-slate-900 tracking-wide">
             {{ isEditMode ? 'Chỉnh sửa bài viết 📝' : 'Viết bài mới 📝' }}
@@ -265,16 +265,14 @@
             ></textarea>
           </div>
 
-          <!-- Detailed Rich Text Area -->
+          <!-- SEO Rich Text Editor & Analyzer -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Nội dung chi tiết bài viết <span class="text-accent">*</span></label>
-            <textarea 
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Nội dung chi tiết & Tối ưu SEO <span class="text-accent">*</span></label>
+            <SeoRichEditor 
               v-model="formPost.content" 
-              required 
-              rows="6" 
-              placeholder="Viết nội dung bài đăng của bạn ở đây. Hỗ trợ hiển thị dạng văn bản dài..." 
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 outline-none focus:border-accent focus:bg-white transition-all resize-none font-medium"
-            ></textarea>
+              :title="formPost.title"
+              contentType="blog"
+            />
           </div>
 
           <!-- Action Button in form -->
@@ -303,6 +301,7 @@
 import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
+import SeoRichEditor from '@/components/common/SeoRichEditor.vue'
 
 const searchQuery = ref('')
 const selectedCat = ref('all')

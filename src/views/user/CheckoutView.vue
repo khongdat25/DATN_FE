@@ -48,6 +48,11 @@
                   <span class="text-sm font-semibold text-text-muted">{{ selectedAddress.phone }}</span>
                 </div>
                 <p class="text-sm text-text-muted leading-relaxed">{{ selectedAddress.address }}</p>
+
+                <!-- GHN Auto Shipping Fee Badge -->
+                <div v-if="ghnCalculatedFee !== null" class="mt-3 text-xs font-bold text-emerald-600 flex items-center gap-1.5 bg-emerald-50/80 border border-emerald-200 rounded-lg px-3 py-2 w-fit">
+                  <i class="ti ti-truck text-base text-emerald-600"></i> Cước phí GHN tính tự động theo địa chỉ: <strong>{{ formatPrice(ghnCalculatedFee) }}</strong>
+                </div>
               </div>
             </div>
 
@@ -365,6 +370,7 @@ import { ref, reactive, computed, onMounted, onUnmounted, inject, watch } from '
 import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
+import { getGHNProvinces, getGHNDistricts, getGHNWards, calculateGHNShippingFee } from '@/api/ghn.js'
 
 const cartCount = inject('cartCount', ref(0))
 
@@ -377,6 +383,264 @@ const SHOP_PAYMENT_CONFIG = {
 
 const router = useRouter()
 const route = useRoute()
+
+// ─── GHN Address State ────────────────────────────────────────────────────────
+const ghnProvinces = ref([])
+const ghnDistricts = ref([])
+const ghnWards = ref([])
+
+const selectedProvinceId = ref(null)
+const selectedDistrictId = ref(null)
+const selectedWardCode = ref('')
+const ghnCalculatedFee = ref(null)
+
+async function loadGHNProvinces() {
+  try {
+    const res = await getGHNProvinces()
+    if (res && res.success && res.data) {
+      ghnProvinces.value = res.data
+    }
+  } catch (e) {
+    console.error('Không thể tải Tỉnh/Thành từ GHN:', e)
+  }
+}
+
+async function onProvinceChange() {
+  ghnDistricts.value = []
+  ghnWards.value = []
+  selectedDistrictId.value = null
+  selectedWardCode.value = ''
+  ghnCalculatedFee.value = null
+  if (!selectedProvinceId.value) return
+
+  try {
+    const res = await getGHNDistricts(selectedProvinceId.value)
+    if (res && res.success && res.data) {
+      ghnDistricts.value = res.data
+    }
+  } catch (e) {
+    console.error('Không thể tải Quận/Huyện từ GHN:', e)
+  }
+}
+
+async function onDistrictChange() {
+  ghnWards.value = []
+  selectedWardCode.value = ''
+  ghnCalculatedFee.value = null
+  if (!selectedDistrictId.value) return
+
+  try {
+    const res = await getGHNWards(selectedDistrictId.value)
+    if (res && res.success && res.data) {
+      ghnWards.value = res.data
+    }
+  } catch (e) {
+    console.error('Không thể tải Xã/Phường từ GHN:', e)
+  }
+}
+
+async function saveGHNToCurrentAddress() {
+  if (selectedAddress.value && selectedAddress.value.id && selectedProvinceId.value && selectedDistrictId.value && selectedWardCode.value) {
+    try {
+      await axiosInstance.put(`/addresses/${selectedAddress.value.id}`, {
+        name: selectedAddress.value.name,
+        phone: selectedAddress.value.phone,
+        address: selectedAddress.value.address,
+        badge: selectedAddress.value.badge || 'Nhà riêng',
+        is_default: selectedAddress.value.isDefault,
+        province_id: selectedProvinceId.value,
+        district_id: selectedDistrictId.value,
+        ward_code: selectedWardCode.value
+      })
+      selectedAddress.value.province_id = selectedProvinceId.value
+      selectedAddress.value.district_id = selectedDistrictId.value
+      selectedAddress.value.ward_code = selectedWardCode.value
+    } catch (e) {
+      console.error('Lỗi khi lưu vị trí GHN vào địa chỉ:', e)
+    }
+  }
+}
+
+async function autoDetectGHNFromAddress(addr) {
+  if (!addr || !addr.address) return false
+  const addressText = addr.address.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ')
+
+  if (!ghnProvinces.value || ghnProvinces.value.length === 0) {
+    await loadGHNProvinces()
+  }
+
+  let matchedProvince = ghnProvinces.value.find(p => {
+    const pName = p.ProvinceName.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ')
+    if (addressText.includes(pName)) return true
+    if (p.NameExtension) {
+      return p.NameExtension.some(ext => addressText.includes(ext.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ')))
+    }
+    if (p.ProvinceID === 202 && (addressText.includes('hcm') || addressText.includes('ho chi minh') || addressText.includes('sai gon') || addressText.includes('saigon') || addressText.includes('tp.hcm') || addressText.includes('tphcm'))) return true
+    if (p.ProvinceID === 201 && (addressText.includes('ha noi') || addressText.includes('hanoi') || addressText.includes('hn'))) return true
+    return false
+  })
+
+  if (!matchedProvince) {
+    matchedProvince = ghnProvinces.value.find(p => p.ProvinceID === 202) || ghnProvinces.value[0]
+  }
+
+  if (!matchedProvince) return false
+
+  selectedProvinceId.value = matchedProvince.ProvinceID
+
+  try {
+    const resD = await getGHNDistricts(matchedProvince.ProvinceID)
+    if (resD && resD.success && resD.data) {
+      ghnDistricts.value = resD.data
+      
+      // 1. Thử tìm trực tiếp theo tên Quận/Huyện trong chuỗi địa chỉ
+      let matchedDistrict = ghnDistricts.value.find(d => {
+        const dName = d.DistrictName.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ').replace(/^(quận|huyện|thành phố|thị xã)\s+/i, '')
+        if (dName.length >= 2 && addressText.includes(dName)) return true
+        if (d.NameExtension) {
+          return d.NameExtension.some(ext => {
+            const cleanExt = ext.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ')
+            return cleanExt.length >= 2 && addressText.includes(cleanExt)
+          })
+        }
+        return false
+      })
+
+      let matchedWard = null
+
+      if (matchedDistrict) {
+        selectedDistrictId.value = matchedDistrict.DistrictID
+        const resW = await getGHNWards(matchedDistrict.DistrictID)
+        if (resW && resW.success && resW.data) {
+          ghnWards.value = resW.data
+          matchedWard = ghnWards.value.find(w => {
+            const wName = w.WardName.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ').replace(/^(xã|phường|thị trấn)\s+/i, '')
+            if (wName.length >= 2 && addressText.includes(wName)) return true
+            if (w.NameExtension) {
+              return w.NameExtension.some(ext => {
+                const cleanExt = ext.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ')
+                return cleanExt.length >= 2 && addressText.includes(cleanExt)
+              })
+            }
+            return false
+          })
+        }
+      }
+
+      // 2. Nếu chuỗi địa chỉ không ghi tên Quận/Huyện, quét danh sách Xã/Phường của các Quận/Huyện để khớp
+      if (!matchedWard) {
+        for (const dist of ghnDistricts.value) {
+          try {
+            const resW = await getGHNWards(dist.DistrictID)
+            if (resW && resW.success && resW.data) {
+              const foundW = resW.data.find(w => {
+                const wName = w.WardName.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ').replace(/^(xã|phường|thị trấn)\s+/i, '')
+                if (wName.length >= 3 && addressText.includes(wName)) return true
+                if (w.NameExtension) {
+                  return w.NameExtension.some(ext => {
+                    const cleanExt = ext.toLowerCase().replace(/[\.\,\-\_\s]+/g, ' ')
+                    return cleanExt.length >= 3 && addressText.includes(cleanExt)
+                  })
+                }
+                return false
+              })
+
+              if (foundW) {
+                matchedDistrict = dist
+                matchedWard = foundW
+                selectedDistrictId.value = dist.DistrictID
+                ghnWards.value = resW.data
+                break
+              }
+            }
+          } catch (err) {}
+        }
+      }
+
+      // 3. Tính phí ship GHN chính xác dựa vào khu vực khớp được
+      const targetDistrictId = matchedDistrict ? matchedDistrict.DistrictID : (matchedProvince.ProvinceID === 202 ? 1442 : 1442)
+      const targetWardCode = matchedWard ? matchedWard.WardCode : '20101'
+
+      selectedDistrictId.value = targetDistrictId
+      selectedWardCode.value = targetWardCode
+
+      const resFee = await calculateGHNShippingFee(targetDistrictId, targetWardCode)
+      if (resFee && resFee.success && resFee.fee !== undefined) {
+        ghnCalculatedFee.value = resFee.fee
+      } else {
+        ghnCalculatedFee.value = 28000
+      }
+
+      if (matchedDistrict && matchedWard) {
+        await saveGHNToCurrentAddress()
+      }
+      return true
+    }
+  } catch (e) {
+    console.error('Error auto detecting GHN location:', e)
+  }
+
+  ghnCalculatedFee.value = 28000
+  return false
+}
+
+async function applyAddressGHN(addr) {
+  if (!addr) return
+  if (addr.province_id) {
+    selectedProvinceId.value = addr.province_id
+    try {
+      const resD = await getGHNDistricts(addr.province_id)
+      if (resD && resD.success && resD.data) {
+        ghnDistricts.value = resD.data
+      }
+    } catch (e) {}
+
+    if (addr.district_id) {
+      selectedDistrictId.value = addr.district_id
+      try {
+        const resW = await getGHNWards(addr.district_id)
+        if (resW && resW.success && resW.data) {
+          ghnWards.value = resW.data
+        }
+      } catch (e) {}
+
+      if (addr.ward_code) {
+        selectedWardCode.value = addr.ward_code
+        try {
+          const resFee = await calculateGHNShippingFee(addr.district_id, addr.ward_code)
+          if (resFee && resFee.success && resFee.fee !== undefined) {
+            ghnCalculatedFee.value = resFee.fee
+          }
+        } catch (e) {}
+      }
+    }
+  } else {
+    // Nếu chưa có ID GHN trong CSDL, chạy tự động nhận diện từ chuỗi chữ địa chỉ
+    const detected = await autoDetectGHNFromAddress(addr)
+    if (!detected) {
+      selectedProvinceId.value = null
+      selectedDistrictId.value = null
+      selectedWardCode.value = ''
+      ghnCalculatedFee.value = null
+      ghnDistricts.value = []
+      ghnWards.value = []
+    }
+  }
+}
+
+async function onWardChange() {
+  if (selectedDistrictId.value && selectedWardCode.value) {
+    try {
+      const res = await calculateGHNShippingFee(selectedDistrictId.value, selectedWardCode.value)
+      if (res && res.success && res.fee !== undefined) {
+        ghnCalculatedFee.value = res.fee
+        await saveGHNToCurrentAddress()
+      }
+    } catch (e) {
+      console.error('Không thể tính phí ship GHN:', e)
+    }
+  }
+}
 
 // ─── State ───────────────────────────────────────────────────────────────────
 const summary = ref({
@@ -414,7 +678,10 @@ async function loadAddresses() {
         phone: item.phone,
         address: item.address,
         badge: item.badge,
-        isDefault: !!item.is_default
+        isDefault: !!item.is_default,
+        province_id: item.province_id,
+        district_id: item.district_id,
+        ward_code: item.ward_code
       }))
       
       // Thiết lập địa chỉ được chọn mặc định từ danh sách
@@ -425,6 +692,10 @@ async function loadAddresses() {
       } else if (savedAddresses.value.length > 0) {
         selectedAddressId.value = savedAddresses.value[0].id
         tempSelectedId.value = savedAddresses.value[0].id
+      }
+
+      if (selectedAddress.value) {
+        await applyAddressGHN(selectedAddress.value)
       }
     }
   } catch (error) {
@@ -455,6 +726,8 @@ watch(availableVouchers, (newVal) => {
 })
 
 onMounted(async () => {
+  await loadGHNProvinces()
+  await loadAddresses()
   try {
     const response = await axiosInstance.get('/vouchers/available')
     if (response.success && response.data) {
@@ -482,6 +755,7 @@ const selectedAddress = computed(() =>
 
 const shippingFee = computed(() => {
   if (appliedVoucher.value?.type === 'free_ship') return 0
+  if (ghnCalculatedFee.value !== null) return ghnCalculatedFee.value
   if (form.shippingMethod === 'express') return 50000
   return summary.value.subtotal >= 500000 ? 0 : 30000
 })
@@ -574,9 +848,12 @@ function badgeStyle(badge) {
   return { background: 'rgba(76,175,80,0.1)', color: '#4caf50' }
 }
 
-function confirmAddress() {
+async function confirmAddress() {
   selectedAddressId.value = tempSelectedId.value
   showAddressModal.value = false
+  if (selectedAddress.value) {
+    await applyAddressGHN(selectedAddress.value)
+  }
 }
 
 async function applyVoucher(codeToApply) {
@@ -670,6 +947,9 @@ async function handlePlaceOrder() {
       email: userObj.email || '',
       phone: selectedAddress.value.phone,
       address: selectedAddress.value ? `${selectedAddress.value.address}` : '',
+      province_id: selectedProvinceId.value,
+      district_id: selectedDistrictId.value,
+      ward_code: selectedWardCode.value,
       note: orderNote,
       payment_method_id: form.paymentMethod === 'cod' ? 1 : 2,
       voucher_id: appliedVoucher.value ? appliedVoucher.value.id : null,

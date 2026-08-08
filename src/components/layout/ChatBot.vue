@@ -3,115 +3,293 @@
   <div class="fixed bottom-[28px] right-[28px] z-300">
     <!-- Chat Window -->
     <div
-      :class="['chat-window absolute bottom-[70px] right-0 w-[320px] bg-bg border border-border rounded-lg overflow-hidden scale-80 translate-y-5 origin-bottom-right opacity-0 pointer-events-none transition-all duration-[0.25s] ease-in-out shadow-[0_12px_40px_rgba(0,0,0,.15)]', { open: chatOpen }]"
+      :class="[
+        'chat-window absolute bottom-[70px] right-0 w-[360px] max-w-[90vw] bg-bg border border-border rounded-2xl overflow-hidden scale-90 translate-y-5 origin-bottom-right opacity-0 pointer-events-none transition-all duration-300 ease-out shadow-[0_16px_48px_rgba(0,0,0,.2)] flex flex-col',
+        { open: chatOpen }
+      ]"
     >
       <!-- Header -->
-      <div class="bg-accent py-[14px] px-4 flex items-center gap-2.5">
-        <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-[18px] text-white">🤖</div>
-        <div>
-          <div class="text-[14px] font-medium text-white">SaigonShoes AI</div>
-          <div class="text-[11px] text-white/90">● Đang hoạt động 24/7</div>
+      <div class="bg-gradient-to-r from-[#FF4D00] to-[#FF7700] py-3.5 px-4 flex items-center gap-3 shadow-sm shrink-0">
+        <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-xl text-white shadow-inner">
+          👟
         </div>
-        <button class="ml-auto bg-transparent border-none text-white/90 text-[20px] transition-colors hover:text-white" @click="toggleChat">
+        <div>
+          <div class="text-[15px] font-semibold text-white tracking-wide">SaigonShoes AI Stylist</div>
+          <div class="text-[11px] text-white/90 flex items-center gap-1.5 font-medium">
+            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            Tư vấn Size & Style 24/7
+          </div>
+        </div>
+        <button 
+          class="ml-auto w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/90 text-[18px] transition-all border-none cursor-pointer" 
+          @click="toggleChat"
+          title="Đóng chat"
+        >
           <i class="ti ti-x"></i>
         </button>
       </div>
-      <!-- Messages -->
-      <div class="h-[220px] overflow-y-auto p-[14px] flex flex-col gap-2.5" ref="chatMsgsRef">
-        <div v-for="(msg, idx) in messages" :key="idx"
-          :class="['flex gap-2 items-end', msg.type === 'user' ? 'flex-row-reverse' : '']"
+
+      <!-- Messages Area -->
+      <div class="h-[340px] overflow-y-auto p-4 flex flex-col gap-3 bg-surface/50 font-body scrollbar-thin" ref="chatMsgsRef">
+        <div 
+          v-for="(msg, idx) in messages" 
+          :key="idx"
+          :class="['flex gap-2.5 items-end max-w-[92%]', msg.type === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto']"
         >
-          <div class="w-[26px] h-[26px] rounded-full bg-surface2 flex items-center justify-center text-[12px] shrink-0">
+          <div class="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-[13px] shrink-0 shadow-sm">
             {{ msg.type === 'ai' ? '🤖' : '👤' }}
           </div>
-          <div :class="['max-w-[75%] py-[9px] px-3 rounded-xl text-[13px] leading-normal',
-            msg.type === 'ai' ? 'bg-surface2 text-text rounded-bl-[4px]' : 'bg-accent text-white rounded-br-[4px]']">
-            {{ msg.text }}
+          <div class="flex flex-col gap-2 max-w-[85%]">
+            <div 
+              :class="[
+                'py-2.5 px-3.5 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap shadow-sm',
+                msg.type === 'ai' ? 'bg-surface2 text-text rounded-bl-xs border border-border/50' : 'bg-accent text-white rounded-br-xs font-medium'
+              ]"
+            >
+              {{ msg.text }}
+            </div>
+
+            <!-- Interactive Recommended Product Cards -->
+            <div v-if="msg.products && msg.products.length > 0" class="flex flex-col gap-2 mt-1">
+              <div class="text-[11px] font-semibold text-text-muted flex items-center gap-1">
+                <span>🔥 Sản phẩm gợi ý:</span>
+              </div>
+              <div class="grid grid-cols-1 gap-2">
+                <div 
+                  v-for="prod in msg.products" 
+                  :key="prod.id"
+                  class="bg-bg border border-border rounded-xl p-2 flex items-center gap-2.5 shadow-sm hover:border-accent transition-all cursor-pointer group"
+                  @click="goToProduct(prod.slug)"
+                >
+                  <img 
+                    :src="prod.image || 'https://via.placeholder.com/80'" 
+                    :alt="prod.name"
+                    class="w-12 h-12 object-cover rounded-lg shrink-0 border border-border/50 group-hover:scale-105 transition-transform"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-semibold text-text truncate group-hover:text-accent transition-colors">
+                      {{ prod.name }}
+                    </div>
+                    <div class="text-[12px] font-bold text-accent mt-0.5">
+                      {{ formatPrice(prod.price) }}
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 text-[11px] font-medium text-accent bg-accent/10 px-2 py-1 rounded-lg shrink-0 group-hover:bg-accent group-hover:text-white transition-all">
+                    <span>Xem ngay</span>
+                    <i class="ti ti-arrow-right text-[10px]"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div v-if="isLoading" class="flex gap-2.5 items-end mr-auto">
+          <div class="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-[13px] shrink-0">
+            🤖
+          </div>
+          <div class="bg-surface2 border border-border/50 py-2.5 px-4 rounded-2xl rounded-bl-xs text-text-muted flex items-center gap-1.5 shadow-sm">
+            <span class="w-1.5 h-1.5 bg-accent rounded-full animate-bounce"></span>
+            <span class="w-1.5 h-1.5 bg-accent rounded-full animate-bounce [animation-delay:0.2s]"></span>
+            <span class="w-1.5 h-1.5 bg-accent rounded-full animate-bounce [animation-delay:0.4s]"></span>
+            <span class="text-[11px] ml-1 font-medium text-text-muted">AI SaigonShoes đang suy nghĩ...</span>
           </div>
         </div>
       </div>
-      <!-- Quick Suggestions -->
-      <div class="flex gap-1.5 flex-wrap px-[14px] pb-2.5">
-        <button class="bg-surface2 border border-border text-text-muted text-[11px] py-[5px] px-2.5 rounded-[20px] transition-all cursor-pointer hover:border-accent hover:text-accent"
-          @click="sendSugg('Tư vấn size giày Nike')">Size giày Nike</button>
-        <button class="bg-surface2 border border-border text-text-muted text-[11px] py-[5px] px-2.5 rounded-[20px] transition-all cursor-pointer hover:border-accent hover:text-accent"
-          @click="sendSugg('Crocs nào đang hot?')">Crocs hot nhất</button>
-        <button class="bg-surface2 border border-border text-text-muted text-[11px] py-[5px] px-2.5 rounded-[20px] transition-all cursor-pointer hover:border-accent hover:text-accent"
-          @click="sendSugg('Chính sách đổi trả')">Đổi trả</button>
+
+      <!-- Size Calculator Quick Widget (Collapsible) -->
+      <div v-if="showSizeWidget" class="bg-surface2 border-t border-border p-3 transition-all">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[12px] font-bold text-text flex items-center gap-1">
+            📏 Công cụ tính Size chân nhanh
+          </span>
+          <button @click="showSizeWidget = false" class="text-text-muted text-xs hover:text-accent">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div>
+            <label class="text-[10px] text-text-muted block mb-1">Chiều dài chân (cm):</label>
+            <input 
+              v-model="footLength" 
+              type="number" 
+              step="0.1" 
+              placeholder="Ví dụ: 24.5"
+              class="w-full bg-bg border border-border rounded-lg py-1 px-2 text-xs text-text outline-none focus:border-accent"
+            />
+          </div>
+          <div>
+            <label class="text-[10px] text-text-muted block mb-1">Dáng bàn chân:</label>
+            <select 
+              v-model="footShape"
+              class="w-full bg-bg border border-border rounded-lg py-1 px-2 text-xs text-text outline-none focus:border-accent"
+            >
+              <option value="thon">Thon / Chuẩn</option>
+              <option value="bè">Bè ngang / Mu dày</option>
+            </select>
+          </div>
+        </div>
+        <button 
+          @click="submitSizeCalc"
+          class="w-full bg-accent hover:bg-accent-hover text-white text-xs font-semibold py-1.5 rounded-lg transition-colors cursor-pointer border-none shadow-xs"
+        >
+          Tính toán & Tư vấn Size ngay
+        </button>
       </div>
-      <!-- Input -->
-      <div class="flex gap-2 py-3 px-[14px] border-t border-border">
+
+      <!-- Quick Action Suggestions -->
+      <div class="flex gap-1.5 overflow-x-auto px-3.5 py-2 border-t border-border bg-bg/80 scrollbar-none shrink-0">
+        <button 
+          class="bg-surface2 border border-border text-text-muted text-[11px] py-1 px-2.5 rounded-full transition-all cursor-pointer hover:border-accent hover:text-accent hover:bg-surface shrink-0 font-medium flex items-center gap-1"
+          @click="showSizeWidget = !showSizeWidget"
+        >
+          📐 Đo size chân
+        </button>
+        <button 
+          class="bg-surface2 border border-border text-text-muted text-[11px] py-1 px-2.5 rounded-full transition-all cursor-pointer hover:border-accent hover:text-accent hover:bg-surface shrink-0 font-medium flex items-center gap-1"
+          @click="sendSugg('Tư vấn giày phối đồ phong cách Streetwear')"
+        >
+          👟 Style Streetwear
+        </button>
+        <button 
+          class="bg-surface2 border border-border text-text-muted text-[11px] py-1 px-2.5 rounded-full transition-all cursor-pointer hover:border-accent hover:text-accent hover:bg-surface shrink-0 font-medium flex items-center gap-1"
+          @click="sendSugg('Các mẫu giày hot giảm giá hôm nay')"
+        >
+          🔥 Giày Hot giảm giá
+        </button>
+      </div>
+
+      <!-- Chat Input Field -->
+      <div class="flex gap-2 p-3 border-t border-border bg-bg shrink-0">
         <input
           v-model="chatInput"
-          class="flex-1 bg-surface2 border border-border rounded-[20px] py-2 px-[14px] text-[13px] text-text outline-none font-body transition-colors focus:border-accent focus:bg-bg"
+          class="flex-1 bg-surface2 border border-border rounded-xl py-2 px-3.5 text-[13px] text-text outline-none font-body transition-colors focus:border-accent focus:bg-bg placeholder:text-text-muted"
           type="text"
-          placeholder="Nhắn tin..."
+          placeholder="Hỏi AI về size chân, phối đồ..."
+          :disabled="isLoading"
           @keydown.enter="sendChat"
         />
-        <button class="w-9 h-9 rounded-full bg-accent border-none flex items-center justify-center text-[16px] text-white transition-colors hover:bg-accent-hover" @click="sendChat">
+        <button 
+          class="w-9 h-9 rounded-xl bg-accent border-none flex items-center justify-center text-[16px] text-white transition-all hover:bg-accent-hover disabled:opacity-50 cursor-pointer shadow-xs shrink-0" 
+          :disabled="isLoading || !chatInput.trim()"
+          @click="sendChat"
+        >
           <i class="ti ti-send"></i>
         </button>
       </div>
     </div>
 
-    <!-- Toggle Button -->
-    <button class="w-14 h-14 bg-accent text-white rounded-full flex items-center justify-center text-[24px] cursor-pointer shadow-[0_4px_20px_rgba(255,77,0,.3)] transition-all relative border-none hover:scale-[1.1]" @click="toggleChat">
-      💬
-      <span class="absolute top-0 right-0 w-3 h-3 bg-[#4CAF50] rounded-full border-2 border-bg"></span>
+    <!-- Toggle Floating Button -->
+    <button 
+      class="w-14 h-14 bg-gradient-to-r from-[#FF4D00] to-[#FF7700] text-white rounded-full flex items-center justify-center text-[24px] cursor-pointer shadow-[0_6px_24px_rgba(255,77,0,.35)] transition-all relative border-none hover:scale-105 active:scale-95 group" 
+      @click="toggleChat"
+      title="SaigonShoes AI Assistant"
+    >
+      <span class="group-hover:rotate-12 transition-transform duration-300">👟</span>
+      <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-bg"></span>
     </button>
   </div>
 </template>
 
 <script setup>
 import { ref, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { sendAIChatMessage } from '@/api/aiChat.js'
 
+const router = useRouter()
 const chatOpen = ref(false)
 const chatInput = ref('')
+const isLoading = ref(false)
 const chatMsgsRef = ref(null)
-const replyIdx = ref(0)
 
-const aiReplies = [
-  'Bạn muốn tìm mẫu nào? Mình có đủ Nike, Adidas, Crocs nhé! 😊',
-  'Size giày thường lấy theo số châu Âu. Bạn mang size bao nhiêu ở Việt Nam?',
-  'Crocs đang có rất nhiều mẫu hot như Mega Crush, Echo, Classic. Bạn thích phong cách nào?',
-  'Mình kiểm tra ngay cho bạn! Đơn hàng hiện đang ở trạng thái "Đang giao" 🚚',
-  'SaigonShoes có chính sách đổi trả 30 ngày, miễn phí nếu lỗi từ nhà sản xuất nhé!',
-  'Hiện tại đang có Flash Sale giảm đến 50% cho nhiều mẫu sneaker hot!'
-]
+// Size Widget state
+const showSizeWidget = ref(false)
+const footLength = ref('')
+const footShape = ref('thon')
 
 const messages = ref([
-  { type: 'ai', text: 'Xin chào! Mình là AI tư vấn của SaigonShoes. Bạn cần tư vấn gì hôm nay? 👟' },
-  { type: 'ai', text: 'Mình có thể giúp bạn: chọn size, gợi ý sản phẩm, kiểm tra đơn hàng hoặc hỏi về chính sách đổi trả!' }
+  { 
+    type: 'ai', 
+    text: 'Xin chào! Mình là SaigonShoes AI Stylist 👟✨' 
+  },
+  { 
+    type: 'ai', 
+    text: 'Mình có thể giúp bạn:\n• Tính toán & tư vấn Size giày chính xác theo cm chân 📐\n• Tư vấn phối đồ chuẩn phong cách Streetwear / Casual 🎨\n• Trợ giúp kiểm tra đơn hàng & sản phẩm mới 🔥' 
+  }
 ])
 
 function toggleChat() {
   chatOpen.value = !chatOpen.value
 }
 
-function addMsg(text, type) {
-  messages.value.push({ text, type })
+function scrollToBottom() {
   nextTick(() => {
-    if (chatMsgsRef.value) chatMsgsRef.value.scrollTop = chatMsgsRef.value.scrollHeight
+    if (chatMsgsRef.value) {
+      chatMsgsRef.value.scrollTop = chatMsgsRef.value.scrollHeight
+    }
   })
 }
 
-function sendChat() {
+function formatPrice(val) {
+  if (!val) return '0đ'
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
+}
+
+function goToProduct(slug) {
+  if (slug) {
+    router.push({ name: 'product-detail', params: { id: slug } })
+  }
+}
+
+async function sendChat() {
   const txt = chatInput.value.trim()
-  if (!txt) return
-  addMsg(txt, 'user')
+  if (!txt || isLoading.value) return
+
+  // Push user message
+  messages.value.push({ type: 'user', text: txt })
   chatInput.value = ''
-  setTimeout(() => {
-    addMsg(aiReplies[replyIdx.value % aiReplies.length], 'ai')
-    replyIdx.value++
-  }, 800)
+  isLoading.value = true
+  scrollToBottom()
+
+  try {
+    const res = await sendAIChatMessage(txt)
+    if (res && res.reply) {
+      messages.value.push({ 
+        type: 'ai', 
+        text: res.reply,
+        products: res.recommended_products || []
+      })
+    } else {
+      messages.value.push({ 
+        type: 'ai', 
+        text: 'Cảm ơn bạn! SaigonShoes luôn sẵn sàng tư vấn mẫu giày tốt nhất cho bạn.' 
+      })
+    }
+  } catch (err) {
+    console.error('AI Chatbot Error:', err)
+    messages.value.push({ 
+      type: 'ai', 
+      text: 'Hệ thống đang bận một chút, bạn thử lại sau vài giây nhé! 😊' 
+    })
+  } finally {
+    isLoading.value = false
+    scrollToBottom()
+  }
 }
 
 function sendSugg(txt) {
-  addMsg(txt, 'user')
-  setTimeout(() => {
-    addMsg(aiReplies[replyIdx.value % aiReplies.length], 'ai')
-    replyIdx.value++
-  }, 600)
+  chatInput.value = txt
+  sendChat()
+}
+
+function submitSizeCalc() {
+  if (!footLength.value) return
+  const shapeText = footShape.value === 'bè' ? 'bè ngang/dày' : 'thon/chuẩn'
+  const prompt = `Chân tôi dài ${footLength.value}cm, dáng bàn chân ${shapeText}. SaigonShoes tư vấn giúp tôi mang size bao nhiêu nhé!`
+  showSizeWidget.value = false
+  chatInput.value = prompt
+  sendChat()
 }
 </script>
 
@@ -120,5 +298,20 @@ function sendSugg(txt) {
   transform: scale(1) translateY(0) !important;
   opacity: 1 !important;
   pointer-events: auto !important;
+}
+
+/* Custom scrollbar for chat */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 </style>

@@ -196,7 +196,7 @@ function isGroupChildActive(item) {
 }
 
 watch(() => route.fullPath, (newPath) => {
-  if (['/admin/products', '/admin/sizes', '/admin/colors', '/admin/brands'].some(p => newPath.includes(p))) {
+  if (['/admin/products', '/admin/collections', '/admin/sizes', '/admin/colors', '/admin/brands'].some(p => newPath.includes(p))) {
     openMenus.value['Sản phẩm'] = true
   }
   if (newPath.includes('/admin/vouchers')) {
@@ -211,6 +211,7 @@ const navItems = [
     icon: 'ti-shoe',
     children: [
       { name: 'Danh sách sản phẩm', path: '/admin/products' },
+      { name: 'Quản lý Bộ sưu tập', path: '/admin/collections' },
       { name: 'Quản lý Size', path: '/admin/sizes' },
       { name: 'Quản lý Màu sắc', path: '/admin/colors' },
       { name: 'Quản lý Thương hiệu', path: '/admin/brands' }
@@ -232,6 +233,7 @@ const navItems = [
   { name: 'Bài viết (Blog)', path: '/admin/blogs', icon: 'ti-news' },
   { name: 'Đánh giá', path: '/admin/reviews', icon: 'ti-star' },
   { name: 'Liên hệ', path: '/admin/contacts', icon: 'ti-mail' },
+  { name: 'AI Assistant', path: '/admin/ai-management', icon: 'ti-bot' },
 ]
 
 const currentPageName = computed(() => {

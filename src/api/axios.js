@@ -32,6 +32,10 @@ axiosInstance.interceptors.response.use(
 
         // Xử lý lỗi kết nối hoặc quá thời gian phản hồi (timeout)
         if (!error.response) {
+            // Không bật popup Swal toàn trang nếu là lỗi từ AI chat
+            if (error.config && error.config.url && error.config.url.includes('/ai/chat')) {
+                return Promise.reject(error);
+            }
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi kết nối',

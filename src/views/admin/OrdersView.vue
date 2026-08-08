@@ -261,6 +261,36 @@
                             <span class="text-slate-700 block mt-0.5 leading-relaxed font-semibold">{{ order.receiverAddress }}</span>
                           </div>
 
+                          <!-- GHN Order Fulfillment Card -->
+                          <div class="p-3 bg-orange-50/90 border border-orange-200 rounded-xl space-y-2 text-left">
+                            <div class="font-extrabold text-orange-950 flex items-center justify-between text-[11px] uppercase tracking-wider">
+                              <span class="flex items-center gap-1.5"><i class="ti ti-truck text-orange-600 text-base"></i> Vận chuyển GHN Express</span>
+                              <span v-if="order.ghn_order_code" class="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-200 text-orange-900 font-mono">
+                                {{ order.ghn_order_code }}
+                              </span>
+                            </div>
+
+                            <div v-if="!order.ghn_order_code">
+                              <button 
+                                type="button" 
+                                @click="handlePushToGHN(order)"
+                                class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm transition-all border-none cursor-pointer flex items-center justify-center gap-1.5 font-display"
+                              >
+                                <i class="ti ti-send text-sm"></i> 🚚 Đẩy đơn sang GHN lấy mã vận đơn
+                              </button>
+                            </div>
+                            <div v-else class="text-[11px] text-orange-900 font-semibold space-y-1">
+                              <div>Mã vận đơn: <strong class="font-mono text-orange-700 select-all">{{ order.ghn_order_code }}</strong></div>
+                              <a 
+                                :href="'https://donhang.ghn.vn/?order_code=' + order.ghn_order_code" 
+                                target="_blank" 
+                                class="inline-flex items-center gap-1 text-orange-600 hover:underline font-bold"
+                              >
+                                <i class="ti ti-external-link text-xs"></i> Tra cứu hành trình vận đơn trên GHN →
+                              </a>
+                            </div>
+                          </div>
+
                           <!-- Refund Bank Info Card (If present) -->
                           <div v-if="order.cancel_reason || order.bank_account_number || order.bank_name" class="p-4 bg-amber-50/90 border border-amber-200/90 rounded-2xl space-y-3 text-left shadow-2xs">
                             <div class="flex items-center justify-between">
@@ -401,6 +431,7 @@
 import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
+import { pushOrderToGHN } from '@/api/ghn.js'
 
 const searchQuery = ref('')
 const activeStatusTab = ref('all')
@@ -423,6 +454,39 @@ function getImageUrl(imagePath) {
     return `${serverUrl}/${imagePath}`
   }
   return `${serverUrl}/images/${imagePath}`
+}
+
+async function handlePushToGHN(order) {
+  Swal.fire({
+    title: 'Đang đẩy đơn sang GHN...',
+    text: 'Hệ thống đang kết nối tới Giao Hàng Nhanh...',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  })
+
+  try {
+    const res = await pushOrderToGHN(order.id)
+    if (res && res.success) {
+      order.ghn_order_code = res.ghn_order_code
+      order.status = 'shipping'
+      order.tempStatus = 'shipping'
+      Swal.fire({
+        icon: 'success',
+        title: 'ĐẨY ĐƠN THÀNH CÔNG! 🚚',
+        html: `Mã vận đơn GHN: <strong class="text-orange-600 font-mono text-base">${res.ghn_order_code}</strong><br><br>Đã chuyển trạng thái đơn hàng thành <strong>Đang giao hàng</strong>.`,
+        confirmButtonColor: '#FF4D00'
+      })
+      await fetchOrders()
+    }
+  } catch (error) {
+    console.error('Lỗi đẩy đơn sang GHN:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Đẩy đơn thất bại',
+      text: error.response?.data?.message || 'Có lỗi khi kết nối tới hệ thống GHN.',
+      confirmButtonColor: '#FF4D00'
+    })
+  }
 }
 
 async function fetchOrders() {
@@ -477,6 +541,7 @@ async function fetchOrders() {
           receiverName: order.name || 'Chưa rõ',
           receiverPhone: order.phone || '',
           receiverAddress: order.address || 'Chưa rõ',
+          ghn_order_code: order.ghn_order_code || null,
           cancel_reason: order.cancel_reason || order.reason || '',
           bank_name: order.bank_name || '',
           bank_account_number: order.bank_account_number || '',
