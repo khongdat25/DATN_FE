@@ -68,6 +68,16 @@
           <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-800 font-extrabold">{{ refundRequestedCount }}</span>
         </button>
         <button 
+          @click="activeStatusTab = 'refunded'" 
+          :class="[
+            'py-4 px-4 transition-all cursor-pointer font-bold focus:outline-none border-b-2 flex items-center gap-1.5',
+            activeStatusTab === 'refunded' ? 'text-purple-600 border-purple-500' : 'text-slate-500 hover:text-slate-800 border-transparent'
+          ]"
+        >
+          <span>Đã hoàn tiền</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] bg-purple-100 text-purple-800 font-extrabold">{{ orders.filter(o => o.payment_status === 'refunded').length }}</span>
+        </button>
+        <button 
           @click="activeStatusTab = 'cancelled'" 
           :class="[
             'py-4 px-4 transition-all cursor-pointer font-bold focus:outline-none border-b-2',
@@ -170,6 +180,11 @@
                       <span v-else :class="['inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap', getPaymentStatusBadgeClass(order.payment_status)]">
                         {{ getPaymentStatusText(order.payment_status) }}
                       </span>
+
+                      <!-- Customer Bank Account Badge -->
+                      <span v-if="order.bank_account_number" class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2 py-0.5 rounded-md whitespace-nowrap bg-amber-50 text-amber-900 border border-amber-200" title="Thông tin STK khách nhận tiền">
+                        💳 STK: {{ order.bank_name }} - {{ order.bank_account_number }}
+                      </span>
                     </div>
                   </td>
                   <td class="py-4 px-6 text-right" @click.stop>
@@ -270,7 +285,7 @@
                               </span>
                             </div>
 
-                            <div v-if="!order.ghn_order_code">
+                            <div v-if="!order.ghn_order_code && order.status !== 'cancelled'">
                               <button 
                                 type="button" 
                                 @click="handlePushToGHN(order)"
@@ -279,20 +294,33 @@
                                 <i class="ti ti-send text-sm"></i> 🚚 Đẩy đơn sang GHN lấy mã vận đơn
                               </button>
                             </div>
-                            <div v-else class="text-[11px] text-orange-900 font-semibold space-y-1">
+                            <div v-else-if="order.status === 'cancelled' && !order.ghn_order_code" class="text-[11px] font-semibold text-slate-500 bg-orange-100/50 p-2 rounded-lg text-center border border-orange-200/60">
+                              🚫 Đơn hàng đã bị hủy, không thể tạo vận đơn GHN.
+                            </div>
+                            <div v-else class="text-[11px] text-orange-900 font-semibold space-y-2">
                               <div>Mã vận đơn: <strong class="font-mono text-orange-700 select-all">{{ order.ghn_order_code }}</strong></div>
-                              <a 
-                                :href="'https://donhang.ghn.vn/?order_code=' + order.ghn_order_code" 
-                                target="_blank" 
-                                class="inline-flex items-center gap-1 text-orange-600 hover:underline font-bold"
-                              >
-                                <i class="ti ti-external-link text-xs"></i> Tra cứu hành trình vận đơn trên GHN →
-                              </a>
+                              <div class="flex flex-wrap items-center gap-2">
+                                <a 
+                                  :href="'https://donhang.ghn.vn/?order_code=' + order.ghn_order_code" 
+                                  target="_blank" 
+                                  class="inline-flex items-center gap-1 text-orange-600 hover:underline font-bold"
+                                >
+                                  <i class="ti ti-external-link text-xs"></i> Tra cứu hành trình GHN →
+                                </a>
+                                <button 
+                                  v-if="order.status !== 'cancelled'"
+                                  type="button" 
+                                  @click="handleCancelGHN(order)"
+                                  class="inline-flex items-center gap-1 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg px-2.5 py-1 transition-all cursor-pointer shadow-2xs"
+                                >
+                                  <i class="ti ti-x text-xs"></i> Hủy vận đơn GHN
+                                </button>
+                              </div>
                             </div>
                           </div>
 
-                          <!-- Refund Bank Info Card (If present) -->
-                          <div v-if="order.cancel_reason || order.bank_account_number || order.bank_name" class="p-4 bg-amber-50/90 border border-amber-200/90 rounded-2xl space-y-3 text-left shadow-2xs">
+                          <!-- Refund Bank Info Card (If present or refund pending) -->
+                          <div v-if="isRefundOrder(order) || order.payment_status === 'refunded' || order.cancel_reason || order.bank_account_number || order.bank_name" class="p-4 bg-amber-50/90 border border-amber-200/90 rounded-2xl space-y-3 text-left shadow-2xs">
                             <div class="flex items-center justify-between">
                               <div class="font-extrabold text-amber-950 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
                                 <i class="ti ti-receipt-refund text-amber-600 text-base"></i> Thông tin Yêu cầu Hoàn tiền
@@ -300,7 +328,7 @@
                               <span v-if="order.payment_status === 'refunded'" class="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-800 border border-purple-200">
                                 ĐÃ HOÀN TIỀN
                               </span>
-                              <span v-else-if="order.bank_account_number" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-200 text-amber-900">
+                              <span v-else-if="isRefundOrder(order)" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-200 text-amber-900 animate-pulse">
                                 CHỜ HOÀN TIỀN
                               </span>
                             </div>
@@ -333,18 +361,21 @@
                               <div v-if="order.refund_notes" class="text-[11px] text-amber-800 italic">
                                 * Ghi chú hoàn tiền từ khách: "{{ order.refund_notes }}"
                               </div>
+                            </div>
+                            <div v-else-if="isRefundOrder(order)" class="text-amber-800 text-xs italic bg-white/70 p-2.5 rounded-xl border border-amber-200">
+                              ⚠️ Đơn hàng này đã thanh toán nhưng bị hủy. Khách chưa cập nhật thông tin tài khoản ngân hàng nhận tiền.
+                            </div>
 
-                              <!-- Quick Action 1-Click Refund -->
-                              <div v-if="order.payment_status !== 'refunded'" class="pt-2">
-                                <button 
-                                  @click="quickConfirmRefund(order)" 
-                                  type="button"
-                                  class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all border-none cursor-pointer flex items-center justify-center gap-2 font-display"
-                                >
-                                  <i class="ti ti-check text-base"></i>
-                                  <span>Xác nhận Đã hoàn tiền cho đơn hàng này</span>
-                                </button>
-                              </div>
+                            <!-- Quick Action 1-Click Refund -->
+                            <div v-if="isRefundOrder(order) && order.payment_status !== 'refunded'" class="pt-2">
+                              <button 
+                                @click="quickConfirmRefund(order)" 
+                                type="button"
+                                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all border-none cursor-pointer flex items-center justify-center gap-2 font-display"
+                              >
+                                <i class="ti ti-check text-base"></i>
+                                <span>Xác nhận Đã hoàn tiền cho đơn hàng này</span>
+                              </button>
                             </div>
                           </div>
 
@@ -431,7 +462,7 @@
 import { ref, computed, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
-import { pushOrderToGHN } from '@/api/ghn.js'
+import { pushOrderToGHN, cancelGHNOrder } from '@/api/ghn.js'
 
 const searchQuery = ref('')
 const activeStatusTab = ref('all')
@@ -457,6 +488,16 @@ function getImageUrl(imagePath) {
 }
 
 async function handlePushToGHN(order) {
+  if (order.status === 'cancelled') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Không thể đẩy đơn',
+      text: 'Đơn hàng này đã bị hủy, không thể tạo vận đơn sang GHN!',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
   Swal.fire({
     title: 'Đang đẩy đơn sang GHN...',
     text: 'Hệ thống đang kết nối tới Giao Hàng Nhanh...',
@@ -480,12 +521,64 @@ async function handlePushToGHN(order) {
     }
   } catch (error) {
     console.error('Lỗi đẩy đơn sang GHN:', error)
+    const errMsg = error.response?.data?.message || 'Có lỗi khi kết nối tới hệ thống GHN.'
+    
+    let tipHtml = ''
+    if (errMsg.includes('giới hạn 3 đơn') || errMsg.includes('vượt quá số lượng')) {
+      tipHtml = `<br><br><div class="text-xs text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 text-left">💡 <strong>Mẹo:</strong> Tài khoản thử nghiệm GHN đang bị giới hạn tối đa 3 đơn. Bạn hãy bấm <strong>"Hủy vận đơn GHN"</strong> ở các đơn thử nghiệm cũ để giải phóng slot, hoặc thay <strong>Token/ShopID GHN chính thức</strong> vào file <code>.env</code> Backend.</div>`
+    }
+
     Swal.fire({
       icon: 'error',
-      title: 'Đẩy đơn thất bại',
-      text: error.response?.data?.message || 'Có lỗi khi kết nối tới hệ thống GHN.',
+      title: 'Đẩy đơn thất bại từ GHN',
+      html: `${errMsg}${tipHtml}`,
       confirmButtonColor: '#FF4D00'
     })
+  }
+}
+
+async function handleCancelGHN(order) {
+  const result = await Swal.fire({
+    title: 'Hủy vận đơn GHN?',
+    html: `Bạn có chắc chắn muốn hủy vận đơn <strong class="text-orange-600 font-mono text-base">${order.ghn_order_code}</strong> trên hệ thống Giao Hàng Nhanh không?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Đồng ý hủy vận đơn GHN',
+    cancelButtonText: 'Không'
+  })
+
+  if (result.isConfirmed) {
+    Swal.fire({
+      title: 'Đang hủy vận đơn GHN...',
+      text: 'Hệ thống đang kết nối tới Giao Hàng Nhanh...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    })
+
+    try {
+      const res = await cancelGHNOrder(order.id)
+      if (res && res.success) {
+        order.status = 'cancelled'
+        order.tempStatus = 'cancelled'
+        Swal.fire({
+          icon: 'success',
+          title: 'ĐÃ HỦY VẬN ĐƠN GHN! 🛑',
+          html: res.message || `Mã vận đơn <strong>${order.ghn_order_code}</strong> đã được hủy thành công trên GHN.`,
+          confirmButtonColor: '#FF4D00'
+        })
+        await fetchOrders()
+      }
+    } catch (error) {
+      console.error('Lỗi hủy vận đơn GHN:', error)
+      Swal.fire({
+        icon: 'error',
+        title: 'Hủy vận đơn GHN thất bại',
+        text: error.response?.data?.message || 'GHN từ chối hủy hoặc có lỗi kết nối hệ thống GHN.',
+        confirmButtonColor: '#FF4D00'
+      })
+    }
   }
 }
 
@@ -596,6 +689,8 @@ const filteredOrders = computed(() => {
     let matchesTab = true
     if (activeStatusTab.value === 'refund_requested') {
       matchesTab = isRefundOrder(o)
+    } else if (activeStatusTab.value === 'refunded') {
+      matchesTab = o.payment_status === 'refunded'
     } else if (activeStatusTab.value !== 'all') {
       matchesTab = o.status === activeStatusTab.value
     }
@@ -628,6 +723,8 @@ function copyBankAccount(accountNum) {
     timerProgressBar: true
   })
 }
+
+
 
 async function quickConfirmRefund(order) {
   Swal.fire({
@@ -751,6 +848,34 @@ function getPaymentStatusBadgeClass(status) {
 }
 
 async function updateStatus(order) {
+  if (order.tempStatus === 'cancelled' && order.ghn_order_code && order.status !== 'cancelled') {
+    const confirmGHNCancel = await Swal.fire({
+      title: 'Đơn hàng có mã GHN Express',
+      html: `Đơn hàng này đã có mã vận đơn GHN: <strong class="text-orange-600 font-mono">${order.ghn_order_code}</strong>.<br><br>Bạn có muốn gửi yêu cầu <strong>Hủy vận đơn trên GHN</strong> đồng thời với việc hủy đơn trên Website không?`,
+      icon: 'question',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonColor: '#ef4444',
+      denyButtonColor: '#f59e0b',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Hủy trên Web & GHN',
+      denyButtonText: 'Chỉ hủy trên Web',
+      cancelButtonText: 'Hủy thao tác'
+    })
+
+    if (confirmGHNCancel.isDismissed) {
+      // Restore tempStatus back to current status
+      order.tempStatus = order.status
+      return
+    }
+
+    if (confirmGHNCancel.isConfirmed) {
+      // Hủy cả bên GHN
+      return await handleCancelGHN(order)
+    }
+    // Nếu chọn deny (Chỉ hủy trên Web) -> tiếp tục xuống bên dưới
+  }
+
   try {
     const response = await axiosInstance.post(`/admin/orders/${order.id}/status`, {
       status: order.tempStatus,

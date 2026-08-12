@@ -269,6 +269,16 @@
                         >
                           Xem chi tiết
                         </button>
+                        <!-- Theo dõi vận đơn GHN Real-time -->
+                        <button 
+                          v-if="order.ghn_order_code || ['shipping', 'delivered'].includes(order.status)"
+                          @click="openTrackModal(order)"
+                          class="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all cursor-pointer shadow-xs flex items-center gap-1.5 font-display border-none"
+                        >
+                          <i class="ti ti-radar text-sm"></i>
+                          <span>Theo dõi vận đơn Real-time</span>
+                        </button>
+                        <!-- Hủy đơn hàng -->
                         <!-- Hủy đơn hàng -->
                         <button 
                           v-if="['new', 'pending', 'processing', 'created'].includes(order.status)"
@@ -762,9 +772,17 @@
         </form>
       </div>
     </div>
+
+    <!-- Track Order Real-time Modal -->
+    <TrackOrderModal 
+      :is-open="trackModalOpen" 
+      :order-code="selectedOrderCode" 
+      @close="trackModalOpen = false" 
+    />
 </template>
 
 <script setup>
+import TrackOrderModal from '@/components/common/TrackOrderModal.vue'
 import { ref, reactive, onMounted, inject, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
@@ -784,7 +802,14 @@ const tabs = [
   { id: 'password',   label: 'Đổi mật khẩu',          icon: 'ti ti-lock' }
 ]
 
-// ─── Rating Modal ─────────────────────────────────────────────────────────────
+// ─── Track Order Modal State ──────────────────────────────────────────────────
+const trackModalOpen = ref(false)
+const selectedOrderCode = ref('')
+
+function openTrackModal(order) {
+  selectedOrderCode.value = order.ghn_order_code || ('#SGS-' + order.id)
+  trackModalOpen.value = true
+}
 const ratingModalOpen = ref(false)
 const ratingOrder = ref(null)
 const ratingItem = ref(null)
@@ -1044,7 +1069,8 @@ async function loadOrdersData() {
           note: order.note || '',
           phone: order.phone || '',
           name: order.name || '',
-          paymentMethodId: order.payment_method_id
+          paymentMethodId: order.payment_method_id,
+          ghn_order_code: order.ghn_order_code || null
         }
       })
     }

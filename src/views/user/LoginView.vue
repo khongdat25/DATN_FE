@@ -102,11 +102,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import axiosInstance from '@/api/axios.js'
 import Swal from 'sweetalert2'
 
 const router = useRouter()
+const route = useRoute()
 
 const form = ref({
   email: '',
@@ -115,6 +116,25 @@ const form = ref({
 })
 
 const loading = ref(false)
+
+function getTargetRedirectUrl(isAdmin) {
+  if (isAdmin) return '/admin'
+  
+  // Ưu tiên 1: Lấy từ URL Query (?redirect=/product/123)
+  if (route.query.redirect) {
+    return route.query.redirect
+  }
+  
+  // Ưu tiên 2: Lấy từ sessionStorage
+  const savedRedirect = sessionStorage.getItem('redirect_after_login')
+  if (savedRedirect) {
+    sessionStorage.removeItem('redirect_after_login')
+    return savedRedirect
+  }
+  
+  // Mặc định: Về trang chủ
+  return '/'
+}
 
 async function handleLogin() {
   loading.value = true
@@ -138,8 +158,8 @@ async function handleLogin() {
 
       const user = response.data?.user;
       const isAdmin = user && user.role === 'admin';
-      const redirectUrl = isAdmin ? '/admin' : '/';
-      const confirmText = isAdmin ? 'Đến trang quản trị ⚙️' : 'Bắt đầu mua sắm 🛍️';
+      const targetUrl = getTargetRedirectUrl(isAdmin);
+      const confirmText = isAdmin ? 'Đến trang quản trị ⚙️' : 'Quay lại trang trước 🛍️';
 
       Swal.fire({
         icon: 'success',
@@ -148,7 +168,7 @@ async function handleLogin() {
         confirmButtonText: confirmText,
         confirmButtonColor: '#FF4D00'
       }).then(() => {
-        window.location.href = redirectUrl
+        window.location.href = targetUrl
       })
     }
   } catch (error) {
@@ -184,8 +204,8 @@ async function handleGoogleLoginSuccess(response) {
 
       const user = res.data?.user;
       const isAdmin = user && user.role === 'admin';
-      const redirectUrl = isAdmin ? '/admin' : '/';
-      const confirmText = isAdmin ? 'Đến trang quản trị ⚙️' : 'Bắt đầu mua sắm 🛍️';
+      const targetUrl = getTargetRedirectUrl(isAdmin);
+      const confirmText = isAdmin ? 'Đến trang quản trị ⚙️' : 'Quay lại trang trước 🛍️';
 
       Swal.fire({
         icon: 'success',
@@ -194,7 +214,7 @@ async function handleGoogleLoginSuccess(response) {
         confirmButtonText: confirmText,
         confirmButtonColor: '#FF4D00'
       }).then(() => {
-        window.location.href = redirectUrl
+        window.location.href = targetUrl
       })
     }
   } catch (error) {

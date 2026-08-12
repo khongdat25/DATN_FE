@@ -85,6 +85,11 @@ const routes = [
         component: () => import('../views/user/ContactView.vue'),
         name: 'contact'
     },
+    {
+        path: '/track-order',
+        component: () => import('../views/user/TrackOrderView.vue'),
+        name: 'track-order'
+    },
     // Admin routes
     {
         path: '/admin',
@@ -218,7 +223,7 @@ router.beforeEach((to, from) => {
     }
 
     if (to.meta.requiresAuth && !token) {
-        return { name: 'login' };
+        return { name: 'login', query: { redirect: to.fullPath } };
     }
 
     return true;

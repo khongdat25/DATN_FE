@@ -40,11 +40,17 @@
             {{ msg.type === 'ai' ? '🤖' : '👤' }}
           </div>
           <div class="flex flex-col gap-2 max-w-[85%]">
+            <!-- AI Rich HTML Message -->
             <div 
-              :class="[
-                'py-2.5 px-3.5 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap shadow-sm',
-                msg.type === 'ai' ? 'bg-surface2 text-text rounded-bl-xs border border-border/50' : 'bg-accent text-white rounded-br-xs font-medium'
-              ]"
+              v-if="msg.type === 'ai'"
+              class="py-2.5 px-3.5 rounded-2xl text-[13px] leading-relaxed shadow-sm bg-surface2 text-text rounded-bl-xs border border-border/50 space-y-1.5 chat-markdown-content"
+              v-html="formatMarkdown(msg.text)"
+            ></div>
+
+            <!-- User Message -->
+            <div 
+              v-else
+              class="py-2.5 px-3.5 rounded-2xl text-[13px] leading-relaxed whitespace-pre-wrap shadow-sm bg-accent text-white rounded-br-xs font-medium"
             >
               {{ msg.text }}
             </div>
@@ -234,6 +240,44 @@ function scrollToBottom() {
 function formatPrice(val) {
   if (!val) return '0đ'
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
+}
+
+function formatMarkdown(text) {
+  if (!text) return ''
+
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  // Headers (### or ## or #)
+  html = html.replace(/^###?\s+(.+)$/gm, '<div class="font-bold text-accent text-[13px] mt-2 mb-1 flex items-center gap-1"><span>✨</span> <span>$1</span></div>')
+
+  // Bold text (**text**)
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900 bg-orange-50/80 px-1 py-0.2 rounded text-orange-950">$1</strong>')
+
+  // Italic (*text*)
+  html = html.replace(/\*(.*?)\*/g, '<em class="italic text-slate-700">$1</em>')
+
+  // Inline code (`code`)
+  html = html.replace(/`(.*?)`/g, '<code class="bg-slate-100 text-orange-600 px-1.5 py-0.5 rounded font-mono text-[11px] border border-slate-200">$1</code>')
+
+  // Size badges (Size 39, Size 40, Size 41, Size 42, Size 43, etc.)
+  html = html.replace(/(Size\s+\d{2}(?:\.\d)?)/gi, '<span class="inline-flex items-center gap-1 bg-orange-100 text-orange-800 font-extrabold px-1.5 py-0.5 rounded-md text-[11px] border border-orange-200 shadow-2xs my-0.5">👟 $1</span>')
+
+  // Bullet points (* item or - item or • item)
+  html = html.replace(/^[\*\-•]\s+(.+)$/gm, '<div class="flex items-start gap-1.5 my-1"><span class="text-orange-500 font-bold shrink-0">✦</span><span>$1</span></div>')
+
+  // Numbered lists (1. item)
+  html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<div class="flex items-start gap-1.5 my-1"><span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">$1</span><span>$2</span></div>')
+
+  // Line breaks (\n)
+  html = html.replace(/\n/g, '<br/>')
+
+  // Clean up double <br/> after block elements
+  html = html.replace(/<\/div><br\/>/g, '</div>')
+
+  return html
 }
 
 function goToProduct(slug) {

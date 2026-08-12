@@ -124,11 +124,20 @@
 
           <li><router-link to="/about" class="block py-2.5 px-2.5 text-[13px] text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95">Giới thiệu</router-link></li>
           <li><router-link to="/news" class="block py-2.5 px-2.5 text-[13px] text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95">Tin tức</router-link></li>
+          <li><router-link to="/track-order" class="block py-2.5 px-2.5 text-[13px] text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95 flex items-center gap-1"><i class="ti ti-radar text-accent"></i> Tra cứu đơn</router-link></li>
           <li><router-link to="/contact" class="block py-2.5 px-2.5 text-[13px] text-text-muted tracking-[0.5px] rounded-lg transition-all duration-300 whitespace-nowrap hover:text-accent hover:bg-surface2 active:scale-95">Liên hệ</router-link></li>
         </ul>
 
         <!-- Actions -->
         <div class="flex items-center gap-[6px]">
+          <!-- Quick Track Order Icon -->
+          <router-link 
+            to="/track-order" 
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" 
+            title="Tra cứu vận đơn GHN Real-time"
+          >
+            <i class="ti ti-radar text-accent animate-pulse"></i>
+          </router-link>
           <div class="flex items-center bg-surface2 border border-border rounded-xl overflow-hidden transition-all duration-300 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(255,77,0,0.1)] max-md:hidden">
             <input type="text" placeholder="Tìm kiếm..." id="searchInput" class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[120px] font-body placeholder:text-text-dim">
             <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-all duration-300 hover:text-accent active:scale-90"><i class="ti ti-search"></i></button>

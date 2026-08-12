@@ -28,6 +28,13 @@ export const pushOrderToGHN = async (orderId) => {
   return await axiosInstance.post(`/admin/orders/${orderId}/push-ghn`);
 };
 
-export const trackGHNOrder = async (orderCode) => {
-  return await axiosInstance.get(`/ghn/tracking/${orderCode}`);
+export const cancelGHNOrder = async (orderId) => {
+  return await axiosInstance.post(`/admin/orders/${orderId}/cancel-ghn`);
 };
+
+export const trackGHNOrder = async (orderCode) => {
+  return await axiosInstance.get(`/ghn/tracking/${encodeURIComponent(orderCode)}`);
+};
+
+export const trackOrder = trackGHNOrder;
+

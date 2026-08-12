@@ -687,7 +687,7 @@ async function doBuyNow() {
       cancelButtonColor: '#aaa'
     }).then((result) => {
       if (result.isConfirmed) {
-        router.push({ name: 'login' })
+        router.push({ name: 'login', query: { redirect: route.fullPath } })
       }
     })
     return
@@ -751,7 +751,7 @@ async function showWriteReview() {
       cancelButtonColor: '#94a3b8'
     }).then((result) => {
       if (result.isConfirmed) {
-        router.push({ name: 'login' })
+        router.push({ name: 'login', query: { redirect: route.fullPath } })
       }
     })
     return

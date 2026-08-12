@@ -69,7 +69,8 @@ axiosInstance.interceptors.response.use(
             }).then(() => {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('user');
-                window.location.href = '/login';
+                const currentPath = window.location.pathname + window.location.search;
+                window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
             });
         } else if (status === 403) {
             Swal.fire({
