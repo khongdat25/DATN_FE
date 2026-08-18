@@ -766,6 +766,20 @@ export function findMatchingVariant(variants = [], selectedSize = '', selectedCo
 export function mapBackendProduct(p) {
   if (!p) return null;
 
+  // Khử trùng lặp các biến thể bị lặp lại cùng Size & Màu sắc
+  if (p.variants && Array.isArray(p.variants) && p.variants.length > 0) {
+    const seenKeys = new Set();
+    p.variants = p.variants.filter(v => {
+      const sKey = getVariantSizeName(v) || v.size_id || '';
+      const cKey = getVariantColorName(v) || v.color_id || '';
+      const key = `${sKey}_${cKey}`;
+      if (!sKey && !cKey) return true;
+      if (seenKeys.has(key)) return false;
+      seenKeys.add(key);
+      return true;
+    });
+  }
+
   // Find representative variant with minimum active price
   let representativeVariant = null;
   let minActivePrice = Infinity;

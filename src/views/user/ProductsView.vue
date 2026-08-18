@@ -127,25 +127,6 @@
         <!-- Danh sách sản phẩm & Sắp xếp -->
         <div class="flex-1 min-w-0">
 
-          <!-- Thanh tìm kiếm -->
-          <div class="relative mb-4">
-            <i class="ti ti-search absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
-            <input
-              v-model="searchQuery"
-              @input="onSearchInput"
-              type="text"
-              placeholder="Tìm kiếm sản phẩm... (VD: Nike, Adidas, Samba...)"
-              class="w-full pl-11 pr-10 py-3.5 bg-white border border-border rounded-2xl text-sm text-text outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] transition-all placeholder:text-text-dim"
-            >
-            <button
-              v-if="searchQuery"
-              @click="clearSearch"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-accent transition-colors cursor-pointer"
-            >
-              <i class="ti ti-x text-sm"></i>
-            </button>
-          </div>
-
           <!-- Thanh công cụ sắp xếp -->
           <div class="bg-white px-5 py-3.5 border border-border rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3 mb-6 shadow-sm">
             <div class="flex items-center gap-2 flex-wrap">
@@ -160,6 +141,10 @@
               </button>
             </div>
             <div class="flex items-center gap-3">
+              <span v-if="searchQuery" class="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent text-xs font-semibold rounded-lg">
+                Từ khóa: "{{ searchQuery }}"
+                <button @click="clearSearch" title="Xóa từ khóa tìm kiếm" class="hover:text-red-500 cursor-pointer border-none bg-transparent flex items-center p-0"><i class="ti ti-x text-xs"></i></button>
+              </span>
               <span class="text-[13px] text-text-muted">Có <strong>{{ filteredProducts.length }}</strong> sản phẩm</span>
               <select v-model="filters.priceSort" class="bg-surface2 border border-border rounded-xl py-1.5 px-3 text-[12px] text-text-muted outline-none focus:border-accent cursor-pointer transition-colors">
                 <option value="default">Giá: Mặc định</option>
@@ -393,9 +378,28 @@ async function fetchProducts() {
     else params.sort = 'sold_desc' // mặc định phổ biến
 
     const res = await axiosInstance.get('/search', { params })
+    let searchResults = []
     if (res?.success && Array.isArray(res?.data)) {
-      products.value = res.data.map(mapBackendProduct)
+      searchResults = res.data.map(mapBackendProduct)
     }
+
+    // Nếu tìm kiếm cụm từ ghép (VD: "nike panda") mà API không trả kết quả do tìm cụm từ chính xác,
+    // tự động fallback tìm theo từ khóa chính rồi lọc đa từ phía client
+    const rawQuery = searchQuery.value.trim()
+    if (searchResults.length === 0 && rawQuery.includes(' ')) {
+      const words = rawQuery.split(/\s+/).filter(Boolean)
+      const fallbackParams = { ...params, q: words[0] }
+      try {
+        const fallbackRes = await axiosInstance.get('/search', { params: fallbackParams })
+        if (fallbackRes?.success && Array.isArray(fallbackRes?.data)) {
+          searchResults = fallbackRes.data.map(mapBackendProduct)
+        }
+      } catch (e) {
+        console.error('Fallback search error:', e)
+      }
+    }
+
+    products.value = searchResults
   } catch (error) {
     console.error('Không thể lấy danh sách sản phẩm:', error)
   } finally {
@@ -415,12 +419,35 @@ function onSearchInput() {
 function clearSearch() {
   searchQuery.value = ''
   currentPage.value = 1
-  fetchProducts()
+  if (route.query.q) {
+    const newQuery = { ...route.query }
+    delete newQuery.q
+    router.push({ path: '/products', query: newQuery })
+  } else {
+    fetchProducts()
+  }
 }
 
-// --- Thuộc tính tính toán: Chỉ thương hiệu + size là lọc ở client (giá/sắp xếp/danh mục/từ khóa là ở server) ---
+// --- Thuộc tính tính toán: Lọc đa từ khóa (Multi-word Tokenized Matching) + Thương hiệu + Size ---
 const filteredProducts = computed(() => {
   let result = [...products.value]
+
+  // Tách từ khóa và kiểm tra sản phẩm phải chứa TẤT CẢ các từ (không phụ thuộc thứ tự)
+  if (searchQuery.value.trim()) {
+    const keywords = searchQuery.value.trim().toLowerCase().split(/\s+/).filter(Boolean)
+    result = result.filter(p => {
+      const fullText = [
+        p.name || '',
+        p.brand || '',
+        p.category || '',
+        p.gender || '',
+        ...(p.specs || []).map(s => s.value || '')
+      ].join(' ').toLowerCase()
+
+      return keywords.every(kw => fullText.includes(kw))
+    })
+  }
+
   if (filters.brands.length > 0) {
     result = result.filter(p =>
       filters.brands.some(b => p.brand?.toLowerCase().includes(b.toLowerCase()))

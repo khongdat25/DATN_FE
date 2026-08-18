@@ -26,7 +26,6 @@
               <div class="flex flex-wrap items-center gap-4 text-xs text-text-muted font-medium border-b border-border pb-6">
                 <span class="flex items-center gap-1.5"><i class="ti ti-calendar text-accent"></i> {{ article.date }}</span>
                 <span class="flex items-center gap-1.5"><i class="ti ti-user text-accent"></i> Bởi {{ article.author }}</span>
-                <span class="flex items-center gap-1.5"><i class="ti ti-message-circle text-accent"></i> {{ article.comments }} Bình luận</span>
                 <span class="flex items-center gap-1.5"><i class="ti ti-eye text-accent"></i> {{ article.views }} Lượt xem</span>
               </div>
             </div>
@@ -81,26 +80,6 @@
                 <button @click="copyLink" class="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text-muted hover:bg-accent hover:text-white hover:border-accent transition-all cursor-pointer active:scale-90" title="Sao chép liên kết">
                   <i class="ti ti-link"></i>
                 </button>
-              </div>
-            </div>
-
-            <!-- Comments Form Section -->
-            <div class="mt-8">
-              <div class="bg-surface2 rounded-3xl p-8 border border-border shadow-sm">
-                <h3 class="font-display text-lg font-bold text-text mb-6 text-left">Để lại bình luận của bạn</h3>
-                
-                <form @submit.prevent="handleSubmitComment" class="flex flex-col gap-4 text-left">
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <input type="text" required v-model="commentForm.name" placeholder="Họ và tên *" class="w-full bg-white border border-border rounded-xl py-3.5 px-4 text-sm text-text outline-none focus:border-accent transition-all">
-                    <input type="email" required v-model="commentForm.email" placeholder="Email *" class="w-full bg-white border border-border rounded-xl py-3.5 px-4 text-sm text-text outline-none focus:border-accent transition-all">
-                  </div>
-                  
-                  <textarea required v-model="commentForm.content" placeholder="Nội dung bình luận của bạn..." class="w-full bg-white border border-border rounded-xl py-3.5 px-4 text-sm text-text outline-none focus:border-accent h-32 transition-all resize-none"></textarea>
-                  
-                  <button type="submit" class="bg-text text-white py-3.5 px-8 font-display font-bold text-xs uppercase rounded-xl tracking-wider hover:bg-accent hover:text-white active:scale-95 transition-all w-fit cursor-pointer">
-                    Gửi bình luận
-                  </button>
-                </form>
               </div>
             </div>
 
@@ -192,16 +171,9 @@ const article = ref({
   title: 'Sự kiện ra mắt bộ sưu tập giới hạn "Future Walk" của SaigonShoes',
   date: '15 Tháng 5, 2026',
   author: 'Admin',
-  comments: 12,
   views: '1.240',
   tags: ['#Sneaker', '#FutureWalk', '#LimitedEdition'],
   image: 'news_featured.png',
-  content: ''
-})
-
-const commentForm = reactive({
-  name: '',
-  email: '',
   content: ''
 })
 
@@ -244,7 +216,6 @@ async function fetchArticleDetail() {
           year: 'numeric'
         }),
         author: 'Admin',
-        comments: 0,
         views: blog.views || 0,
         image: blog.avatar || 'news_featured.png',
         tags: ['#Sneaker', '#SaigonShoes']
@@ -276,19 +247,6 @@ function copyLink() {
     text: 'Đường dẫn bài viết đã được lưu vào khay nhớ tạm.',
     timer: 1500,
     showConfirmButton: false
-  })
-}
-
-function handleSubmitComment() {
-  Swal.fire({
-    icon: 'success',
-    title: 'Gửi bình luận thành công! 💬',
-    text: 'Cảm ơn bạn đã đóng góp ý kiến. Bình luận sẽ hiển thị sau khi ban quản trị kiểm duyệt.',
-    confirmButtonColor: '#FF4D00'
-  }).then(() => {
-    commentForm.name = ''
-    commentForm.email = ''
-    commentForm.content = ''
   })
 }
 

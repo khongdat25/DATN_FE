@@ -3,26 +3,14 @@
     <div class="max-w-[1200px] mx-auto px-5">
       <div class="section-wrapper">
 
-        <!-- Header row: title left | filters center | view-all right -->
-        <div class="grid grid-cols-3 items-center mb-8 gap-4 max-md:flex max-md:flex-col max-md:items-start max-md:gap-3">
+        <!-- Header row: title left | view-all right -->
+        <div class="flex items-center justify-between mb-8 gap-4 flex-wrap">
           <!-- Left: Title -->
           <div>
             <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold leading-tight whitespace-nowrap">SẢN PHẨM BÁN CHẠY</h2>
           </div>
-          <!-- Center: Filters -->
-          <div class="flex gap-2 flex-wrap justify-center max-md:justify-start">
-            <button
-              v-for="f in filters"
-              :key="f.key"
-              :class="['py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all border font-medium',
-                activeFilter === f.key
-                  ? 'bg-accent border-accent text-white shadow-sm'
-                  : 'bg-surface2 text-text-muted border-border hover:bg-accent hover:border-accent hover:text-white']"
-              @click="activeFilter = f.key"
-            >{{ f.label }}</button>
-          </div>
           <!-- Right: View all -->
-          <div class="flex justify-end max-md:justify-start">
+          <div class="flex justify-end">
             <a
               href="/products"
               class="text-[12px] text-accent tracking-[1.5px] uppercase flex items-center gap-[6px] transition-all whitespace-nowrap font-medium hover:gap-[10px]"
@@ -81,14 +69,7 @@ const router = useRouter()
 
 const showToast = inject('showToast', (msg) => {})
 
-const activeFilter = ref('all')
 const wishes = ref({})
-
-const filters = [
-  { key: 'all', label: 'Tất cả' },
-  { key: 'sneaker', label: 'Sneaker' },
-  { key: 'crocs', label: 'Crocs' },
-]
 
 function toggleWish(product) {
   wishes.value[product.id] = !wishes.value[product.id]
@@ -111,8 +92,7 @@ async function fetchBestSellers() {
         const mapped = mapBackendProduct(p)
         return {
           ...mapped,
-          rank: idx + 1,
-          cat: mapped.category === 'Dép Crocs' ? 'crocs' : 'sneaker'
+          rank: idx + 1
         }
       })
     }
@@ -127,10 +107,7 @@ onMounted(async () => {
   await fetchBestSellers()
 })
 
-const filteredProducts = computed(() => {
-  if (activeFilter.value === 'all') return bestSellers.value
-  return bestSellers.value.filter(p => p.cat === activeFilter.value)
-})
+const filteredProducts = computed(() => bestSellers.value)
 </script>
 
 <style scoped>

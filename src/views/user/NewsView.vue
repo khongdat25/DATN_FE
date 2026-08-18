@@ -67,7 +67,6 @@
             <div class="flex items-center gap-4 text-xs text-text-dim font-medium border-t border-border pt-6 mt-2">
               <span class="flex items-center gap-1.5"><i class="ti ti-calendar"></i> {{ featuredNews.date }}</span>
               <span class="flex items-center gap-1.5"><i class="ti ti-user"></i> By {{ featuredNews.author }}</span>
-              <span class="flex items-center gap-1.5"><i class="ti ti-message-circle"></i> {{ featuredNews.comments }} Bình luận</span>
             </div>
           </div>
         </div>

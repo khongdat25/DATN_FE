@@ -5,9 +5,6 @@
         
         <!-- Page Title & Header -->
         <div class="text-center max-w-xl mx-auto mb-10">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-extrabold uppercase tracking-wider mb-3">
-            <i class="ti ti-radar animate-pulse"></i> Tra cứu Real-time API GHN
-          </span>
           <h1 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Theo Dõi Đơn Hàng</h1>
           <p class="text-slate-500 text-sm mt-2">Nhập mã đơn hàng (#SGS-xxx) hoặc mã vận đơn GHN để tra cứu vị trí thực tế của gói hàng.</p>
         </div>
@@ -20,7 +17,7 @@
               <input 
                 type="text" 
                 v-model="searchCode" 
-                placeholder="Ví dụ: #SGS-44 hoặc L73N4G, DEV-GHN-..." 
+                placeholder="Ví dụ: #SGS-44 hoặc GY8L8RPH..." 
                 required
                 class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all placeholder:font-normal placeholder:text-slate-400"
               >

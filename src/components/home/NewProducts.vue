@@ -3,26 +3,14 @@
     <div class="max-w-[1200px] mx-auto px-5">
       <div class="section-wrapper">
 
-        <!-- Header row: title left | filters center | view-all right -->
-        <div class="grid grid-cols-3 items-center mb-8 gap-4 max-md:flex max-md:flex-col max-md:items-start max-md:gap-3">
+        <!-- Header row: title left | view-all right -->
+        <div class="flex items-center justify-between mb-8 gap-4 flex-wrap">
           <!-- Left: Title -->
           <div>
             <h2 class="font-display text-[clamp(18px,2.5vw,28px)] tracking-[1.5px] font-bold leading-tight whitespace-nowrap">SẢN PHẨM MỚI NHẤT</h2>
           </div>
-          <!-- Center: Filters -->
-          <div class="flex gap-2 flex-wrap justify-center max-md:justify-start">
-            <button
-              v-for="f in filters"
-              :key="f.key"
-              :class="['py-1.5 px-3.5 rounded-full text-[11px] tracking-[1px] uppercase cursor-pointer transition-all border font-medium',
-                activeFilter === f.key
-                  ? 'bg-accent border-accent text-white shadow-sm'
-                  : 'bg-surface2 text-text-muted border-border hover:bg-accent hover:border-accent hover:text-white']"
-              @click="activeFilter = f.key"
-            >{{ f.label }}</button>
-          </div>
           <!-- Right: Navigation buttons & View all -->
-          <div class="flex items-center justify-end gap-3 max-md:justify-start w-full">
+          <div class="flex items-center justify-end gap-3 flex-wrap">
             <div v-if="filteredProducts.length > 5" class="flex items-center gap-1.5">
               <button 
                 @click="scrollLeft" 
@@ -163,11 +151,7 @@ onMounted(async () => {
 })
 
 const filteredProducts = computed(() => {
-  let list = newProducts.value
-  if (activeFilter.value !== 'all') {
-    list = list.filter(p => p.cat === activeFilter.value)
-  }
-  return list.slice(0, 7) // Tối đa 7 sản phẩm mới nhất
+  return newProducts.value.slice(0, 7) // Tối đa 7 sản phẩm mới nhất
 })
 </script>
 

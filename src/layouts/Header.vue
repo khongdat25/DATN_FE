@@ -130,18 +130,31 @@
 
         <!-- Actions -->
         <div class="flex items-center gap-[6px]">
-          <!-- Quick Track Order Icon -->
-          <router-link 
-            to="/track-order" 
-            class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" 
-            title="Tra cứu vận đơn GHN Real-time"
-          >
-            <i class="ti ti-radar text-accent animate-pulse"></i>
-          </router-link>
-          <div class="flex items-center bg-surface2 border border-border rounded-xl overflow-hidden transition-all duration-300 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(255,77,0,0.1)] max-md:hidden">
-            <input type="text" placeholder="Tìm kiếm..." id="searchInput" class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[120px] font-body placeholder:text-text-dim">
-            <button class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-all duration-300 hover:text-accent active:scale-90"><i class="ti ti-search"></i></button>
-          </div>
+          <form @submit.prevent="handleHeaderSearch" class="flex items-center bg-surface2 border border-border rounded-xl overflow-hidden transition-all duration-300 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(255,77,0,0.1)] max-md:hidden">
+            <input 
+              type="text" 
+              v-model="headerSearch" 
+              placeholder="Tìm kiếm sản phẩm..." 
+              id="searchInput" 
+              class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[150px] focus:w-[200px] transition-all duration-300 font-body placeholder:text-text-dim"
+            >
+            <button 
+              v-if="headerSearch" 
+              type="button" 
+              @click="clearHeaderSearch" 
+              class="bg-transparent border-none px-1.5 text-text-dim hover:text-accent text-xs cursor-pointer"
+              title="Xóa tìm kiếm"
+            >
+              <i class="ti ti-x"></i>
+            </button>
+            <button 
+              type="submit" 
+              class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-all duration-300 hover:text-accent active:scale-90 cursor-pointer"
+              title="Tìm kiếm"
+            >
+              <i class="ti ti-search"></i>
+            </button>
+          </form>
 
           <!-- Notification Bell -->
           <div class="relative" ref="notifRef">
@@ -283,11 +296,26 @@
 
     <!-- Mobile Menu -->
     <div v-show="menuOpen" class="bg-bg border-t border-border py-4 px-5">
+      <form @submit.prevent="handleHeaderSearch" class="flex items-center bg-surface2 border border-border rounded-xl overflow-hidden mb-3 p-1">
+        <input 
+          type="text" 
+          v-model="headerSearch" 
+          placeholder="Tìm kiếm sản phẩm..." 
+          class="bg-transparent border-none outline-none py-2 px-3 text-sm text-text flex-1 font-body placeholder:text-text-dim"
+        >
+        <button v-if="headerSearch" type="button" @click="clearHeaderSearch" class="bg-transparent border-none px-2 text-text-dim hover:text-accent text-xs cursor-pointer">
+          <i class="ti ti-x"></i>
+        </button>
+        <button type="submit" class="bg-transparent border-none py-2 px-3 text-text-muted text-lg hover:text-accent cursor-pointer" title="Tìm kiếm">
+          <i class="ti ti-search"></i>
+        </button>
+      </form>
       <router-link to="/" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Trang chủ</router-link>
       <router-link to="/products" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Sản phẩm</router-link>
       <router-link v-if="isAdmin" to="/admin" class="block py-3 text-[15px] text-accent font-bold border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Trang quản trị (Admin)</router-link>
       <router-link to="/about" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Giới thiệu</router-link>
       <router-link to="/news" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Tin tức</router-link>
+      <router-link to="/track-order" class="block py-3 text-[15px] text-text-muted border-b border-border transition-colors hover:text-accent" @click="menuOpen = false">Tra cứu đơn</router-link>
       <router-link to="/contact" class="block py-3 text-[15px] text-text-muted border-none transition-colors hover:text-accent" @click="menuOpen = false">Liên hệ</router-link>
       
       <!-- Mobile Auth Links -->
@@ -307,11 +335,46 @@
 </template>
 
 <script setup>
-import { ref, inject, computed, onMounted, onUnmounted } from 'vue'
+import { ref, inject, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axiosInstance from '@/api/axios.js'
 
+const router = useRouter()
+const route = useRoute()
 const cartCount = inject('cartCount', ref(3))
 const menuOpen = ref(false)
+
+// ── Search State ─────────────────────────────────────────────────────────────
+const headerSearch = ref('')
+
+watch(
+  () => route.query.q,
+  (newQ) => {
+    headerSearch.value = newQ || ''
+  },
+  { immediate: true }
+)
+
+function handleHeaderSearch() {
+  const query = headerSearch.value.trim()
+  if (query) {
+    router.push({ path: '/products', query: { q: query } })
+  } else {
+    const newQuery = { ...route.query }
+    delete newQuery.q
+    router.push({ path: '/products', query: newQuery })
+  }
+  menuOpen.value = false
+}
+
+function clearHeaderSearch() {
+  headerSearch.value = ''
+  if (route.query.q) {
+    const newQuery = { ...route.query }
+    delete newQuery.q
+    router.push({ path: '/products', query: newQuery })
+  }
+}
 
 // ── Brand loading state ──────────────────────────────────────────────────────
 const brands = ref([])

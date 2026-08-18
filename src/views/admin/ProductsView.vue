@@ -920,16 +920,27 @@ async function fetchProducts() {
           img = getImageUrl(p.variants[0].image)
         }
         
-        const mappedVariants = (p.variants || []).map(v => ({
-          id: v.id,
-          size: v.size ? v.size.name : v.size_id,
-          size_id: v.size_id,
-          color: v.color ? v.color.name : v.color_id,
-          color_id: v.color_id,
-          stock: v.stock || 0,
-          price: v.price || 0,
-          sku: v.sku || ''
-        }))
+        const seenKeys = new Set()
+        const mappedVariants = (p.variants || [])
+          .filter(v => {
+            const sKey = v.size ? v.size.name : v.size_id
+            const cKey = v.color ? v.color.name : v.color_id
+            const key = `${sKey}_${cKey}`
+            if (!sKey && !cKey) return true
+            if (seenKeys.has(key)) return false
+            seenKeys.add(key)
+            return true
+          })
+          .map(v => ({
+            id: v.id,
+            size: v.size ? v.size.name : v.size_id,
+            size_id: v.size_id,
+            color: v.color ? v.color.name : v.color_id,
+            color_id: v.color_id,
+            stock: v.stock || 0,
+            price: v.price || 0,
+            sku: v.sku || ''
+          }))
 
         return {
           id: p.id,
