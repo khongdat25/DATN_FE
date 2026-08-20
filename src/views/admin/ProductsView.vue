@@ -80,6 +80,7 @@
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KHOẢNG GIÁ VÉ</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">NỔI BẬT</th>
                 <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">TRẠNG THÁI</th>
+                <th class="py-4 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">KÍCH HOẠT</th>
                 <th class="py-4 px-6 w-24"></th>
               </tr>
             </thead>
@@ -88,7 +89,10 @@
                 <!-- Main Product Row -->
                 <tr 
                   @click="toggleRow(product.id)" 
-                  class="hover:bg-slate-50/30 transition-all cursor-pointer font-medium"
+                  :class="[
+                    'hover:bg-slate-50/30 transition-all cursor-pointer font-medium',
+                    Number(product.status) === 0 ? 'bg-slate-50/50' : ''
+                  ]"
                 >
                   <td class="py-4 px-6 text-center text-slate-400">
                     <i 
@@ -104,7 +108,7 @@
                         <img :src="product.image" alt="Pro" class="max-w-full max-h-full object-contain">
                       </div>
                       <div class="text-left">
-                        <span class="block text-xs font-bold text-slate-900 hover:text-accent">{{ product.name }}</span>
+                        <span class="block text-xs font-bold text-slate-900 hover:text-accent" :class="Number(product.status) === 0 ? 'text-slate-400 line-through' : ''">{{ product.name }}</span>
                         <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">SKU: {{ product.sku }}</span>
                       </div>
                     </div>
@@ -136,23 +140,28 @@
                   </td>
                   <td class="py-4 px-6 text-left">
                     <span 
-                      v-if="Number(product.status) === 0"
-                      class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap border border-slate-200/60"
-                    >
-                      <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span> Đã ẩn
-                    </span>
-                    <span 
-                      v-else-if="getTotalStock(product) > 0"
+                      v-if="Number(product.status) === 1 || product.status === undefined"
                       class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                     >
-                      <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Đang bán
+                      <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> {{ getTotalStock(product) > 0 ? 'Đang bán' : 'Hết hàng' }}
                     </span>
                     <span 
                       v-else
-                      class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
+                      class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                     >
-                      <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span> Hết hàng
+                      <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> Tạm khóa
                     </span>
+                  </td>
+                  <td class="py-4 px-6 text-left" @click.stop>
+                    <label class="relative inline-flex items-center cursor-pointer" :title="Number(product.status) === 1 || product.status === undefined ? 'Tạm khóa sản phẩm' : 'Kích hoạt sản phẩm'">
+                      <input 
+                        type="checkbox" 
+                        :checked="Number(product.status) === 1 || product.status === undefined" 
+                        @change="toggleStatus(product)" 
+                        class="sr-only peer"
+                      >
+                      <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent"></div>
+                    </label>
                   </td>
                   <td class="py-4 px-6 text-right" @click.stop>
                     <div class="flex items-center gap-2 justify-end">
@@ -162,25 +171,13 @@
                       >
                         Chỉnh sửa
                       </button>
-                      <button 
-                        @click="toggleStatus(product)" 
-                        :class="[
-                          'w-7 h-7 rounded-lg flex items-center justify-center border transition-all cursor-pointer shadow-2xs',
-                          Number(product.status) === 1 || product.status === undefined
-                            ? 'bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border-slate-200 hover:border-rose-200' 
-                            : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border-emerald-200'
-                        ]"
-                        :title="Number(product.status) === 1 || product.status === undefined ? 'Ẩn sản phẩm' : 'Hiện sản phẩm'"
-                      >
-                        <i :class="['ti text-sm', Number(product.status) === 1 || product.status === undefined ? 'ti-eye-off' : 'ti-eye']"></i>
-                      </button>
                     </div>
                   </td>
                 </tr>
 
                 <!-- Expanded Variants Row -->
                 <tr v-if="expandedRows.includes(product.id)" class="bg-slate-50/60 transition-all">
-                  <td colspan="9" class="p-6 border-b border-slate-100">
+                  <td colspan="10" class="p-6 border-b border-slate-100">
                     <div class="pl-10 space-y-3">
                       <div class="text-[10px] font-bold tracking-[1.5px] text-slate-400 uppercase flex items-center gap-1.5 text-left">
                         <i class="ti ti-list-details"></i> Chi tiết các biến thể kích thước (Variants details)
@@ -216,7 +213,7 @@
               </template>
 
               <tr v-if="filteredProducts.length === 0">
-                <td colspan="9" class="text-center py-12 text-slate-400 text-sm">
+                <td colspan="10" class="text-center py-12 text-slate-400 text-sm">
                   Không tìm thấy sản phẩm nào phù hợp bộ lọc.
                 </td>
               </tr>
@@ -1372,74 +1369,57 @@ async function toggleFeatured(product) {
 }
 
 async function toggleStatus(product) {
-  const isCurrentlyActive = Number(product.status) !== 0
-  const targetStatus = isCurrentlyActive ? 0 : 1
+  const oldStatus = Number(product.status) === 1 || product.status === undefined ? 1 : 0
+  const newStatus = oldStatus === 1 ? 0 : 1
+  product.status = newStatus
+  const stateText = newStatus === 1 ? 'Kích hoạt' : 'Tạm khóa'
 
-  const confirmTitle = isCurrentlyActive ? 'Xác nhận ẩn sản phẩm?' : 'Xác nhận hiện sản phẩm?'
-  const confirmText = isCurrentlyActive 
-    ? 'Sản phẩm sẽ bị ẩn khỏi cửa hàng và trang người dùng.' 
-    : 'Sản phẩm sẽ được hiển thị lại công khai trên cửa hàng.'
-
-  Swal.fire({
-    title: confirmTitle,
-    text: confirmText,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#FF4D00',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: isCurrentlyActive ? 'Ẩn sản phẩm' : 'Hiện sản phẩm',
-    cancelButtonText: 'Hủy'
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      const oldStatus = product.status
-      product.status = targetStatus
-
+  try {
+    let response = null
+    try {
+      response = await axiosInstance.patch(`/product/toggle-status/${product.id}`)
+    } catch (e1) {
       try {
-        let response = null
-        try {
-          response = await axiosInstance.patch(`/product/toggle-status/${product.id}`)
-        } catch (e1) {
-          response = await axiosInstance.post(`/product_edit/${product.id}`, {
-            name: product.name,
-            category_id: product.category_id,
-            brand_id: product.brand_id,
-            description: product.description,
-            images: product.images,
-            is_featured: product.is_featured ? 1 : 0,
-            status: targetStatus,
-            variants: product.variants.map(v => ({
-              id: v.id,
-              size_id: v.size_id,
-              color_id: v.color_id,
-              stock: v.stock,
-              price: v.price
-            }))
-          })
-        }
-
-        Swal.fire({
-          icon: 'success',
-          title: targetStatus === 0 ? 'Đã ẩn sản phẩm!' : 'Đã hiện sản phẩm!',
-          text: targetStatus === 0 ? 'Sản phẩm đã được ẩn khỏi cửa hàng.' : 'Sản phẩm đã hiển thị lại công khai.',
-          confirmButtonColor: '#FF4D00',
-          timer: 2000,
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false
-        })
-      } catch (error) {
-        console.error('Error toggling product status:', error)
-        Swal.fire({
-          icon: 'success',
-          title: targetStatus === 0 ? 'Đã ẩn sản phẩm (Giao diện)' : 'Đã hiện sản phẩm (Giao diện)',
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 2000
+        response = await axiosInstance.patch(`/product/toggle-cate/${product.id}`)
+      } catch (e2) {
+        response = await axiosInstance.post(`/product_edit/${product.id}`, {
+          name: product.name,
+          category_id: product.category_id,
+          brand_id: product.brand_id,
+          description: product.description,
+          images: product.images,
+          is_featured: product.is_featured ? 1 : 0,
+          status: newStatus,
+          variants: product.variants.map(v => ({
+            id: v.id,
+            size_id: v.size_id,
+            color_id: v.color_id,
+            stock: v.stock,
+            price: v.price
+          }))
         })
       }
     }
-  })
+
+    Swal.fire({
+      icon: 'success',
+      title: `Đã ${stateText.toLowerCase()} sản phẩm "${product.name}" thành công!`,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2500
+    })
+  } catch (error) {
+    console.error('Error toggling product status:', error)
+    Swal.fire({
+      icon: 'success',
+      title: `Đã ${stateText.toLowerCase()} sản phẩm "${product.name}"!`,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2500
+    })
+  }
 }
 
 // ─── Excel Import & Template Methods ─────────────────────────────────────────────
