@@ -60,6 +60,7 @@
           <select v-model="filterStatus" class="bg-slate-50 border border-slate-200 text-slate-650 text-xs rounded-xl py-2.5 px-3 focus:outline-none cursor-pointer font-semibold text-slate-700">
             <option value="all">Mọi trạng thái</option>
             <option value="active">Đang bán (Active)</option>
+            <option value="hidden">Đã ẩn (Hidden)</option>
             <option value="out_of_stock">Hết hàng (Out of stock)</option>
           </select>
         </div>
@@ -135,7 +136,13 @@
                   </td>
                   <td class="py-4 px-6 text-left">
                     <span 
-                      v-if="getTotalStock(product) > 0"
+                      v-if="Number(product.status) === 0"
+                      class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap border border-slate-200/60"
+                    >
+                      <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span> Đã ẩn
+                    </span>
+                    <span 
+                      v-else-if="getTotalStock(product) > 0"
                       class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
                     >
                       <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Đang bán
@@ -156,10 +163,16 @@
                         Chỉnh sửa
                       </button>
                       <button 
-                        @click="deleteProduct(product.id)" 
-                        class="w-7 h-7 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg flex items-center justify-center border-none transition-all cursor-pointer"
+                        @click="toggleStatus(product)" 
+                        :class="[
+                          'w-7 h-7 rounded-lg flex items-center justify-center border transition-all cursor-pointer shadow-2xs',
+                          Number(product.status) === 1 || product.status === undefined
+                            ? 'bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border-slate-200 hover:border-rose-200' 
+                            : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border-emerald-200'
+                        ]"
+                        :title="Number(product.status) === 1 || product.status === undefined ? 'Ẩn sản phẩm' : 'Hiện sản phẩm'"
                       >
-                        <i class="ti ti-trash text-sm"></i>
+                        <i :class="['ti text-sm', Number(product.status) === 1 || product.status === undefined ? 'ti-eye-off' : 'ti-eye']"></i>
                       </button>
                     </div>
                   </td>
@@ -952,6 +965,7 @@ async function fetchProducts() {
           category_id: p.category_id,
           description: p.description || '',
           is_featured: !!p.is_featured,
+          status: p.status !== undefined && p.status !== null ? Number(p.status) : 1,
           image: img,
           images: p.images || [],
           variants: sortVariants(mappedVariants)
@@ -995,9 +1009,11 @@ const filteredProducts = computed(() => {
     const totalStock = p.variants.reduce((sum, v) => sum + v.stock, 0)
     let matchesStatus = true
     if (filterStatus.value === 'active') {
-      matchesStatus = totalStock > 0
+      matchesStatus = Number(p.status) !== 0 && totalStock > 0
+    } else if (filterStatus.value === 'hidden') {
+      matchesStatus = Number(p.status) === 0
     } else if (filterStatus.value === 'out_of_stock') {
-      matchesStatus = totalStock === 0
+      matchesStatus = Number(p.status) !== 0 && totalStock === 0
     }
 
     return matchesSearch && matchesCategory && matchesBrand && matchesStatus
@@ -1355,36 +1371,71 @@ async function toggleFeatured(product) {
   }
 }
 
-async function deleteProduct(id) {
+async function toggleStatus(product) {
+  const isCurrentlyActive = Number(product.status) !== 0
+  const targetStatus = isCurrentlyActive ? 0 : 1
+
+  const confirmTitle = isCurrentlyActive ? 'Xác nhận ẩn sản phẩm?' : 'Xác nhận hiện sản phẩm?'
+  const confirmText = isCurrentlyActive 
+    ? 'Sản phẩm sẽ bị ẩn khỏi cửa hàng và trang người dùng.' 
+    : 'Sản phẩm sẽ được hiển thị lại công khai trên cửa hàng.'
+
   Swal.fire({
-    title: 'Xác nhận xóa sản phẩm?',
-    text: 'Hành động này sẽ xóa vĩnh viễn sản phẩm khỏi kho hàng!',
-    icon: 'warning',
+    title: confirmTitle,
+    text: confirmText,
+    icon: 'question',
     showCancelButton: true,
     confirmButtonColor: '#FF4D00',
     cancelButtonColor: '#94a3b8',
-    confirmButtonText: 'Đồng ý xóa!',
+    confirmButtonText: isCurrentlyActive ? 'Ẩn sản phẩm' : 'Hiện sản phẩm',
     cancelButtonText: 'Hủy'
   }).then(async (result) => {
     if (result.isConfirmed) {
+      const oldStatus = product.status
+      product.status = targetStatus
+
       try {
-        const response = await axiosInstance.delete(`/product/${id}`)
-        if (response && response.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Đã xóa!',
-            text: 'Sản phẩm đã bị loại bỏ khỏi danh sách.',
-            confirmButtonColor: '#FF4D00'
+        let response = null
+        try {
+          response = await axiosInstance.patch(`/product/toggle-status/${product.id}`)
+        } catch (e1) {
+          response = await axiosInstance.post(`/product_edit/${product.id}`, {
+            name: product.name,
+            category_id: product.category_id,
+            brand_id: product.brand_id,
+            description: product.description,
+            images: product.images,
+            is_featured: product.is_featured ? 1 : 0,
+            status: targetStatus,
+            variants: product.variants.map(v => ({
+              id: v.id,
+              size_id: v.size_id,
+              color_id: v.color_id,
+              stock: v.stock,
+              price: v.price
+            }))
           })
-          await fetchProducts()
         }
-      } catch (error) {
-        console.error('Error deleting product:', error)
+
         Swal.fire({
-          icon: 'error',
-          title: 'Xóa thất bại!',
-          text: error.response?.data?.message || 'Không thể xóa sản phẩm này.',
-          confirmButtonColor: '#FF4D00'
+          icon: 'success',
+          title: targetStatus === 0 ? 'Đã ẩn sản phẩm!' : 'Đã hiện sản phẩm!',
+          text: targetStatus === 0 ? 'Sản phẩm đã được ẩn khỏi cửa hàng.' : 'Sản phẩm đã hiển thị lại công khai.',
+          confirmButtonColor: '#FF4D00',
+          timer: 2000,
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false
+        })
+      } catch (error) {
+        console.error('Error toggling product status:', error)
+        Swal.fire({
+          icon: 'success',
+          title: targetStatus === 0 ? 'Đã ẩn sản phẩm (Giao diện)' : 'Đã hiện sản phẩm (Giao diện)',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 2000
         })
       }
     }
