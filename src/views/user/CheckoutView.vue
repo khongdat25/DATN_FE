@@ -28,13 +28,22 @@
                 <h2 class="font-display text-xl font-bold text-text flex items-center gap-3">
                   <i class="ti ti-map-pin text-accent text-2xl"></i> Địa chỉ nhận hàng
                 </h2>
-                <button
-                  type="button"
-                  @click="showAddressModal = true"
-                  class="flex items-center gap-1.5 border border-accent text-accent text-sm font-semibold px-4 py-2 rounded-lg hover:bg-accent hover:text-white hover:shadow-[0_4px_12px_rgba(255,77,0,0.15)] transition-all cursor-pointer"
-                >
-                  <i class="ti ti-edit text-sm"></i> Thay đổi
-                </button>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    @click="openCreateAddressForm(); showAddressModal = true;"
+                    class="flex items-center gap-1.5 border border-accent/40 text-accent text-xs font-semibold px-3.5 py-2 rounded-lg hover:bg-accent hover:text-white transition-all cursor-pointer"
+                  >
+                    <i class="ti ti-plus text-xs"></i> Thêm mới
+                  </button>
+                  <button
+                    type="button"
+                    @click="isCreatingAddress = false; showAddressModal = true;"
+                    class="flex items-center gap-1.5 border border-accent text-accent text-xs font-semibold px-4 py-2 rounded-lg hover:bg-accent hover:text-white hover:shadow-[0_4px_12px_rgba(255,77,0,0.15)] transition-all cursor-pointer"
+                  >
+                    <i class="ti ti-edit text-xs"></i> Thay đổi
+                  </button>
+                </div>
               </div>
 
               <!-- Address Card Display -->
@@ -197,18 +206,6 @@
                   >Áp dụng</button>
                 </div>
 
-                <!-- Voucher suggestion bar -->
-                <transition name="fade">
-                  <div
-                    v-if="summary.subtotal > 0"
-                    class="flex items-start gap-2 rounded-[10px] p-3 text-[12.5px] mb-3 transition-all"
-                    :style="suggestionStyle"
-                  >
-                    <i :class="['text-base shrink-0 mt-px', suggestionIcon]" :style="{ color: suggestionIconColor }"></i>
-                    <div class="flex-1 leading-relaxed" v-html="suggestionText"></div>
-                  </div>
-                </transition>
-
                 <!-- Voucher dropdown -->
                 <div class="border border-border rounded-xl overflow-hidden">
                   <div
@@ -217,45 +214,101 @@
                   >
                     <span class="text-[13px] flex items-center gap-1.5 text-text">
                       <i class="ti ti-ticket text-accent text-base"></i>
-                      {{ appliedVoucher ? `Đang dùng: ${appliedVoucher.code}` : 'Chọn Voucher từ SaigonShoes' }}
+                      {{ voucherHeaderLabel }}
                     </span>
                     <i class="ti ti-chevron-down text-xs text-text-muted transition-transform duration-300" :class="{ 'rotate-180': voucherOpen }"></i>
                   </div>
-                  <div v-show="voucherOpen" class="bg-white max-h-62.5 overflow-y-auto divide-y divide-border border-t border-border">
-                    <div
-                      v-for="voucher in availableVouchers"
-                      :key="voucher.code"
-                      class="flex items-center gap-3 p-3 hover:bg-[rgba(255,77,0,0.02)] transition-colors"
-                    >
-                      <div class="w-9 h-9 rounded-lg bg-[rgba(255,77,0,0.1)] text-accent flex items-center justify-center text-lg shrink-0">
-                        <i :class="'ti ' + voucher.icon"></i>
+
+                  <div v-show="voucherOpen" class="bg-white max-h-75 overflow-y-auto border-t border-border">
+                    <div v-if="hasFlashSaleInCart" class="px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-800 text-[11.5px] font-medium flex items-center gap-1.5">
+                      <i class="ti ti-flame text-accent text-sm shrink-0"></i>
+                      <span>Đơn hàng có SP <strong>Flash Sale</strong> chỉ áp dụng mã <strong>Miễn phí vận chuyển</strong>.</span>
+                    </div>
+
+                    <!-- NHÓM 1: MÃ MIỄN PHÍ VẬN CHUYỂN -->
+                    <div class="px-4 py-1.5 bg-surface2/60 font-bold text-[11px] uppercase tracking-wider text-text-muted border-b border-border flex items-center gap-1">
+                      <i class="ti ti-truck-delivery text-accent"></i> Mã Miễn phí vận chuyển (Tối đa 1)
+                    </div>
+                    <div class="divide-y divide-border border-b border-border">
+                      <div
+                        v-for="v in freeshipVouchers"
+                        :key="v.code"
+                        class="flex items-center gap-3 p-3 transition-colors hover:bg-[rgba(255,77,0,0.02)]"
+                      >
+                        <div class="w-9 h-9 rounded-lg bg-[rgba(255,77,0,0.1)] text-accent flex items-center justify-center text-lg shrink-0">
+                          <i class="ti ti-truck-delivery"></i>
+                        </div>
+                        <div class="flex-1">
+                          <span class="text-[13px] font-semibold text-text block leading-tight">{{ v.title }}</span>
+                          <span class="text-[11px] text-text-dim block mt-0.5">{{ v.desc }}</span>
+                        </div>
+                        <button
+                          type="button"
+                          @click="toggleVoucher(v)"
+                          class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-all"
+                          :class="appliedFreeshipVoucher?.code === v.code
+                            ? 'bg-accent text-white border-accent shadow-xs'
+                            : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"
+                        >
+                          {{ appliedFreeshipVoucher?.code === v.code ? 'Bỏ chọn' : 'Dùng' }}
+                        </button>
                       </div>
-                      <div class="flex-1">
-                        <span class="text-[13px] font-semibold text-text block leading-tight">{{ voucher.title }}</span>
-                        <span class="text-[11px] text-text-dim">{{ voucher.desc }}</span>
+                      <div v-if="freeshipVouchers.length === 0" class="p-3 text-[12px] text-text-dim text-center">
+                        Không có mã miễn phí vận chuyển khả dụng
                       </div>
-                      <button
-                        type="button"
-                        @click="applyVoucher(voucher.code)"
-                        class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-colors"
-                        :class="appliedVoucher?.code === voucher.code
-                          ? 'bg-accent text-white border-accent'
-                          : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"
-                      >{{ appliedVoucher?.code === voucher.code ? 'Đang dùng' : 'Dùng' }}</button>
+                    </div>
+
+                    <!-- NHÓM 2: MÃ GIẢM GIÁ ĐƠN HÀNG (TỰ ĐỘNG ẨN KHI ĐƠN HÀNG CHỨA SP FLASH SALE) -->
+                    <div v-if="!hasFlashSaleInCart">
+                      <div class="px-4 py-1.5 bg-surface2/60 font-bold text-[11px] uppercase tracking-wider text-text-muted border-b border-border flex items-center gap-1">
+                        <i class="ti ti-discount-2 text-accent"></i> Mã Giảm giá đơn hàng (Tối đa 1)
+                      </div>
+                      <div class="divide-y divide-border">
+                        <div
+                          v-for="v in orderDiscountVouchers"
+                          :key="v.code"
+                          class="flex items-center gap-3 p-3 transition-colors hover:bg-[rgba(255,77,0,0.02)]"
+                        >
+                          <div class="w-9 h-9 rounded-lg bg-[rgba(255,77,0,0.1)] text-accent flex items-center justify-center text-lg shrink-0">
+                            <i :class="'ti ' + v.icon"></i>
+                          </div>
+                          <div class="flex-1">
+                            <span class="text-[13px] font-semibold text-text block leading-tight">{{ v.title }}</span>
+                            <span class="text-[11px] text-text-dim block mt-0.5">{{ v.desc }}</span>
+                          </div>
+                          <button
+                            type="button"
+                            @click="toggleVoucher(v)"
+                            class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-all"
+                            :class="appliedOrderVoucher?.code === v.code
+                              ? 'bg-accent text-white border-accent shadow-xs'
+                              : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"
+                          >
+                            {{ appliedOrderVoucher?.code === v.code ? 'Bỏ chọn' : 'Dùng' }}
+                          </button>
+                        </div>
+                        <div v-if="orderDiscountVouchers.length === 0" class="p-3 text-[12px] text-text-dim text-center">
+                          Không có mã giảm giá đơn hàng khả dụng
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
             </div>
 
             <!-- Price Breakdown -->
-              <div class="flex flex-col gap-3 mb-6">
+              <div class="flex flex-col gap-2.5 mb-6">
                 <div class="flex justify-between text-sm text-text-muted font-medium">
-                  <span>Tổng đơn hàng</span>
+                  <span>Tổng tiền hàng</span>
                   <span class="text-text font-bold">{{ formatPrice(summary.subtotal) }}</span>
                 </div>
-                <div v-if="appliedVoucher" class="flex justify-between text-sm text-green-600 font-bold">
-                  <span class="flex items-center gap-1"><i class="ti ti-ticket text-sm"></i> Voucher giảm:</span>
-                  <span>-{{ formatPrice(discountAmount) }}</span>
+                <div v-if="appliedFreeshipVoucher" class="flex justify-between text-sm text-green-600 font-semibold">
+                  <span class="flex items-center gap-1"><i class="ti ti-truck-delivery text-sm"></i> Freeship ({{ appliedFreeshipVoucher.code }}):</span>
+                  <span>-{{ formatPrice(freeshipDiscountAmount) }}</span>
+                </div>
+                <div v-if="appliedOrderVoucher" class="flex justify-between text-sm text-green-600 font-semibold">
+                  <span class="flex items-center gap-1"><i class="ti ti-ticket text-sm"></i> Giảm đơn ({{ appliedOrderVoucher.code }}):</span>
+                  <span>-{{ formatPrice(orderDiscountAmount) }}</span>
                 </div>
                 <div class="flex justify-between text-sm text-text-muted font-medium">
                   <span>Phí vận chuyển</span>
@@ -301,60 +354,203 @@
           class="fixed inset-0 bg-black/40 backdrop-blur-[6px] flex items-center justify-center z-1000 px-4"
           @click.self="showAddressModal = false"
         >
-          <div class="bg-white rounded-2xl w-full max-w-137.5 shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden">
+          <div class="bg-white rounded-2xl w-full max-w-150 shadow-[0_15px_40px_rgba(0,0,0,0.15)] overflow-hidden transition-all">
             <!-- Modal Header -->
-            <div class="flex items-center justify-between px-8 py-5 border-b border-border">
-              <h3 class="font-display text-xl font-bold text-text">Chọn địa chỉ nhận hàng</h3>
+            <div class="flex items-center justify-between px-8 py-5 border-b border-border bg-surface2/30">
+              <div class="flex items-center gap-3">
+                <button
+                  v-if="isCreatingAddress"
+                  type="button"
+                  @click="isCreatingAddress = false"
+                  class="text-text-muted hover:text-accent transition-colors text-lg cursor-pointer flex items-center gap-1"
+                  title="Quay lại danh sách"
+                >
+                  <i class="ti ti-arrow-left"></i>
+                </button>
+                <h3 class="font-display text-xl font-bold text-text">
+                  {{ isCreatingAddress ? 'Thêm địa chỉ nhận hàng mới' : 'Chọn địa chỉ nhận hàng' }}
+                </h3>
+              </div>
               <button type="button" @click="showAddressModal = false" class="text-text-dim hover:text-text transition-colors text-xl cursor-pointer">
                 <i class="ti ti-x"></i>
               </button>
             </div>
 
-            <!-- Saved Address List -->
-            <div class="p-8 max-h-95 overflow-y-auto flex flex-col gap-4">
-              <div
-                v-for="addr in savedAddresses"
-                :key="addr.id"
-                @click="tempSelectedId = addr.id"
-                :class="[
-                  'border-[1.5px] rounded-xl p-4 flex gap-4 cursor-pointer transition-all',
-                  tempSelectedId === addr.id
-                    ? 'border-accent bg-[rgba(255,77,0,0.03)] shadow-[0_4px_12px_rgba(255,77,0,0.05)]'
-                    : 'border-border hover:border-accent/60 bg-white'
-                ]"
-              >
-                <input
-                  type="radio"
-                  :checked="tempSelectedId === addr.id"
-                  class="w-4.5 h-4.5 mt-1 accent-accent cursor-pointer shrink-0"
+            <!-- Mode A: Saved Address List -->
+            <div v-if="!isCreatingAddress">
+              <div class="p-6 max-h-95 overflow-y-auto flex flex-col gap-3">
+                <div
+                  v-for="addr in savedAddresses"
+                  :key="addr.id"
+                  @click="tempSelectedId = addr.id"
+                  :class="[
+                    'border-[1.5px] rounded-xl p-4 flex gap-4 cursor-pointer transition-all',
+                    tempSelectedId === addr.id
+                      ? 'border-accent bg-[rgba(255,77,0,0.03)] shadow-[0_4px_12px_rgba(255,77,0,0.05)]'
+                      : 'border-border hover:border-accent/60 bg-white'
+                  ]"
                 >
-                <div class="flex-1">
-                  <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
-                    <span class="font-display font-bold text-[15px] text-text">{{ addr.name }}</span>
-                    <span
-                      class="text-[10px] font-semibold px-1.5 py-px rounded-full uppercase"
-                      :style="badgeStyle(addr.badge)"
-                    >{{ addr.badge }}</span>
-                    <span class="font-semibold text-text-muted text-[13px]">{{ addr.phone }}</span>
+                  <input
+                    type="radio"
+                    :checked="tempSelectedId === addr.id"
+                    class="w-4.5 h-4.5 mt-1 accent-accent cursor-pointer shrink-0"
+                  >
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                      <span class="font-display font-bold text-[15px] text-text">{{ addr.name }}</span>
+                      <span
+                        class="text-[10px] font-semibold px-1.5 py-px rounded-full uppercase"
+                        :style="badgeStyle(addr.badge)"
+                      >{{ addr.badge }}</span>
+                      <span class="font-semibold text-text-muted text-[13px]">{{ addr.phone }}</span>
+                    </div>
+                    <p class="text-[13px] text-text-muted leading-snug">{{ addr.address }}</p>
                   </div>
-                  <p class="text-[13px] text-text-muted leading-snug">{{ addr.address }}</p>
+                </div>
+
+                <div v-if="savedAddresses.length === 0" class="text-center py-8 text-text-dim">
+                  <i class="ti ti-map-pin-off text-4xl block mb-2 opacity-50"></i>
+                  <p class="text-sm">Bạn chưa có địa chỉ nhận hàng nào được lưu.</p>
+                </div>
+              </div>
+
+              <!-- List View Modal Footer -->
+              <div class="flex justify-between items-center px-8 py-4 border-t border-border bg-surface2/30">
+                <button
+                  type="button"
+                  @click="openCreateAddressForm"
+                  class="flex items-center gap-1.5 text-accent font-bold text-sm hover:underline cursor-pointer"
+                >
+                  <i class="ti ti-plus text-base"></i> Thêm địa chỉ mới
+                </button>
+                <div class="flex gap-3">
+                  <button
+                    type="button"
+                    @click="showAddressModal = false"
+                    class="bg-surface2 border border-border text-text-muted px-5 py-2.5 rounded-xl font-semibold cursor-pointer hover:bg-[#eee] hover:text-text transition-colors text-sm"
+                  >Hủy</button>
+                  <button
+                    type="button"
+                    @click="confirmAddress"
+                    class="bg-accent border border-accent text-white px-6 py-2.5 rounded-xl font-display font-semibold cursor-pointer hover:bg-accent-hover transition-all shadow-[0_4px_12px_rgba(255,77,0,0.2)] text-sm"
+                  >Xác nhận</button>
                 </div>
               </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="flex justify-end gap-3 px-8 py-5 border-t border-border">
-              <button
-                type="button"
-                @click="showAddressModal = false"
-                class="bg-surface2 border border-border text-text-muted px-5 py-2.5 rounded-xl font-semibold cursor-pointer hover:bg-[#eee] hover:text-text transition-colors text-sm"
-              >Hủy</button>
-              <button
-                type="button"
-                @click="confirmAddress"
-                class="bg-accent border border-accent text-white px-6 py-2.5 rounded-xl font-display font-semibold cursor-pointer hover:bg-accent-hover transition-all shadow-[0_4px_12px_rgba(255,77,0,0.2)] text-sm"
-              >Xác nhận</button>
+            <!-- Mode B: Create Address Form -->
+            <div v-else class="p-6 max-h-125 overflow-y-auto">
+              <form @submit.prevent="handleSaveNewAddress" class="flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-text mb-1">Họ tên người nhận <span class="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      v-model="newAddrForm.name"
+                      required
+                      placeholder="Ví dụ: Nguyễn Văn A"
+                      class="w-full border border-border rounded-xl px-3.5 py-2.5 text-sm text-text outline-none focus:border-accent transition-all"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-text mb-1">Số điện thoại <span class="text-red-500">*</span></label>
+                    <input
+                      type="tel"
+                      v-model="newAddrForm.phone"
+                      required
+                      placeholder="Ví dụ: 0987654321"
+                      class="w-full border border-border rounded-xl px-3.5 py-2.5 text-sm text-text outline-none focus:border-accent transition-all"
+                    >
+                  </div>
+                </div>
+
+                <!-- GHN Dropdowns -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-text mb-1">Tỉnh / Thành <span class="text-red-500">*</span></label>
+                    <select
+                      v-model="newAddrForm.province_id"
+                      @change="onNewAddrProvinceChange"
+                      required
+                      class="w-full border border-border rounded-xl px-3 py-2.5 text-xs text-text outline-none focus:border-accent bg-white transition-all"
+                    >
+                      <option :value="null" disabled>Chọn Tỉnh/Thành</option>
+                      <option v-for="p in ghnProvinces" :key="p.ProvinceID" :value="p.ProvinceID">{{ p.ProvinceName }}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-text mb-1">Quận / Huyện <span class="text-red-500">*</span></label>
+                    <select
+                      v-model="newAddrForm.district_id"
+                      @change="onNewAddrDistrictChange"
+                      :disabled="!newAddrForm.province_id"
+                      required
+                      class="w-full border border-border rounded-xl px-3 py-2.5 text-xs text-text outline-none focus:border-accent bg-white transition-all disabled:bg-gray-100 disabled:opacity-60"
+                    >
+                      <option :value="null" disabled>Chọn Quận/Huyện</option>
+                      <option v-for="d in newAddrDistricts" :key="d.DistrictID" :value="d.DistrictID">{{ d.DistrictName }}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold text-text mb-1">Xã / Phường <span class="text-red-500">*</span></label>
+                    <select
+                      v-model="newAddrForm.ward_code"
+                      :disabled="!newAddrForm.district_id"
+                      required
+                      class="w-full border border-border rounded-xl px-3 py-2.5 text-xs text-text outline-none focus:border-accent bg-white transition-all disabled:bg-gray-100 disabled:opacity-60"
+                    >
+                      <option value="" disabled>Chọn Xã/Phường</option>
+                      <option v-for="w in newAddrWards" :key="w.WardCode" :value="w.WardCode">{{ w.WardName }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-text mb-1">Địa chỉ chi tiết (Số nhà, tên đường) <span class="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    v-model="newAddrForm.detail"
+                    required
+                    placeholder="Ví dụ: 123 Nguyễn Huệ, Chung cư A"
+                    class="w-full border border-border rounded-xl px-3.5 py-2.5 text-sm text-text outline-none focus:border-accent transition-all"
+                  >
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                  <div class="flex items-center gap-4">
+                    <label class="text-xs font-bold text-text">Loại địa chỉ:</label>
+                    <label class="flex items-center gap-1 text-xs cursor-pointer select-none">
+                      <input type="radio" value="Nhà riêng" v-model="newAddrForm.badge" class="accent-accent"> Nhà riêng
+                    </label>
+                    <label class="flex items-center gap-1 text-xs cursor-pointer select-none">
+                      <input type="radio" value="Văn phòng" v-model="newAddrForm.badge" class="accent-accent"> Văn phòng
+                    </label>
+                  </div>
+
+                  <label class="flex items-center gap-1.5 text-xs text-text font-semibold cursor-pointer select-none">
+                    <input type="checkbox" v-model="newAddrForm.is_default" class="w-4 h-4 accent-accent rounded"> Đặt làm mặc định
+                  </label>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-border mt-2">
+                  <button
+                    type="button"
+                    @click="isCreatingAddress = false"
+                    class="bg-surface2 border border-border text-text-muted px-5 py-2 rounded-xl font-semibold cursor-pointer hover:bg-[#eee] hover:text-text transition-colors text-sm"
+                  >Trở lại</button>
+                  <button
+                    type="submit"
+                    :disabled="newAddrForm.isSubmitting"
+                    class="bg-accent border border-accent text-white px-6 py-2 rounded-xl font-display font-semibold cursor-pointer hover:bg-accent-hover transition-all shadow-[0_4px_12px_rgba(255,77,0,0.2)] text-sm disabled:opacity-50"
+                  >
+                    {{ newAddrForm.isSubmitting ? 'Đang lưu...' : 'Lưu địa chỉ' }}
+                  </button>
+                </div>
+              </form>
             </div>
+
           </div>
         </div>
       </transition>
@@ -384,7 +580,7 @@ const SHOP_PAYMENT_CONFIG = {
 const router = useRouter()
 const route = useRoute()
 
-// ─── GHN Address State ────────────────────────────────────────────────────────
+// ─── GHN & Saved Address State ────────────────────────────────────────────────
 const ghnProvinces = ref([])
 const ghnDistricts = ref([])
 const ghnWards = ref([])
@@ -393,6 +589,28 @@ const selectedProvinceId = ref(null)
 const selectedDistrictId = ref(null)
 const selectedWardCode = ref('')
 const ghnCalculatedFee = ref(null)
+
+const showAddressModal = ref(false)
+const tempSelectedId = ref(1)
+const selectedAddressId = ref(1)
+const savedAddresses = ref([])
+
+// ─── Inline Address Creation State ──────────────────────────────────────────────
+const isCreatingAddress = ref(false)
+const newAddrDistricts = ref([])
+const newAddrWards = ref([])
+
+const newAddrForm = reactive({
+  name: '',
+  phone: '',
+  province_id: null,
+  district_id: null,
+  ward_code: '',
+  detail: '',
+  badge: 'Nhà riêng',
+  is_default: false,
+  isSubmitting: false
+})
 
 async function loadGHNProvinces() {
   try {
@@ -658,16 +876,134 @@ const form = reactive({
   paymentMethod: 'cod'
 })
 
-const showAddressModal = ref(false)
-const tempSelectedId = ref(1)
-const selectedAddressId = ref(1)
 const voucherOpen = ref(false)
 const promoCode = ref('')
-const appliedVoucher = ref(null)
+const appliedFreeshipVoucher = ref(null)
+const appliedOrderVoucher = ref(null)
+
+const freeshipVouchers = computed(() => availableVouchers.value.filter(v => v.type === 'free_ship'))
+const orderDiscountVouchers = computed(() => availableVouchers.value.filter(v => v.type !== 'free_ship'))
+
+const voucherHeaderLabel = computed(() => {
+  const codes = []
+  if (appliedFreeshipVoucher.value) codes.push(appliedFreeshipVoucher.value.code)
+  if (appliedOrderVoucher.value) codes.push(appliedOrderVoucher.value.code)
+  if (codes.length > 0) return `Đang dùng: ${codes.join(' + ')}`
+  return 'Chọn Voucher từ SaigonShoes'
+})
+
+function openCreateAddressForm() {
+  const userStr = localStorage.getItem('user')
+  let userObj = {}
+  try { userObj = JSON.parse(userStr) || {} } catch {}
+
+  newAddrForm.name = userObj.name || ''
+  newAddrForm.phone = userObj.phone || ''
+  newAddrForm.province_id = null
+  newAddrForm.district_id = null
+  newAddrForm.ward_code = ''
+  newAddrForm.detail = ''
+  newAddrForm.badge = 'Nhà riêng'
+  newAddrForm.is_default = savedAddresses.value.length === 0
+  newAddrForm.isSubmitting = false
+
+  newAddrDistricts.value = []
+  newAddrWards.value = []
+  isCreatingAddress.value = true
+}
+
+async function onNewAddrProvinceChange() {
+  newAddrDistricts.value = []
+  newAddrWards.value = []
+  newAddrForm.district_id = null
+  newAddrForm.ward_code = ''
+  if (!newAddrForm.province_id) return
+  try {
+    const res = await getGHNDistricts(newAddrForm.province_id)
+    if (res && res.success && res.data) {
+      newAddrDistricts.value = res.data
+    }
+  } catch (e) {
+    console.error('Không thể tải Quận/Huyện:', e)
+  }
+}
+
+async function onNewAddrDistrictChange() {
+  newAddrWards.value = []
+  newAddrForm.ward_code = ''
+  if (!newAddrForm.district_id) return
+  try {
+    const res = await getGHNWards(newAddrForm.district_id)
+    if (res && res.success && res.data) {
+      newAddrWards.value = res.data
+    }
+  } catch (e) {
+    console.error('Không thể tải Xã/Phường:', e)
+  }
+}
+
+async function handleSaveNewAddress() {
+  if (!newAddrForm.name || !newAddrForm.phone || !newAddrForm.detail || !newAddrForm.province_id || !newAddrForm.district_id || !newAddrForm.ward_code) {
+    Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng điền đầy đủ tất cả thông tin địa chỉ!', confirmButtonColor: '#FF4D00' })
+    return
+  }
+
+  const pObj = ghnProvinces.value.find(p => p.ProvinceID === newAddrForm.province_id)
+  const dObj = newAddrDistricts.value.find(d => d.DistrictID === newAddrForm.district_id)
+  const wObj = newAddrWards.value.find(w => w.WardCode === newAddrForm.ward_code)
+
+  const pName = pObj ? pObj.ProvinceName : ''
+  const dName = dObj ? dObj.DistrictName : ''
+  const wName = wObj ? wObj.WardName : ''
+
+  const fullAddress = `${newAddrForm.detail.trim()}, ${wName}, ${dName}, ${pName}`.replace(/^,\s*/, '')
+
+  newAddrForm.isSubmitting = true
+  try {
+    const response = await axiosInstance.post('/addresses', {
+      name: newAddrForm.name.trim(),
+      phone: newAddrForm.phone.trim(),
+      address: fullAddress,
+      badge: newAddrForm.badge,
+      is_default: newAddrForm.is_default,
+      province_id: newAddrForm.province_id,
+      district_id: newAddrForm.district_id,
+      ward_code: newAddrForm.ward_code
+    })
+
+    if (response.success && response.data) {
+      const createdAddr = response.data
+      await loadAddresses()
+      selectedAddressId.value = createdAddr.id
+      tempSelectedId.value = createdAddr.id
+      isCreatingAddress.value = false
+      showAddressModal.value = false
+      if (selectedAddress.value) {
+        await applyAddressGHN(selectedAddress.value)
+      }
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã thêm địa chỉ mới thành công!',
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
+  } catch (error) {
+    console.error('Lỗi tạo địa chỉ mới:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi tạo địa chỉ',
+      text: error.response?.data?.message || 'Không thể tạo địa chỉ mới. Vui lòng kiểm tra lại.',
+      confirmButtonColor: '#FF4D00'
+    })
+  } finally {
+    newAddrForm.isSubmitting = false
+  }
+}
 
 // ─── Address Data ──────────────────────────────────────────────────────────────
-const savedAddresses = ref([])
-
 async function loadAddresses() {
   try {
     const response = await axiosInstance.get('/addresses')
@@ -749,38 +1085,79 @@ onMounted(async () => {
 })
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
+const hasFlashSaleInCart = computed(() => {
+  if (!summary.value.items || summary.value.items.length === 0) return false
+  return summary.value.items.some(item => {
+    const v = item.variantObj || item.variant || {}
+    const fs = v.flash_sale || v.flashSale
+    const hasFsId = !!(item.flash_sale_id || v.flash_sale_id || item.is_flash_sale)
+    const hasSalePrice = (item.sale_price !== null && item.sale_price !== undefined && Number(item.sale_price) > 0) || (v.sale_price !== null && v.sale_price !== undefined && Number(v.sale_price) > 0)
+    
+    if (fs) {
+      const now = new Date()
+      const isStatusActive = Number(fs.status) === 1
+      const startTime = fs.start_time ? new Date(fs.start_time.replace(/-/g, '/')) : null
+      const endTime = fs.end_time ? new Date(fs.end_time.replace(/-/g, '/')) : null
+      const isTimeActive = (!startTime || now >= startTime) && (!endTime || now <= endTime)
+      return isStatusActive && isTimeActive
+    }
+
+    return hasFsId || hasSalePrice
+  })
+})
+
 const selectedAddress = computed(() =>
   savedAddresses.value.find(a => a.id === selectedAddressId.value) || savedAddresses.value[0] || {}
 )
 
-const shippingFee = computed(() => {
-  if (appliedVoucher.value?.type === 'free_ship') return 0
-  if (ghnCalculatedFee.value !== null) return ghnCalculatedFee.value
-  if (form.shippingMethod === 'express') return 50000
-  return summary.value.subtotal >= 500000 ? 0 : 30000
+function parseNumeric(val) {
+  if (typeof val === 'number') return isNaN(val) ? 0 : val
+  if (!val) return 0
+  const cleaned = String(val).replace(/[^0-9]/g, '')
+  return parseInt(cleaned, 10) || 0
+}
+
+const baseShippingFee = computed(() => {
+  if (ghnCalculatedFee.value !== null) return parseNumeric(ghnCalculatedFee.value)
+  return form.shippingMethod === 'express' ? 50000 : 30000
 })
 
-const discountAmount = computed(() => {
-  if (!appliedVoucher.value) return 0
-  if (appliedVoucher.value.serverDiscount !== undefined) {
-    return appliedVoucher.value.serverDiscount
-  }
-  if (appliedVoucher.value.type === 'free_ship') {
-    return Math.min(shippingFee.value, appliedVoucher.value.value || 30000)
-  }
-  if (appliedVoucher.value.value < 1) { // percentage
-    let dist = summary.value.subtotal * appliedVoucher.value.value
-    if (appliedVoucher.value.maxDiscount) {
-      dist = Math.min(dist, appliedVoucher.value.maxDiscount)
+const freeshipDiscountAmount = computed(() => {
+  if (!appliedFreeshipVoucher.value) return 0
+  const cap = parseNumeric(appliedFreeshipVoucher.value.value)
+  const limit = cap > 0 ? cap : baseShippingFee.value
+  return Math.min(baseShippingFee.value, limit)
+})
+
+const shippingFee = computed(() => {
+  return Math.max(0, baseShippingFee.value - freeshipDiscountAmount.value)
+})
+
+const orderDiscountAmount = computed(() => {
+  if (!appliedOrderVoucher.value) return 0
+  const v = appliedOrderVoucher.value
+  const sub = parseNumeric(summary.value.subtotal)
+  const val = parseNumeric(v.value)
+
+  if (v.type === 'percent') {
+    const rawVal = typeof v.value === 'number' ? v.value : parseFloat(v.value)
+    const pct = rawVal < 1 && rawVal > 0 ? rawVal : val / 100
+    let dist = sub * pct
+    if (v.maxDiscount) {
+      dist = Math.min(dist, parseNumeric(v.maxDiscount))
     }
     return dist
   }
-  return appliedVoucher.value.value
+
+  return val
 })
 
-const totalPrice = computed(() =>
-  Math.max(0, summary.value.subtotal + shippingFee.value - discountAmount.value)
-)
+const discountAmount = computed(() => orderDiscountAmount.value)
+
+const totalPrice = computed(() => {
+  const sub = parseNumeric(summary.value.subtotal)
+  return Math.max(0, sub + shippingFee.value - orderDiscountAmount.value)
+})
 
 // ─── QR Payment Info ─────────────────────────────────────────────────────────
 const qrMemo = ref('SGS' + Math.floor(100000 + Math.random() * 900000))
@@ -809,38 +1186,6 @@ watch([() => form.paymentMethod, totalPrice], () => {
   qrLoaded.value = false
 })
 
-// ─── Voucher Suggestion ───────────────────────────────────────────────────────
-const suggestionStyle = computed(() => {
-  if (summary.value.subtotal >= 500000) {
-    return { background: 'rgba(76,175,80,0.04)', border: '1px solid rgba(76,175,80,0.15)' }
-  }
-  return { background: 'rgba(255,77,0,0.04)', border: '1px solid rgba(255,77,0,0.15)' }
-})
-
-const suggestionIcon = computed(() =>
-  summary.value.subtotal >= 500000 ? 'ti ti-circle-check' : 'ti ti-flame'
-)
-const suggestionIconColor = computed(() =>
-  summary.value.subtotal >= 500000 ? '#4caf50' : '#FF4D00'
-)
-
-const suggestionText = computed(() => {
-  const sub = summary.value.subtotal
-  if (sub === 0) return ''
-  if (sub < 500000) {
-    const remaining = 500000 - sub
-    const pct = Math.round((sub / 500000) * 100)
-    return `Mua thêm <strong>${remaining.toLocaleString('vi-VN')}₫</strong> để đủ điều kiện dùng mã <strong>GIAM10K</strong> (giảm 10.000₫)!
-      <div style="margin-top:8px;background:rgba(0,0,0,0.05);height:6px;border-radius:3px;overflow:hidden;">
-        <div style="background:#FF4D00;width:${pct}%;height:100%;border-radius:3px;transition:width 0.3s"></div>
-      </div>`
-  }
-  return `🎉 Tuyệt vời! Đơn hàng đã đủ điều kiện dùng mã <strong>GIAM10K</strong> và được <strong>MIỄN PHÍ VẬN CHUYỂN</strong>!
-    <div style="margin-top:8px;background:rgba(0,0,0,0.05);height:6px;border-radius:3px;overflow:hidden;">
-      <div style="background:#4caf50;width:100%;height:100%;border-radius:3px;"></div>
-    </div>`
-})
-
 // ─── Methods ──────────────────────────────────────────────────────────────────
 function badgeStyle(badge) {
   if (badge === 'Mặc định') return { background: 'rgba(255,77,0,0.1)', color: '#FF4D00' }
@@ -856,23 +1201,48 @@ async function confirmAddress() {
   }
 }
 
-async function applyVoucher(codeToApply) {
-  // Calculate base shipping fee without voucher
-  let baseShipping = 30000
-  if (summary.value.subtotal >= 500000) baseShipping = 0
-  else if (form.shippingMethod === 'express') baseShipping = 50000
+async function toggleVoucher(voucher) {
+  if (voucher.type === 'free_ship') {
+    if (appliedFreeshipVoucher.value?.code === voucher.code) {
+      appliedFreeshipVoucher.value = null
+      Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Đã hủy chọn mã Miễn phí vận chuyển', showConfirmButton: false, timer: 1500 })
+    } else {
+      await applyVoucherCode(voucher.code)
+    }
+  } else {
+    if (hasFlashSaleInCart.value) {
+      Swal.fire({ icon: 'warning', title: 'Không thể chọn mã', text: 'Đơn hàng chứa sản phẩm Flash Sale chỉ được áp dụng mã Miễn phí vận chuyển!', confirmButtonColor: '#FF4D00' })
+      return
+    }
+    if (appliedOrderVoucher.value?.code === voucher.code) {
+      appliedOrderVoucher.value = null
+      Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Đã hủy chọn mã Giảm giá đơn hàng', showConfirmButton: false, timer: 1500 })
+    } else {
+      await applyVoucherCode(voucher.code)
+    }
+  }
+}
 
-  // Validate against backend
+async function applyVoucherCode(codeToApply) {
+  let baseShipping = form.shippingMethod === 'express' ? 50000 : 30000
+
   try {
-    const resp = await axiosInstance.post('/vouchers/apply', {
+    const payload = {
       code: codeToApply,
       subtotal: summary.value.subtotal,
-      shipping_fee: baseShipping
-    })
+      shipping_fee: baseShipping,
+      has_flash_sale: hasFlashSaleInCart.value
+    }
+    if (summary.value.isBuyNow && summary.value.items.length === 1) {
+      payload.variant_id = summary.value.items[0]?.variant_id
+    } else if (summary.value.items && summary.value.items.length > 0) {
+      payload.cart_item_ids = summary.value.items.map(item => item.id)
+    }
+
+    const resp = await axiosInstance.post('/vouchers/apply', payload)
     if (resp.success && resp.data) {
-      // Backend returned discount
       const v = resp.data
-      appliedVoucher.value = {
+      const voucherObj = {
         id: v.id,
         code: v.code,
         title: v.name,
@@ -884,16 +1254,21 @@ async function applyVoucher(codeToApply) {
         type: v.type,
         serverDiscount: resp.discount
       }
+
+      if (v.type === 'free_ship') {
+        appliedFreeshipVoucher.value = voucherObj
+      } else {
+        appliedOrderVoucher.value = voucherObj
+      }
       promoCode.value = ''
       Swal.fire({
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: `Đã áp dụng mã ${appliedVoucher.value.code}!`,
+        title: `Đã áp dụng mã ${v.code}!`,
         showConfirmButton: false,
         timer: 1500
       })
-      voucherOpen.value = false
     }
   } catch (error) {
     Swal.fire({
@@ -910,7 +1285,7 @@ async function applyVoucher(codeToApply) {
 function applyPromoCode() {
   const code = promoCode.value.trim().toUpperCase()
   if (!code) return
-  applyVoucher(code)
+  applyVoucherCode(code)
 }
 
 function formatPrice(val) {
@@ -952,7 +1327,10 @@ async function handlePlaceOrder() {
       ward_code: selectedWardCode.value,
       note: orderNote,
       payment_method_id: form.paymentMethod === 'cod' ? 1 : 2,
-      voucher_id: appliedVoucher.value ? appliedVoucher.value.id : null,
+      voucher_id: appliedOrderVoucher.value ? appliedOrderVoucher.value.id : null,
+      voucher_code: appliedOrderVoucher.value ? appliedOrderVoucher.value.code : null,
+      shipping_voucher_id: appliedFreeshipVoucher.value ? appliedFreeshipVoucher.value.id : null,
+      shipping_voucher_code: appliedFreeshipVoucher.value ? appliedFreeshipVoucher.value.code : null,
       shipping_fee: shippingFee.value,
       discount_amount: discountAmount.value
     }
@@ -1114,16 +1492,13 @@ onMounted(async () => {
   if (local) {
     try {
       summary.value = JSON.parse(local)
+      if (summary.value.freeshipVoucher) appliedFreeshipVoucher.value = summary.value.freeshipVoucher
+      if (summary.value.orderVoucher) appliedOrderVoucher.value = summary.value.orderVoucher
     } catch {
       loadFromCart()
     }
   } else {
     loadFromCart()
-  }
-  // Restore applied voucher from summary
-  if (summary.value.voucherCode) {
-    const v = availableVouchers.value.find(x => x.code === summary.value.voucherCode)
-    if (v) appliedVoucher.value = v
   }
 })
 
@@ -1158,6 +1533,9 @@ async function loadFromCart() {
           img = getImageUrl(v.image)
         }
         
+        const isFs = !!(v.flash_sale_id || (v.sale_price !== null && v.sale_price !== undefined && Number(v.sale_price) > 0))
+        const effectivePrice = (v.sale_price !== null && v.sale_price !== undefined && Number(v.sale_price) > 0) ? Number(v.sale_price) : (v.price || 0)
+
         return {
           id: item.id,
           variant_id: v.id,
@@ -1166,9 +1544,14 @@ async function loadFromCart() {
           variant: (v.color?.name || v.size?.name) 
             ? `Màu ${v.color?.name || ''} · Size ${v.size?.name || ''}`
             : 'Mặc định',
-          price: v.price || 0,
+          price: effectivePrice,
+          originalPrice: v.price || 0,
           qty: item.quantity || 1,
-          image: img
+          image: img,
+          is_flash_sale: isFs,
+          flash_sale_id: v.flash_sale_id || null,
+          sale_price: v.sale_price || null,
+          variantObj: v
         }
       })
 
@@ -1177,7 +1560,7 @@ async function loadFromCart() {
         return
       }
       const subtotal = items.reduce((acc, i) => acc + i.price * i.qty, 0)
-      const shippingFee = subtotal >= 500000 ? 0 : 30000
+      const shippingFee = 30000
       summary.value = { items, subtotal, shippingFee, discountAmount: 0, voucherCode: null, total: subtotal + shippingFee }
     } else {
       router.push({ name: 'cart' })

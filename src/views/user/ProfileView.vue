@@ -746,10 +746,34 @@
             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">NHẬN XÉT CỦA BẠN</label>
             <textarea 
               v-model="ratingComment"
-              rows="4"
+              rows="3"
               placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm này (chất liệu, kích cỡ, độ hoàn thiện...)"
               class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs outline-none focus:bg-white focus:border-accent transition-all placeholder:text-slate-400 font-medium text-slate-800 resize-none"
             ></textarea>
+          </div>
+
+          <!-- Photo Upload Section -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">HÌNH ẢNH THỰC TẾ (TỐI ĐA 5 ĐỌC)</label>
+              <span class="text-[11px] text-slate-400 font-semibold">{{ ratingPhotos.length }}/5 ảnh</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <!-- Upload Thumbnail Button -->
+              <label v-if="ratingPhotos.length < 5" class="w-16 h-16 rounded-2xl border-2 border-dashed border-slate-300 hover:border-accent flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-50 hover:bg-orange-50/50 text-slate-400 hover:text-accent shrink-0">
+                <i class="ti ti-camera text-xl"></i>
+                <span class="text-[9px] font-bold mt-0.5">Thêm ảnh</span>
+                <input type="file" multiple accept="image/*" class="hidden" @change="handleRatingPhotoUpload" />
+              </label>
+
+              <!-- Image Previews -->
+              <div v-for="(photo, pIdx) in ratingPhotoPreviews" :key="pIdx" class="w-16 h-16 rounded-2xl border border-slate-200 overflow-hidden relative group shrink-0 shadow-2xs">
+                <img :src="photo" alt="Preview" class="w-full h-full object-cover">
+                <button type="button" @click="removeRatingPhoto(pIdx)" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white flex items-center justify-center text-xs border-none cursor-pointer hover:bg-red-600">
+                  <i class="ti ti-x"></i>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Footer buttons -->
@@ -783,7 +807,7 @@
 
 <script setup>
 import TrackOrderModal from '@/components/common/TrackOrderModal.vue'
-import { ref, reactive, onMounted, inject, nextTick } from 'vue'
+import { ref, reactive, onMounted, inject, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
@@ -796,11 +820,18 @@ const cartCount = inject('cartCount', ref(0))
 const activeTab = ref('profile')
 
 const tabs = [
-  { id: 'profile',    label: 'Hồ sơ của tôi',       icon: 'ti ti-user-circle' },
-  { id: 'orders',     label: 'Đơn mua',               icon: 'ti ti-package' },
-  { id: 'address',    label: 'Địa chỉ',               icon: 'ti ti-map-pin' },
-  { id: 'password',   label: 'Đổi mật khẩu',          icon: 'ti ti-lock' }
+  { id: 'profile',       label: 'Hồ sơ của tôi',       icon: 'ti ti-user-circle' },
+  { id: 'orders',        label: 'Đơn mua',               icon: 'ti ti-package' },
+  { id: 'notifications', label: 'Thông báo của tôi',    icon: 'ti ti-bell' },
+  { id: 'address',       label: 'Địa chỉ',               icon: 'ti ti-map-pin' },
+  { id: 'password',      label: 'Đổi mật khẩu',          icon: 'ti ti-lock' }
 ]
+
+watch(activeTab, (newTab) => {
+  if (newTab === 'notifications') {
+    router.push('/notifications')
+  }
+})
 
 // ─── Track Order Modal State ──────────────────────────────────────────────────
 const trackModalOpen = ref(false)
@@ -815,6 +846,8 @@ const ratingOrder = ref(null)
 const ratingItem = ref(null)
 const selectedStars = ref(5)
 const ratingComment = ref('')
+const ratingPhotos = ref([])
+const ratingPhotoPreviews = ref([])
 const isSubmittingRating = ref(false)
 
 const starLabels = {
@@ -830,6 +863,8 @@ function openRatingModal(order, item) {
   ratingItem.value = item
   selectedStars.value = 5
   ratingComment.value = ''
+  ratingPhotos.value = []
+  ratingPhotoPreviews.value = []
   ratingModalOpen.value = true
 }
 
@@ -837,8 +872,35 @@ function closeRatingModal() {
   ratingModalOpen.value = false
 }
 
+function handleRatingPhotoUpload(e) {
+  const files = Array.from(e.target.files || [])
+  if (!files.length) return
+  files.slice(0, 5 - ratingPhotos.value.length).forEach(file => {
+    if (file.type.startsWith('image/')) {
+      ratingPhotos.value.push(file)
+      const reader = new FileReader()
+      reader.onload = (evt) => {
+        ratingPhotoPreviews.value.push(evt.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  })
+}
+
+function removeRatingPhoto(idx) {
+  ratingPhotos.value.splice(idx, 1)
+  ratingPhotoPreviews.value.splice(idx, 1)
+}
+
 function viewRatingDetail(item) {
   if (!item.rating) return
+  const imgs = item.rating.image_urls || item.rating.images || []
+  let imgsHtml = ''
+  if (imgs.length > 0) {
+    imgsHtml = `<div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">` +
+      imgs.map(src => `<img src="${src}" style="width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;" />`).join('') +
+      `</div>`
+  }
   Swal.fire({
     title: 'Đánh giá của bạn',
     html: `
@@ -846,6 +908,7 @@ function viewRatingDetail(item) {
         <div style="font-weight: 700; color: #f59e0b; font-size: 16px; margin-bottom: 8px;">★ ${item.rating.rating}/5 sao</div>
         <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9;">
           ${item.rating.comment ? item.rating.comment : '<em>Không có nhận xét văn bản.</em>'}
+          ${imgsHtml}
         </div>
       </div>
     `,
@@ -858,21 +921,27 @@ async function submitRating() {
   if (!ratingItem.value) return
   isSubmittingRating.value = true
   try {
-    const payload = {
-      order_item_id: ratingItem.value.orderItemId,
-      rating: selectedStars.value,
-      comment: ratingComment.value
-    }
-    const response = await axiosInstance.post('/ratings', payload)
+    const formData = new FormData()
+    formData.append('order_item_id', ratingItem.value.orderItemId)
+    formData.append('rating', selectedStars.value)
+    formData.append('comment', ratingComment.value || '')
+    ratingPhotos.value.forEach(file => {
+      formData.append('images[]', file)
+    })
+
+    const response = await axiosInstance.post('/ratings', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
     if (response && response.success) {
       ratingItem.value.rating = {
         rating: selectedStars.value,
-        comment: ratingComment.value
+        comment: ratingComment.value,
+        images: response.data?.image_urls || response.data?.images || ratingPhotoPreviews.value
       }
       Swal.fire({
         icon: 'success',
         title: 'Gửi đánh giá thành công!',
-        text: 'Cảm ơn bạn đã chia sẻ ý kiến về sản phẩm.',
+        text: 'Cảm ơn bạn đã chia sẻ ý kiến và hình ảnh thực tế.',
         confirmButtonColor: '#FF4D00'
       })
       closeRatingModal()
@@ -1098,6 +1167,29 @@ function viewOrderDetails(order) {
     </div>
   `).join('')
 
+  let historyHtml = ''
+  if (order.histories && order.histories.length > 0) {
+    historyHtml = order.histories.map((h, i) => `
+      <div style="display: flex; gap: 12px; position: relative; padding-bottom: ${i === order.histories.length - 1 ? '0' : '14px'}; border-left: 2px solid ${i === 0 ? '#FF4D00' : '#cbd5e1'}; margin-left: 6px; padding-left: 14px;">
+        <div style="position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 9999px; background: ${i === 0 ? '#FF4D00' : '#94a3b8'};"></div>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #0f172a;">${h.note || 'Cập nhật trạng thái'}</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">⏱️ ${new Date(h.created_at).toLocaleString('vi-VN')}</div>
+        </div>
+      </div>
+    `).join('')
+  } else {
+    historyHtml = `
+      <div style="display: flex; gap: 12px; position: relative; margin-left: 6px; padding-left: 14px; border-left: 2px solid #FF4D00;">
+        <div style="position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 9999px; background: #FF4D00;"></div>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #0f172a;">Khởi tạo đơn hàng</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">⏱️ ${order.date}</div>
+        </div>
+      </div>
+    `
+  }
+
   Swal.fire({
     title: `<div style="font-family: inherit; font-weight: 800; font-size: 18px; text-align: left; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; color: #0f172a;">Chi tiết đơn hàng ${order.orderId}</div>`,
     html: `
@@ -1116,6 +1208,14 @@ function viewOrderDetails(order) {
             <div style="margin-top: 4px;"><strong style="color: #0f172a;">Số điện thoại:</strong> ${order.phone}</div>
             <div style="margin-top: 4px;"><strong style="color: #0f172a;">Địa chỉ:</strong> ${order.shipping}</div>
             ${order.note ? `<div style="margin-top: 4px; padding-top: 6px; border-top: 1px dashed #e2e8f0;"><strong style="color: #0f172a;">Ghi chú:</strong> ${order.note}</div>` : ''}
+          </div>
+        </div>
+
+        <!-- Order Timeline -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Hành trình & Lịch sử đơn hàng</div>
+          <div style="background: #f8fafc; padding: 14px; border-radius: 14px; border: 1px solid #f1f5f9;">
+            ${historyHtml}
           </div>
         </div>
 
@@ -1148,7 +1248,7 @@ function viewOrderDetails(order) {
         </div>
       </div>
     `,
-    width: '500px',
+    width: '520px',
     confirmButtonColor: '#FF4D00',
     confirmButtonText: 'Đóng',
     showCloseButton: true,

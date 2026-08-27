@@ -209,7 +209,7 @@
                               </td>
                               <td class="p-3 text-slate-400 line-through">{{ formatCurrency(p.originalPrice) }}</td>
                               <td class="p-3 font-bold" :class="cam.status === 'expired' ? 'text-slate-400' : 'text-accent'">
-                                {{ formatCurrency(p.originalPrice * (1 - cam.discountPercent/100)) }}
+                                {{ formatCurrency(p.salePrice || (p.originalPrice * (1 - cam.discountPercent/100))) }}
                               </td>
                               <td class="p-3 font-semibold text-slate-600" :class="cam.status === 'expired' ? 'text-slate-400' : ''">
                                 {{ cam.status === 'expired' ? `Đã hoàn tất (Đã bán ${p.sold} đôi)` : `Đã bán ${p.sold} / ${p.limitCount} đôi` }}
@@ -602,8 +602,13 @@ async function fetchCampaigns() {
           timeSlotVal = `${startH}:${startM} - ${endH}:${endM}`
         }
 
-        const firstItem = (cam.items && cam.items.length > 0) ? cam.items[0] : null
-        const discountVal = firstItem ? parseFloat(firstItem.discount_value) || 20 : 20
+        const variantsList = cam.variants || cam.items || []
+        const firstVar = variantsList.length > 0 ? variantsList[0] : null
+        
+        let discountVal = cam.discountPercent || 20
+        if (firstVar && firstVar.price > 0 && firstVar.sale_price > 0) {
+          discountVal = Math.round(((firstVar.price - firstVar.sale_price) / firstVar.price) * 100)
+        }
 
         return {
           id: cam.id,
@@ -614,32 +619,33 @@ async function fetchCampaigns() {
           timeSlot: timeSlotVal,
           discountPercent: discountVal,
           status: statusText,
-          products: (cam.items || []).map(item => {
-            const prod = item.product || {}
-            const variant = item.variant || {}
-            const sizeName = variant.size ? variant.size.name : ''
-            const colorName = variant.color ? variant.color.name : ''
+          products: variantsList.map(v => {
+            const itemObj = v.product ? v : (v.variant || v)
+            const prod = itemObj.product || {}
+            const sizeName = itemObj.size ? itemObj.size.name : ''
+            const colorName = itemObj.color ? itemObj.color.name : ''
             const variantLabel = [sizeName, colorName].filter(Boolean).join(' - ')
 
-            const minPrice = variant.price || (prod.variants && prod.variants.length > 0 ? Math.min(...prod.variants.map(v => v.price)) : 0)
+            const minPrice = itemObj.price || (prod.variants && prod.variants.length > 0 ? Math.min(...prod.variants.map(v => v.price)) : 0)
             
             let img = '/images/p1.png'
             if (prod.images && prod.images.length > 0) {
               const firstImg = prod.images[0]
               img = getImageUrl(typeof firstImg === 'string' ? firstImg : (firstImg?.image || ''))
-            } else if (prod.variants && prod.variants.length > 0 && prod.variants[0].image) {
-              img = getImageUrl(prod.variants[0].image)
+            } else if (itemObj.image) {
+              img = getImageUrl(itemObj.image)
             }
             
             return {
-              id: prod.id,
-              variant_id: item.variant_id,
+              id: prod.id || itemObj.product_id,
+              variant_id: itemObj.id || itemObj.variant_id,
               variantLabel: variantLabel,
-              name: variantLabel ? `${prod.name || 'N/A'} (${variantLabel})` : (prod.name || 'N/A'),
+              name: variantLabel ? `${prod.name || 'Sản phẩm'} (${variantLabel})` : (prod.name || 'Sản phẩm'),
               originalPrice: minPrice,
+              salePrice: itemObj.sale_price || (minPrice * (1 - discountVal / 100)),
               image: img,
-              limitCount: item.quantity_limit || 0,
-              sold: item.sold || 0
+              limitCount: itemObj.stock || itemObj.quantity_limit || 0,
+              sold: itemObj.sold || 0
             }
           })
         }

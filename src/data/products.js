@@ -699,6 +699,9 @@ export function getProductById(id) {
 
 function getImageUrl(imagePath) {
   if (!imagePath) return '/images/placeholder.png';
+  if (typeof imagePath === 'string' && imagePath.includes('postimg.cc/') && !imagePath.includes('i.postimg.cc/')) {
+    imagePath = imagePath.replace('postimg.cc/', 'i.postimg.cc/');
+  }
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
     return imagePath;
   }

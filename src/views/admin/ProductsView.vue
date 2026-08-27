@@ -335,6 +335,24 @@
                 <span class="text-[9px] text-slate-400 font-bold mt-1">Đang tải...</span>
               </div>
             </div>
+
+            <!-- Add Image URL Input Box -->
+            <div class="flex gap-2 items-center mt-2">
+              <input 
+                type="url" 
+                v-model="imageUrlInput" 
+                @keyup.enter="addImageUrl"
+                placeholder="Hoặc dán link URL ảnh online (https://i.postimg.cc/...)" 
+                class="flex-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-accent text-slate-700 font-medium"
+              >
+              <button 
+                type="button" 
+                @click="addImageUrl" 
+                class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 shadow-2xs"
+              >
+                + Thêm URL
+              </button>
+            </div>
           </div>
 
           <!-- Category & Brand -->
@@ -904,6 +922,9 @@ const isUploading = ref(false)
 
 function getImageUrl(imagePath) {
   if (!imagePath) return '/images/p1.png'
+  if (typeof imagePath === 'string' && imagePath.includes('postimg.cc/') && !imagePath.includes('i.postimg.cc/')) {
+    imagePath = imagePath.replace('postimg.cc/', 'i.postimg.cc/')
+  }
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
     return imagePath
   }
@@ -1257,6 +1278,38 @@ async function onImageUpload(event) {
   }
 }
 
+const imageUrlInput = ref('')
+
+function addImageUrl() {
+  const url = imageUrlInput.value.trim()
+  if (!url) return
+
+  // Check if user pasted PostImg webpage URL instead of Direct Image Link
+  if (url.includes('postimg.cc/') && !url.includes('i.postimg.cc/')) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Link trang web PostImg',
+      html: `Bạn đang dán link <b>trang web</b> PostImg (<code>${url}</code>).<br><br>Để ảnh hiển thị, bạn cần copy <b>"Direct Link" (Link trực tiếp)</b> dạng <code>https://i.postimg.cc/.../filename.jpg</code>!`,
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
+  if (!formProduct.value.images) {
+    formProduct.value.images = []
+  }
+  formProduct.value.images.push(url)
+  imageUrlInput.value = ''
+  Swal.fire({
+    icon: 'success',
+    title: 'Đã thêm link ảnh!',
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000
+  })
+}
+
 function removeFormImage(index) {
   if (formProduct.value.images) {
     formProduct.value.images.splice(index, 1)
@@ -1375,49 +1428,30 @@ async function toggleStatus(product) {
   const stateText = newStatus === 1 ? 'Kích hoạt' : 'Tạm khóa'
 
   try {
-    let response = null
-    try {
-      response = await axiosInstance.patch(`/product/toggle-status/${product.id}`)
-    } catch (e1) {
-      try {
-        response = await axiosInstance.patch(`/product/toggle-cate/${product.id}`)
-      } catch (e2) {
-        response = await axiosInstance.post(`/product_edit/${product.id}`, {
-          name: product.name,
-          category_id: product.category_id,
-          brand_id: product.brand_id,
-          description: product.description,
-          images: product.images,
-          is_featured: product.is_featured ? 1 : 0,
-          status: newStatus,
-          variants: product.variants.map(v => ({
-            id: v.id,
-            size_id: v.size_id,
-            color_id: v.color_id,
-            stock: v.stock,
-            price: v.price
-          }))
-        })
+    const response = await axiosInstance.patch(`/product/toggle-status/${product.id}`)
+    if (response && response.success) {
+      if (response.status !== undefined) {
+        product.status = Number(response.status)
       }
+      Swal.fire({
+        icon: 'success',
+        title: `Đã ${stateText.toLowerCase()} sản phẩm "${product.name}" thành công!`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2500
+      })
+    } else {
+      product.status = oldStatus
     }
-
-    Swal.fire({
-      icon: 'success',
-      title: `Đã ${stateText.toLowerCase()} sản phẩm "${product.name}" thành công!`,
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 2500
-    })
   } catch (error) {
+    product.status = oldStatus
     console.error('Error toggling product status:', error)
     Swal.fire({
-      icon: 'success',
-      title: `Đã ${stateText.toLowerCase()} sản phẩm "${product.name}"!`,
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 2500
+      icon: 'error',
+      title: 'Lỗi cập nhật',
+      text: error.response?.data?.message || 'Không thể thay đổi trạng thái kích hoạt của sản phẩm!',
+      confirmButtonColor: '#FF4D00'
     })
   }
 }

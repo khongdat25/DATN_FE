@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   product: { type: Object, required: true },
@@ -55,8 +55,59 @@ const emit = defineEmits(['toggle-wish', 'click'])
 
 const wished = ref(false)
 
-function toggleWish() {
+function checkWished() {
+  if (!props.product || !props.product.id) return
+  const savedStr = localStorage.getItem('saigon_wishlist')
+  if (savedStr) {
+    try {
+      const ids = JSON.parse(savedStr)
+      wished.value = ids.includes(Number(props.product.id)) || ids.includes(String(props.product.id))
+    } catch (e) {
+      wished.value = false
+    }
+  } else {
+    wished.value = false
+  }
+}
+
+onMounted(() => {
+  checkWished()
+  window.addEventListener('wishlist-updated', checkWished)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('wishlist-updated', checkWished)
+})
+
+import axiosInstance from '@/api/axios.js'
+
+async function toggleWish() {
   wished.value = !wished.value
+
+  const token = localStorage.getItem('access_token')
+  if (token && props.product && props.product.id) {
+    try {
+      await axiosInstance.post('/wishlist/toggle', { product_id: props.product.id })
+    } catch (e) {
+      console.error('Failed to toggle wishlist on server:', e)
+    }
+  }
+
+  const savedStr = localStorage.getItem('saigon_wishlist')
+  let ids = []
+  if (savedStr) {
+    try { ids = JSON.parse(savedStr) } catch (e) {}
+  }
+  if (wished.value) {
+    if (!ids.includes(props.product.id)) {
+      ids.push(props.product.id)
+    }
+  } else {
+    ids = ids.filter(id => Number(id) !== Number(props.product.id) && String(id) !== String(props.product.id))
+  }
+  localStorage.setItem('saigon_wishlist', JSON.stringify(ids))
+  window.dispatchEvent(new Event('wishlist-updated'))
+
   emit('toggle-wish', { product: props.product, wished: wished.value })
 }
 </script>

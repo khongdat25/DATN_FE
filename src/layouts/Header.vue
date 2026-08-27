@@ -11,10 +11,10 @@
   <!-- Header -->
   <header class="bg-white/95 backdrop-blur-md border-b border-border sticky top-0 z-200">
     <div class="max-w-[1200px] mx-auto px-5">
-      <nav class="flex items-center justify-between h-[72px] gap-4">
-        <router-link to="/" class="flex items-center shrink-0 transition-all duration-300 group select-none">
-          <img src="/images/logo.png" alt="SaigonShoes Logo" class="h-16 w-40 object-contain transition-transform duration-300 group-hover:scale-105 group-hover:rotate-6 mix-blend-multiply" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-          <span class="font-display text-[20px] tracking-[2px] font-bold text-text hidden">SAIGON<span class="text-accent">SHOES</span></span>
+      <nav class="flex items-center justify-between h-[84px] gap-4">
+        <router-link to="/" class="flex items-center shrink-0 transition-all duration-300 group select-none py-1">
+          <img src="/images/logo.png" alt="SaigonShoes Logo" class="h-22 w-52 md:w-64 max-h-[76px] object-contain transition-transform duration-300 group-hover:scale-105 mix-blend-multiply" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+          <span class="font-display text-[24px] tracking-[2px] font-bold text-text hidden">SAIGON<span class="text-accent">SHOES</span></span>
         </router-link>
 
         <!-- Desktop Nav -->
@@ -130,31 +130,97 @@
 
         <!-- Actions -->
         <div class="flex items-center gap-[6px]">
-          <form @submit.prevent="handleHeaderSearch" class="flex items-center bg-surface2 border border-border rounded-xl overflow-hidden transition-all duration-300 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(255,77,0,0.1)] max-md:hidden">
-            <input 
-              type="text" 
-              v-model="headerSearch" 
-              placeholder="Tìm kiếm sản phẩm..." 
-              id="searchInput" 
-              class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[150px] focus:w-[200px] transition-all duration-300 font-body placeholder:text-text-dim"
-            >
-            <button 
-              v-if="headerSearch" 
-              type="button" 
-              @click="clearHeaderSearch" 
-              class="bg-transparent border-none px-1.5 text-text-dim hover:text-accent text-xs cursor-pointer"
-              title="Xóa tìm kiếm"
-            >
-              <i class="ti ti-x"></i>
-            </button>
-            <button 
-              type="submit" 
-              class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-all duration-300 hover:text-accent active:scale-90 cursor-pointer"
-              title="Tìm kiếm"
-            >
-              <i class="ti ti-search"></i>
-            </button>
-          </form>
+          <!-- Desktop Search Form with Live Auto-Complete Dropdown -->
+          <div class="relative max-md:hidden" ref="searchRef">
+            <form @submit.prevent="handleHeaderSearch" class="flex items-center bg-surface2 border border-border rounded-xl overflow-hidden transition-all duration-300 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(255,77,0,0.1)]">
+              <input 
+                type="text" 
+                v-model="headerSearch" 
+                @input="onSearchInput"
+                @focus="onSearchFocus"
+                placeholder="Tìm kiếm sản phẩm..." 
+                id="searchInput" 
+                class="bg-transparent border-none outline-none py-2 px-3.5 text-[13px] text-text w-[160px] focus:w-[220px] transition-all duration-300 font-body placeholder:text-text-dim"
+                autocomplete="off"
+              >
+              <button 
+                v-if="headerSearch" 
+                type="button" 
+                @click="clearHeaderSearch" 
+                class="bg-transparent border-none px-1.5 text-text-dim hover:text-accent text-xs cursor-pointer"
+                title="Xóa tìm kiếm"
+              >
+                <i class="ti ti-x"></i>
+              </button>
+              <button 
+                type="submit" 
+                class="bg-transparent border-none py-2 px-3 text-text-muted text-lg transition-all duration-300 hover:text-accent active:scale-90 cursor-pointer"
+                title="Tìm kiếm"
+              >
+                <i class="ti ti-search"></i>
+              </button>
+            </form>
+
+            <!-- Auto-Complete Dropdown Popup -->
+            <transition name="notif-drop">
+              <div 
+                v-if="showSearchDropdown" 
+                class="absolute right-0 top-[calc(100%+8px)] w-[360px] bg-white border border-border rounded-2xl shadow-2xl z-400 overflow-hidden text-left"
+              >
+                <!-- Loading state -->
+                <div v-if="isSearching" class="p-6 text-center text-text-dim space-y-2">
+                  <div class="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <p class="text-xs font-semibold">Đang tìm kiếm sản phẩm...</p>
+                </div>
+
+                <!-- Results list -->
+                <template v-else-if="liveSearchResults.length > 0">
+                  <div class="px-4 py-2.5 bg-surface2/60 border-b border-border/80 flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-text-muted">Gợi ý sản phẩm cho "{{ liveSearchQuery }}"</span>
+                    <span class="text-[10px] text-accent font-bold">{{ liveSearchResults.length }} kết quả</span>
+                  </div>
+
+                  <div class="max-h-[320px] overflow-y-auto divide-y divide-border/60">
+                    <div 
+                      v-for="prod in liveSearchResults" 
+                      :key="prod.id"
+                      @click="selectSearchResult(prod)"
+                      class="flex items-center gap-3 p-3 hover:bg-surface2/60 cursor-pointer transition-colors group"
+                    >
+                      <div class="w-12 h-12 rounded-xl bg-surface2 border border-border/60 p-1 shrink-0 flex items-center justify-center overflow-hidden">
+                        <img :src="getProdImage(prod)" :alt="prod.name" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <h5 class="text-xs font-bold text-text truncate group-hover:text-accent transition-colors">{{ prod.name }}</h5>
+                        <div class="flex items-center justify-between mt-1">
+                          <span class="text-xs font-extrabold text-accent">{{ getProdPrice(prod) }}</span>
+                          <span v-if="prod.brand?.name || prod.category?.name" class="text-[10px] text-text-dim font-medium bg-surface2 px-1.5 py-0.5 rounded-md">
+                            {{ prod.brand?.name || prod.category?.name }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-3 bg-surface2/40 border-t border-border/80 text-center">
+                    <button 
+                      @click="handleHeaderSearch" 
+                      class="text-xs font-bold text-accent hover:underline border-none bg-transparent cursor-pointer"
+                    >
+                      Xem tất cả kết quả cho "{{ liveSearchQuery }}" →
+                    </button>
+                  </div>
+                </template>
+
+                <!-- No results state -->
+                <div v-else class="p-6 text-center text-text-dim space-y-1">
+                  <i class="ti ti-search-off text-3xl opacity-50 block mb-1"></i>
+                  <p class="text-xs font-bold text-text">Không tìm thấy sản phẩm</p>
+                  <p class="text-[11px] text-text-muted">Thử từ khóa khác như "Nike", "Adidas", "Air Max"...</p>
+                </div>
+              </div>
+            </transition>
+          </div>
 
           <!-- Notification Bell -->
           <div class="relative" ref="notifRef">
@@ -231,7 +297,6 @@
                         <span v-if="!notif.read" class="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5"></span>
                       </div>
                       <p class="text-[11px] text-text-muted mt-0.5 leading-relaxed">{{ notif.body }}</p>
-                      <span class="text-[10px] text-text-dim mt-1 block">{{ notif.time }}</span>
                     </div>
                   </div>
                 </div>
@@ -239,7 +304,7 @@
                 <!-- Footer -->
                 <div class="px-5 py-3 border-t border-border text-center">
                   <router-link
-                    to="/profile"
+                    to="/notifications"
                     @click="notifOpen = false"
                     class="text-[12px] font-bold text-accent hover:underline"
                   >Xem tất cả thông báo →</router-link>
@@ -247,6 +312,12 @@
               </div>
             </transition>
           </div>
+          <!-- Wishlist Heart Button -->
+          <router-link to="/wishlist" class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Danh sách yêu thích">
+            <i class="ti ti-heart"></i>
+            <span v-if="wishlistCount > 0" class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-bold w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm">{{ wishlistCount > 9 ? '9+' : wishlistCount }}</span>
+          </router-link>
+
           <router-link to="/cart" class="w-10 h-10 flex items-center justify-center rounded-full bg-transparent border-none text-text-muted text-xl relative transition-all duration-300 hover:bg-surface2 hover:text-accent hover:shadow-sm active:scale-90" title="Giỏ hàng">
             <i class="ti ti-shopping-cart"></i>
             <span class="absolute top-[5px] right-[5px] bg-accent text-white text-[9px] font-medium w-[15px] h-[15px] rounded-full flex items-center justify-center shadow-sm">{{ cartCount }}</span>
@@ -342,10 +413,31 @@ import axiosInstance from '@/api/axios.js'
 const router = useRouter()
 const route = useRoute()
 const cartCount = inject('cartCount', ref(3))
+const wishlistCount = ref(0)
 const menuOpen = ref(false)
 
-// ── Search State ─────────────────────────────────────────────────────────────
+function updateWishlistCount() {
+  const savedStr = localStorage.getItem('saigon_wishlist')
+  if (savedStr) {
+    try {
+      const arr = JSON.parse(savedStr)
+      wishlistCount.value = Array.isArray(arr) ? arr.length : 0
+    } catch (e) {
+      wishlistCount.value = 0
+    }
+  } else {
+    wishlistCount.value = 0
+  }
+}
+
+// ── Search State & Live Auto-Complete ───────────────────────────────────────
 const headerSearch = ref('')
+const searchRef = ref(null)
+const liveSearchResults = ref([])
+const isSearching = ref(false)
+const showSearchDropdown = ref(false)
+const liveSearchQuery = ref('')
+let searchDebounceTimer = null
 
 watch(
   () => route.query.q,
@@ -355,7 +447,78 @@ watch(
   { immediate: true }
 )
 
+function onSearchInput() {
+  const query = headerSearch.value.trim()
+  if (!query) {
+    showSearchDropdown.value = false
+    liveSearchResults.value = []
+    return
+  }
+
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    fetchLiveSearch(query)
+  }, 300)
+}
+
+function onSearchFocus() {
+  if (headerSearch.value.trim() && liveSearchResults.value.length > 0) {
+    showSearchDropdown.value = true
+  }
+}
+
+async function fetchLiveSearch(query) {
+  isSearching.value = true
+  liveSearchQuery.value = query
+  showSearchDropdown.value = true
+
+  try {
+    const res = await axiosInstance.get('/search', {
+      params: { q: query, limit: 5 }
+    })
+
+    if (res && res.data) {
+      const rawList = Array.isArray(res.data) ? res.data : (res.data.data || [])
+      liveSearchResults.value = rawList.slice(0, 5)
+    } else {
+      liveSearchResults.value = []
+    }
+  } catch (err) {
+    console.error('Failed to fetch live search:', err)
+    liveSearchResults.value = []
+  } finally {
+    isSearching.value = false
+  }
+}
+
+function selectSearchResult(prod) {
+  showSearchDropdown.value = false
+  headerSearch.value = ''
+  router.push(`/product/${prod.slug || prod.id}`)
+}
+
+function getProdImage(prod) {
+  if (prod.images) {
+    const imgs = typeof prod.images === 'string' ? JSON.parse(prod.images) : prod.images
+    if (Array.isArray(imgs) && imgs.length > 0) return getImageUrl(imgs[0])
+  }
+  if (prod.variants && prod.variants.length > 0 && prod.variants[0].image) {
+    return getImageUrl(prod.variants[0].image)
+  }
+  return '/images/nike-air-force-1.png'
+}
+
+function getProdPrice(prod) {
+  if (prod.variants && prod.variants.length > 0) {
+    const v = prod.variants[0]
+    const p = v.sale_price || v.price
+    if (p) return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p)
+  }
+  return 'Đang cập nhật'
+}
+
 function handleHeaderSearch() {
+  showSearchDropdown.value = false
   const query = headerSearch.value.trim()
   if (query) {
     router.push({ path: '/products', query: { q: query } })
@@ -369,6 +532,8 @@ function handleHeaderSearch() {
 
 function clearHeaderSearch() {
   headerSearch.value = ''
+  showSearchDropdown.value = false
+  liveSearchResults.value = []
   if (route.query.q) {
     const newQuery = { ...route.query }
     delete newQuery.q
@@ -443,57 +608,7 @@ const notifFilters = [
   { key: 'system', label: 'Hệ thống' }
 ]
 
-const notifications = ref([
-  {
-    id: 1, type: 'order', read: false,
-    icon: 'ti-truck-delivery', iconBg: 'bg-blue-50', iconColor: 'text-blue-500',
-    title: 'Đơn hàng SGS-281938 đang được giao',
-    body: 'Shipper đang trên đường giao hàng đến bạn. Dự kiến nhận hàng hôm nay.',
-    time: '5 phút trước'
-  },
-  {
-    id: 2, type: 'order', read: false,
-    icon: 'ti-circle-check', iconBg: 'bg-green-50', iconColor: 'text-green-500',
-    title: 'Đơn hàng SGS-192847 đã hoàn thành',
-    body: 'Cảm ơn bạn đã mua hàng! Hãy để lại đánh giá cho sản phẩm nhé.',
-    time: '2 giờ trước'
-  },
-  {
-    id: 3, type: 'promo', read: false,
-    icon: 'ti-discount-2', iconBg: 'bg-[rgba(255,77,0,0.08)]', iconColor: 'text-accent',
-    title: 'Flash Sale 12H–14H hôm nay!',
-    body: 'Giảm đến 40% hàng trăm mẫu giày hot. Số lượng có hạn, nhanh tay!',
-    time: '30 phút trước'
-  },
-  {
-    id: 4, type: 'promo', read: true,
-    icon: 'ti-gift', iconBg: 'bg-pink-50', iconColor: 'text-pink-500',
-    title: 'Quà sinh nhật dành cho bạn 🎁',
-    body: 'Voucher BIRTHDAY20 giảm 20% đang chờ bạn. Hạn sử dụng đến 30/06.',
-    time: '1 ngày trước'
-  },
-  {
-    id: 5, type: 'promo', read: true,
-    icon: 'ti-ticket', iconBg: 'bg-yellow-50', iconColor: 'text-yellow-600',
-    title: 'Bạn có voucher SAIGON50 chưa dùng',
-    body: 'Giảm 50.000₫ cho đơn hàng tiếp theo từ 500K. Hết hạn sau 3 ngày!',
-    time: '2 ngày trước'
-  },
-  {
-    id: 6, type: 'system', read: true,
-    icon: 'ti-shield-check', iconBg: 'bg-surface2', iconColor: 'text-text-muted',
-    title: 'Cập nhật chính sách bảo mật',
-    body: 'SaigonShoes đã cập nhật chính sách bảo mật. Vui lòng xem lại để nắm rõ.',
-    time: '1 tuần trước'
-  },
-  {
-    id: 7, type: 'system', read: true,
-    icon: 'ti-star', iconBg: 'bg-[rgba(255,215,0,0.1)]', iconColor: 'text-yellow-500',
-    title: 'Chào mừng bạn đến với SaigonShoes! 🎉',
-    body: 'Tài khoản của bạn đã được kích hoạt. Khám phá hàng nghìn mẫu giày hot ngay!',
-    time: '3 tuần trước'
-  }
-])
+const notifications = ref([])
 
 const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
 
@@ -504,20 +619,66 @@ const filteredNotifs = computed(() => {
 
 function toggleNotif() {
   notifOpen.value = !notifOpen.value
+  if (notifOpen.value) {
+    fetchNotifications()
+  }
 }
 
-function readNotif(notif) {
-  notif.read = true
+async function fetchNotifications() {
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    notifications.value = []
+    return
+  }
+  try {
+    const res = await axiosInstance.get('/notifications')
+    if (res && res.success && Array.isArray(res.data)) {
+      notifications.value = res.data.map(n => ({
+        id: n.id,
+        type: n.type === 'order' ? 'order' : (n.type === 'voucher' ? 'promo' : 'system'),
+        read: !!n.is_read,
+        icon: n.type === 'order' ? 'ti-truck-delivery' : (n.type === 'voucher' ? 'ti-ticket' : 'ti-bell'),
+        iconBg: n.type === 'order' ? 'bg-blue-50' : (n.type === 'voucher' ? 'bg-[rgba(255,77,0,0.08)]' : 'bg-surface2'),
+        iconColor: n.type === 'order' ? 'text-blue-500' : (n.type === 'voucher' ? 'text-accent' : 'text-text-muted'),
+        title: n.title,
+        body: n.body,
+        time: new Date(n.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date(n.created_at).toLocaleDateString('vi-VN')
+      }))
+    }
+  } catch (e) {
+    console.error('Failed to fetch notifications:', e)
+  }
 }
 
-function markAllRead() {
+async function readNotif(notif) {
+  if (!notif.read) {
+    notif.read = true
+    const token = localStorage.getItem('access_token')
+    if (token && notif.id) {
+      try {
+        await axiosInstance.patch(`/notifications/${notif.id}/read`)
+      } catch (e) {}
+    }
+  }
+}
+
+async function markAllRead() {
   notifications.value.forEach(n => { n.read = true })
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    try {
+      await axiosInstance.patch('/notifications/read-all')
+    } catch (e) {}
+  }
 }
 
 // Đóng khi click bên ngoài
 function onClickOutside(e) {
   if (notifRef.value && !notifRef.value.contains(e.target)) {
     notifOpen.value = false
+  }
+  if (searchRef.value && !searchRef.value.contains(e.target)) {
+    showSearchDropdown.value = false
   }
 }
 
@@ -563,14 +724,18 @@ function checkAuth() {
 }
 
 onMounted(() => {
+  updateWishlistCount()
+  window.addEventListener('wishlist-updated', updateWishlistCount)
   document.addEventListener('click', onClickOutside)
   checkAuth()
   fetchBrands()
+  fetchNotifications()
   window.addEventListener('user-profile-updated', checkAuth)
   window.addEventListener('storage', checkAuth)
 })
 
 onUnmounted(() => {
+  window.removeEventListener('wishlist-updated', updateWishlistCount)
   document.removeEventListener('click', onClickOutside)
   window.removeEventListener('user-profile-updated', checkAuth)
   window.removeEventListener('storage', checkAuth)

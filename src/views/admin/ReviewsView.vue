@@ -176,8 +176,24 @@
           </div>
 
           <!-- Review Text Comments -->
-          <div class="text-xs text-slate-700 font-medium leading-relaxed bg-slate-50/20 p-4 border border-dashed border-slate-200/50 rounded-2xl relative">
+          <div class="text-xs text-slate-700 font-medium leading-relaxed bg-slate-50/20 p-4 border border-dashed border-slate-200/50 rounded-2xl relative space-y-3">
             <p>{{ rev.comment }}</p>
+
+            <!-- Real Photo Thumbnails -->
+            <div v-if="rev.images && rev.images.length > 0" class="pt-2 border-t border-slate-100 flex items-center gap-2.5 flex-wrap">
+              <span class="text-[10px] font-bold text-slate-400 block w-full uppercase tracking-wider">Hình ảnh thực tế đính kèm:</span>
+              <div 
+                v-for="(photo, pIdx) in rev.images" 
+                :key="pIdx"
+                @click="previewAdminImage = photo"
+                class="w-16 h-16 rounded-xl border border-slate-200 bg-white overflow-hidden cursor-pointer hover:opacity-90 hover:scale-105 transition-all shadow-3xs relative group"
+              >
+                <img :src="getImageUrl(photo)" alt="Ảnh thực tế" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
+                  <i class="ti ti-zoom-in"></i>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Admin Reply Section -->
@@ -229,6 +245,16 @@
         <p class="text-xs text-slate-400 mt-1">Vui lòng thay đổi từ khóa hoặc điều chỉnh các bộ lọc sao/trạng thái.</p>
       </div>
     </div>
+
+    <!-- Admin Review Photo Lightbox Modal -->
+    <div v-if="previewAdminImage" class="fixed inset-0 z-500 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in-quick" @click="previewAdminImage = null">
+      <div class="relative max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-black p-2 flex flex-col items-center">
+        <button type="button" @click="previewAdminImage = null" class="absolute top-4 right-4 text-white bg-white/20 hover:bg-white/40 w-10 h-10 rounded-full flex items-center justify-center text-xl cursor-pointer border-none z-10">
+          <i class="ti ti-x"></i>
+        </button>
+        <img :src="getImageUrl(previewAdminImage)" alt="Ảnh đánh giá thực tế" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" />
+      </div>
+    </div>
   
 </template>
 
@@ -240,6 +266,7 @@ import axiosInstance from '@/api/axios.js'
 const searchQuery = ref('')
 const ratingFilter = ref('all')
 const statusFilter = ref('all')
+const previewAdminImage = ref(null)
 
 const reviews = ref([
   {
@@ -389,6 +416,7 @@ async function fetchReviews() {
         }
         return {
           ...r,
+          images: r.images || r.image_urls || [],
           product: {
             ...r.product,
             image: img

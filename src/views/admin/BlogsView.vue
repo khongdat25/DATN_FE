@@ -487,7 +487,17 @@ function closeModal() {
 }
 
 async function savePost() {
-  let finalAvatar = formPost.value.image
+  let finalAvatar = formPost.value.image.trim()
+
+  if (finalAvatar.includes('postimg.cc/') && !finalAvatar.includes('i.postimg.cc/')) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Link trang web PostImg',
+      html: `Bạn đang dán link <b>trang web</b> PostImg (<code>${finalAvatar}</code>).<br><br>Để ảnh hiển thị, bạn cần copy <b>"Direct Link" (Link trực tiếp)</b> dạng <code>https://i.postimg.cc/.../filename.jpg</code>!`,
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
 
   if (selectedBlogFile.value) {
     try {

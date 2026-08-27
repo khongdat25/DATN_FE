@@ -93,6 +93,14 @@ axiosInstance.interceptors.response.use(
                 'The phone has already been taken.': 'Số điện thoại này đã được sử dụng.',
                 'The phone field is required.': 'Vui lòng nhập số điện thoại.',
                 'The name field is required.': 'Vui lòng nhập họ tên.',
+                'The code has already been taken.': 'Mã voucher này đã tồn tại trên hệ thống. Vui lòng sử dụng mã khác.',
+                'The code field is required.': 'Vui lòng nhập mã voucher.',
+                'The end date must be a date after or equal to start date.': 'Ngày hết hạn phải lớn hơn hoặc bằng ngày bắt đầu.',
+                'The end date field must be a date after or equal to start date.': 'Ngày hết hạn phải lớn hơn hoặc bằng ngày bắt đầu.',
+                'The value field must be greater than 0.': 'Giá trị giảm phải lớn hơn 0.',
+                'The value field must not be greater than 100.': 'Mức giảm giá phần trăm không được vượt quá 100%.',
+                'The start date field is required.': 'Vui lòng chọn ngày bắt đầu.',
+                'The end date field is required.': 'Vui lòng chọn ngày hết hạn.'
             };
             firstError = translations[firstError] || firstError;
 

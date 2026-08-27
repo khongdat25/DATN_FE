@@ -108,14 +108,20 @@
           <p class="text-xs sm:text-sm text-text-muted font-medium">Những con người nhiệt huyết đứng sau sự phát triển vượt bậc của thương hiệu SaigonShoes.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           <div v-for="(member, idx) in team" :key="idx" class="group flex flex-col items-center text-center">
             <div class="w-full aspect-square rounded-2xl bg-surface2 border border-border overflow-hidden mb-4 relative shadow-sm">
               <div class="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center text-accent text-3xl">
                 <i class="ti ti-brand-linkedin"></i>
               </div>
-              <div class="w-full h-full flex items-center justify-center text-6xl text-text-dim/30 font-black font-display uppercase select-none transition-transform duration-500 group-hover:scale-105">
-                {{ member.name.charAt(0) }}
+              <img 
+                v-if="member.avatar" 
+                :src="member.avatar" 
+                :alt="member.name" 
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center text-6xl text-text-dim/30 font-black font-display uppercase select-none transition-transform duration-500 group-hover:scale-105">
+                {{ getInitial(member.name) }}
               </div>
             </div>
             <h3 class="font-bold text-text text-base leading-tight">{{ member.name }}</h3>
@@ -129,6 +135,12 @@
 </template>
 
 <script setup>
+
+const getInitial = (name) => {
+  if (!name) return ''
+  const parts = name.trim().split(' ')
+  return parts[parts.length - 1].charAt(0).toUpperCase()
+}
 
 const values = [
   {
@@ -156,10 +168,11 @@ const stats = [
 ]
 
 const team = [
-  { name: 'Nguyễn Minh Quân', role: 'Founder & CEO' },
-  { name: 'Trần Hoàng Nam', role: 'Co-Founder & CTO' },
-  { name: 'Lê Thùy Dương', role: 'Head of Marketing' },
-  { name: 'Phạm Bảo Khánh', role: 'Lead Designer' }
+  { name: 'Nguyễn Khổng Đạt', role: 'Founder & CEO', avatar: 'https://i.postimg.cc/B6Q7ctRk/ANH03021.jpg' },
+  { name: 'Lê Văn Khang', role: 'Co-Founder & CTO', avatar: '' },
+  { name: 'Tô Công Khánh', role: 'Co-Founder', avatar: '' },
+  { name: 'Tô Tấn Hưng', role: 'Co-Founder', avatar: '' },
+  { name: 'Trương Trọng Nghĩa', role: 'Co-Founder', avatar: '' }
 ]
 </script>
 

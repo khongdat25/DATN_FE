@@ -206,11 +206,17 @@
                   <span>Phí vận chuyển</span>
                   <span class="text-text font-bold">{{ shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee) }}</span>
                 </div>
-                <div v-if="appliedVoucher" class="flex justify-between text-sm text-green-600 font-bold">
+                <div v-if="appliedOrderVoucher && discountAmount > 0" class="flex justify-between text-sm text-green-600 font-bold">
                   <span class="flex items-center gap-1.5">
-                    <i class="ti ti-ticket text-base"></i> Voucher giảm giá:
+                    <i class="ti ti-ticket text-base"></i> Voucher giảm giá ({{ appliedOrderVoucher.code }}):
                   </span>
                   <span>-{{ formatPrice(discountAmount) }}</span>
+                </div>
+                <div v-if="appliedFreeshipVoucher && shippingDiscountAmount > 0" class="flex justify-between text-sm text-emerald-600 font-bold">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ti ti-truck-delivery text-base"></i> Voucher Freeship ({{ appliedFreeshipVoucher.code }}):
+                  </span>
+                  <span>-{{ formatPrice(shippingDiscountAmount) }}</span>
                 </div>
               </div>
 
@@ -242,7 +248,7 @@
                   >
                     <span class="text-[13px] flex items-center gap-1.5 text-text">
                       <i class="ti ti-ticket text-accent text-base"></i>
-                      {{ appliedVoucher ? `Đang dùng: ${appliedVoucher.code}` : 'Chọn Voucher từ SaigonShoes' }}
+                      {{ voucherHeaderLabel }}
                     </span>
                     <i
                       class="ti ti-chevron-down text-xs text-text-muted transition-transform duration-300"
@@ -250,26 +256,72 @@
                     ></i>
                   </div>
 
-                  <div v-show="voucherOpen" class="bg-white max-h-75 overflow-y-auto divide-y divide-border border-t border-border">
-                    <div
-                      v-for="voucher in availableVouchers"
-                      :key="voucher.code"
-                      class="flex items-center gap-3 p-3 hover:bg-[rgba(255,77,0,0.02)] transition-colors"
-                    >
-                      <div class="w-10 h-10 rounded-lg bg-[rgba(255,77,0,0.1)] text-accent flex items-center justify-center text-xl shrink-0">
-                        <i :class="'ti ' + voucher.icon"></i>
+                  <div v-show="voucherOpen" class="bg-white max-h-75 overflow-y-auto border-t border-border">
+                    <div v-if="hasFlashSaleInCart" class="px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-800 text-[11.5px] font-medium flex items-center gap-1.5">
+                      <i class="ti ti-flame text-accent text-sm shrink-0"></i>
+                      <span>Đơn hàng có SP <strong>Flash Sale</strong> chỉ áp dụng mã <strong>Miễn phí vận chuyển</strong>.</span>
+                    </div>
+
+                    <!-- NHÓM 1: FREESHIP -->
+                    <div class="px-4 py-1.5 bg-surface2/60 font-bold text-[11px] uppercase tracking-wider text-text-muted border-b border-border flex items-center gap-1">
+                      <i class="ti ti-truck-delivery text-accent"></i> Mã Miễn phí vận chuyển (Tối đa 1)
+                    </div>
+                    <div class="divide-y divide-border border-b border-border">
+                      <div
+                        v-for="v in freeshipVouchers"
+                        :key="v.code"
+                        class="flex items-center gap-3 p-3 transition-colors hover:bg-[rgba(255,77,0,0.02)]"
+                      >
+                        <div class="w-10 h-10 rounded-lg bg-[rgba(255,77,0,0.1)] text-accent flex items-center justify-center text-xl shrink-0">
+                          <i class="ti ti-truck-delivery"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                          <span class="text-[13px] font-semibold text-text block leading-tight">{{ v.title }}</span>
+                          <span class="text-[11px] text-text-dim block mt-0.5">{{ v.desc }}</span>
+                        </div>
+                        <button
+                          @click="toggleVoucher(v)"
+                          class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-all"
+                          :class="appliedFreeshipVoucher?.code === v.code
+                            ? 'bg-accent text-white border-accent shadow-xs'
+                            : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"
+                        >{{ appliedFreeshipVoucher?.code === v.code ? 'Bỏ chọn' : 'Dùng' }}</button>
                       </div>
-                      <div class="flex-1 text-left">
-                        <span class="text-[13px] font-semibold text-text block leading-tight">{{ voucher.title }}</span>
-                        <span class="text-[11px] text-text-dim block mt-0.5">{{ voucher.desc }}</span>
+                      <div v-if="freeshipVouchers.length === 0" class="p-3 text-[12px] text-text-dim text-center">
+                        Không có mã miễn phí vận chuyển khả dụng
                       </div>
-                      <button
-                        @click="applyVoucher(voucher)"
-                        class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-colors"
-                        :class="appliedVoucher?.code === voucher.code
-                          ? 'bg-accent text-white border-accent'
-                          : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"
-                      >{{ appliedVoucher?.code === voucher.code ? 'Đang dùng' : 'Dùng' }}</button>
+                    </div>
+
+                    <!-- NHÓM 2: MÃ GIẢM GIÁ ĐƠN HÀNG (TỰ ĐỘNG ẨN KHI ĐƠN HÀNG CHỨA SP FLASH SALE) -->
+                    <div v-if="!hasFlashSaleInCart">
+                      <div class="px-4 py-1.5 bg-surface2/60 font-bold text-[11px] uppercase tracking-wider text-text-muted border-b border-border flex items-center gap-1">
+                        <i class="ti ti-discount-2 text-accent"></i> Mã Giảm giá đơn hàng (Tối đa 1)
+                      </div>
+                      <div class="divide-y divide-border">
+                        <div
+                          v-for="v in orderDiscountVouchers"
+                          :key="v.code"
+                          class="flex items-center gap-3 p-3 transition-colors hover:bg-[rgba(255,77,0,0.02)]"
+                        >
+                          <div class="w-10 h-10 rounded-lg bg-[rgba(255,77,0,0.1)] text-accent flex items-center justify-center text-xl shrink-0">
+                            <i :class="'ti ' + v.icon"></i>
+                          </div>
+                          <div class="flex-1 text-left">
+                            <span class="text-[13px] font-semibold text-text block leading-tight">{{ v.title }}</span>
+                            <span class="text-[11px] text-text-dim block mt-0.5">{{ v.desc }}</span>
+                          </div>
+                          <button
+                            @click="toggleVoucher(v)"
+                            class="py-1.5 px-3 rounded-md text-[11px] font-semibold border cursor-pointer transition-all"
+                            :class="appliedOrderVoucher?.code === v.code
+                              ? 'bg-accent text-white border-accent shadow-xs'
+                              : 'border-accent text-accent bg-transparent hover:bg-accent hover:text-white'"
+                          >{{ appliedOrderVoucher?.code === v.code ? 'Bỏ chọn' : 'Dùng' }}</button>
+                        </div>
+                        <div v-if="orderDiscountVouchers.length === 0" class="p-3 text-[12px] text-text-dim text-center">
+                          Không có mã giảm giá đơn hàng khả dụng
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -329,7 +381,19 @@ const cartCount = inject('cartCount', ref(0))
 const cartItems = ref([])
 const voucherOpen = ref(false)
 const promoCode = ref('')
-const appliedVoucher = ref(null)
+const appliedFreeshipVoucher = ref(null)
+const appliedOrderVoucher = ref(null)
+
+const freeshipVouchers = computed(() => availableVouchers.value.filter(v => v.type === 'free_ship'))
+const orderDiscountVouchers = computed(() => availableVouchers.value.filter(v => v.type !== 'free_ship'))
+
+const voucherHeaderLabel = computed(() => {
+  const codes = []
+  if (appliedFreeshipVoucher.value) codes.push(appliedFreeshipVoucher.value.code)
+  if (appliedOrderVoucher.value) codes.push(appliedOrderVoucher.value.code)
+  if (codes.length > 0) return `Đang dùng: ${codes.join(' + ')}`
+  return 'Chọn Voucher từ SaigonShoes'
+})
 
 const allSelected = computed({
   get() {
@@ -394,10 +458,15 @@ async function loadCart() {
             variant: (v.color?.name || v.size?.name) 
               ? `Màu ${v.color?.name || ''} · Size ${v.size?.name || ''}`
               : 'Mặc định',
-            price: v.price || 0,
+            price: (v.sale_price !== null && v.sale_price !== undefined && Number(v.sale_price) > 0) ? Number(v.sale_price) : (v.price || 0),
+            originalPrice: v.price || 0,
             qty: item.quantity || 1,
             image: img,
-            selected: true
+            selected: true,
+            is_flash_sale: !!(v.flash_sale_id || (v.sale_price !== null && v.sale_price !== undefined && Number(v.sale_price) > 0) || v.is_flash_sale),
+            flash_sale_id: v.flash_sale_id || null,
+            sale_price: v.sale_price || null,
+            variantObj: v
           }
         })
         updateHeaderCartCount()
@@ -541,7 +610,8 @@ async function clearCart() {
         try {
           await axiosInstance.delete('/cart/clear')
           cartItems.value = []
-          appliedVoucher.value = null
+          appliedOrderVoucher.value = null
+          appliedFreeshipVoucher.value = null
           updateHeaderCartCount()
           showToast('Đã xóa toàn bộ giỏ hàng')
         } catch (e) {
@@ -559,84 +629,135 @@ async function clearCart() {
 }
 
 // ─── Prices ──────────────────────────────────────────────────────────────────
+const hasFlashSaleInCart = computed(() => {
+  const now = new Date()
+  return cartItems.value
+    .filter(item => item.selected)
+    .some(item => {
+      const v = item.variantObj || {}
+      const fs = v.flash_sale || v.flashSale
+      const hasFsId = !!(item.flash_sale_id || v.flash_sale_id || item.is_flash_sale)
+      const hasSalePrice = (item.sale_price !== null && item.sale_price !== undefined && Number(item.sale_price) > 0) || (v.sale_price !== null && v.sale_price !== undefined && Number(v.sale_price) > 0)
+      
+      if (fs) {
+        const isStatusActive = Number(fs.status) === 1
+        const startTime = fs.start_time ? new Date(fs.start_time.replace(/-/g, '/')) : null
+        const endTime = fs.end_time ? new Date(fs.end_time.replace(/-/g, '/')) : null
+        const isTimeActive = (!startTime || now >= startTime) && (!endTime || now <= endTime)
+        return isStatusActive && isTimeActive
+      }
+
+      return hasFsId || hasSalePrice
+    })
+})
+
+function parseNumeric(val) {
+  if (typeof val === 'number') return isNaN(val) ? 0 : val
+  if (!val) return 0
+  const cleaned = String(val).replace(/[^0-9]/g, '')
+  return parseInt(cleaned, 10) || 0
+}
+
 const subTotal = computed(() =>
   cartItems.value
     .filter(item => item.selected)
-    .reduce((acc, item) => acc + item.price * item.qty, 0)
+    .reduce((acc, item) => acc + parseNumeric(item.price) * item.qty, 0)
 )
+
+const baseShippingFee = computed(() => 30000)
+
+const freeshipDiscountAmount = computed(() => {
+  if (!appliedFreeshipVoucher.value) return 0
+  const cap = parseNumeric(appliedFreeshipVoucher.value.value)
+  const limit = cap > 0 ? cap : baseShippingFee.value
+  return Math.min(baseShippingFee.value, limit)
+})
 
 const shippingFee = computed(() => {
-  if (appliedVoucher.value?.type === 'free_ship' || appliedVoucher.value?.freeShip) return 0
-  return subTotal.value >= 500000 ? 0 : 30000
+  return Math.max(0, baseShippingFee.value - freeshipDiscountAmount.value)
 })
 
-const discountAmount = computed(() => {
-  if (!appliedVoucher.value) return 0
-  const v = appliedVoucher.value
-  if (v.serverDiscount !== undefined) {
-    return v.serverDiscount
+const orderDiscountAmount = computed(() => {
+  if (!appliedOrderVoucher.value) return 0
+  const v = appliedOrderVoucher.value
+  const sub = subTotal.value
+  const val = parseNumeric(v.value)
+  if (sub < parseNumeric(v.minSubtotal)) return 0
+
+  if (v.type === 'percent') {
+    const rawVal = typeof v.value === 'number' ? v.value : parseFloat(v.value)
+    const pct = rawVal < 1 && rawVal > 0 ? rawVal : val / 100
+    let dist = sub * pct
+    if (v.maxDiscount) {
+      dist = Math.min(dist, parseNumeric(v.maxDiscount))
+    }
+    return dist
   }
-  if (v.type === 'free_ship') {
-    return Math.min(shippingFee.value, v.value || 30000)
-  }
-  if (subTotal.value < v.minSubtotal) return 0
-  if (v.value < 1) {
-    const calc = subTotal.value * v.value
-    return v.maxDiscount ? Math.min(calc, v.maxDiscount) : calc
-  }
-  return v.value
+
+  return val
 })
 
-const total = computed(() =>
-  Math.max(0, subTotal.value + shippingFee.value - discountAmount.value)
-)
+const discountAmount = computed(() => orderDiscountAmount.value)
+const shippingDiscountAmount = computed(() => freeshipDiscountAmount.value)
+const appliedVoucher = computed(() => appliedOrderVoucher.value || appliedFreeshipVoucher.value)
+
+const total = computed(() => {
+  return Math.max(0, subTotal.value + shippingFee.value - orderDiscountAmount.value)
+})
 
 watch(subTotal, async (newSubtotal) => {
-  if (appliedVoucher.value) {
-    if (newSubtotal < appliedVoucher.value.minSubtotal) {
-      appliedVoucher.value = null
-      showToast('⚠️ Đã hủy áp dụng voucher do tổng giá trị đơn hàng thay đổi.')
-    } else {
-      // Re-apply to update discount
-      try {
-        let baseShipping = newSubtotal >= 500000 ? 0 : 30000
-        const resp = await axiosInstance.post('/vouchers/apply', {
-          code: appliedVoucher.value.code,
-          subtotal: newSubtotal,
-          shipping_fee: baseShipping
-        })
-        if (resp.success && resp.discount !== undefined) {
-          appliedVoucher.value.serverDiscount = resp.discount
-        }
-      } catch (e) {
-        appliedVoucher.value = null
-      }
-    }
+  if (appliedOrderVoucher.value && newSubtotal < appliedOrderVoucher.value.minSubtotal) {
+    appliedOrderVoucher.value = null
+    showToast('⚠️ Đã hủy áp dụng mã giảm giá đơn hàng do giá trị đơn thay đổi.')
+  }
+  if (appliedFreeshipVoucher.value && newSubtotal < appliedFreeshipVoucher.value.minSubtotal) {
+    appliedFreeshipVoucher.value = null
+    showToast('⚠️ Đã hủy áp dụng mã Freeship do giá trị đơn thay đổi.')
   }
 })
 
 // ─── Voucher logic ───────────────────────────────────────────────────────────
-async function applyVoucher(voucher) {
-  if (subTotal.value < voucher.minSubtotal) {
-    Swal.fire({
-      icon: 'info',
-      title: 'Chưa đủ điều kiện',
-      text: `Mã này chỉ áp dụng cho đơn hàng từ ${formatPrice(voucher.minSubtotal)} trở lên.`,
-      confirmButtonColor: '#FF4D00'
-    })
-    return
+async function toggleVoucher(voucher) {
+  if (voucher.type === 'free_ship') {
+    if (appliedFreeshipVoucher.value?.code === voucher.code) {
+      appliedFreeshipVoucher.value = null
+      showToast('Đã hủy chọn mã Miễn phí vận chuyển')
+    } else {
+      await applyVoucherCode(voucher.code)
+    }
+  } else {
+    if (hasFlashSaleInCart.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Không thể chọn mã',
+        text: 'Đơn hàng chứa sản phẩm Flash Sale chỉ được áp dụng mã Miễn phí vận chuyển!',
+        confirmButtonColor: '#FF4D00'
+      })
+      return
+    }
+    if (appliedOrderVoucher.value?.code === voucher.code) {
+      appliedOrderVoucher.value = null
+      showToast('Đã hủy chọn mã Giảm giá đơn hàng')
+    } else {
+      await applyVoucherCode(voucher.code)
+    }
   }
+}
 
+async function applyVoucherCode(codeToApply) {
   try {
-    let baseShipping = subTotal.value >= 500000 ? 0 : 30000
+    let baseShipping = 30000
+    const selectedCartItemIds = cartItems.value.filter(i => i.selected).map(i => i.id)
     const resp = await axiosInstance.post('/vouchers/apply', {
-      code: voucher.code,
+      code: codeToApply,
       subtotal: subTotal.value,
-      shipping_fee: baseShipping
+      shipping_fee: baseShipping,
+      has_flash_sale: hasFlashSaleInCart.value,
+      cart_item_ids: selectedCartItemIds
     })
     if (resp.success && resp.data) {
       const v = resp.data
-      appliedVoucher.value = {
+      const voucherObj = {
         id: v.id,
         code: v.code,
         title: v.name,
@@ -648,8 +769,14 @@ async function applyVoucher(voucher) {
         type: v.type,
         serverDiscount: resp.discount
       }
-      voucherOpen.value = false
-      showToast(`✅ Đã áp dụng mã giảm giá: ${v.code}`)
+
+      if (v.type === 'free_ship') {
+        appliedFreeshipVoucher.value = voucherObj
+      } else {
+        appliedOrderVoucher.value = voucherObj
+      }
+      promoCode.value = ''
+      showToast(`✅ Đã áp dụng mã: ${v.code}`)
     }
   } catch (error) {
     Swal.fire({
@@ -664,43 +791,12 @@ async function applyVoucher(voucher) {
 async function applyPromoCode() {
   const code = promoCode.value.trim().toUpperCase()
   if (!code) return
-  
-  try {
-    let baseShipping = subTotal.value >= 500000 ? 0 : 30000
-    const resp = await axiosInstance.post('/vouchers/apply', {
-      code: code,
-      subtotal: subTotal.value,
-      shipping_fee: baseShipping
-    })
-    if (resp.success && resp.data) {
-      const v = resp.data
-      appliedVoucher.value = {
-        id: v.id,
-        code: v.code,
-        title: v.name,
-        desc: v.type === 'percent' ? `Giảm ${v.value}% (Tối đa ${v.max_discount/1000}K)` : (v.type === 'fixed' ? `Giảm ${v.value.toLocaleString('vi-VN')}₫` : 'Miễn phí vận chuyển'),
-        icon: v.type === 'percent' ? 'ti-brightness' : (v.type === 'fixed' ? 'ti-discount-2' : 'ti-gift'),
-        value: v.type === 'percent' ? v.value / 100 : v.value,
-        minSubtotal: v.min_order,
-        maxDiscount: v.max_discount,
-        type: v.type,
-        serverDiscount: resp.discount
-      }
-      promoCode.value = ''
-      showToast(`✅ Đã áp dụng mã giảm giá: ${v.code}`)
-    }
-  } catch (error) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Mã không hợp lệ',
-      text: error.response?.data?.message || 'Mã coupon bạn nhập không tồn tại hoặc đã hết hạn.',
-      confirmButtonColor: '#FF4D00'
-    })
-  }
+  applyVoucherCode(code)
 }
 
 // ─── Format ──────────────────────────────────────────────────────────────────
 function formatPrice(val) {
+  if (!val && val !== 0) return '0₫'
   return val.toLocaleString('vi-VN') + '₫'
 }
 
@@ -721,7 +817,8 @@ function proceedToCheckout() {
     subtotal: subTotal.value,
     shippingFee: shippingFee.value,
     discountAmount: discountAmount.value,
-    voucherCode: appliedVoucher.value?.code || null,
+    freeshipVoucher: appliedFreeshipVoucher.value,
+    orderVoucher: appliedOrderVoucher.value,
     total: total.value
   }
   localStorage.setItem('saigon_checkout_summary', JSON.stringify(summary))

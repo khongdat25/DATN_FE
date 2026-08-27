@@ -1,3 +1,4 @@
+
 <template>
   <div class="space-y-6">
     <!-- Page Header -->
@@ -559,16 +560,17 @@ function isShippingVoucher(v) {
 async function loadVouchers() {
   try {
     const response = await axiosInstance.get('/admin/vouchers')
-    if (response.success && response.data) {
-      vouchers.value = response.data.map(v => {
+    const rawList = Array.isArray(response) ? response : (response?.data || response?.vouchers || [])
+    if (Array.isArray(rawList)) {
+      vouchers.value = rawList.map(v => {
         const isShip = v.type === 'free_ship' || v.type === 'shipping' || v.type === 'Miễn phí Ship'
         let valueDisplay = ''
         if (isShip) {
-          valueDisplay = v.value > 0 ? `Giảm tối đa ${v.value.toLocaleString('vi-VN')}₫` : 'Miễn phí 100%'
+          valueDisplay = v.value > 0 ? `Giảm tối đa ${(v.value || 0).toLocaleString('vi-VN')}₫` : 'Miễn phí 100%'
         } else if (v.type === 'percent') {
           valueDisplay = `${v.value}% ${v.max_discount ? `(Tối đa ${v.max_discount.toLocaleString('vi-VN')}₫)` : ''}`
         } else {
-          valueDisplay = `${v.value.toLocaleString('vi-VN')}₫`
+          valueDisplay = `${(v.value || 0).toLocaleString('vi-VN')}₫`
         }
 
         let typeText = 'Giảm theo %'
@@ -734,6 +736,31 @@ function closeModal() {
 }
 
 async function saveVoucher() {
+  if (formVoucher.value.startDate && formVoucher.value.endDate) {
+    if (new Date(formVoucher.value.startDate) > new Date(formVoucher.value.endDate)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Ngày không hợp lệ',
+        text: 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.',
+        confirmButtonColor: '#FF4D00'
+      })
+      return
+    }
+  }
+
+  if (formVoucher.value.category !== 'shipping' && formVoucher.value.type === 'percent') {
+    const val = parseFloat(formVoucher.value.discountValue) || 0
+    if (val <= 0 || val > 100) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Giá trị giảm không hợp lệ',
+        text: 'Mức giảm giá theo phần trăm phải nằm trong khoảng từ 1% đến 100%.',
+        confirmButtonColor: '#FF4D00'
+      })
+      return
+    }
+  }
+
   let rawType = 'percent'
   let value = 0
 
@@ -746,8 +773,8 @@ async function saveVoucher() {
   }
 
   const payload = {
-    code: formVoucher.value.code.toUpperCase(),
-    name: formVoucher.value.name,
+    code: formVoucher.value.code.trim().toUpperCase(),
+    name: formVoucher.value.name.trim(),
     type: rawType,
     value: value,
     min_order: parseFloat(formVoucher.value.minOrder) || 0,
@@ -779,18 +806,46 @@ async function saveVoucher() {
     loadVouchers()
     modalOpen.value = false
   } catch (error) {
-    Swal.fire('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra khi lưu voucher', 'error')
+    if (error.response && error.response.status === 422) {
+      const errorsObj = error.response.data?.errors || {}
+      let msgList = []
+      for (const key in errorsObj) {
+        if (Array.isArray(errorsObj[key])) {
+          msgList.push(...errorsObj[key])
+        }
+      }
+      const errorMsg = msgList.join('<br>') || error.response.data?.message || 'Mã Code Voucher đã tồn tại hoặc dữ liệu nhập vào chưa hợp lệ!'
+      Swal.fire({
+        icon: 'warning',
+        title: 'Không thể lưu Voucher (Lỗi 422)',
+        html: `<div class="text-left text-xs space-y-1"><b>Chi tiết lỗi từ hệ thống:</b><br><span class="text-red-500 font-semibold">${errorMsg}</span></div>`,
+        confirmButtonColor: '#FF4D00'
+      })
+    } else {
+      Swal.fire('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra khi lưu voucher', 'error')
+    }
   }
 }
 
 async function toggleVoucherActive(v) {
   const newStatus = v.status === 'active' ? 'expired' : 'active'
   const stateText = newStatus === 'active' ? 'Kích hoạt' : 'Hủy bỏ/Khóa'
+
+  const payload = {
+    code: (v.code || '').toUpperCase(),
+    name: v.name,
+    type: v.rawType || (v.isShipping ? 'free_ship' : 'percent'),
+    value: v.rawValue || 0,
+    min_order: v.minOrder || 0,
+    total_usage: v.total || 100,
+    max_discount: v.maxDiscount || null,
+    start_date: v.startDate,
+    end_date: v.endDate,
+    status: newStatus
+  }
   
   try {
-    await axiosInstance.put(`/admin/vouchers/${v.id}`, {
-      status: newStatus
-    })
+    await axiosInstance.put(`/admin/vouchers/${v.id}`, payload)
     v.status = newStatus
     Swal.fire({
       toast: true,
@@ -802,7 +857,9 @@ async function toggleVoucherActive(v) {
       timerProgressBar: true
     })
   } catch (error) {
-    Swal.fire('Lỗi', 'Không thể cập nhật trạng thái', 'error')
+    if (error.response?.status !== 422) {
+      Swal.fire('Lỗi', 'Không thể cập nhật trạng thái', 'error')
+    }
   }
 }
 

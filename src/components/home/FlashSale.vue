@@ -162,27 +162,38 @@ async function fetchFlashSale() {
       if (activeSale && activeSale.end_time) {
         startCountdown(activeSale.end_time)
         
-        if (activeSale.items) {
+        const variantsList = activeSale.variants || activeSale.items || []
+        if (variantsList.length > 0) {
           const uniqueProductsMap = new Map()
 
-          activeSale.items.forEach(item => {
-            if (item.product && !uniqueProductsMap.has(item.product.id)) {
-              const mapped = mapBackendProduct(item.product)
-              if (item.discount_value !== undefined && item.discount_value !== null) {
-                const originalPrice = parseFloat(mapped.numericPrice) || 0
-                const discountPercent = parseFloat(item.discount_value) || 0
-                const flashPrice = originalPrice * (1 - discountPercent / 100)
-                mapped.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
-                mapped.oldPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ')
-                mapped.badges = [{ label: `-${Math.round(discountPercent)}%`, color: 'bg-accent' }]
+          variantsList.forEach(item => {
+            const prod = item.product
+            if (prod && !uniqueProductsMap.has(prod.id)) {
+              const mapped = mapBackendProduct(prod)
+              const originalPrice = parseFloat(item.price) || parseFloat(mapped.numericPrice) || 0
+              const flashPrice = parseFloat(item.sale_price) || originalPrice
+
+              let discountPercent = 0
+              if (originalPrice > 0 && flashPrice < originalPrice) {
+                discountPercent = Math.round(((originalPrice - flashPrice) / originalPrice) * 100)
+              } else if (item.discount_value !== undefined && item.discount_value !== null) {
+                discountPercent = parseFloat(item.discount_value) || 0
+              }
+
+              mapped.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
+              mapped.oldPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ')
+              if (discountPercent > 0) {
+                mapped.badges = [{ label: `-${discountPercent}%`, color: 'bg-accent' }]
               }
               mapped.soldCount = item.sold || 0
-              mapped.total = item.quantity_limit || 100
-              uniqueProductsMap.set(item.product.id, mapped)
+              mapped.total = item.stock || item.quantity_limit || 100
+              uniqueProductsMap.set(prod.id, mapped)
             }
           })
 
           flashProducts.value = Array.from(uniqueProductsMap.values())
+        } else {
+          flashProducts.value = []
         }
       } else {
         flashProducts.value = []

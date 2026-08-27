@@ -112,13 +112,13 @@
                   <div 
                     v-for="color in product.colors" 
                     :key="color.name"
-                    @click="selectedColor = color.name"
+                    @click="isColorAvailable(color.name) && (selectedColor = color.name)"
                     :class="[
-                      'w-11 h-11 rounded-full border-2 cursor-pointer p-1 transition-all', 
+                      'w-11 h-11 rounded-full border-2 p-1 transition-all', 
                       selectedColor === color.name ? 'border-text scale-105' : 'border-transparent',
-                      !isColorAvailable(color.name) ? 'opacity-30' : ''
+                      !isColorAvailable(color.name) ? 'opacity-25 cursor-not-allowed pointer-events-none' : 'cursor-pointer'
                     ]"
-                    :title="color.name + (!isColorAvailable(color.name) ? ' (Không có sẵn kích cỡ đang chọn)' : '')"
+                    :title="color.name + (!isColorAvailable(color.name) ? ' (Hết hàng)' : '')"
                   >
                     <div class="w-full h-full rounded-full border border-black/10" :style="{ background: color.bg }"></div>
                   </div>
@@ -135,11 +135,12 @@
                   <button 
                     v-for="size in product.sizes" 
                     :key="size"
-                    @click="selectedSize = size"
+                    :disabled="!isSizeAvailable(size)"
+                    @click="isSizeAvailable(size) && (selectedSize = size)"
                     :class="[
                       'h-11 font-bold text-sm rounded-xl border flex items-center justify-center transition-all cursor-pointer active:scale-95', 
                       selectedSize === size ? 'bg-text text-white border-text' : 'bg-white border-border text-text-muted hover:border-text hover:text-text',
-                      !isSizeAvailable(size) ? 'opacity-30 line-through' : ''
+                      !isSizeAvailable(size) ? 'opacity-25 line-through cursor-not-allowed pointer-events-none bg-slate-50' : ''
                     ]"
                   >
                     {{ size }}
@@ -147,21 +148,44 @@
                 </div>
               </div>
 
+              <!-- Thông báo khi sản phẩm bị khóa hoặc hết hàng -->
+              <div v-if="isProductLocked" class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-800 text-xs font-bold shadow-2xs">
+                <i class="ti ti-lock text-amber-600 text-xl shrink-0"></i>
+                <div class="text-left">
+                  <span class="block text-sm font-extrabold text-amber-900">Sản phẩm tạm ngưng kinh doanh</span>
+                  <span class="font-medium text-amber-700">Sản phẩm này hiện đang trong trạng thái tạm khóa / ngưng bán từ phía cửa hàng.</span>
+                </div>
+              </div>
+
+              <div v-else-if="isOutOfStock" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-800 text-xs font-bold shadow-2xs">
+                <i class="ti ti-package-off text-red-600 text-xl shrink-0"></i>
+                <div class="text-left">
+                  <span class="block text-sm font-extrabold text-red-900">Sản phẩm hiện tại đã hết hàng</span>
+                  <span class="font-medium text-red-700">Tất cả các kích cỡ và màu sắc của sản phẩm này đã được bán hết.</span>
+                </div>
+              </div>
+
               <!-- Số lượng & Các nút thao tác -->
               <div class="flex gap-4 items-center pt-4">
-                <div class="flex items-center border border-border rounded-xl bg-white h-14 shrink-0 shadow-sm">
-                  <button @click="decreaseQty" class="w-12 h-full flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer">
+                <div class="flex items-center border border-border rounded-xl bg-white h-14 shrink-0 shadow-sm" :class="isPurchaseDisabled ? 'opacity-50 pointer-events-none' : ''">
+                  <button @click="decreaseQty" :disabled="isPurchaseDisabled" class="w-12 h-full flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer">
                     <i class="ti ti-minus"></i>
                   </button>
-                  <input type="number" v-model.number="qty" min="1" max="10" class="w-12 text-center font-bold text-base border-none outline-none select-none">
-                  <button @click="increaseQty" class="w-12 h-full flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer">
+                  <input type="number" v-model.number="qty" min="1" max="10" :disabled="isPurchaseDisabled" class="w-12 text-center font-bold text-base border-none outline-none select-none">
+                  <button @click="increaseQty" :disabled="isPurchaseDisabled" class="w-12 h-full flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer">
                     <i class="ti ti-plus"></i>
                   </button>
                 </div>
 
                 <button 
                   @click="doAddToCart" 
-                  class="w-14 h-14 bg-accent/10 border border-accent/20 text-accent rounded-xl flex items-center justify-center text-xl transition-all active:scale-95 shadow-sm cursor-pointer shrink-0"
+                  :disabled="isPurchaseDisabled"
+                  :class="[
+                    'w-14 h-14 border rounded-xl flex items-center justify-center text-xl transition-all shadow-sm shrink-0',
+                    isPurchaseDisabled 
+                      ? 'bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed pointer-events-none' 
+                      : 'bg-accent/10 border-accent/20 text-accent hover:bg-accent hover:text-white cursor-pointer active:scale-95'
+                  ]"
                   title="Thêm vào giỏ hàng"
                 >
                   <i class="ti ti-shopping-cart-plus"></i>
@@ -169,9 +193,15 @@
 
                 <button 
                   @click="doBuyNow" 
-                  class="flex-1 bg-accent text-white h-14 font-display font-bold text-sm tracking-wider uppercase rounded-xl flex items-center justify-center gap-2 hover:bg-accent-hover transition-all active:scale-[0.98] shadow-[0_8px_20px_rgba(255,77,0,0.15)] hover:shadow-[0_12px_25px_rgba(255,77,0,0.25)] cursor-pointer"
+                  :disabled="isPurchaseDisabled"
+                  :class="[
+                    'flex-1 h-14 font-display font-bold text-sm tracking-wider uppercase rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm',
+                    isPurchaseDisabled 
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed pointer-events-none shadow-none' 
+                      : 'bg-accent text-white hover:bg-accent-hover active:scale-[0.98] shadow-[0_8px_20px_rgba(255,77,0,0.15)] hover:shadow-[0_12px_25px_rgba(255,77,0,0.25)] cursor-pointer'
+                  ]"
                 >
-                  Mua ngay
+                  {{ isProductLocked ? 'Tạm ngưng kinh doanh' : (isOutOfStock ? 'Hết hàng' : 'Mua ngay') }}
                 </button>
 
                 <button 
@@ -186,7 +216,7 @@
               <div class="mt-4 p-5 bg-surface2 rounded-2xl border border-border/60 flex flex-col gap-4">
                 <div class="flex items-center gap-4 text-xs font-semibold text-text">
                   <i class="ti ti-truck-delivery text-accent text-2xl"></i>
-                  <span>Miễn phí giao hàng cho đơn 1.000.000 tại TP.HCM</span>
+                  <span>Giao hàng toàn quốc - Hỗ trợ áp dụng mã Freeship khi thanh toán</span>
                 </div>
                 <div class="flex items-center gap-4 text-xs font-semibold text-text">
                   <i class="ti ti-shield-check text-accent text-2xl"></i>
@@ -261,13 +291,34 @@
               </div>
             </div>
 
+            <!-- Bộ lọc bài đánh giá -->
+            <div class="flex items-center justify-between gap-3 bg-white p-3 border border-border rounded-xl">
+              <div class="flex items-center gap-2">
+                <button 
+                  type="button" 
+                  @click="reviewFilter = 'all'" 
+                  :class="['px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border-none cursor-pointer', reviewFilter === 'all' ? 'bg-accent text-white shadow-xs' : 'bg-surface2 text-text-muted hover:text-text']"
+                >
+                  Tất cả ({{ reviewsList.length }})
+                </button>
+                <button 
+                  type="button" 
+                  @click="reviewFilter = 'with_photo'" 
+                  :class="['px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all border-none cursor-pointer', reviewFilter === 'with_photo' ? 'bg-accent text-white shadow-xs' : 'bg-surface2 text-text-muted hover:text-text']"
+                >
+                  Có hình ảnh thực tế 📸 ({{ countWithPhotos }})
+                </button>
+              </div>
+            </div>
+
             <!-- Danh sách bài đánh giá -->
             <div class="space-y-6">
-              <div v-for="(review, idx) in reviewsList" :key="idx" class="pb-6 border-b border-border last:border-b-0 text-left">
+              <div v-for="(review, idx) in filteredReviewsList" :key="idx" class="pb-6 border-b border-border last:border-b-0 text-left">
                 <div class="flex justify-between items-start mb-3">
                   <div class="flex gap-3 items-center">
-                    <div class="w-10 h-10 bg-border/80 text-text rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
-                      {{ review.name.charAt(0) }}
+                    <div class="w-10 h-10 bg-border/80 text-text rounded-full flex items-center justify-center font-bold text-sm shadow-sm overflow-hidden shrink-0">
+                      <img v-if="review.userAvatar" :src="getImageUrl(review.userAvatar)" alt="Avatar" class="w-full h-full object-cover">
+                      <span v-else>{{ review.name.charAt(0) }}</span>
                     </div>
                     <div>
                       <div class="font-bold text-sm text-text flex items-center gap-2">
@@ -284,7 +335,23 @@
                   <span class="text-xs text-text-dim">{{ review.date }}</span>
                 </div>
                 <p class="text-sm text-text leading-relaxed pl-13">{{ review.comment }}</p>
-                <div v-if="review.variant && review.variant !== 'Chính hãng'" class="text-xs text-text-dim pl-13 mt-1">Phân loại: {{ review.variant }}</div>
+                
+                <!-- Ảnh đánh giá thực tế từ người dùng -->
+                <div v-if="review.images && review.images.length > 0" class="pl-13 mt-3 flex items-center gap-3 flex-wrap">
+                  <div 
+                    v-for="(img, imgIdx) in review.images" 
+                    :key="imgIdx" 
+                    @click="previewImageUrl = img"
+                    class="w-20 h-20 rounded-xl overflow-hidden border border-border bg-surface2 cursor-pointer hover:opacity-90 hover:scale-105 transition-all shadow-xs relative group"
+                  >
+                    <img :src="getImageUrl(img)" alt="Ảnh đánh giá thực tế" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity">
+                      <i class="ti ti-zoom-in"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="review.variant && review.variant !== 'Chính hãng'" class="text-xs text-text-dim pl-13 mt-2">Phân loại: {{ review.variant }}</div>
 
                 <!-- Admin Reply Box -->
                 <div v-if="review.reply" class="ml-13 mt-3 bg-surface2/80 border border-border/80 rounded-2xl p-4 flex gap-3 text-left">
@@ -299,6 +366,10 @@
                     <p class="text-xs text-text-muted font-medium leading-relaxed">{{ review.reply }}</p>
                   </div>
                 </div>
+              </div>
+              <div v-if="filteredReviewsList.length === 0" class="py-12 text-center text-text-dim">
+                <i class="ti ti-messages text-4xl block mb-2 opacity-60"></i>
+                <p class="text-sm font-semibold">Chưa có đánh giá nào phù hợp với bộ lọc</p>
               </div>
             </div>
           </div>
@@ -321,6 +392,16 @@
 
       </div>
     </main>
+
+    <!-- Review Image Lightbox Modal -->
+    <div v-if="previewImageUrl" class="fixed inset-0 z-500 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" @click="previewImageUrl = null">
+      <div class="relative max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-black p-2 flex flex-col items-center">
+        <button type="button" @click="previewImageUrl = null" class="absolute top-4 right-4 text-white bg-white/20 hover:bg-white/40 w-10 h-10 rounded-full flex items-center justify-center text-xl cursor-pointer border-none z-10">
+          <i class="ti ti-x"></i>
+        </button>
+        <img :src="getImageUrl(previewImageUrl)" alt="Ảnh đánh giá phóng to" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" />
+      </div>
+    </div>
   
 </template>
 
@@ -408,6 +489,55 @@ const displayDiscount = computed(() => {
   return product.value.discount
 })
 
+const reviewsList = ref([])
+const avgRating = ref('5.0')
+const reviewFilter = ref('all')
+const previewImageUrl = ref(null)
+
+const countWithPhotos = computed(() => {
+  return reviewsList.value.filter(r => r.images && r.images.length > 0).length
+})
+
+const isProductLocked = computed(() => {
+  return product.value && (Number(product.value.status) === 0 || product.value.status === 'hidden' || product.value.status === 'disabled')
+})
+
+const isOutOfStock = computed(() => {
+  if (!product.value.rawVariants || product.value.rawVariants.length === 0) {
+    return false
+  }
+  return product.value.rawVariants.every(v => (v.stock === undefined || v.stock === null ? false : Number(v.stock) <= 0))
+})
+
+const isPurchaseDisabled = computed(() => {
+  if (isProductLocked.value) return true
+  if (isOutOfStock.value) return true
+  if (currentVariant.value && currentVariant.value.stock !== undefined && Number(currentVariant.value.stock) <= 0) return true
+  return false
+})
+
+const filteredReviewsList = computed(() => {
+  if (reviewFilter.value === 'with_photo') {
+    return reviewsList.value.filter(r => r.images && r.images.length > 0)
+  }
+  return reviewsList.value
+})
+
+function getImageUrl(imagePath) {
+  if (!imagePath) return '/images/p1.png'
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath
+  }
+  if (imagePath.startsWith('/images/')) {
+    return imagePath
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api').replace(/\/api$/, '')
+  if (imagePath.startsWith('images/')) {
+    return `${serverUrl}/${imagePath}`
+  }
+  return `${serverUrl}/images/${imagePath}`
+}
+
 const tabs = computed(() => [
   { id: 'desc', label: 'Mô tả sản phẩm' },
   { id: 'specs', label: 'Thông tin sản phẩm' },
@@ -415,8 +545,6 @@ const tabs = computed(() => [
 ])
 
 const specs = ref([])
-const reviewsList = ref([])
-const avgRating = ref('5.0')
 
 const isLoading = ref(true)
 
@@ -439,22 +567,31 @@ async function loadProduct(slug) {
         activeImageFlip.value = false
       }
 
-      // Đặt màu sắc mặc định
-      if (data.colors && data.colors.length > 0) {
-        selectedColor.value = data.colors[0].name
-      } else {
-        selectedColor.value = ''
+      // Đặt màu sắc mặc định (giữ nguyên nếu màu đang chọn vẫn hợp lệ)
+      if (!selectedColor.value || !data.colors.some(c => c.name === selectedColor.value)) {
+        if (data.colors && data.colors.length > 0) {
+          selectedColor.value = data.colors[0].name
+        } else {
+          selectedColor.value = ''
+        }
       }
 
-      // Đặt kích thước (size) mặc định
-      if (data.sizes && data.sizes.length > 0) {
-        selectedSize.value = data.sizes[0]
-      } else {
-        selectedSize.value = ''
+      // Đặt kích thước mặc định (giữ nguyên nếu size đang chọn vẫn hợp lệ)
+      if (!selectedSize.value || !data.sizes.some(s => String(s) === String(selectedSize.value))) {
+        if (data.sizes && data.sizes.length > 0) {
+          selectedSize.value = data.sizes[0]
+        } else {
+          selectedSize.value = ''
+        }
       }
 
       qty.value = 1
-      wished.value = false
+      const savedStr = localStorage.getItem('saigon_wishlist')
+      let ids = []
+      if (savedStr) {
+        try { ids = JSON.parse(savedStr) } catch (e) {}
+      }
+      wished.value = ids.includes(Number(data.id)) || ids.includes(String(data.id))
 
       // Đổ dữ liệu thông số kỹ thuật
       if (data.specs && data.specs.length > 0) {
@@ -474,10 +611,12 @@ async function loadProduct(slug) {
         avgRating.value = (total / rawRatings.length).toFixed(1)
         reviewsList.value = rawRatings.map(r => ({
           name: r.user?.name || 'Khách hàng',
+          userAvatar: r.user?.avatar || null,
           stars: r.rating || 5,
           date: new Date(r.created_at).toLocaleDateString('vi-VN'),
           comment: r.comment || 'Sản phẩm tốt!',
           reply: r.reply || null,
+          images: r.image_urls || r.images || [],
           variant: 'Chính hãng',
           size: ''
         }))
@@ -491,37 +630,31 @@ async function loadProduct(slug) {
         const fsRes = await axiosInstance.get('/flashsales')
         if (fsRes?.success && Array.isArray(fsRes.data) && fsRes.data.length > 0) {
           const activeSale = fsRes.data[0]
-          if (activeSale && activeSale.items) {
-            // Lấy tất cả mục flash sale ứng với sản phẩm này
-            const fsItems = activeSale.items.filter(item => item.product_id === rawProduct.id || item.product?.id === rawProduct.id)
-            
-            if (fsItems.length > 0 && data.rawVariants && data.rawVariants.length > 0) {
-              const saledVariantIds = fsItems.map(i => i.variant_id).filter(Boolean)
+          const fsVariants = (activeSale?.variants || activeSale?.items || []).filter(item => item.product_id === rawProduct.id || item.product?.id === rawProduct.id)
+          
+          if (fsVariants.length > 0 && data.rawVariants && data.rawVariants.length > 0) {
+            data.rawVariants = data.rawVariants.map(v => {
+              const matchedFsItem = fsVariants.find(i => i.id === v.id || i.variant_id === v.id)
               
-              data.rawVariants = data.rawVariants.map(v => {
-                // Nếu chiến dịch chọn biến thể cụ thể (saledVariantIds có giá trị)
-                // hoặc không chọn biến thể cụ thể nào (null -> tất cả biến thể)
-                const matchedFsItem = fsItems.find(i => !i.variant_id || i.variant_id === v.id)
-                
-                if (matchedFsItem && matchedFsItem.discount_value !== undefined && matchedFsItem.discount_value !== null) {
-                  const originalPrice = parseFloat(v.price) || 0
-                  const discountPercent = parseFloat(matchedFsItem.discount_value) || 0
-                  const flashPrice = originalPrice * (1 - discountPercent / 100)
-                  return {
-                    ...v,
-                    isFlashSale: true,
-                    discountPercent: Math.round(discountPercent),
-                    sale: flashPrice
-                  }
-                }
-                
+              if (matchedFsItem) {
+                const originalPrice = parseFloat(v.price) || 0
+                const flashPrice = parseFloat(matchedFsItem.sale_price) || (matchedFsItem.discount_value ? originalPrice * (1 - matchedFsItem.discount_value / 100) : (v.sale_price || originalPrice))
+                const discountPercent = originalPrice > 0 && flashPrice < originalPrice ? Math.round(((originalPrice - flashPrice) / originalPrice) * 100) : (matchedFsItem.discount_value || 0)
+
                 return {
                   ...v,
-                  isFlashSale: false,
-                  sale: null
+                  isFlashSale: true,
+                  discountPercent: discountPercent,
+                  sale: flashPrice
                 }
-              })
-            }
+              }
+              
+              return {
+                ...v,
+                isFlashSale: false,
+                sale: null
+              }
+            })
           }
         }
       } catch (fsErr) {
@@ -563,14 +696,18 @@ watch(
 const isColorAvailable = (colorName) => {
   if (!selectedSize.value) return true
   return (product.value.rawVariants || []).some(v => {
-    return getVariantSizeName(v) === String(selectedSize.value) && getVariantColorName(v) === colorName
+    const isMatch = getVariantSizeName(v) === String(selectedSize.value) && getVariantColorName(v) === colorName
+    const hasStock = (v.stock === undefined || v.stock === null || Number(v.stock) > 0)
+    return isMatch && hasStock
   })
 }
 
 const isSizeAvailable = (sizeName) => {
   if (!selectedColor.value) return true
   return (product.value.rawVariants || []).some(v => {
-    return getVariantSizeName(v) === String(sizeName) && getVariantColorName(v) === selectedColor.value
+    const isMatch = getVariantSizeName(v) === String(sizeName) && getVariantColorName(v) === selectedColor.value
+    const hasStock = (v.stock === undefined || v.stock === null || Number(v.stock) > 0)
+    return isMatch && hasStock
   })
 }
 
@@ -615,12 +752,57 @@ function decreaseQty() {
   if (qty.value > 1) qty.value--
 }
 
-function toggleWish() {
+async function toggleWish() {
   wished.value = !wished.value
+
+  const token = localStorage.getItem('access_token')
+  if (token && product.value && product.value.id) {
+    try {
+      await axiosInstance.post('/wishlist/toggle', { product_id: product.value.id })
+    } catch (e) {
+      console.error('Failed to toggle wishlist on server:', e)
+    }
+  }
+
+  const savedStr = localStorage.getItem('saigon_wishlist')
+  let ids = []
+  if (savedStr) {
+    try { ids = JSON.parse(savedStr) } catch (e) {}
+  }
+  if (wished.value) {
+    if (!ids.includes(product.value.id)) {
+      ids.push(product.value.id)
+    }
+  } else {
+    ids = ids.filter(id => Number(id) !== Number(product.value.id) && String(id) !== String(product.value.id))
+  }
+  localStorage.setItem('saigon_wishlist', JSON.stringify(ids))
+  window.dispatchEvent(new Event('wishlist-updated'))
+
   showToast(wished.value ? 'Đã thêm sản phẩm vào danh sách yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
 }
 
 async function doAddToCart() {
+  if (isProductLocked.value) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Sản phẩm tạm ngưng kinh doanh',
+      text: 'Sản phẩm này hiện đang tạm khóa và không thể đặt mua.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return false
+  }
+
+  if (isOutOfStock.value) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Sản phẩm đã hết hàng',
+      text: 'Tất cả kích thước và màu sắc của sản phẩm này đã được bán hết.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return false
+  }
+
   if (!selectedSize.value) {
     Swal.fire({
       icon: 'warning',
@@ -631,9 +813,18 @@ async function doAddToCart() {
     return false
   }
   
-  // Tìm biến thể sản phẩm phù hợp
   const matchingVariant = currentVariant.value
-  const activePrice = matchingVariant ? (matchingVariant.sale || matchingVariant.price) : (product.value.numericPrice || 0)
+  if (!matchingVariant || (matchingVariant.stock !== undefined && matchingVariant.stock <= 0)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Kích thước hết hàng',
+      text: 'Size/Màu sắc sản phẩm này hiện tại đã hết hàng.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return false
+  }
+
+  const activePrice = matchingVariant ? (matchingVariant.sale || matchingVariant.sale_price || matchingVariant.price) : (product.value.numericPrice || 0)
   
   const payload = {
     id: product.value.id,
@@ -652,6 +843,26 @@ async function doAddToCart() {
 }
 
 async function doBuyNow() {
+  if (isProductLocked.value) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Sản phẩm tạm ngưng kinh doanh',
+      text: 'Sản phẩm này hiện đang tạm khóa và không thể đặt mua.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
+  if (isOutOfStock.value) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Sản phẩm đã hết hàng',
+      text: 'Tất cả kích thước và màu sắc của sản phẩm này đã được bán hết.',
+      confirmButtonColor: '#FF4D00'
+    })
+    return
+  }
+
   if (!selectedSize.value) {
     Swal.fire({
       icon: 'warning',
@@ -664,11 +875,11 @@ async function doBuyNow() {
   
   const matchingVariant = currentVariant.value
   
-  if (!matchingVariant?.id) {
+  if (!matchingVariant?.id || (matchingVariant.stock !== undefined && matchingVariant.stock <= 0)) {
     Swal.fire({
       icon: 'error',
-      title: 'Lỗi',
-      text: 'Không tìm thấy thông tin phân loại sản phẩm. Vui lòng chọn size/màu sắc đầy đủ.',
+      title: 'Kích thước hết hàng',
+      text: 'Size/Màu sắc sản phẩm này hiện tại đã hết hàng.',
       confirmButtonColor: '#FF4D00'
     })
     return
@@ -693,9 +904,10 @@ async function doBuyNow() {
     return
   }
 
-  const activePrice = matchingVariant.sale || matchingVariant.price || product.value.numericPrice || 0
+  const activePrice = matchingVariant.sale || matchingVariant.sale_price || matchingVariant.price || product.value.numericPrice || 0
+  const isFs = matchingVariant.isFlashSale || !!(matchingVariant.flash_sale_id || (matchingVariant.sale_price !== null && matchingVariant.sale_price !== undefined && Number(matchingVariant.sale_price) > 0) || matchingVariant.sale)
   const subtotal = activePrice * qty.value
-  const shippingFee = subtotal >= 500000 ? 0 : 30000
+  const shippingFee = 30000
   
   const buyNowItem = {
     id: null,
@@ -707,7 +919,11 @@ async function doBuyNow() {
       : `Size ${selectedSize.value}`,
     price: activePrice,
     qty: qty.value,
-    image: activeImage.value
+    image: activeImage.value,
+    is_flash_sale: isFs,
+    flash_sale_id: matchingVariant.flash_sale_id || null,
+    sale_price: matchingVariant.sale || matchingVariant.sale_price || null,
+    variantObj: matchingVariant
   }
 
   const summary = {
