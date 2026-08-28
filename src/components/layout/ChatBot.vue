@@ -145,24 +145,21 @@
       </div>
 
       <!-- Quick Action Suggestions -->
-      <div class="flex gap-1.5 overflow-x-auto px-3.5 py-2 border-t border-border bg-bg/80 scrollbar-none shrink-0">
+      <div 
+        class="flex gap-1.5 overflow-x-auto px-3.5 py-2 border-t border-border bg-bg/80 shrink-0 scrollbar-horizontal cursor-grab active:cursor-grabbing select-none"
+        @wheel.prevent="onWheelScroll"
+        @mousedown="onMouseDown"
+        @mouseleave="onMouseLeave"
+        @mouseup="onMouseUp"
+        @mousemove="onMouseMove"
+      >
         <button 
-          class="bg-surface2 border border-border text-text-muted text-[11px] py-1 px-2.5 rounded-full transition-all cursor-pointer hover:border-accent hover:text-accent hover:bg-surface shrink-0 font-medium flex items-center gap-1"
-          @click="showSizeWidget = !showSizeWidget"
+          v-for="(sugg, sIdx) in suggestions"
+          :key="sugg.id || sIdx"
+          class="bg-surface2 border border-border text-text-muted hover:text-accent hover:border-accent text-[11px] py-1 px-2.5 rounded-full transition-all cursor-pointer hover:bg-surface shrink-0 whitespace-nowrap font-medium flex items-center gap-1 shadow-2xs"
+          @click="handleSuggestionClick(sugg)"
         >
-          📐 Đo size chân
-        </button>
-        <button 
-          class="bg-surface2 border border-border text-text-muted text-[11px] py-1 px-2.5 rounded-full transition-all cursor-pointer hover:border-accent hover:text-accent hover:bg-surface shrink-0 font-medium flex items-center gap-1"
-          @click="sendSugg('Tư vấn giày phối đồ phong cách Streetwear')"
-        >
-          👟 Style Streetwear
-        </button>
-        <button 
-          class="bg-surface2 border border-border text-text-muted text-[11px] py-1 px-2.5 rounded-full transition-all cursor-pointer hover:border-accent hover:text-accent hover:bg-surface shrink-0 font-medium flex items-center gap-1"
-          @click="sendSugg('Các mẫu giày hot giảm giá hôm nay')"
-        >
-          🔥 Giày Hot giảm giá
+          {{ sugg.text }}
         </button>
       </div>
 
@@ -199,15 +196,21 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { sendAIChatMessage } from '@/api/aiChat.js'
+import { sendAIChatMessage, getPublicAISuggestions } from '@/api/aiChat.js'
 
 const router = useRouter()
 const chatOpen = ref(false)
 const chatInput = ref('')
 const isLoading = ref(false)
 const chatMsgsRef = ref(null)
+
+// Suggestions state & Drag-scroll handling
+const suggestions = ref([])
+const isMouseDown = ref(false)
+const startX = ref(0)
+const scrollLeftStart = ref(0)
 
 // Size Widget state
 const showSizeWidget = ref(false)
@@ -224,6 +227,59 @@ const messages = ref([
     text: 'Mình có thể giúp bạn:\n• Tính toán & tư vấn Size giày chính xác theo cm chân 📐\n• Tư vấn phối đồ chuẩn phong cách Streetwear / Casual 🎨\n• Trợ giúp kiểm tra đơn hàng & sản phẩm mới 🔥' 
   }
 ])
+
+async function loadSuggestions() {
+  const res = await getPublicAISuggestions()
+  if (res && res.data && res.data.length > 0) {
+    suggestions.value = res.data
+  } else if (Array.isArray(res) && res.length > 0) {
+    suggestions.value = res
+  } else {
+    suggestions.value = [
+      { text: '📐 Đo size chân', action: 'size_calc' },
+      { text: '👟 Style Streetwear', action: 'prompt' },
+      { text: '🔥 Giày Hot giảm giá', action: 'prompt' }
+    ]
+  }
+}
+
+function handleSuggestionClick(sugg) {
+  const txt = typeof sugg === 'string' ? sugg : sugg.text
+  if (txt.includes('Đo size chân') || sugg.action === 'size_calc') {
+    showSizeWidget.value = !showSizeWidget.value
+  } else {
+    sendSugg(txt)
+  }
+}
+
+// Mouse wheel & Mouse drag scroll handlers
+function onWheelScroll(e) {
+  if (e.deltaY !== 0) {
+    e.currentTarget.scrollLeft += e.deltaY;
+  }
+}
+
+function onMouseDown(e) {
+  isMouseDown.value = true
+  startX.value = e.pageX - e.currentTarget.offsetLeft
+  scrollLeftStart.value = e.currentTarget.scrollLeft
+}
+
+function onMouseLeave() {
+  isMouseDown.value = false
+}
+
+function onMouseUp() {
+  isMouseDown.value = false
+}
+
+function onMouseMove(e) {
+  if (!isMouseDown.value) return
+  e.preventDefault()
+  const x = e.pageX - e.currentTarget.offsetLeft
+  const walk = (x - startX.value) * 1.5
+  e.currentTarget.scrollLeft = scrollLeftStart.value - walk
+}
 
 function toggleChat() {
   chatOpen.value = !chatOpen.value
@@ -335,6 +391,10 @@ function submitSizeCalc() {
   chatInput.value = prompt
   sendChat()
 }
+
+onMounted(() => {
+  loadSuggestions()
+})
 </script>
 
 <style scoped>
@@ -354,6 +414,22 @@ function submitSizeCalc() {
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 10px;
+}
+
+/* Custom horizontal scrollbar for quick actions */
+.scrollbar-horizontal::-webkit-scrollbar {
+  height: 4px;
+}
+.scrollbar-horizontal::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+}
+.scrollbar-horizontal::-webkit-scrollbar-thumb {
+  background: rgba(255, 77, 0, 0.3);
+  border-radius: 10px;
+}
+.scrollbar-horizontal::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 77, 0, 0.6);
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none;
