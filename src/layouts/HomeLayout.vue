@@ -52,7 +52,7 @@ provide('addToCart', async (product) => {
       cancelButtonColor: '#aaa'
     }).then((result) => {
       if (result.isConfirmed) {
-        router.push({ name: 'login' })
+        router.push({ name: 'login', query: { redirect: route.fullPath } })
       }
     })
     return false

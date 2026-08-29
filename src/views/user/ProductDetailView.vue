@@ -567,8 +567,11 @@ async function loadProduct(slug) {
         activeImageFlip.value = false
       }
 
-      // Đặt màu sắc mặc định (giữ nguyên nếu màu đang chọn vẫn hợp lệ)
-      if (!selectedColor.value || !data.colors.some(c => c.name === selectedColor.value)) {
+      // Đặt màu sắc mặc định (ưu tiên giữ nguyên hoặc lấy từ URL query)
+      const queryColor = route.query.color
+      if (queryColor && data.colors.some(c => c.name === queryColor)) {
+        selectedColor.value = queryColor
+      } else if (!selectedColor.value || !data.colors.some(c => c.name === selectedColor.value)) {
         if (data.colors && data.colors.length > 0) {
           selectedColor.value = data.colors[0].name
         } else {
@@ -576,8 +579,11 @@ async function loadProduct(slug) {
         }
       }
 
-      // Đặt kích thước mặc định (giữ nguyên nếu size đang chọn vẫn hợp lệ)
-      if (!selectedSize.value || !data.sizes.some(s => String(s) === String(selectedSize.value))) {
+      // Đặt kích thước mặc định (ưu tiên giữ nguyên hoặc lấy từ URL query)
+      const querySize = route.query.size
+      if (querySize && data.sizes.some(s => String(s) === String(querySize))) {
+        selectedSize.value = String(querySize)
+      } else if (!selectedSize.value || !data.sizes.some(s => String(s) === String(selectedSize.value))) {
         if (data.sizes && data.sizes.length > 0) {
           selectedSize.value = data.sizes[0]
         } else {
@@ -712,31 +718,44 @@ const isSizeAvailable = (sizeName) => {
 }
 
 // Theo dõi khi đổi màu để tự động chọn size khả dụng
+// Theo dõi khi đổi màu để tự động chọn size khả dụng & đồng bộ vào URL query
 watch(selectedColor, (newColor) => {
-  if (!newColor || !selectedSize.value) return
-  const isCompatible = (product.value.rawVariants || []).some(v => {
-    return getVariantSizeName(v) === String(selectedSize.value) && getVariantColorName(v) === newColor
-  })
-  if (!isCompatible) {
-    const firstAvail = (product.value.rawVariants || []).find(v => getVariantColorName(v) === newColor)
-    if (firstAvail) {
-      selectedSize.value = getVariantSizeName(firstAvail)
+  if (!newColor) return
+  if (selectedSize.value) {
+    const isCompatible = (product.value.rawVariants || []).some(v => {
+      return getVariantSizeName(v) === String(selectedSize.value) && getVariantColorName(v) === newColor
+    })
+    if (!isCompatible) {
+      const firstAvail = (product.value.rawVariants || []).find(v => getVariantColorName(v) === newColor)
+      if (firstAvail) {
+        selectedSize.value = getVariantSizeName(firstAvail)
+      }
     }
   }
+  // Đồng bộ màu & size vào URL query parameters
+  const newQuery = { ...route.query, color: newColor }
+  if (selectedSize.value) newQuery.size = selectedSize.value
+  router.replace({ query: newQuery }).catch(() => {})
 })
 
-// Theo dõi khi đổi size để tự động chọn màu khả dụng
+// Theo dõi khi đổi size để tự động chọn màu khả dụng & đồng bộ vào URL query
 watch(selectedSize, (newSize) => {
-  if (!newSize || !selectedColor.value) return
-  const isCompatible = (product.value.rawVariants || []).some(v => {
-    return getVariantSizeName(v) === String(newSize) && getVariantColorName(v) === selectedColor.value
-  })
-  if (!isCompatible) {
-    const firstAvail = (product.value.rawVariants || []).find(v => getVariantSizeName(v) === String(newSize))
-    if (firstAvail) {
-      selectedColor.value = getVariantColorName(firstAvail)
+  if (!newSize) return
+  if (selectedColor.value) {
+    const isCompatible = (product.value.rawVariants || []).some(v => {
+      return getVariantSizeName(v) === String(newSize) && getVariantColorName(v) === selectedColor.value
+    })
+    if (!isCompatible) {
+      const firstAvail = (product.value.rawVariants || []).find(v => getVariantSizeName(v) === String(newSize))
+      if (firstAvail) {
+        selectedColor.value = getVariantColorName(firstAvail)
+      }
     }
   }
+  // Đồng bộ màu & size vào URL query parameters
+  const newQuery = { ...route.query, size: newSize }
+  if (selectedColor.value) newQuery.color = selectedColor.value
+  router.replace({ query: newQuery }).catch(() => {})
 })
 
 function setActiveImage(src, flip) {
