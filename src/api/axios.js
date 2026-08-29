@@ -2,7 +2,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://saigonshoes.io.vn/api',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
