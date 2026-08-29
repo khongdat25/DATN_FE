@@ -131,7 +131,7 @@
                   <p>Kích thước: <span class="text-text-muted font-normal">{{ selectedSize ? 'Size ' + selectedSize : 'Chưa chọn' }}</span></p>
                   <a href="#" class="text-accent underline font-semibold hover:text-accent-hover text-xs">Hướng dẫn chọn size</a>
                 </div>
-                <div class="grid grid-cols-5 gap-3">
+                <div class="grid grid-cols-4 sm:grid-cols-5 gap-2.5 sm:gap-3">
                   <button 
                     v-for="size in product.sizes" 
                     :key="size"
@@ -166,7 +166,7 @@
               </div>
 
               <!-- Số lượng & Các nút thao tác -->
-              <div class="flex gap-4 items-center pt-4">
+              <div class="flex flex-wrap sm:flex-nowrap gap-3 sm:gap-4 items-center pt-4">
                 <div class="flex items-center border border-border rounded-xl bg-white h-14 shrink-0 shadow-sm" :class="isPurchaseDisabled ? 'opacity-50 pointer-events-none' : ''">
                   <button @click="decreaseQty" :disabled="isPurchaseDisabled" class="w-12 h-full flex items-center justify-center text-text-muted hover:text-accent transition-colors cursor-pointer">
                     <i class="ti ti-minus"></i>

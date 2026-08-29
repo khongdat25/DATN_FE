@@ -37,9 +37,9 @@
             </div>
 
             <!-- Article Body Content -->
-            <div v-if="article.content" class="text-left text-sm sm:text-base text-text-muted leading-relaxed space-y-6" v-html="article.content">
+            <div v-if="article.content" class="article-body-content text-left text-sm sm:text-base text-text-muted leading-relaxed space-y-6" v-html="article.content">
             </div>
-            <div v-else class="text-left text-sm sm:text-base text-text-muted leading-relaxed space-y-6">
+            <div v-else class="article-body-content text-left text-sm sm:text-base text-text-muted leading-relaxed space-y-6">
               <p>Chào mừng bạn đến với kỷ nguyên mới của Sneaker. Tại sự kiện diễn ra vào tối qua tại TP.HCM, SaigonShoes đã chính thức trình làng bộ sưu tập được mong đợi nhất năm mang tên <strong>"Future Walk"</strong>. Đây không chỉ là một bộ sưu tập giày đơn thuần, mà còn là một tuyên ngôn vững chãi về sự giao thoa hoàn mỹ giữa công nghệ tương lai và nghệ thuật đương đại.</p>
               
               <p>Bộ sưu tập lần này được lấy cảm hứng từ những thành phố tương lai thông minh, nơi sự tối giản trong thiết kế và tính năng vượt trội được đặt lên hàng đầu. Mỗi đôi giày trong bộ sưu tập "Future Walk" đều sử dụng vật liệu tái chế sinh học cao cấp, giúp giảm thiểu tối đa tác động tiêu cực đến môi trường tự nhiên mà vẫn đảm bảo độ bền bỉ cùng sự êm ái tuyệt đối cho bàn chân của bạn.</p>
@@ -248,5 +248,63 @@ function goToCategory(catName) {
 }
 </script>
 
-<style scoped>
+<style>
+/* Responsive optimization for rich content in news detail */
+.article-body-content {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+.article-body-content img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 1rem;
+  margin: 1.25rem 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  display: block;
+}
+.article-body-content table {
+  display: block;
+  width: 100% !important;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+}
+.article-body-content iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 1rem;
+  aspect-ratio: 16 / 9;
+  height: auto !important;
+}
+.article-body-content h1,
+.article-body-content h2,
+.article-body-content h3 {
+  color: var(--color-text, #111);
+  font-weight: 800;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+.article-body-content h2 {
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+}
+.article-body-content h3 {
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+}
+.article-body-content p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+}
+.article-body-content ul,
+.article-body-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  space-y: 0.5rem;
+}
+.article-body-content ul {
+  list-style-type: disc;
+}
+.article-body-content ol {
+  list-style-type: decimal;
+}
 </style>
