@@ -1,12 +1,12 @@
 <template>
   
-    <main class="flex items-center justify-center py-[80px] min-h-[calc(100vh-72px-350px)] relative overflow-hidden bg-surface2">
+    <main class="flex items-center justify-center py-8 pb-28 sm:py-[80px] min-h-[calc(100vh-72px-350px)] relative overflow-hidden bg-surface2">
       <!-- Decorative Elements -->
       <div class="blob blob-1"></div>
       <div class="blob blob-2"></div>
 
       <div class="register-container z-10 w-full max-w-[480px] px-4">
-        <div class="register-card bg-bg p-8 md:p-10 rounded-[24px] border border-border shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden">
+        <div class="register-card bg-bg p-6 sm:p-10 rounded-[24px] border border-border shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden">
           <div class="register-header text-center mb-8">
             <h1 class="font-display text-[24px] font-semibold text-text mb-2">Tạo tài khoản mới</h1>
             <p class="text-text-muted text-sm">Khám phá bộ sưu tập giày đa dạng tại SaigonShoes</p>

@@ -13,8 +13,8 @@
     <div class="max-w-[1200px] mx-auto px-5">
       <nav class="flex items-center justify-between h-[84px] gap-4">
         <router-link to="/" class="flex items-center shrink-0 transition-all duration-300 group select-none py-1">
-          <img src="/images/logo.png" alt="SaigonShoes Logo" class="h-22 w-52 md:w-64 max-h-[76px] object-contain transition-transform duration-300 group-hover:scale-105 mix-blend-multiply" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-          <span class="font-display text-[24px] tracking-[2px] font-bold text-text hidden">SAIGON<span class="text-accent">SHOES</span></span>
+          <img src="/images/logo.png" alt="SaigonShoes Logo" class="h-16 sm:h-22 w-auto max-w-[140px] sm:max-w-[240px] max-h-[64px] sm:max-h-[76px] object-contain transition-transform duration-300 group-hover:scale-105 mix-blend-multiply" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+          <span class="font-display text-[20px] sm:text-[24px] tracking-[2px] font-bold text-text hidden">SAIGON<span class="text-accent">SHOES</span></span>
         </router-link>
 
         <!-- Desktop Nav -->
@@ -350,7 +350,7 @@
               </div>
             </template>
             <template v-else>
-              <router-link to="/login" class="bg-accent text-white font-display font-bold text-[11px] tracking-[1.5px] uppercase py-2.5 px-4 rounded-xl shadow-[0_4px_12px_rgba(255,77,0,0.15)] transition-all duration-300 hover:bg-accent-hover hover:shadow-[0_6px_20px_rgba(255,77,0,0.25)] hover:-translate-y-0.5 active:scale-95 whitespace-nowrap block">
+              <router-link to="/login" class="bg-accent text-white font-display font-bold text-[10px] sm:text-[11px] tracking-[1px] sm:tracking-[1.5px] uppercase py-2 sm:py-2.5 px-2.5 sm:px-4 rounded-xl shadow-xs sm:shadow-[0_4px_12px_rgba(255,77,0,0.15)] transition-all duration-300 hover:bg-accent-hover active:scale-95 whitespace-nowrap block">
                 Đăng Nhập
               </router-link>
             </template>
