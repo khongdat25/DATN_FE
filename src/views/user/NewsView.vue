@@ -185,36 +185,47 @@ const newsList = ref([])
 
 function getImageUrl(image) {
   if (!image) return '/images/news_featured.png'
-  if (image.startsWith('http') || image.startsWith('data:')) return image
-  return `/images/${image}`
+  if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('data:')) {
+    return image
+  }
+  if (image.startsWith('/images/')) {
+    return image
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'https://api.saigonshoes.io.vn/api').replace(/\/api$/, '')
+  if (image.startsWith('images/') || image.startsWith('uploads/') || image.startsWith('storage/')) {
+    return `${serverUrl}/${image}`
+  }
+  return `${serverUrl}/images/${image}`
 }
 
 async function fetchBlogs() {
   try {
     const response = await axiosInstance.get('/blogs')
-    if (response && response.success && response.data) {
-      const backendBlogs = response.data.data || []
-      newsList.value = backendBlogs.map(blog => ({
-        id: blog.id,
-        tag: blog.featuring ? 'Sự kiện' : 'Xu hướng',
-        title: blog.name,
-        excerpt: blog.comment || '',
-        content: blog.content || '',
-        date: new Date(blog.created_at).toLocaleDateString('vi-VN', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        }),
-        author: 'Admin',
-        comments: 0,
-        image: blog.avatar || 'news_featured.png',
-        isFeatured: blog.featuring ? true : false
-      }))
+    if (response && (response.success || Array.isArray(response.data) || Array.isArray(response))) {
+      const rawData = response.data?.data || response.data || response
+      const backendBlogs = Array.isArray(rawData) ? rawData : []
+
+      if (backendBlogs.length > 0) {
+        newsList.value = backendBlogs.map(blog => ({
+          id: blog.id,
+          tag: blog.featuring || blog.is_featured ? 'Sự kiện' : 'Xu hướng',
+          title: blog.name || blog.title,
+          excerpt: blog.comment || blog.description || blog.excerpt || '',
+          content: blog.content || '',
+          date: blog.created_at ? new Date(blog.created_at).toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+          }) : 'Mới cập nhật',
+          author: blog.author || 'Admin',
+          comments: blog.comments || 0,
+          image: blog.avatar || blog.image || '',
+          isFeatured: (blog.featuring || blog.is_featured) ? true : false
+        }))
+      }
     }
   } catch (error) {
     console.error('Error fetching public blogs:', error)
-    // fallback static mockup data
-    newsList.value = mockNews
   }
 }
 

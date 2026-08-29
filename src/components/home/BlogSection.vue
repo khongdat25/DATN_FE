@@ -57,33 +57,44 @@ const posts = ref([
 
 function getImageUrl(image) {
   if (!image) return '/images/news_featured.png'
-  if (image.startsWith('http') || image.startsWith('data:')) return image
-  return `/images/${image}`
+  if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('data:')) {
+    return image
+  }
+  if (image.startsWith('/images/')) {
+    return image
+  }
+  const serverUrl = (import.meta.env.VITE_API_BASE_URL || 'https://api.saigonshoes.io.vn/api').replace(/\/api$/, '')
+  if (image.startsWith('images/') || image.startsWith('uploads/') || image.startsWith('storage/')) {
+    return `${serverUrl}/${image}`
+  }
+  return `${serverUrl}/images/${image}`
 }
 
 async function fetchHomeBlogs() {
   try {
     const response = await axiosInstance.get('/blogs', { params: { limit: 3 } })
-    if (response && response.success && response.data) {
-      const backendBlogs = response.data.data || []
+    if (response && (response.success || Array.isArray(response.data) || Array.isArray(response))) {
+      const rawData = response.data?.data || response.data || response
+      const backendBlogs = Array.isArray(rawData) ? rawData : []
+      
       if (backendBlogs.length > 0) {
         posts.value = backendBlogs.slice(0, 3).map(blog => ({
           id: blog.id,
           icon: '👟',
-          tag: blog.featuring ? 'Sự kiện' : 'Xu hướng',
-          tagClass: blog.featuring ? 'bg-accent text-white' : 'bg-accent2-dim text-white',
-          date: new Date(blog.created_at).toLocaleDateString('vi-VN', {
+          tag: blog.featuring || blog.is_featured ? 'Sự kiện' : 'Xu hướng',
+          tagClass: (blog.featuring || blog.is_featured) ? 'bg-accent text-white' : 'bg-accent2-dim text-white',
+          date: blog.created_at ? new Date(blog.created_at).toLocaleDateString('vi-VN', {
             day: '2-digit',
             month: 'long',
             year: 'numeric'
-          }),
-          title: blog.name,
-          excerpt: blog.comment || '',
+          }) : 'Mới cập nhật',
+          title: blog.name || blog.title,
+          excerpt: blog.comment || blog.description || blog.excerpt || '',
           content: blog.content || '',
-          author: 'Admin',
-          likes: 0,
+          author: blog.author || 'Admin',
+          likes: blog.likes || 0,
           liked: false,
-          image: blog.avatar || 'news_featured.png'
+          image: blog.avatar || blog.image || ''
         }))
       }
     }
