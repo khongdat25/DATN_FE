@@ -155,7 +155,7 @@
           </div>
 
           <!-- Lưới sản phẩm & Trạng thái tải -->
-          <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div v-if="isLoading" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             <div v-for="i in 8" :key="i" class="border border-border rounded-2xl bg-white p-5 flex flex-col gap-4 animate-pulse shadow-sm">
               <div class="bg-surface2 rounded-xl h-48 w-full"></div>
               <div class="h-4 bg-surface2 rounded w-3/4"></div>
@@ -167,7 +167,7 @@
             </div>
           </div>
 
-          <div v-else-if="paginatedProducts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div v-else-if="paginatedProducts.length > 0" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             <ProductCard 
               v-for="product in paginatedProducts" 
               :key="product.id" 
