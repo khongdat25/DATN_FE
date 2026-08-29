@@ -7,6 +7,7 @@
     <AppFooter />
     <ToastNotification ref="toastRef" />
     <ChatBot />
+    <ZaloButton />
     <!-- Scroll to top button -->
     <button
       :class="['scroll-top fixed bottom-[100px] right-[28px] w-10 h-10 bg-bg border border-border rounded-sm flex items-center justify-center text-lg text-text-muted transition-all duration-200 z-200 cursor-pointer shadow-[0_4px_10px_rgba(0,0,0,0.1)] hover:bg-accent hover:border-accent hover:text-white', { visible: showScrollTop }]"
@@ -25,6 +26,7 @@ import AppHeader from './Header.vue'
 import AppFooter from './Footer.vue'
 import ToastNotification from '../components/layout/ToastNotification.vue'
 import ChatBot from '../components/layout/ChatBot.vue'
+import ZaloButton from '../components/layout/ZaloButton.vue'
 import axiosInstance from '../api/axios.js'
 
 const router = useRouter()
