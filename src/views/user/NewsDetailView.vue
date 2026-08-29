@@ -69,18 +69,7 @@
                 </span>
               </div>
               
-              <div class="flex items-center gap-3 text-xs font-semibold text-text">
-                <span>Chia sẻ bài viết:</span>
-                <button @click="shareArticle('Facebook')" class="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text-muted hover:bg-accent hover:text-white hover:border-accent transition-all cursor-pointer active:scale-90">
-                  <i class="ti ti-brand-facebook"></i>
-                </button>
-                <button @click="shareArticle('Twitter')" class="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text-muted hover:bg-accent hover:text-white hover:border-accent transition-all cursor-pointer active:scale-90">
-                  <i class="ti ti-brand-twitter"></i>
-                </button>
-                <button @click="copyLink" class="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text-muted hover:bg-accent hover:text-white hover:border-accent transition-all cursor-pointer active:scale-90" title="Sao chép liên kết">
-                  <i class="ti ti-link"></i>
-                </button>
-              </div>
+
             </div>
 
           </div>
