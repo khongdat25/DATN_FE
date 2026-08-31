@@ -1078,6 +1078,22 @@ async function loadUserData() {
 
 function getImageUrl(imagePath) {
   if (!imagePath) return '/images/nike-air-force-1.png'
+  
+  const filename = String(imagePath).split('/').pop()
+  const legacyMap = {
+    'NIKE-AF1-WH.webp': '/images/nike-air-force-1.png',
+    'NIKE-AF1-WH.png': '/images/nike-air-force-1.png',
+    'NIKE-AJ1-BK.png': '/images/nike-black1.png',
+    'NIKE-AJ1-BK.webp': '/images/nike-black1.png',
+    'NIKE-DUNK-GR.webp': '/images/nike-university1.png',
+    'NIKE-DUNK-GR.png': '/images/nike-university1.png',
+    'ADIDAS-SAM-BK.webp': '/images/adidas-samba-og1.png',
+    'ADIDAS-SAM-WH.webp': '/images/adidas_samba1.webp'
+  }
+  if (legacyMap[filename]) {
+    return legacyMap[filename]
+  }
+
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
     return imagePath
   }
