@@ -226,7 +226,7 @@
                       <div v-for="(item, idx) in order.items" :key="idx" class="flex items-center justify-between gap-4 py-2 border-b border-slate-50 last:border-none">
                         <div class="flex items-center gap-4">
                           <div class="w-[70px] h-[70px] bg-surface2 rounded-[10px] p-2.5 shrink-0 flex items-center justify-center">
-                            <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain">
+                            <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain" @error="$event.target.src = '/images/nike-air-force-1.png'">
                           </div>
                           <div>
                             <h4 class="text-[15px] font-semibold text-text mb-1">{{ item.name }}</h4>
@@ -1077,7 +1077,7 @@ async function loadUserData() {
 }
 
 function getImageUrl(imagePath) {
-  if (!imagePath) return '/images/placeholder.png'
+  if (!imagePath) return '/images/nike-air-force-1.png'
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
     return imagePath
   }
