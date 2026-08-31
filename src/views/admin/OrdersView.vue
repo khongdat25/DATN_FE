@@ -597,13 +597,13 @@ async function fetchOrders() {
           const v = item.variant || {}
           const p = v.product || {}
           
-          let img = '/images/placeholder.png'
-          if (v.image) {
-            img = getImageUrl(v.image)
-          } else if (p.images && p.images.length > 0) {
+          let img = '/images/nike-air-force-1.png'
+          if (p.images && p.images.length > 0) {
             const firstImg = p.images[0]
             const imgPath = typeof firstImg === 'string' ? firstImg : (firstImg?.image || '')
             img = getImageUrl(imgPath)
+          } else if (v.image) {
+            img = getImageUrl(v.image)
           }
 
           return {

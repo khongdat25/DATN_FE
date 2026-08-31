@@ -226,7 +226,7 @@
                       <div v-for="(item, idx) in order.items" :key="idx" class="flex items-center justify-between gap-4 py-2 border-b border-slate-50 last:border-none">
                         <div class="flex items-center gap-4">
                           <div class="w-[70px] h-[70px] bg-surface2 rounded-[10px] p-2.5 shrink-0 flex items-center justify-center">
-                            <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain" @error="$event.target.src = '/images/nike-air-force-1.png'">
+                            <img :src="item.image" :alt="item.name" class="max-w-full max-h-full object-contain">
                           </div>
                           <div>
                             <h4 class="text-[15px] font-semibold text-text mb-1">{{ item.name }}</h4>
@@ -1077,23 +1077,7 @@ async function loadUserData() {
 }
 
 function getImageUrl(imagePath) {
-  if (!imagePath) return '/images/nike-air-force-1.png'
-  
-  const filename = String(imagePath).split('/').pop()
-  const legacyMap = {
-    'NIKE-AF1-WH.webp': '/images/nike-air-force-1.png',
-    'NIKE-AF1-WH.png': '/images/nike-air-force-1.png',
-    'NIKE-AJ1-BK.png': '/images/nike-black1.png',
-    'NIKE-AJ1-BK.webp': '/images/nike-black1.png',
-    'NIKE-DUNK-GR.webp': '/images/nike-university1.png',
-    'NIKE-DUNK-GR.png': '/images/nike-university1.png',
-    'ADIDAS-SAM-BK.webp': '/images/adidas-samba-og1.png',
-    'ADIDAS-SAM-WH.webp': '/images/adidas_samba1.webp'
-  }
-  if (legacyMap[filename]) {
-    return legacyMap[filename]
-  }
-
+  if (!imagePath) return '/images/placeholder.png'
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
     return imagePath
   }
@@ -1117,13 +1101,13 @@ async function loadOrdersData() {
           const v = item.variant || {}
           const p = v.product || {}
           
-          let img = '/images/placeholder.png'
-          if (v.image) {
-            img = getImageUrl(v.image)
-          } else if (p.images && p.images.length > 0) {
+          let img = '/images/nike-air-force-1.png'
+          if (p.images && p.images.length > 0) {
             const firstImg = p.images[0]
             const imgPath = typeof firstImg === 'string' ? firstImg : (firstImg?.image || '')
             img = getImageUrl(imgPath)
+          } else if (v.image) {
+            img = getImageUrl(v.image)
           }
 
           return {
