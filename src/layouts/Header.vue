@@ -350,7 +350,7 @@
               </div>
             </template>
             <template v-else>
-              <router-link to="/login" class="bg-accent text-white font-display font-bold text-[10px] sm:text-[11px] tracking-[1px] sm:tracking-[1.5px] uppercase py-2 sm:py-2.5 px-2.5 sm:px-4 rounded-xl shadow-xs sm:shadow-[0_4px_12px_rgba(255,77,0,0.15)] transition-all duration-300 hover:bg-accent-hover active:scale-95 whitespace-nowrap block">
+              <router-link to="/login" class="bg-accent text-white font-display font-bold text-[10px] sm:text-[11px] tracking-[1px] sm:tracking-[1.5px] uppercase py-2 sm:py-2.5 px-2.5 sm:px-4 rounded-xl shadow-xs sm:shadow-[0_4px_12px_rgba(255,77,0,0.15)] transition-all duration-300 hover:bg-accent-hover active:scale-95 whitespace-nowrap hidden lg:block">
                 Đăng Nhập
               </router-link>
             </template>
