@@ -79,13 +79,40 @@ onUnmounted(() => {
   window.removeEventListener('wishlist-updated', checkWished)
 })
 
+import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 import axiosInstance from '@/api/axios.js'
 
+const route = useRoute()
+const router = useRouter()
+
 async function toggleWish() {
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    Swal.fire({
+      title: 'Yêu cầu đăng nhập',
+      text: 'Bạn cần đăng nhập để thêm sản phẩm vào danh sách yêu thích!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đăng nhập ngay',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#FF4D00',
+      cancelButtonColor: '#94a3b8'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (router) {
+          router.push({ name: 'login', query: { redirect: route ? route.fullPath : '/' } })
+        } else {
+          window.location.href = '/login'
+        }
+      }
+    })
+    return
+  }
+
   wished.value = !wished.value
 
-  const token = localStorage.getItem('access_token')
-  if (token && props.product && props.product.id) {
+  if (props.product && props.product.id) {
     try {
       await axiosInstance.post('/wishlist/toggle', { product_id: props.product.id })
     } catch (e) {

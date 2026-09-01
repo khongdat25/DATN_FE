@@ -63,7 +63,8 @@ const routes = [
     {
         path: '/wishlist',
         component: () => import('../views/user/WishlistView.vue'),
-        name: 'wishlist'
+        name: 'wishlist',
+        meta: { requiresAuth: true }
     },
     {
         path: '/notifications',

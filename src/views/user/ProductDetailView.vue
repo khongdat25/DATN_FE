@@ -772,10 +772,28 @@ function decreaseQty() {
 }
 
 async function toggleWish() {
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    Swal.fire({
+      title: 'Yêu cầu đăng nhập',
+      text: 'Bạn cần đăng nhập để thêm sản phẩm vào danh sách yêu thích!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đăng nhập ngay',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#FF4D00',
+      cancelButtonColor: '#94a3b8'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push({ name: 'login', query: { redirect: route.fullPath } })
+      }
+    })
+    return
+  }
+
   wished.value = !wished.value
 
-  const token = localStorage.getItem('access_token')
-  if (token && product.value && product.value.id) {
+  if (product.value && product.value.id) {
     try {
       await axiosInstance.post('/wishlist/toggle', { product_id: product.value.id })
     } catch (e) {

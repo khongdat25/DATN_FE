@@ -71,9 +71,10 @@ const showToast = inject('showToast', (msg) => {})
 
 const wishes = ref({})
 
-function toggleWish(product) {
-  wishes.value[product.id] = !wishes.value[product.id]
-  showToast(wishes.value[product.id] ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
+function toggleWish(payload) {
+  if (payload && typeof payload.wished === 'boolean') {
+    showToast(payload.wished ? 'Đã thêm vào yêu thích ❤️' : 'Đã xóa khỏi yêu thích')
+  }
 }
 
 function goToDetail(product) {
