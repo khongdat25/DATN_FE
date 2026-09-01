@@ -511,9 +511,11 @@
           </button>
           <button 
             type="submit" 
-            class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-6 rounded-xl shadow-md transition-all border-none cursor-pointer font-display"
+            :disabled="isSubmitting"
+            class="bg-accent hover:bg-accent-hover text-white text-xs font-bold py-2.5 px-6 rounded-xl shadow-md transition-all border-none cursor-pointer font-display disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
           >
-            {{ isEditMode ? 'Lưu thay đổi' : 'Kích hoạt mã' }}
+            <span v-if="isSubmitting" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            {{ isSubmitting ? 'Đang xử lý...' : (isEditMode ? 'Lưu thay đổi' : 'Kích hoạt mã') }}
           </button>
         </div>
       </form>
@@ -546,6 +548,7 @@ const searchQuery = ref('')
 
 const modalOpen = ref(false)
 const isEditMode = ref(false)
+const isSubmitting = ref(false)
 
 const vouchers = ref([])
 
@@ -736,6 +739,8 @@ function closeModal() {
 }
 
 async function saveVoucher() {
+  if (isSubmitting.value) return
+
   if (formVoucher.value.startDate && formVoucher.value.endDate) {
     if (new Date(formVoucher.value.startDate) > new Date(formVoucher.value.endDate)) {
       Swal.fire({
@@ -785,6 +790,7 @@ async function saveVoucher() {
     status: formVoucher.value.status
   }
 
+  isSubmitting.value = true
   try {
     if (isEditMode.value) {
       await axiosInstance.put(`/admin/vouchers/${formVoucher.value.id}`, payload)
@@ -821,9 +827,31 @@ async function saveVoucher() {
         html: `<div class="text-left text-xs space-y-1"><b>Chi tiết lỗi từ hệ thống:</b><br><span class="text-red-500 font-semibold">${errorMsg}</span></div>`,
         confirmButtonColor: '#FF4D00'
       })
+    } else if (error.code === 'ECONNABORTED' || !error.response) {
+      // Khi gặp lỗi timeout hoặc không nhận được response, kiểm tra xem DB đã lưu thành công chưa
+      await loadVouchers()
+      const isSaved = vouchers.value.some(v => v.code.toUpperCase() === payload.code)
+      if (isSaved) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã lưu voucher thành công!',
+          text: 'Máy chủ phản hồi hơi chậm nhưng Voucher đã được lưu thành công vào hệ thống.',
+          confirmButtonColor: '#FF4D00'
+        })
+        modalOpen.value = false
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi kết nối / Quá thời gian',
+          text: 'Không thể kết nối tới máy chủ hoặc yêu cầu bị quá thời gian phản hồi. Vui lòng thử lại!',
+          confirmButtonColor: '#FF4D00'
+        })
+      }
     } else {
       Swal.fire('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra khi lưu voucher', 'error')
     }
+  } finally {
+    isSubmitting.value = false
   }
 }
 
