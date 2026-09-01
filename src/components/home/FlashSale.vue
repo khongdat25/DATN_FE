@@ -164,34 +164,60 @@ async function fetchFlashSale() {
         
         const variantsList = activeSale.variants || activeSale.items || []
         if (variantsList.length > 0) {
-          const uniqueProductsMap = new Map()
+          const productItemsMap = new Map()
 
           variantsList.forEach(item => {
             const prod = item.product
-            if (prod && !uniqueProductsMap.has(prod.id)) {
-              const mapped = mapBackendProduct(prod)
-              const originalPrice = parseFloat(item.price) || parseFloat(mapped.numericPrice) || 0
-              const flashPrice = parseFloat(item.sale_price) || originalPrice
-
-              let discountPercent = 0
-              if (originalPrice > 0 && flashPrice < originalPrice) {
-                discountPercent = Math.round(((originalPrice - flashPrice) / originalPrice) * 100)
-              } else if (item.discount_value !== undefined && item.discount_value !== null) {
-                discountPercent = parseFloat(item.discount_value) || 0
+            if (prod && prod.id) {
+              if (!productItemsMap.has(prod.id)) {
+                productItemsMap.set(prod.id, [])
               }
-
-              mapped.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
-              mapped.oldPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ')
-              if (discountPercent > 0) {
-                mapped.badges = [{ label: `-${discountPercent}%`, color: 'bg-accent' }]
-              }
-              mapped.soldCount = item.sold || 0
-              mapped.total = item.stock || item.quantity_limit || 100
-              uniqueProductsMap.set(prod.id, mapped)
+              productItemsMap.get(prod.id).push(item)
             }
           })
 
-          flashProducts.value = Array.from(uniqueProductsMap.values())
+          const mappedProducts = []
+
+          productItemsMap.forEach((items, prodId) => {
+            const prod = items[0].product
+            const mapped = mapBackendProduct(prod)
+
+            // Tìm biến thể trong Flash Sale có giá giảm thấp nhất (giá bán ưu đãi nhất)
+            let minItem = items[0]
+            let minFlashPrice = Infinity
+
+            items.forEach(item => {
+              const origP = parseFloat(item.price) || parseFloat(mapped.numericPrice) || 0
+              const flashP = parseFloat(item.sale_price) || origP
+              if (flashP < minFlashPrice) {
+                minFlashPrice = flashP
+                minItem = item
+              }
+            })
+
+            const originalPrice = parseFloat(minItem.price) || parseFloat(mapped.numericPrice) || 0
+            const flashPrice = minFlashPrice === Infinity ? originalPrice : minFlashPrice
+
+            let discountPercent = 0
+            if (originalPrice > 0 && flashPrice < originalPrice) {
+              discountPercent = Math.round(((originalPrice - flashPrice) / originalPrice) * 100)
+            } else if (minItem.discount_value !== undefined && minItem.discount_value !== null) {
+              discountPercent = parseFloat(minItem.discount_value) || 0
+            }
+
+            mapped.price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(flashPrice).replace(/\s/g, '').replace('₫', 'đ')
+            mapped.oldPrice = originalPrice > flashPrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice).replace(/\s/g, '').replace('₫', 'đ') : null
+            if (discountPercent > 0) {
+              mapped.badges = [{ label: `-${discountPercent}%`, color: 'bg-accent' }]
+            }
+
+            mapped.soldCount = items.reduce((sum, i) => sum + (parseInt(i.sold) || 0), 0)
+            mapped.total = items.reduce((sum, i) => sum + (parseInt(i.stock) || parseInt(i.quantity_limit) || 0), 0) || 100
+
+            mappedProducts.push(mapped)
+          })
+
+          flashProducts.value = mappedProducts
         } else {
           flashProducts.value = []
         }
