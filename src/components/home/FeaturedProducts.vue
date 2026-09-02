@@ -25,9 +25,9 @@
             class="bg-bg rounded-xl overflow-hidden relative cursor-pointer transition-transform hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(0,0,0,.05)] flex flex-col justify-between"
             @click="goToDetail(featured)"
           >
-            <div class="h-70 max-lg:h-55 relative overflow-hidden">
-              <img :src="featured.image" class="w-full h-full object-contain p-3 bg-white" :alt="featured.name">
-              <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,77,0,0.1),transparent_60%)]"></div>
+            <div class="h-64 sm:h-72 md:h-80 relative overflow-hidden flex items-center justify-center bg-white">
+              <img :src="featured.image" class="max-w-full max-h-full w-auto h-auto object-contain p-4 transition-transform duration-500 hover:scale-105" :alt="featured.name">
+              <div class="absolute inset-0 bg-[radial-gradient(circle_at_60%_40%,rgba(255,77,0,0.06),transparent_60%)] pointer-events-none"></div>
             </div>
             <div class="p-6 text-left">
               <div class="text-[11px] text-text-muted tracking-[1.5px] uppercase mb-1 font-bold">{{ featured.brand }}</div>
@@ -62,8 +62,8 @@
               class="featured-small group bg-bg rounded-md border border-border flex overflow-hidden cursor-pointer transition-all hover:translate-x-1 hover:shadow-[0_4px_15px_rgba(0,0,0,.05)] shrink-0"
               @click="goToDetail(item)"
             >
-              <div class="w-27.5 min-w-27.5 overflow-hidden">
-                <img :src="item.image" class="w-full h-full object-contain p-3 bg-white transition-transform duration-500 group-hover:scale-105" :alt="item.name">
+              <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden flex items-center justify-center bg-white p-2 shrink-0">
+                <img :src="item.image" class="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-500 group-hover:scale-105" :alt="item.name">
               </div>
               <div class="feat-small-info p-3.5 flex-1 text-left">
                 <div class="text-[10px] text-text-muted tracking-[1.5px] uppercase mb-0.75 font-bold">{{ item.brand }}</div>

@@ -3,11 +3,11 @@
     @click="emit('click')"
     class="group prod-card bg-bg border border-border rounded-md overflow-hidden transition-all relative hover:border-border-light hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,.08)] cursor-pointer"
   >
-    <div class="h-50 bg-white flex items-center justify-center relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
+    <div class="aspect-[4/3] sm:aspect-square w-full bg-white flex items-center justify-center relative overflow-hidden cursor-pointer after:content-[''] after:absolute after:inset-0 after:bg-transparent after:transition-[0.3s] group-hover:after:bg-black/5">
       <img
         v-if="product.image"
         :src="product.image"
-        class="w-full h-full object-contain p-3 bg-white transition-transform duration-500 group-hover:scale-105"
+        class="max-w-full max-h-full w-auto h-auto object-contain p-3 bg-white transition-transform duration-500 group-hover:scale-105"
         :alt="product.name"
       />
       <span v-else class="text-[80px]">{{ product.icon }}</span>
