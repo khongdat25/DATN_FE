@@ -142,6 +142,10 @@ async function fetchNotifications() {
     const res = await axiosInstance.get('/notifications')
     if (res && res.success && Array.isArray(res.data)) {
       rawNotifications.value = res.data
+    } else if (res && Array.isArray(res.data)) {
+      rawNotifications.value = res.data
+    } else if (Array.isArray(res)) {
+      rawNotifications.value = res
     }
   } catch (e) {
     console.error('Failed to fetch notifications list:', e)
@@ -198,7 +202,7 @@ function formatDate(dateStr) {
 
 async function markAllAsRead() {
   try {
-    await axiosInstance.post('/notifications/mark-all-read')
+    await axiosInstance.patch('/notifications/read-all')
     rawNotifications.value.forEach(n => n.is_read = true)
   } catch (e) {
     console.error('Failed to mark all as read:', e)
@@ -208,7 +212,7 @@ async function markAllAsRead() {
 async function handleNotifClick(notif) {
   if (!notif.is_read) {
     try {
-      await axiosInstance.post(`/notifications/${notif.id}/mark-read`)
+      await axiosInstance.patch(`/notifications/${notif.id}/read`)
       notif.is_read = true
     } catch (e) {
       console.error('Failed to mark read:', e)
